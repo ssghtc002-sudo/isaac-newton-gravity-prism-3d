@@ -1,0 +1,96 @@
+Curated V7 17th-Century 4K MakeHuman Community Asset Pack
+Project: Scientist #9 — Isaac Newton & Edmond Halley (isaac-newton-gravity-prism-3d)
+Delivered via GitHub Fastly CDN orphan branch: assets-v7
+
+All assets are sourced unmodified from official MakeHuman Community Asset Packs
+(https://files2.makehumancommunity.org/asset_packs/) under CC0 / CC-BY 4.0 licenses:
+
+- skins/middleage_caucasian_male/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Newton & Halley adult 4K masculine skin
+    License: CC0 (MakeHuman System Assets)
+- skins/old_caucasian_male/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Optional older scholar 4K masculine skin
+    License: CC0 (MakeHuman System Assets)
+- eyes/high-poly/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    High-poly photoreal eyes for PROCEDURAL_EYES cornea dome
+    License: CC0 (MakeHuman System Assets)
+- eyes/materials/brown.mhmat
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Eye material
+    License: CC0 (MakeHuman System Assets)
+- eyes/materials/brown_eye.png
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Eye diffuse texture
+    License: CC0 (MakeHuman System Assets)
+- eyebrows/eyebrow001/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Masculine alpha eyebrows 001
+    License: CC0 (MakeHuman System Assets)
+- eyebrows/eyebrow002/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Masculine alpha eyebrows 002
+    License: CC0 (MakeHuman System Assets)
+- eyebrows/eyebrow003/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Masculine alpha eyebrows 003
+    License: CC0 (MakeHuman System Assets)
+- eyelashes/eyelashes01/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Natural alpha eyelashes
+    License: CC0 (MakeHuman System Assets)
+- teeth/teeth_base/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    3D teeth mesh & material for Kokoro lip-sync
+    License: CC0 (MakeHuman System Assets)
+- tongue/tongue01/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    3D tongue mesh & material for Kokoro lip-sync
+    License: CC0 (MakeHuman System Assets)
+- hair/culturalibre_hair_01/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/hair01/hair01_cc0.zip
+    Role:    Newton primary: smooth sleek parted shoulder-length hair + 2K normal map
+    License: CC0 (hair01_cc0.zip, Culturalibre)
+- hair/bob02/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Newton alternate: smooth silver-pewter parted hair
+    License: CC0 (MakeHuman System Assets)
+- hair/short04/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Halley primary: sleek swept-back adult masculine gentleman hair
+    License: CC0 (MakeHuman System Assets)
+- hair/short02/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Halley alternate: 2K normal-mapped classic masculine gentleman hair
+    License: CC0 (MakeHuman System Assets)
+- clothes/elvs_male_boho_top1/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/shirts02/shirts02_ccby.zip
+    Role:    Newton primary: 17th-c V-neck gold-trimmed scholar doublet/tunic
+    License: CC-BY (shirts02_ccby.zip, Elvaerwyn)
+- clothes/elvs_male_shirt_untucked_bd1/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/shirts02/shirts02_ccby.zip
+    Role:    Halley primary: 17th-c buttoned tailored dark masculine tunic (delete_verts=True)
+    License: CC-BY (shirts02_ccby.zip, Elvaerwyn)
+- clothes/mindfront_male_trousers_2/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/pants02/pants02_ccby.zip
+    Role:    Newton & Halley primary: 2K normal/spec tailored wool trousers (delete_verts=True)
+    License: CC-BY 4.0 (pants02_cc-by.zip, Mindfront)
+- clothes/toigo_wool_pants/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/pants01/pants01_cc0.zip
+    Role:    Alternate: 2K tailored charcoal wool trousers
+    License: CC0 (pants01_cc0.zip, MRT / Toigo)
+- clothes/toigo_ankle_boots_male/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/shoes01/shoes01_cc0.zip
+    Role:    Newton primary: 2K normal/spec dark leather historical boots (delete_verts=True)
+    License: CC0 (shoes01_cc0.zip, MRT / Toigo)
+- clothes/punkduck_medieval_boots/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/shoes03/shoes03_ccby.zip
+    Role:    Halley primary: cuffed brown leather 17th-c boots + normal map (delete_verts=True)
+    License: CC-BY 4.0 (shoes03_ccby.zip, Punkduck)
+- clothes/culturalibre_male_boots/
+    Pack:    https://files2.makehumancommunity.org/asset_packs/shoes01/shoes01_cc0.zip
+    Role:    Halley alternate: tall cuffed 17th-c leather sea-captain boots (delete_verts=True)
+    License: CC0 (shoes01_cc0.zip, Culturalibre)
+
