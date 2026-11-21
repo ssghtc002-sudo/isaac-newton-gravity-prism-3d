@@ -2,6 +2,6 @@ __pycache__/
 *.pyc
 qa_frames/
 render_frames/
-output/
+/output/
 .cache/
 *.blend1
