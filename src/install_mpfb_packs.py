@@ -1,7 +1,8 @@
 """
-Headless MPFB2 Official 4K Asset Pack Installer for Kaggle GPU T4 x2 (Blender 4.2.3 LTS).
+Headless MPFB2 V7 Official 4K Asset Pack Installer for Kaggle GPU T4 x2 (Blender 4.2.3 LTS).
 Extracts curated MakeHuman Community 4K cast ZIPs cleanly into MPFB2's exact
-LocationService.get_user_data() directory on Kaggle SSD disk and refreshes MPFB2's asset library cache.
+LocationService.get_user_data() directory on Kaggle SSD disk (never /tmp tmpfs!),
+verifies ZIP CRC32 integrity before extraction, and refreshes MPFB2's asset library cache.
 """
 from __future__ import annotations
 
@@ -67,6 +68,13 @@ def main():
         if os.path.exists(marker):
             print(f"[MPFB2 Packs] Already installed: {base}")
             continue
+
+        # Validate CRC32 integrity before extracting so truncated downloads fail loudly
+        with zipfile.ZipFile(zp, "r") as zf_chk:
+            bad = zf_chk.testzip()
+            if bad is not None:
+                raise RuntimeError(f"[MPFB2 Packs] Corrupt ZIP entry '{bad}' inside {zp} — re-download pack!")
+
         print(f"[MPFB2 Packs] Extracting {base} -> {data_dir} ...")
         try:
             with zipfile.ZipFile(zp, "r") as zf:
@@ -104,6 +112,9 @@ def main():
         f"eyelashes={len(lashes)}, teeth={len(teeth)}, tongue={len(tongue)}, "
         f"hair={len(hair)}, clothes={len(clothes)}"
     )
+    print(f"[MPFB2 Packs] Hair installed:    {sorted(os.path.basename(str(p)) for p in hair)}")
+    print(f"[MPFB2 Packs] Clothes installed: {sorted(os.path.basename(str(p)) for p in clothes)}")
+    print(f"[MPFB2 Packs] Skins installed:   {sorted(os.path.basename(str(p)) for p in skins)}")
 
 
 if __name__ == "__main__":

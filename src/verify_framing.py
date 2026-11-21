@@ -1,15 +1,16 @@
 """
 Pre-flight mathematical 9:16 portrait camera framing, ZERO-OVERLAP sightline & STATION ISOLATION verifier
-for Scientist #9: Isaac Newton V6!
+for Scientist #9: Isaac Newton V7 (Outdoor Woolsthorpe Apple Orchard & Cotswold Stone Terrace -> Starry Twilight Cosmos)!
 
-Verifies across all 6 Beats:
-  1. 100% of ALL Cast Heads + Hero Scientific Centerpieces stay cleanly inside the 9:16 portrait safe frame
-     (|ndcX| <= 0.85, ndcY in [-0.50, +0.72]) — INCLUDING BOTH NewtonHead & HalleyHead in Beat 2a (t=5.5s) & Beat 2b (t=8.5s)!
+Verifies across all 6 Beats at true ground level (FLOOR_Z = 0.0, full 3/4-body 1.78m/1.79m adult cast):
+  1. 100% of ALL Cast Heads (Z = 1.66m; Beat 4 knee-bend recoil Z = 1.60m) + Hero Scientific Centerpieces
+     stay cleanly inside the 9:16 portrait safe frame (|ndcX| <= 0.85, ndcY in [-0.50, +0.72]) —
+     INCLUDING BOTH NewtonHead & HalleyHead in Beat 2a (t=5.5s), Beat 2b (t=8.5s) & Beat 6 (t=28.2s)!
   2. ZERO Instrument-Blocking-Face Overlap: checks horizontal screen separation |ndcX(Actor) - ndcX(HeroProp)| >= 0.42
-     in every single close-up / medium shot (and >= 0.60 between Newton & Halley in 2-shots)!
-  3. ZERO Station Edge Bleed: confirms Station B Prism Optical Screen stays completely OUTSIDE Beat 1 left edge,
-     Station A Apple Velvet Pad stays completely OUTSIDE Beat 3 right edge,
-     and Station Center Principia Folio stays completely OUTSIDE Beat 4 left edge!
+     in every close-up / medium shot (and >= 0.60 between Newton & Halley in 2-shots)!
+  3. ZERO Station Edge Bleed: confirms Beat 1 Prism Alcove Easel stays completely OUTSIDE left frame,
+     Beat 3 Apple Plinth stays completely OUTSIDE right frame,
+     and Beat 4 Principia Plinth stays completely OUTSIDE left frame!
 """
 import numpy as np
 
@@ -42,75 +43,78 @@ def bezier_quad(p0, p1, p2, t):
     return p0 * (u * u) + p1 * (2.0 * u * t) + p2 * (t * t)
 
 
-# Exact V6 Symmetric Zero-Overlap Station Anchors (synchronized 1:1 with config/timeline.json & build_newton_scene.py!)
-FLOOR_Z = -0.99
-PRISM_POS = np.array([-1.96, -0.06, 0.0])
-APPLE_POS = np.array([-0.74, -0.10, 0.0])
-PRINCIPIA_POS = np.array([0.00, -0.10, 0.0])
-ORBIT_POS = np.array([0.28, 0.02, 0.34])
-CRADLE_POS = np.array([1.44, -0.08, 0.0])
+# Exact V7 Outdoor Woolsthorpe Terrace Anchors (synchronized 1:1 with newton_world_v7.py & build_newton_scene.py!)
+FLOOR_Z = 0.0
+HERO_APPLE_ATTACH = np.array([-0.52, 0.12, 1.94])
+APPLE_PLINTH = np.array([-0.52, 0.12, 0.88])
+PRINCIPIA_PLINTH = np.array([0.55, 0.08, 0.90])
+PRISM_ANCHOR = np.array([-2.85, 0.06, 0.0])
+PRISM_PINHOLE = np.array([-3.38, 0.06, 1.54])
+CRADLE_PLINTH = np.array([2.88, 0.08, 0.90])
+ORBIT_ANCHOR = np.array([0.64, 0.14, 0.0])
+EASEL_POS = np.array([-2.54, 0.06, 1.24])
 
 
 def compute_beat(b_idx, t):
     if b_idx == 0:
-        # Beat 1: Newton (Left, X=-1.22, facing RIGHT +24°) + Falling Woolsthorpe Apple & Gravity Vector (Right, X=-0.74)
+        # Beat 1: Golden-Hour Woolsthorpe Apple Orchard Low-Angle Portrait — Newton(-1.06) + Apple/Plinth(-0.52)
         u = clamp01(t / 4.5)
         pos = bezier_quad(
-            np.array([-0.98, -1.48, 0.56]),
-            np.array([-0.93, -1.38, 0.54]),
-            np.array([-0.89, -1.32, 0.52]),
+            np.array([-0.82, -1.78, 1.24]),
+            np.array([-0.79, -1.70, 1.27]),
+            np.array([-0.76, -1.62, 1.30]),
             u,
         )
-        tgt = lerp(np.array([-0.96, 0.14, 0.45]), np.array([-0.94, 0.14, 0.42]), u)
-        return pos, tgt, lerp(41.0, 43.0, u)
+        tgt = lerp(np.array([-0.79, 0.24, 1.32]), np.array([-0.78, 0.22, 1.24]), u)
+        return pos, tgt, lerp(38.0, 40.0, u)
     if b_idx == 1:
-        # Beat 2: Balanced Face-to-Face 2-Shot from t=4.5s (BOTH Newton -0.46 & Halley +0.46 100% INSIDE frame!)
+        # Beat 2: Sunlit Stone Courtyard Face-to-Face Debate — BOTH Newton(0.05) & Halley(1.05) eye-to-eye!
         pan_u = ease_out_quint(clamp01((t - 6.95) / 1.1))
-        pos = lerp(np.array([0.06, -1.72, 0.56]), np.array([-0.04, -1.64, 0.56]), pan_u)
-        tgt = lerp(np.array([0.03, 0.18, 0.46]), np.array([-0.01, 0.20, 0.46]), pan_u)
+        pos = lerp(np.array([0.62, -2.02, 1.42]), np.array([0.52, -1.94, 1.42]), pan_u)
+        tgt = lerp(np.array([0.58, 0.28, 1.32]), np.array([0.54, 0.30, 1.32]), pan_u)
         return pos, tgt, lerp(36.0, 35.5, pan_u)
     if b_idx == 2:
-        # Beat 3: Crystal Flint-Glass Prism + 7-Spectral Rainbow (Left, X=-1.96..-1.72) + Newton (Right, X=-1.42, facing LEFT -26°)
+        # Beat 3: Shaded Stone Arch Optical Alcove — Crystal Prism(-2.85) + Rainbow Easel(-2.54) + Newton(-2.12)
         u = clamp01((t - 9.5) / 6.0)
         pos = bezier_quad(
-            np.array([-1.74, -1.56, 0.54]),
-            np.array([-1.69, -1.46, 0.56]),
-            np.array([-1.65, -1.40, 0.58]),
+            np.array([-2.54, -1.68, 1.40]),
+            np.array([-2.51, -1.58, 1.41]),
+            np.array([-2.48, -1.52, 1.42]),
             u,
         )
-        tgt = lerp(np.array([-1.71, 0.14, 0.44]), np.array([-1.69, 0.14, 0.48]), smoothstep(10.6, 13.0, t))
+        tgt = lerp(np.array([-2.52, 0.18, 1.32]), np.array([-2.50, 0.20, 1.36]), smoothstep(10.6, 13.0, t))
         return pos, tgt, lerp(38.5, 40.5, u)
     if b_idx == 3:
-        # Beat 4: 3.8° Dutch-Tilt Halley (Left, X=+0.94, facing RIGHT +24°) + Brass Newton's Cradle (Right, X=+1.44, swing peak +1.81)
+        # Beat 4: 3.8° Dutch-Tilt Garden Balustrade Comedy — Halley(2.34) + Brass Newton's Cradle(2.88, peak +3.25)
         u = clamp01((t - 15.5) / 5.0)
         pos = bezier_quad(
-            np.array([1.22, -1.62, 0.54]),
-            np.array([1.26, -1.54, 0.55]),
-            np.array([1.28, -1.60, 0.56]),
+            np.array([2.62, -1.78, 1.38]),
+            np.array([2.66, -1.72, 1.39]),
+            np.array([2.70, -1.70, 1.40]),
             u,
         )
-        tgt = np.array([1.24, 0.14, 0.46])
-        return pos, tgt, lerp(35.5, 37.0, u)
+        tgt = np.array([2.62, 0.22, 1.32])
+        return pos, tgt, lerp(36.0, 38.0, u)
     if b_idx == 4:
-        # Beat 5: Newton (Left, X=-0.30, facing RIGHT +24°) + Earth-Moon Curved Gravity Well & Telescope (Right, X=+0.28)
+        # Beat 5: Starry Twilight Cosmos — Newton(0.02) + Outdoor Tripod Telescope & Giant Gravity Well(0.64)
         u = clamp01((t - 20.5) / 5.0)
         pos = bezier_quad(
-            np.array([-0.04, -1.50, 0.56]),
-            np.array([0.02, -1.44, 0.60]),
-            np.array([0.06, -1.48, 0.64]),
+            np.array([0.30, -1.74, 1.34]),
+            np.array([0.34, -1.68, 1.42]),
+            np.array([0.38, -1.66, 1.50]),
             u,
         )
-        tgt = lerp(np.array([0.01, 0.18, 0.46]), np.array([0.02, 0.20, 0.48]), u)
+        tgt = lerp(np.array([0.34, 0.24, 1.44]), np.array([0.36, 0.26, 1.52]), u)
         return pos, tgt, lerp(37.0, 38.5, u)
-    # Beat 6: Grand Cast Finale — Newton (Left -0.54), Halley (Right +0.56), Centered Earth-Moon Well, Modern Rocket & Title!
+    # Beat 6: Moonlit Orchard-to-Cosmos Rocket Slingshot Finale — Newton(-0.05), Halley(+1.15), Centered Well(0.55), Rocket & Title!
     u = clamp01((t - 25.5) / 4.5)
     pos = bezier_quad(
-        np.array([0.04, -1.96, 0.72]),
-        np.array([0.03, -2.12, 0.70]),
-        np.array([0.02, -2.24, 0.68]),
+        np.array([0.55, -2.35, 1.52]),
+        np.array([0.55, -2.52, 1.58]),
+        np.array([0.55, -2.68, 1.62]),
         u,
     )
-    tgt = lerp(np.array([0.02, 0.26, 0.56]), np.array([0.02, 0.24, 0.54]), u)
+    tgt = lerp(np.array([0.55, 0.30, 1.54]), np.array([0.55, 0.28, 1.52]), u)
     return pos, tgt, lerp(34.0, 32.0, u)
 
 
@@ -129,124 +133,124 @@ def project(cam_pos, tgt, lens_mm, pt):
     return ndc_x, ndc_y, z
 
 
-# FLOOR_Z = -0.99, height ~1.73..1.76m -> Head center ~0.68..0.70m, Head top ~0.74..0.76m!
+# FLOOR_Z = 0.0, Adult Cast Height 1.78m..1.79m -> Head center ~1.62m, upper head check Z = 1.66m (crown ~1.78m)!
 checks = [
     (
         0,
         0.4,
-        "Beat 1 Start Newton(L) + Hanging Apple Bough(R)",
+        "Beat 1 Start Golden-Hour Orchard: Newton(L) + Hanging Apple(R)",
         {
-            "NewtonHead": np.array([-1.22, 0.44, 0.72]),
-            "AppleHanging": np.array([APPLE_POS[0], APPLE_POS[1], 0.69]),
-            "VelvetPad": np.array([APPLE_POS[0], APPLE_POS[1], 0.04]),
-            "BoughRight": np.array([APPLE_POS[0] + 0.16, APPLE_POS[1], 0.76]),
+            "NewtonHead": np.array([-1.06, 0.36, 1.66]),
+            "AppleHanging": HERO_APPLE_ATTACH.copy(),
+            "VelvetPad": np.array([APPLE_PLINTH[0], APPLE_PLINTH[1], APPLE_PLINTH[2] + 0.02]),
         },
         [("NewtonHead", "AppleHanging", 0.42)],
     ),
     (
         0,
         2.6,
-        "Beat 1 Mid Newton(L) + Fallen Apple & g Arrow(R)",
+        "Beat 1 Mid Golden-Hour Orchard: Newton(L) + Fallen Apple & g Arrow(R)",
         {
-            "NewtonHead": np.array([-1.22, 0.44, 0.72]),
-            "AppleLanded": np.array([APPLE_POS[0], APPLE_POS[1], 0.06]),
-            "GravityArrow": np.array([APPLE_POS[0] + 0.10, APPLE_POS[1], 0.34]),
+            "NewtonHead": np.array([-1.06, 0.36, 1.66]),
+            "AppleLanded": np.array([APPLE_PLINTH[0], APPLE_PLINTH[1], APPLE_PLINTH[2] + 0.058]),
+            "GravityArrow": np.array([APPLE_PLINTH[0] + 0.08, APPLE_PLINTH[1], 1.34]),
         },
         [("NewtonHead", "GravityArrow", 0.42)],
     ),
     (
         1,
         5.5,
-        "Beat 2a BOTH Newton(L) + Halley(R) + F=ma(C)",
+        "Beat 2a Courtyard Debate: BOTH Newton(L) + Halley(R) + F=ma(C)",
         {
-            "NewtonHead": np.array([-0.46, 0.46, 0.72]),
-            "HalleyHead": np.array([0.46, 0.46, 0.74]),
-            "Formula_Fma": np.array([PRINCIPIA_POS[0], PRINCIPIA_POS[1] - 0.04, 0.26]),
+            "NewtonHead": np.array([0.05, 0.45, 1.66]),
+            "HalleyHead": np.array([1.05, 0.45, 1.66]),
+            "Formula_Fma": np.array([PRINCIPIA_PLINTH[0], -0.02, 1.22]),
+            "PrincipiaBook": np.array([PRINCIPIA_PLINTH[0], PRINCIPIA_PLINTH[1], PRINCIPIA_PLINTH[2] + 0.05]),
         },
         [("NewtonHead", "HalleyHead", 0.60), ("NewtonHead", "Formula_Fma", 0.30)],
     ),
     (
         1,
         8.5,
-        "Beat 2b BOTH Newton(L) + Halley(R) + F=Gm1m2/r²(C)",
+        "Beat 2b Courtyard Debate: BOTH Newton(L) + Halley(R) + F=Gm1m2/r²(C)",
         {
-            "NewtonHead": np.array([-0.46, 0.46, 0.72]),
-            "HalleyHead": np.array([0.46, 0.46, 0.74]),
-            "Formula_Grav": np.array([PRINCIPIA_POS[0], PRINCIPIA_POS[1] - 0.04, 0.30]),
+            "NewtonHead": np.array([0.05, 0.45, 1.66]),
+            "HalleyHead": np.array([1.05, 0.45, 1.66]),
+            "Formula_Grav": np.array([PRINCIPIA_PLINTH[0], -0.02, 1.26]),
         },
         [("NewtonHead", "HalleyHead", 0.60), ("NewtonHead", "Formula_Grav", 0.30)],
     ),
     (
         2,
         12.8,
-        "Beat 3 Glass Prism & 7-Spectral Rainbow(L) + Newton(R)",
+        "Beat 3 Optical Alcove: Prism Tripod & 7-Spectral Easel(L) + Newton(R)",
         {
-            "NewtonHead": np.array([-1.42, 0.44, 0.72]),
-            "SunbeamEntry": np.array([PRISM_POS[0] - 0.22, PRISM_POS[1], 0.46]),
-            "PrismCenter": np.array([PRISM_POS[0], PRISM_POS[1], 0.28]),
-            "RainbowScreen": np.array([PRISM_POS[0] + 0.24, PRISM_POS[1] + 0.01, 0.29]),
+            "NewtonHead": np.array([-2.12, 0.42, 1.66]),
+            "SunbeamMid": np.array([-3.12, 0.06, 1.42]),
+            "PrismCenter": np.array([PRISM_ANCHOR[0], PRISM_ANCHOR[1], 1.28]),
+            "RainbowEasel": EASEL_POS.copy(),
         },
-        [("NewtonHead", "PrismCenter", 0.42), ("NewtonHead", "RainbowScreen", 0.26)],
+        [("NewtonHead", "PrismCenter", 0.42), ("NewtonHead", "RainbowEasel", 0.26)],
     ),
     (
         3,
         17.8,
-        "Beat 4 Halley(L) + Newton's Cradle Clack Launch(R)",
+        "Beat 4 Garden Balustrade: Halley Knee-Bend Recoil(L) + Cradle Clack(R)",
         {
-            "HalleyHead": np.array([0.88, 0.53, 0.74]),
-            "CradleCenter": np.array([CRADLE_POS[0], CRADLE_POS[1], 0.32]),
-            "CradlePeakBall": np.array([CRADLE_POS[0] + 0.37, CRADLE_POS[1], 0.44]),
+            "HalleyHead": np.array([2.27, 0.51, 1.60]),
+            "CradleCenter": np.array([CRADLE_PLINTH[0], CRADLE_PLINTH[1], 1.20]),
+            "CradlePeakBall": np.array([CRADLE_PLINTH[0] + 0.37, CRADLE_PLINTH[1], 1.34]),
         },
         [("HalleyHead", "CradleCenter", 0.42)],
     ),
     (
         4,
         23.2,
-        "Beat 5 Newton(L) + Earth-Moon Gravity Well & Telescope(R)",
+        "Beat 5 Starry Twilight: Newton(L) + Telescope & Giant Gravity Well(R)",
         {
-            "NewtonHead": np.array([-0.30, 0.44, 0.72]),
-            "EarthCenter": np.array([ORBIT_POS[0], ORBIT_POS[1], 0.46]),
-            "WellRightEdge": np.array([ORBIT_POS[0] + 0.24, ORBIT_POS[1], 0.48]),
-            "TelescopeBase": np.array([ORBIT_POS[0], ORBIT_POS[1], 0.14]),
+            "NewtonHead": np.array([0.02, 0.45, 1.66]),
+            "EarthCenter": np.array([ORBIT_ANCHOR[0], ORBIT_ANCHOR[1], 1.56]),
+            "WellRightEdge": np.array([ORBIT_ANCHOR[0] + 0.296, ORBIT_ANCHOR[1], 1.58]),
+            "TelescopeTop": np.array([ORBIT_ANCHOR[0], ORBIT_ANCHOR[1], 1.12]),
         },
         [("NewtonHead", "EarthCenter", 0.42)],
     ),
     (
         5,
         28.2,
-        "Beat 6 Grand Cast Finale + Centered Well + Rocket + Title",
+        "Beat 6 Moonlit Finale: BOTH Newton(L) + Halley(R) + Well + Rocket + Title",
         {
-            "NewtonHead": np.array([-0.54, 0.52, 0.72]),
-            "HalleyHead": np.array([0.56, 0.52, 0.74]),
-            "EarthCenter": np.array([0.04, 0.04, 0.46]),
-            "RocketOrbitTop": np.array([0.04, 0.06, 1.06]),
-            "TitleRight": np.array([0.44, 0.56, 1.54]),
+            "NewtonHead": np.array([-0.05, 0.55, 1.66]),
+            "HalleyHead": np.array([1.15, 0.55, 1.66]),
+            "EarthCenter": np.array([0.55, 0.14, 1.50]),
+            "RocketOrbitTop": np.array([0.55, 0.14, 2.14]),
+            "TitleRight": np.array([1.01, 0.60, 2.52]),
         },
         [("NewtonHead", "HalleyHead", 0.60), ("NewtonHead", "EarthCenter", 0.30)],
     ),
 ]
 
-# Neighbor-station out-of-frame isolation checks (confirm zero accidental prop edge intrusion!)
+# Neighbor-station out-of-frame isolation checks (confirm zero accidental station intrusion!)
 isolation_checks = [
     (
         0,
         0.4,
-        "Beat 1 Start: Prism Optical Screen right edge OUTSIDE left frame",
-        np.array([PRISM_POS[0] + 0.27, PRISM_POS[1] + 0.01, 0.29]),
+        "Beat 1 Start: Prism Alcove Easel right edge OUTSIDE left frame",
+        np.array([EASEL_POS[0] + 0.08, EASEL_POS[1], EASEL_POS[2]]),
         "LEFT",
     ),
     (
         2,
         11.5,
-        "Beat 3 Mid: Apple Velvet Pad left edge OUTSIDE right frame",
-        np.array([APPLE_POS[0] - 0.16, APPLE_POS[1], 0.04]),
+        "Beat 3 Mid: Apple Stone Plinth left edge OUTSIDE right frame",
+        np.array([APPLE_PLINTH[0] - 0.18, APPLE_PLINTH[1], APPLE_PLINTH[2] + 0.02]),
         "RIGHT",
     ),
     (
         3,
         17.8,
-        "Beat 4 Mid: Principia Folio right edge OUTSIDE left frame",
-        np.array([PRINCIPIA_POS[0] + 0.20, PRINCIPIA_POS[1], 0.04]),
+        "Beat 4 Mid: Principia Plinth right edge OUTSIDE left frame",
+        np.array([PRINCIPIA_PLINTH[0] + 0.26, PRINCIPIA_PLINTH[1], PRINCIPIA_PLINTH[2] + 0.04]),
         "LEFT",
     ),
 ]
@@ -282,4 +286,4 @@ for b_idx, t, label, pt, side in isolation_checks:
 if errors:
     print(f"\nFAILED: {errors} framing/overlap/isolation error(s)!")
     raise SystemExit(1)
-print("\nPASSED: 100% ZERO-OVERLAP Sightlines + Balanced Beat 2 2-Shot + Station Isolation across ALL 6 Beats!")
+print("\nPASSED: 100% V7 Outdoor-to-Cosmos ZERO-OVERLAP Sightlines + Full-Stature Beat 2 2-Shot + Station Isolation across ALL 6 Beats!")
