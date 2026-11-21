@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+qa_frames/
+render_frames/
+output/
+.cache/
+*.blend1

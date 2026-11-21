@@ -1,0 +1,174 @@
+{
+  "title": "Isaac Newton — The Falling Apple, Rainbow Prism & Universal Gravity (1666–1687)",
+  "scientistNumber": 9,
+  "duration": 30.0,
+  "fps": 24,
+  "totalFrames": 720,
+  "resolution": [1080, 1920],
+  "audio": {
+    "masterPath": "audio/output/master_audio.wav",
+    "manifestPath": "audio/output/voice_manifest.json",
+    "srtPath": "subtitles/subtitles.srt",
+    "assPath": "subtitles/subtitles.ass"
+  },
+  "speakers": {
+    "narrator": {
+      "voice": "bm_george",
+      "lang": "en-gb",
+      "speed": 1.10,
+      "pan": 0.0
+    },
+    "newton": {
+      "voice": "bm_daniel",
+      "lang": "en-gb",
+      "speed": 1.08,
+      "pan": -0.22
+    },
+    "halley": {
+      "voice": "bm_lewis",
+      "lang": "en-gb",
+      "speed": 1.10,
+      "pan": 0.24
+    }
+  },
+  "anchors": {
+    "FLOOR_Z": -0.99,
+    "PRISM_POS": [-1.96, -0.06, 0.0],
+    "APPLE_POS": [-0.74, -0.10, 0.0],
+    "PRINCIPIA_POS": [0.0, -0.10, 0.0],
+    "ORBIT_POS": [0.28, 0.02, 0.34],
+    "CRADLE_POS": [1.44, -0.08, 0.0]
+  },
+  "beats": [
+    {
+      "id": "B1",
+      "name": "Hook: Woolsthorpe Apple Falls -> Gravity Arrow Vector",
+      "start": 0.0,
+      "end": 4.5
+    },
+    {
+      "id": "B2",
+      "name": "Rival Clash: Halley vs Newton -> F = m a -> F = G m1 m2 / r^2",
+      "start": 4.5,
+      "end": 9.5
+    },
+    {
+      "id": "B3",
+      "name": "Discovery Macro: Crystal Flint-Glass Prism -> 7-Spectral Rainbow",
+      "start": 9.5,
+      "end": 15.5
+    },
+    {
+      "id": "B4",
+      "name": "Comedic Twist: Newton's Cradle Third Law Steel-Sphere Clack & Recoil",
+      "start": 15.5,
+      "end": 20.5
+    },
+    {
+      "id": "B5",
+      "name": "Breakthrough Climax: Earth-Moon Curved Space-Time Gravity Well & Telescope",
+      "start": 20.5,
+      "end": 25.5
+    },
+    {
+      "id": "B6",
+      "name": "Modern Legacy: Rocket Slingshot Along Newton's Golden Orbit",
+      "start": 25.5,
+      "end": 30.0
+    }
+  ],
+  "dialogue": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "start": 0.15,
+      "end": 4.35,
+      "text": "One falling apple sparked the wildest question—does the Moon fall too?"
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "halley",
+      "start": 4.55,
+      "end": 6.75,
+      "text": "Impossible, Newton! What holds the Moon up?"
+    },
+    {
+      "id": "L3",
+      "beatId": "B2",
+      "speaker": "newton",
+      "start": 6.95,
+      "end": 9.35,
+      "text": "Invisible gravity—every mass pulls every other mass!"
+    },
+    {
+      "id": "L4",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "start": 9.60,
+      "end": 15.30,
+      "text": "Next, Newton shot sunlight through a glass prism—splitting white light into seven rainbow colors!"
+    },
+    {
+      "id": "L5",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "start": 15.60,
+      "end": 18.00,
+      "text": "Every action triggers an equal, opposite reaction—"
+    },
+    {
+      "id": "L6",
+      "beatId": "B4",
+      "speaker": "halley",
+      "start": 18.15,
+      "end": 20.30,
+      "text": "Whoa! That steel ball nearly knocked me over!"
+    },
+    {
+      "id": "L7",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "start": 20.60,
+      "end": 25.25,
+      "text": "Gravity bends a fall into orbit—uniting falling apples and moons under one law!"
+    },
+    {
+      "id": "L8",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "start": 25.60,
+      "end": 29.55,
+      "text": "Rockets, satellites, Moon landings today—every launch flies on Isaac Newton's laws."
+    }
+  ],
+  "sfx": [
+    { "t": 0.65, "type": "twig_snap", "pan": -0.22 },
+    { "t": 0.95, "type": "apple_fall_whoosh", "pan": -0.20 },
+    { "t": 1.45, "type": "apple_velvet_thud", "pan": -0.20 },
+    { "t": 1.65, "type": "gravity_pulse_chime", "pan": -0.15 },
+    { "t": 3.10, "type": "celestial_shimmer", "pan": 0.10 },
+    { "t": 4.45, "type": "whip_whoosh", "pan": 0.18 },
+    { "t": 5.10, "type": "parchment_flip", "pan": 0.20 },
+    { "t": 6.95, "type": "formula_gold_chime", "pan": -0.12 },
+    { "t": 7.35, "type": "gravity_bass_swell", "pan": 0.0 },
+    { "t": 9.45, "type": "whip_whoosh", "pan": -0.24 },
+    { "t": 10.35, "type": "glass_prism_ring", "pan": -0.20 },
+    { "t": 11.45, "type": "prism_rainbow_bloom", "pan": -0.10 },
+    { "t": 13.00, "type": "spectral_crystal_shimmer", "pan": 0.15 },
+    { "t": 14.20, "type": "spectral_crystal_shimmer", "pan": -0.15 },
+    { "t": 15.45, "type": "whip_whoosh", "pan": 0.25 },
+    { "t": 16.40, "type": "brass_pendulum_pull", "pan": 0.20 },
+    { "t": 17.45, "type": "cradle_steel_clack", "pan": 0.24 },
+    { "t": 17.55, "type": "kinetic_whoosh_launch", "pan": 0.28 },
+    { "t": 18.25, "type": "cradle_steel_clack", "pan": 0.22 },
+    { "t": 19.10, "type": "cradle_steel_clack", "pan": 0.20 },
+    { "t": 20.45, "type": "whip_whoosh", "pan": 0.0 },
+    { "t": 21.15, "type": "orbital_well_bloom", "pan": 0.0 },
+    { "t": 23.20, "type": "cosmic_choir_swell", "pan": 0.0 },
+    { "t": 25.45, "type": "whip_whoosh", "pan": -0.14 },
+    { "t": 26.20, "type": "rocket_ignition_whoosh", "pan": 0.16 },
+    { "t": 27.60, "type": "orbital_triumph_chime", "pan": 0.0 }
+  ]
+}
