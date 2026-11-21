@@ -1742,7 +1742,7 @@ def _build_woolsthorpe_apple_tree(scene, bark_mat, leaf_mat, apple_mat):
     for idx_h in range(56):
         hx, hy, hz, hr = hero_leaf_anchors[idx_h % len(hero_leaf_anchors)]
         # Keep immediate 0.07m stem area directly below HERO_APPLE_ATTACH clean for the hero falling apple!
-        if Vector((hx, hy, hz)).distance(HERO_APPLE_ATTACH) < 0.06:
+        if (Vector((hx, hy, hz)) - HERO_APPLE_ATTACH).length < 0.06:
             hz += 0.045
         ang_z = rng_f.uniform(0.0, math.pi * 2.0)
         off = Vector((math.cos(ang_z) * (hr + 0.025), math.sin(ang_z) * (hr + 0.025), rng_f.uniform(-0.02, 0.06)))
