@@ -1,42 +1,44 @@
 """
 Scientist #9: Isaac Newton (1666-1687) — The Falling Apple, Rainbow Prism & Universal Gravity
-Full 30-Second (720 Frames @ 24fps, 1080x1920 Lanczos) Blender 4.2 LTS Cycles V8 Dual-GPU Cinema Short
+Full 30-Second (720 Frames @ 24fps, 1080x1920 Lanczos) Blender 4.2 LTS Cycles V9 Hollywood Mini-Film Polish
 
-100% Brand-New V8 Visual Identity (Outdoor Woolsthorpe Apple Orchard & Cotswold Stone Terrace -> Starry Twilight Cosmos):
+V9 Hollywood Mini-Film Polish built directly on V8's verified Outdoor Woolsthorpe-to-Cosmos & OPTIX Turbo stack:
   - True Ground-Level Outdoor World (`FLOOR_Z = 0.0`) built by `src/newton_world_v7.py`: mossy Cotswold
     flagstones, lush orchard meadow, towering Woolsthorpe Apple Tree with real overhanging branch,
     carved stone garden plinths, dramatic shaded stone arch optical alcove with pinhole shutter, and
     seamless Golden-Hour -> Starry Twilight Cosmos sky transformation with Crescent Moon & 160 stars!
-  - Full 3/4-Body Adult 4K MPFB2 Cast (`1.78m` Sir Isaac Newton + `1.79m` Edmond Halley) with relaxed,
-    asymmetric natural human film gestures across all 6 beats (ZERO symmetrical invisible-box poses!).
-  - Blender 4.2 Cycles V8 Zero-Quality-Drop OPTIX Turbo (`12 spp` Adaptive + Hardware `OPTIX`
-    `RGB_ALBEDO_NORMAL` + `AgX - Punchy` + `texture_limit_render = "2048"` + 3s FFmpeg optical bloom!).
-  - Beat 1 (0.0-4.5s): Golden-Hour Woolsthorpe Orchard — Hero ruby-gold lacquered apple detaches from real
-    overhanging branch (`HERO_APPLE_ATTACH`), accelerates under `1/2 g t²` onto gold-braided crimson velvet
-    pad atop `APPLE_PLINTH`, spawning molten-gold brass-rimmed downward `g` force arrow & ripple rings!
-  - Beat 2 (4.5-9.5s): Sunlit Stone Courtyard Face-to-Face Debate — Full-stature eye-to-eye Newton & Halley
-    flanking open *Principia Mathematica*, brass dividers, crystal inkwell & quill on `PRINCIPIA_PLINTH` as
-    high-contrast dark-haloed 3D `F = m a` snaps at `6.95s` into radiant cyan `F = G m1 m2 / r²`!
-  - Beat 3 (9.5-15.5s): Shaded Stone Arch Optical Alcove — Tall Brass Optical Field Tripod holding a
-    museum-grade catchlight-rimmed Flint-Glass Equilateral Prism (`IOR = 1.62`) splits a golden-white sunbeam
-    from `PRISM_PINHOLE` into 7 jewel-saturated diverging rainbow dispersion ribbons onto an obsidian easel!
-  - Beat 4 (15.5-20.5s): `3.8°` Dutch-Tilt Garden Balustrade Comedy — Stepped mahogany & brass Newton's Cradle
-    on `CRADLE_PLINTH` with 5 mirror-chrome spheres (`Roughness = 0.03`): Sphere 0 clacks at `17.45s` launching
-    Sphere 4 to `+62°` with 16 golden sparks & shock ring as Halley performs a full-body knee-bend recoil!
-  - Beat 5 (20.5-25.5s): Starry Twilight Cosmos Transformation — Full-height Brass Newtonian Reflecting
-    Telescope on a tall mahogany outdoor tripod beneath a GIGANTIC luminous sapphire-gold 3D Curved Space-Time
-    Gravity Well cradling high-contrast procedural 3D Earth (sapphire oceans, emerald/ochre landmasses,
-    bright wispy clouds, Fresnel atmosphere) & orbiting cratered 3D Moon!
-  - Beat 6 (25.5-30.0s): Epic Moonlit Orchard-to-Cosmos Rocket Slingshot Finale — Centered Gravity Well,
-    sleek metallic 3D Orbital Rocket with blazing amber-cyan plasma thruster along tilted golden orbit halo,
-    crowned by glowing gold 3D sky monument `ISAAC NEWTON / F = G m1 m2 / r²` & full flanking cast!
+  - Full 3/4-Body Adult 4K MPFB2 Cast (`1.78m` Sir Isaac Newton + `1.79m` Edmond Halley) with V9 Micro-Life
+    Acting Choreography: eye-lead-head gaze tracking, dual-axis `lipSync` + `lipNarrow` Kokoro speech,
+    anatomical clavicle-driven arms, expressive hand gestures (`relaxed`/`present`/`point`/`shock`), and
+    natural contrapposto stance + Beat 4 full-body knee-bend stagger recoil!
+  - Blender 4.2 Cycles Zero-Quality-Drop OPTIX Turbo (`12 spp` Adaptive + Hardware `OPTIX`
+    `RGB_ALBEDO_NORMAL` + `AgX - Punchy` + `texture_limit_render = "2048"` + Cell 5 ARRI-Alexa Filmic Finishing!).
+  - Beat 1 (0.0-4.5s): Golden-Hour Woolsthorpe Orchard — Hero ruby-gold apple tumbles organically under
+    `1/2 g t²` with 2 fluttering detached leaves onto crimson velvet pad, spawning molten-gold `g` arrow,
+    ripple rings & glowing dotted golden apple-to-Moon orbital arc (`2.6-4.3s`)!
+  - Beat 2 (4.5-9.5s): Sunlit Stone Courtyard Eye-to-Eye Debate — Full-stature Newton & Halley flanking open
+    *Principia Mathematica* with golden-ink orbital ellipse & focal radial rays + golden page shimmer as
+    daylight-proof 3D `F = m a` snaps at `6.95s` into radiant cyan `F = G m1 m2 / r²`!
+  - Beat 3 (9.5-15.5s): Shaded Stone Arch Optical Alcove — Brass tripod w/ graduated optical vernier collar
+    holding catchlight-rimmed Flint-Glass Prism (`IOR = 1.62`) splitting sunlight into 7 jewel-saturated
+    rainbow dispersion ribbons sparkling with 28 matching spectral caustic dust motes!
+  - Beat 4 (15.5-20.5s): `3.8°` Dutch-Tilt Garden Balustrade Comedy — Newton's Cradle with 5 mirror-chrome
+    spheres: Sphere 0 clacks at `17.45s` with golden-white impact flash core, sympathetic `±0.8°` middle-sphere
+    micro-vibration, 16 sparks & shock ring as Halley snaps both hands into `"shock"` recoil!
+  - Beat 5 (20.5-25.5s): Starry Twilight Cosmos Transformation — Brass Newtonian Reflecting Telescope beneath
+    GIGANTIC luminous sapphire-gold 3D Curved Space-Time Gravity Well cradling high-contrast Earth & Moon!
+  - Beat 6 (25.5-30.0s): Epic Moonlit Orchard-to-Cosmos Rocket Slingshot Finale — Sleek 3D Orbital Rocket
+    trailing a curved golden parabolic wake + glistening opposite-phase silver-and-solar-panel Comm Satellite
+    around the Gravity Well, crowned by `ISAAC NEWTON / F = G m1 m2 / r²` & proud flanking cast!
 """
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
 import math
 import os
+import random
 import sys
 import time
 
@@ -48,7 +50,8 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
-from mpfb_characters import apply_facial_acting, create_realistic_scientist, set_bone_char_rot
+import mpfb_characters as _mpfb
+from mpfb_characters import create_realistic_scientist, set_bone_char_rot
 from newton_world_v7 import (
     APPLE_PLINTH,
     CRADLE_PLINTH,
@@ -62,13 +65,115 @@ from newton_world_v7 import (
     build_woolsthorpe_world,
 )
 
+# V9 Expressive Character Acting Helpers (forward cleanly to upgraded mpfb_characters w/ standalone-safe fallbacks!)
+_BASE_APPLY_FACIAL_ACTING = _mpfb.apply_facial_acting
+_FACIAL_ACTING_PARAMS = set(inspect.signature(_BASE_APPLY_FACIAL_ACTING).parameters.keys())
+
+
+def apply_facial_acting(
+    rig,
+    t: float,
+    frame: int,
+    jaw_open_deg: float = 0.0,
+    brow_lift: float = 0.0,
+    smile: float = 0.0,
+    blink_period: float = 3.2,
+    blink_phase: float = 0.8,
+    eye_yaw_deg: float = 0.0,
+    eye_pitch_deg: float = 0.0,
+    lip_narrow: float = 0.0,
+):
+    """Forward V9 eye-gaze & dual-axis lip-narrow acting to mpfb_characters (safe fallback if inspected standalone)."""
+    kwargs = {
+        "jaw_open_deg": jaw_open_deg,
+        "brow_lift": brow_lift,
+        "smile": smile,
+        "blink_period": blink_period,
+        "blink_phase": blink_phase,
+    }
+    if "eye_yaw_deg" in _FACIAL_ACTING_PARAMS:
+        kwargs["eye_yaw_deg"] = eye_yaw_deg
+    if "eye_pitch_deg" in _FACIAL_ACTING_PARAMS:
+        kwargs["eye_pitch_deg"] = eye_pitch_deg
+    if "lip_narrow" in _FACIAL_ACTING_PARAMS:
+        kwargs["lip_narrow"] = lip_narrow
+    _BASE_APPLY_FACIAL_ACTING(rig, t, frame, **kwargs)
+    if "eye_yaw_deg" not in _FACIAL_ACTING_PARAMS and (abs(eye_yaw_deg) > 0.05 or abs(eye_pitch_deg) > 0.05):
+        set_bone_char_rot(rig, "eye.L", eye_pitch_deg, 0.0, eye_yaw_deg, frame=frame)
+        set_bone_char_rot(rig, "eye.R", eye_pitch_deg, 0.0, eye_yaw_deg, frame=frame)
+
+
+def _fallback_arm_with_clavicle(rig, side: str, ua_deg, la_deg, frame: int | None = None):
+    side_u = "L" if str(side).upper().startswith("L") else "R"
+    sgn = 1.0 if side_u == "L" else -1.0
+    clav_y = max(-6.0, min(10.0, -ua_deg[0] * 0.14)) * sgn
+    clav_z = max(-8.0, min(8.0, ua_deg[2] * 0.15))
+    set_bone_char_rot(rig, f"clavicle.{side_u}", 0.0, clav_y, clav_z, frame=frame)
+    set_bone_char_rot(rig, f"upperarm01.{side_u}", *ua_deg, frame=frame)
+    set_bone_char_rot(rig, f"lowerarm01.{side_u}", *la_deg, frame=frame)
+
+
+def _fallback_hand_gesture(rig, side: str, pose: str = "relaxed", frame: int | None = None):
+    side_u = "L" if str(side).upper().startswith("L") else "R"
+    pose_curls = {
+        "relaxed": (20.0, 26.0, 32.0, 38.0, 14.0),
+        "present": (8.0, 10.0, 14.0, 18.0, 6.0),
+        "point": (4.0, 56.0, 64.0, 68.0, 22.0),
+        "shock": (-6.0, -4.0, -2.0, 0.0, -8.0),
+    }
+    curls = pose_curls.get(pose, pose_curls["relaxed"])
+    for f_idx in range(1, 5):
+        base = curls[f_idx - 1]
+        for seg, mult in ((1, 0.8), (2, 1.05), (3, 0.7)):
+            bname = f"finger{f_idx}-{seg}.{side_u}"
+            if bname in rig.pose.bones:
+                pb = rig.pose.bones[bname]
+                pb.rotation_mode = "XYZ"
+                pb.rotation_euler = Euler((math.radians(base * mult), 0.0, 0.0), "XYZ")
+                if frame is not None:
+                    pb.keyframe_insert("rotation_euler", frame=frame)
+    for tseg, mult in (("thumb02", 0.9), ("thumb03", 1.1)):
+        bname = f"{tseg}.{side_u}"
+        if bname in rig.pose.bones:
+            pb = rig.pose.bones[bname]
+            pb.rotation_mode = "XYZ"
+            pb.rotation_euler = Euler((math.radians(curls[4] * mult), 0.0, 0.0), "XYZ")
+            if frame is not None:
+                pb.keyframe_insert("rotation_euler", frame=frame)
+
+
+def _fallback_natural_stance(
+    rig,
+    frame: int | None = None,
+    weight_shift: float = 0.0,
+    breath_phase: float = 0.0,
+    knee_bend: float = 0.0,
+):
+    pelvis_ry = weight_shift * 3.5
+    chest_rx = math.sin(breath_phase) * 0.9
+    set_bone_char_rot(rig, "pelvis", 0.0, pelvis_ry, weight_shift * 2.0, frame=frame)
+    set_bone_char_rot(rig, "spine03", chest_rx, -weight_shift * 2.2, 0.0, frame=frame)
+    thigh_rx = -20.0 * knee_bend
+    shin_rx = 40.0 * knee_bend
+    foot_rx = -20.0 * knee_bend
+    for side in ("L", "R"):
+        asym = (1.0 if side == "L" else -1.0) * weight_shift * 1.5
+        set_bone_char_rot(rig, f"upperleg01.{side}", thigh_rx + asym, 0.0, 0.0, frame=frame)
+        set_bone_char_rot(rig, f"lowerleg01.{side}", shin_rx + max(0.0, -asym * 1.4), 0.0, 0.0, frame=frame)
+        set_bone_char_rot(rig, f"foot.{side}", foot_rx, 0.0, 0.0, frame=frame)
+
+
+apply_arm_with_clavicle = getattr(_mpfb, "apply_arm_with_clavicle", _fallback_arm_with_clavicle)
+apply_hand_gesture = getattr(_mpfb, "apply_hand_gesture", _fallback_hand_gesture)
+apply_natural_stance = getattr(_mpfb, "apply_natural_stance", _fallback_natural_stance)
+
 
 # ============================================================================
 # 1. CLI ARGUMENTS & CONFIGURATION
 # ============================================================================
 def parse_args():
     argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
-    p = argparse.ArgumentParser(description="Isaac Newton V8 Cycles OPTIX Dual-GPU Outdoor-to-Cosmos 3D Short Renderer")
+    p = argparse.ArgumentParser(description="Isaac Newton V9 Hollywood Polish Cycles OPTIX Dual-GPU 3D Short Renderer")
     p.add_argument("--start-frame", type=int, default=1)
     p.add_argument("--end-frame", type=int, default=720)
     p.add_argument("--fps", type=int, default=int(os.environ.get("NEWTON_FPS", "24")))
@@ -88,13 +193,21 @@ RES_Y = 1920
 OUT_DIR = os.path.abspath("qa_frames" if ARGS.qa_only else ARGS.out_dir)
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# Load pre-mastered Kokoro voice_manifest.json for exact jaw lip-sync!
+# Load pre-mastered Kokoro voice_manifest.json for exact dual-axis jaw + lip-narrow lip-sync!
 MANIFEST_PATH = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "audio", "output", "voice_manifest.json"))
 VOICE_MANIFEST = json.load(open(MANIFEST_PATH, encoding="utf-8")) if os.path.isfile(MANIFEST_PATH) else {}
 
 
 def sample_lip_sync(speaker: str, t: float) -> float:
     curve = VOICE_MANIFEST.get("lipSync", {}).get(speaker, [])
+    if not curve:
+        return 0.0
+    idx = max(0, min(len(curve) - 1, int(round(t * 30.0))))
+    return float(curve[idx])
+
+
+def sample_lip_narrow(speaker: str, t: float) -> float:
+    curve = VOICE_MANIFEST.get("lipNarrow", {}).get(speaker, [])
     if not curve:
         return 0.0
     idx = max(0, min(len(curve) - 1, int(round(t * 30.0))))
@@ -235,7 +348,7 @@ try:
                     except Exception:
                         pass
                 print(
-                    f"[Cycles V8 Zero-Loss Turbo] {backend} GPU ({len(gpu_devices)} device(s)) | "
+                    f"[Cycles V9 Zero-Loss OPTIX Turbo] {backend} GPU ({len(gpu_devices)} device(s)) | "
                     f"Denoiser={scene.cycles.denoiser} (RGB_ALBEDO_NORMAL) | "
                     f"Frames {scene.frame_start}..{scene.frame_end} ({FPS}fps, {ARGS.scale}% res, {ARGS.samples} spp)"
                 )
@@ -805,6 +918,43 @@ set_bsdf(_tbsdf, "Roughness", 0.16)
 set_bsdf(_tbsdf, "Emission Color", (1.0, 0.74, 0.16, 1.0))
 set_bsdf(_tbsdf, "Emission Strength", 3.60)
 
+# V9 Hero Physics Micro-Detail Materials (ZERO extra Cycles ray-bounce overhead!)
+principia_gold_ink_mat = bpy.data.materials.new("PrincipiaGoldInkV9")
+principia_gold_ink_mat.use_nodes = True
+principia_gold_ink_bsdf = principia_gold_ink_mat.node_tree.nodes["Principled BSDF"]
+set_bsdf(principia_gold_ink_bsdf, "Base Color", (0.98, 0.74, 0.18, 1.0))
+set_bsdf(principia_gold_ink_bsdf, "Metallic", 0.94)
+set_bsdf(principia_gold_ink_bsdf, "Roughness", 0.16)
+set_bsdf(principia_gold_ink_bsdf, "Emission Color", (1.0, 0.74, 0.14, 1.0))
+set_bsdf(principia_gold_ink_bsdf, "Emission Strength", 0.45)
+
+principia_page_shimmer_mat = make_feathered_beam_mat(
+    "PrincipiaPageShimmerV9", (1.0, 0.82, 0.28), strength=2.6, power=1.55, opacity=0.46
+)
+rocket_trail_mat = make_feathered_beam_mat(
+    "RocketParabolicTrailV9", (1.0, 0.72, 0.14), strength=5.6, power=1.35, opacity=0.84
+)
+
+solar_panel_mat = bpy.data.materials.new("SatelliteSolarSapphireV9")
+solar_panel_mat.use_nodes = True
+_snt = solar_panel_mat.node_tree
+_sbsdf = _snt.nodes["Principled BSDF"]
+_stc = _snt.nodes.new("ShaderNodeTexCoord")
+_sbrick = _snt.nodes.new("ShaderNodeTexBrick")
+_sbrick.inputs["Scale"].default_value = 32.0
+_sbrick.inputs["Mortar Size"].default_value = 0.045
+_sbrick.inputs["Color1"].default_value = (0.015, 0.14, 0.52, 1.0)
+_sbrick.inputs["Color2"].default_value = (0.025, 0.22, 0.68, 1.0)
+_sbrick.inputs["Mortar"].default_value = (0.68, 0.82, 0.96, 1.0)
+_snt.links.new(_stc.outputs["Object"], _sbrick.inputs["Vector"])
+_snt.links.new(_sbrick.outputs["Color"], _sbsdf.inputs["Base Color"])
+set_bsdf(_sbsdf, "Metallic", 0.74)
+set_bsdf(_sbsdf, "Roughness", 0.13)
+set_bsdf(_sbsdf, "Coat Weight", 0.88)
+set_bsdf(_sbsdf, "Coat Roughness", 0.05)
+set_bsdf(_sbsdf, "Emission Color", (0.04, 0.34, 0.76, 1.0))
+set_bsdf(_sbsdf, "Emission Strength", 0.48)
+
 FONT_PATH = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "subtitles", "fonts", "DejaVuSans-Bold.ttf"))
 HERO_FONT = bpy.data.fonts.load(FONT_PATH) if os.path.isfile(FONT_PATH) else None
 
@@ -1150,6 +1300,33 @@ impact_ripple_2 = add_torus(
 )
 impact_ripple_2.visible_shadow = False
 
+# V9 Beat 1 Secondary Motion: 2 Tiny Fluttering Detached Apple Leaves Spiraling Down Behind Falling Apple!
+detached_apple_leaves = []
+for lf_i, (lf_len, lf_w) in enumerate(((0.036, 0.017), (0.031, 0.015))):
+    dlf = build_sculpted_leaf(
+        f"DetachedAppleLeaf_{lf_i}",
+        HERO_APPLE_ATTACH + Vector((0.015 * (1 if lf_i == 0 else -1), -0.010, 0.030)),
+        length=lf_len,
+        width=lf_w,
+        rot=(0.3, 0.4 * (lf_i + 1), 0.6),
+    )
+    dlf.visible_shadow = False
+    detached_apple_leaves.append(dlf)
+
+# V9 Beat 1 "Does the Moon fall too?" Glowing Dotted Golden Orbital Arc (8 tiny golden spheres curving skyward!)
+APPLE_ARC_P0 = Vector((APPLE_PLINTH.x + 0.03, APPLE_PLINTH.y - 0.01, APPLE_PLINTH.z + 0.16))
+APPLE_ARC_P1 = Vector((-0.34, 0.12, 1.48))
+APPLE_ARC_P2 = Vector((-0.26, 0.18, 1.88))
+apple_moon_arc_dots = []
+for d_i in range(8):
+    du = (d_i + 0.35) / 7.55
+    dpos = bezier_quad(APPLE_ARC_P0, APPLE_ARC_P1, APPLE_ARC_P2, du)
+    drad = lerp(0.0072, 0.0105, d_i / 7.0)
+    dot = add_sphere(f"AppleToMoonArcDot_{d_i:02d}", dpos, drad, gold_glow_mat, segs=12, rings=8)
+    dot.visible_shadow = False
+    dot.visible_diffuse = False
+    apple_moon_arc_dots.append(dot)
+
 
 # ============================================================================
 # 8. BEAT 2 — PRINCIPIA MATHEMATICA FOLIO, DIVIDERS, INKWELL & 3D FORMULAS
@@ -1170,7 +1347,7 @@ p_pg_l.parent = principia_props_root
 p_pg_r = add_box("PrincipiaPagesR", (0.092, -0.015, 0.036), (0.170, 0.212, 0.022), parchment_mat, rot=(0.0, math.radians(-8.5), 0.0), bevel_w=0.003)
 p_pg_r.parent = principia_props_root
 
-# Crisp Latin ink lines & elliptical orbital diagram on open Principia pages!
+# Crisp Latin ink lines & V9 Golden-Ink Orbital Ellipse + Focal Radial Lines right on open Principia pages!
 for ln_i in range(4):
     ink_ln = add_box(
         f"PrincipiaInkL_{ln_i}",
@@ -1182,11 +1359,78 @@ for ln_i in range(4):
     ink_ln.parent = principia_props_root
 
 orb_diag = add_torus(
-    "PrincipiaOrbitalDiagram", (0.092, -0.015, 0.050), 0.052, 0.0028, ink_dark_mat, rot=(0.0, math.radians(-8.5), 0.0), maj_seg=40, min_seg=8
+    "PrincipiaOrbitalDiagram", (0.092, -0.015, 0.049), 0.052, 0.0024, ink_dark_mat, rot=(0.0, math.radians(-8.5), 0.0), maj_seg=40, min_seg=8
 )
 orb_diag.parent = principia_props_root
-orb_sun = add_sphere("PrincipiaOrbitFocus", (0.074, -0.015, 0.051), 0.008, brass_mat, segs=16, rings=10)
+
+_PRINCIPIA_PAGE_RY = math.radians(-8.5)
+_COS_PR = math.cos(_PRINCIPIA_PAGE_RY)
+_SIN_PR = math.sin(_PRINCIPIA_PAGE_RY)
+
+
+def _principia_right_page_pt(lx: float, ly: float, lift: float = 0.0128) -> tuple[float, float, float]:
+    """Map local (lx, ly) diagram coords cleanly onto the -8.5° tilted open right Principia parchment surface."""
+    px = 0.092 + lx * _COS_PR + lift * _SIN_PR
+    py = -0.015 + ly
+    pz = 0.036 - lx * _SIN_PR + lift * _COS_PR
+    return (px, py, pz)
+
+
+# Crisp Thin Golden-Ink Kepler/Newton Orbital Ellipse (a=0.060m, b=0.043m) + Eccentric Focus + 4 Focal Radial Rays!
+_ell_pts = []
+for ei in range(37):
+    ea = (ei / 36.0) * math.pi * 2.0
+    ex, ey, ez = _principia_right_page_pt(0.060 * math.cos(ea), 0.043 * math.sin(ea), lift=0.0132)
+    _ell_pts.append((ex, ey, ez, 0.0018))
+gold_ell = build_curve_tube("PrincipiaGoldEllipse", _ell_pts, principia_gold_ink_mat, bevel_res=3)
+gold_ell.visible_shadow = False
+gold_ell.parent = principia_props_root
+
+_foc_pt = _principia_right_page_pt(-0.024, 0.0, lift=0.0138)
+orb_sun = add_sphere("PrincipiaOrbitFocus", _foc_pt, 0.0072, principia_gold_ink_mat, segs=16, rings=10)
+orb_sun.visible_shadow = False
 orb_sun.parent = principia_props_root
+
+_ray_angles_deg = (-36.0, 26.0, 118.0, 212.0)
+for ri, rdeg in enumerate(_ray_angles_deg):
+    ra = math.radians(rdeg)
+    rx, ry, rz = _principia_right_page_pt(0.060 * math.cos(ra), 0.043 * math.sin(ra), lift=0.0132)
+    ray_obj = build_curve_tube(
+        f"PrincipiaFocusRay_{ri}",
+        [(_foc_pt[0], _foc_pt[1], _foc_pt[2], 0.0012), (rx, ry, rz, 0.0011)],
+        principia_gold_ink_mat,
+        bevel_res=2,
+    )
+    ray_obj.visible_shadow = False
+    ray_obj.parent = principia_props_root
+
+# Subtle Book I Prop I orbital secant chord connecting radial rays 0 & 1
+_ch0 = _principia_right_page_pt(0.060 * math.cos(math.radians(-36.0)), 0.043 * math.sin(math.radians(-36.0)), lift=0.0133)
+_ch1 = _principia_right_page_pt(0.060 * math.cos(math.radians(26.0)), 0.043 * math.sin(math.radians(26.0)), lift=0.0133)
+gold_chord = build_curve_tube(
+    "PrincipiaSectorChord",
+    [(_ch0[0], _ch0[1], _ch0[2], 0.0011), (_ch1[0], _ch1[1], _ch1[2], 0.0011)],
+    principia_gold_ink_mat,
+    bevel_res=2,
+)
+gold_chord.visible_shadow = False
+gold_chord.parent = principia_props_root
+
+# Warm Golden Page-Shimmer Glow Sheet hovering flush above open right page when F = G m1 m2 / r² snaps in (t=6.95s)!
+bpy.ops.mesh.primitive_plane_add(
+    size=1.0,
+    location=_principia_right_page_pt(0.0, 0.0, lift=0.0165),
+    rotation=(0.0, _PRINCIPIA_PAGE_RY, 0.0),
+)
+principia_page_shimmer = bpy.context.active_object
+principia_page_shimmer.name = "PrincipiaPageShimmer"
+principia_page_shimmer.scale = (0.155, 0.185, 1.0)
+bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+principia_page_shimmer.data.materials.append(principia_page_shimmer_mat)
+principia_page_shimmer.visible_shadow = False
+principia_page_shimmer.visible_diffuse = False
+principia_page_shimmer.visible_glossy = False
+principia_page_shimmer.parent = principia_props_root
 
 # Gold corner clasps, brass dividers, faceted crystal inkwell & white goose quill (all cleanly inside r=0.238m!)
 for sx_c in (-0.184, 0.184):
@@ -1263,6 +1507,45 @@ pt_knop.parent = prism_tripod_root
 pt_plate = add_box("PrismCradlePlate", (0.0, 0.0, 1.230), (0.154, 0.124, 0.014), brass_mat, bevel_w=0.003)
 pt_plate.parent = prism_tripod_root
 
+# V9 Beat 3 Precision Optical Spectrometer Detail: Sleek Brass Graduated Angle Arc Vernier Collar!
+pt_vcollar = add_cyl("PrismVernierCollar", (0.0, 0.0, 1.211), 0.048, 0.014, bronze_mat, verts=32, bevel_w=0.002)
+pt_vcollar.parent = prism_tripod_root
+pt_varc = add_torus("PrismVernierGradArc", (0.0, 0.0, 1.217), 0.066, 0.0048, brass_mat, maj_seg=48, min_seg=10)
+pt_varc.parent = prism_tripod_root
+for vt_i in range(11):
+    va = math.radians(lerp(-165.0, -15.0, vt_i / 10.0))
+    tick_len = 0.013 if vt_i % 2 == 0 else 0.0085
+    tick = add_box(
+        f"PrismVernierTick_{vt_i:02d}",
+        (math.cos(va) * 0.064, math.sin(va) * 0.064, 1.2215),
+        (tick_len, 0.0022, 0.0024),
+        bronze_mat,
+        rot=(0.0, 0.0, va),
+    )
+    tick.parent = prism_tripod_root
+pt_vptr = add_cone(
+    "PrismVernierPointer",
+    (0.0, -0.056, 1.221),
+    0.0045,
+    0.0008,
+    0.022,
+    brass_mat,
+    rot=(math.pi * 0.5, 0.0, 0.0),
+    verts=12,
+)
+pt_vptr.parent = prism_tripod_root
+pt_vknob = add_cyl(
+    "PrismVernierThumbKnob",
+    (0.078, -0.022, 1.217),
+    0.0095,
+    0.016,
+    brass_mat,
+    rot=(0.0, math.pi * 0.5, math.radians(-16.0)),
+    verts=18,
+    bevel_w=0.002,
+)
+pt_vknob.parent = prism_tripod_root
+
 # Hero Beveled Equilateral Flint-Glass Prism (IOR=1.62, centered at (-2.85, 0.06, 1.28))
 PRISM_CENTER = Vector((PRISM_ANCHOR.x, PRISM_ANCHOR.y, 1.28))
 hero_prism = build_equilateral_prism("FlintGlassTriangularPrism", PRISM_CENTER, side=0.148, depth_y=0.120, mat=flint_glass_mat)
@@ -1325,6 +1608,31 @@ for b_i in range(7):
     rb.visible_diffuse = False
     rb.visible_glossy = False
     rainbow_ribbons.append(rb)
+
+# V9 Beat 3 Rainbow Caustic Sparkles: 28 Tiny Shimmering Spectral Dust Motes Drifting Inside the 7 Prism Ribbons!
+_rng_prism = random.Random(1672)
+rainbow_sparkle_motes = []
+for b_i in range(7):
+    for m_j in range(4):
+        frac = lerp(0.16, 0.90, (m_j + _rng_prism.uniform(0.12, 0.88)) / 4.0)
+        y_off = _rng_prism.uniform(-0.026, 0.026)
+        z_off = _rng_prism.uniform(-0.010, 0.010)
+        m_rad = _rng_prism.uniform(0.0038, 0.0056)
+        drift_f = _rng_prism.uniform(1.8, 3.4)
+        twink_f = _rng_prism.uniform(5.2, 9.5)
+        phase = _rng_prism.uniform(0.0, math.pi * 2.0)
+        m_obj = add_sphere(
+            f"RainbowSparkleMote_{b_i}_{m_j}",
+            vlerp(PRISM_EXIT, rainbow_targets[b_i], frac),
+            m_rad,
+            rainbow_band_mats[b_i],
+            segs=8,
+            rings=6,
+        )
+        m_obj.visible_shadow = False
+        m_obj.visible_diffuse = False
+        m_obj.visible_glossy = False
+        rainbow_sparkle_motes.append((m_obj, b_i, frac, y_off, z_off, drift_f, twink_f, phase))
 
 
 # ============================================================================
@@ -1425,6 +1733,18 @@ clack_shock_ring = add_torus(
     min_seg=10,
 )
 clack_shock_ring.visible_shadow = False
+
+# V9 Beat 4 Crisp Golden-White Impact Flash Core right at Sphere 3/4 (and echo 0/1) kinetic transfer point!
+clack_impact_flash = add_sphere(
+    "CradleImpactFlashCore",
+    (CRADLE_PLINTH.x + 0.108, CRADLE_PLINTH.y, CRADLE_BALL_Z),
+    0.022,
+    pinhole_flare_mat,
+    segs=14,
+    rings=10,
+)
+clack_impact_flash.visible_shadow = False
+clack_impact_flash.visible_diffuse = False
 
 
 # ============================================================================
@@ -1562,6 +1882,59 @@ r_plume.parent = rocket_ship
 r_core = add_cone("RocketCoreFlame", (0.0, -0.116, 0.0), 0.001, 0.012, 0.054, rocket_core_mat, rot=(-math.pi * 0.5, 0.0, 0.0), verts=16)
 r_core.visible_shadow = False
 r_core.parent = rocket_ship
+
+# V9 Beat 6 Sleek Glowing Golden Parabolic Trail Arc Curving Behind Orbital Rocket Along RocketGoldenOrbitRing!
+_trail_pts = []
+for ti in range(18):
+    tu = ti / 17.0
+    tang = lerp(-0.34, -1.56, tu)
+    trad = ROCKET_ORBIT_R + 0.015 * (tu ** 1.65)
+    tz = -0.008 * math.sin(tu * math.pi)
+    tthick = lerp(0.0094, 0.0012, tu ** 0.85)
+    _trail_pts.append((math.cos(tang) * trad, math.sin(tang) * trad, tz, tthick))
+rocket_trail = build_curve_tube("RocketParabolicTrail", _trail_pts, rocket_trail_mat, bevel_res=3)
+rocket_trail.visible_shadow = False
+rocket_trail.visible_diffuse = False
+rocket_trail.parent = rocket_orbit_group
+
+# V9 Beat 6 Tiny Glistening Silver-and-Solar-Panel Modern Communication Satellite (180° opposite rocket, Z = 2.04)!
+bpy.ops.object.empty_add(type="PLAIN_AXES", location=(-ROCKET_ORBIT_R, 0.0, 0.0))
+sat_ship = bpy.context.active_object
+sat_ship.name = "ModernCommSatellite"
+sat_ship.parent = rocket_orbit_group
+
+sat_bus = add_cyl("SatSilverBus", (0.0, 0.0, 0.0), 0.016, 0.036, mirror_chrome_mat, verts=8, smooth=False, bevel_w=0.0015)
+sat_bus.parent = sat_ship
+sat_foil = add_cyl("SatGoldFoilBand", (0.0, 0.0, 0.0), 0.0172, 0.014, brass_mat, verts=8, smooth=False)
+sat_foil.parent = sat_ship
+sat_dish = add_cone("SatParabolicDish", (-0.020, 0.0, 0.0), 0.016, 0.003, 0.010, rocket_white_mat, rot=(0.0, math.pi * 0.5, 0.0), verts=20)
+sat_dish.parent = sat_ship
+sat_feed = add_cyl("SatDishFeedHorn", (-0.027, 0.0, 0.0), 0.0022, 0.012, brass_mat, rot=(0.0, math.pi * 0.5, 0.0), verts=10)
+sat_feed.parent = sat_ship
+sat_boom = add_cyl("SatSolarBoom", (0.0, 0.0, 0.0), 0.0022, 0.118, brass_mat, rot=(math.pi * 0.5, 0.0, 0.0), verts=12)
+sat_boom.parent = sat_ship
+for s_sgn, s_lbl in ((-1.0, "L"), (1.0, "R")):
+    s_wing = add_box(
+        f"SatSolarWing_{s_lbl}",
+        (0.0, s_sgn * 0.044, 0.0),
+        (0.0026, 0.046, 0.023),
+        solar_panel_mat,
+        rot=(0.0, math.radians(22.0), 0.0),
+        bevel_w=0.0005,
+    )
+    s_wing.parent = sat_ship
+    s_trim = add_box(
+        f"SatSolarTrim_{s_lbl}",
+        (0.0, s_sgn * 0.044, 0.0),
+        (0.0030, 0.048, 0.0024),
+        mirror_chrome_mat,
+        rot=(0.0, math.radians(22.0), 0.0),
+    )
+    s_trim.parent = sat_ship
+sat_beacon = add_sphere("SatTelemetryBeacon", (0.0, 0.0, 0.022), 0.0044, cyan_glow_mat, segs=10, rings=8)
+sat_beacon.visible_shadow = False
+sat_beacon.visible_diffuse = False
+sat_beacon.parent = sat_ship
 
 # Hero 2-Line Self-Luminous Cinema Gold 3D Sky Monument floating cleanly at (0.55, 0.56, 2.48) in open starry sky!
 bpy.ops.object.text_add(location=(0.55, 0.56, 2.48), rotation=(math.pi * 0.5, 0.0, 0.0))
@@ -1845,11 +2218,17 @@ for f in range(1, TOTAL_FRAMES + 1):
         ax = HERO_APPLE_ATTACH.x + math.sin(t * 2.2) * 0.007
         arot = Euler((0.0, math.sin(t * 2.2) * 0.09, t * 0.16))
     elif t < 1.45:
-        # Exact constant-acceleration gravitational free fall (`1/2 g t²`) from t=0.65s to t=1.45s!
+        # Exact constant-acceleration gravitational free fall (`1/2 g t²`) w/ organic 3D tumble rotation!
         u_f = (t - 0.65) / 0.80
         az = z_hang - (z_hang - z_pad) * (u_f * u_f)
-        ax = HERO_APPLE_ATTACH.x
-        arot = Euler((u_f * 0.48, -u_f * 0.32, u_f * 0.72))
+        ax = HERO_APPLE_ATTACH.x + math.sin(u_f * math.pi) * 0.006
+        arot = Euler(
+            (
+                u_f * 1.15 + math.sin(u_f * math.pi) * 0.22,
+                0.089 - u_f * 0.82 + math.sin(u_f * math.pi * 1.5) * 0.16,
+                0.104 + u_f * 1.36,
+            )
+        )
     else:
         dt_b = t - 1.45
         if dt_b < 0.34:
@@ -1860,11 +2239,38 @@ for f in range(1, TOTAL_FRAMES + 1):
             hb = 0.0
         az = z_pad + hb
         ax = HERO_APPLE_ATTACH.x + min(0.016, dt_b * 0.028)
-        arot = Euler((0.48 + min(0.20, dt_b * 0.32), -0.32, 0.72 + min(0.32, dt_b * 0.48)))
+        arot = Euler((1.15 + min(0.22, dt_b * 0.34), -0.731 + min(0.14, dt_b * 0.20), 1.464 + min(0.32, dt_b * 0.45)))
     hero_apple.location = Vector((ax, HERO_APPLE_ATTACH.y, az))
     hero_apple.rotation_euler = arot
     hero_apple.keyframe_insert("location", frame=f)
     hero_apple.keyframe_insert("rotation_euler", frame=f)
+
+    # V9 Beat 1 Secondary Motion: 2 Tiny Fluttering Detached Apple Leaves Spiraling Down Behind Falling Apple!
+    for lf_i, dlf in enumerate(detached_apple_leaves):
+        if 0.65 <= t < 4.55:
+            lf_dur = 2.65 + lf_i * 0.55
+            u_l = clamp01((t - 0.65) / lf_dur)
+            drop_u = u_l ** 0.88
+            sp_ang = u_l * (8.5 + lf_i * 2.6) + lf_i * math.pi
+            rad_sw = (0.045 + 0.068 * math.sin(u_l * math.pi)) * (1.0 - 0.25 * u_l)
+            lx = HERO_APPLE_ATTACH.x + (0.032 if lf_i == 0 else -0.052) * u_l + math.cos(sp_ang) * rad_sw
+            ly = HERO_APPLE_ATTACH.y + math.sin(sp_ang * 0.85) * rad_sw * 0.65
+            lz = lerp(HERO_APPLE_ATTACH.z + 0.02, APPLE_PLINTH.z + 0.014, drop_u) + math.sin(u_l * 12.0 + lf_i) * 0.014 * (1.0 - u_l)
+            l_vis = max(0.0001, smoothstep(0.65, 0.78, t) * (1.0 - smoothstep(4.25, 4.55, t)))
+            dlf.location = Vector((lx, ly, lz))
+            dlf.rotation_euler = Euler(
+                (
+                    math.sin(u_l * 13.0 + lf_i) * 0.82 * (1.0 - 0.72 * u_l),
+                    math.cos(u_l * 10.5 + lf_i) * 0.68 * (1.0 - 0.72 * u_l),
+                    sp_ang,
+                )
+            )
+            dlf.scale = Vector((l_vis, l_vis, l_vis))
+        else:
+            dlf.scale = Vector((0.0001, 0.0001, 0.0001))
+        dlf.keyframe_insert("location", frame=f)
+        dlf.keyframe_insert("rotation_euler", frame=f)
+        dlf.keyframe_insert("scale", frame=f)
 
     # Golden Downward Gravity Force Arrow ('g', Z = 1.15..1.52) & Expanding Energy Ripple Rings!
     g_vis = smoothstep(1.50, 1.85, t) * (1.0 - smoothstep(4.25, 4.55, t))
@@ -1888,6 +2294,16 @@ for f in range(1, TOTAL_FRAMES + 1):
         impact_ripple_2.scale = Vector((0.0001, 0.0001, 0.0001))
     impact_ripple_2.keyframe_insert("scale", frame=f)
 
+    # V9 Beat 1 Glowing Dotted Golden Orbital Arc (t = 2.6..4.3s visualizing "does the Moon fall too?", fades out cleanly before Beat 2!)
+    arc_fade = 1.0 - smoothstep(4.12, 4.42, t)
+    for d_i, dot in enumerate(apple_moon_arc_dots):
+        d_t0 = 2.55 + d_i * 0.11
+        d_vis = smoothstep(d_t0, d_t0 + 0.24, t) * arc_fade
+        d_twk = 0.88 + 0.18 * math.sin(t * 7.2 - d_i * 0.75)
+        d_sc = max(0.0001, d_vis * d_twk)
+        dot.scale = Vector((d_sc, d_sc, d_sc))
+        dot.keyframe_insert("scale", frame=f)
+
     # 4. BEAT 2: Principia Pedestal & Props (retract cleanly off-screen before Beat 5 so Beats 5-6 are 100% unobstructed!)
     p_props_vis = max(0.0001, 1.0 - smoothstep(19.65, 20.05, t))
     principia_props_root.scale = Vector((p_props_vis, p_props_vis, p_props_vis))
@@ -1895,6 +2311,16 @@ for f in range(1, TOTAL_FRAMES + 1):
     if w_principia_plinth is not None:
         w_principia_plinth.scale = Vector((p_props_vis, p_props_vis, p_props_vis))
         w_principia_plinth.keyframe_insert("scale", frame=f)
+
+    # V9 Beat 2 Warm Golden Page-Shimmer & Glowing Golden-Ink Orbital Diagram Pulse at t = 6.95s!
+    p_sh_burst = math.exp(-(((t - 7.18) / 0.34) ** 2))
+    p_sh_sustain = smoothstep(6.95, 7.30, t) * (1.0 - smoothstep(9.55, 9.95, t))
+    if "Emission Strength" in principia_gold_ink_bsdf.inputs:
+        principia_gold_ink_bsdf.inputs["Emission Strength"].default_value = 0.45 + p_sh_sustain * 1.25 + p_sh_burst * 2.80
+        principia_gold_ink_bsdf.inputs["Emission Strength"].keyframe_insert("default_value", frame=f)
+    p_sh_sc = max(0.0001, (p_sh_burst * 1.05 + p_sh_sustain * 0.35) * (1.0 - smoothstep(9.55, 9.95, t)))
+    principia_page_shimmer.scale = Vector((p_sh_sc, p_sh_sc, 1.0))
+    principia_page_shimmer.keyframe_insert("scale", frame=f)
 
     fma_vis = smoothstep(4.55, 5.02, t) * (1.0 - smoothstep(6.82, 7.02, t))
     fma_sc = max(0.0001, fma_vis)
@@ -1929,13 +2355,15 @@ for f in range(1, TOTAL_FRAMES + 1):
         obj_ray.keyframe_insert("scale", frame=f)
         obj_ray.keyframe_insert("rotation_quaternion", frame=f)
 
+    band_ext_u = []
+    prism_fade_out = 1.0 - smoothstep(15.35, 15.80, t)
     for b_i, (rb, b_hit, sband) in enumerate(zip(rainbow_ribbons, rainbow_targets, spectral_bands)):
         # Bloom smoothly & sequentially Red (10.60s) -> Violet (11.80s) synced to prism_rainbow_bloom SFX!
         t_start = 10.60 + b_i * 0.12
         t_end = t_start + 0.48
         ext_u = smoothstep(t_start, t_end, t)
-        fade_out = 1.0 - smoothstep(15.35, 15.80, t)
-        vis_b = ext_u * fade_out
+        band_ext_u.append(ext_u)
+        vis_b = ext_u * prism_fade_out
         shimmer = 1.0 + 0.08 * math.sin(t * 7.5 + b_i * 0.9)
         if vis_b > 0.002:
             cur_end = vlerp(PRISM_EXIT, b_hit, ext_u)
@@ -1947,9 +2375,30 @@ for f in range(1, TOTAL_FRAMES + 1):
         rb.keyframe_insert("scale", frame=f)
         rb.keyframe_insert("rotation_quaternion", frame=f)
 
-        band_sc = max(0.0001, smoothstep(t_end - 0.10, t_end + 0.15, t) * fade_out)
+        band_sc = max(0.0001, smoothstep(t_end - 0.10, t_end + 0.15, t) * prism_fade_out)
         sband.scale = Vector((1.0, band_sc, band_sc))
         sband.keyframe_insert("scale", frame=f)
+
+    # V9 Beat 3 Rainbow Caustic Sparkles: 28 Spectral Dust Motes Drifting Lazily Inside the 7 Prism Ribbons!
+    for m_obj, b_i, frac, y_off, z_off, drift_f, twink_f, phase in rainbow_sparkle_motes:
+        m_vis = smoothstep(max(0.0, frac - 0.12), min(1.0, frac + 0.08), band_ext_u[b_i]) * prism_fade_out
+        if m_vis > 0.002:
+            base_pt = vlerp(PRISM_EXIT, rainbow_targets[b_i], frac)
+            m_pos = Vector(
+                (
+                    base_pt.x + math.sin(t * drift_f * 0.65 + phase * 1.3) * 0.010,
+                    base_pt.y + y_off + math.sin(t * drift_f + phase) * 0.011,
+                    base_pt.z + z_off + math.cos(t * drift_f * 0.82 + phase) * 0.008,
+                )
+            )
+            m_tw = 0.45 + 0.72 * (0.5 + 0.5 * math.sin(t * twink_f + phase))
+            m_sc = max(0.0001, m_vis * m_tw)
+            m_obj.location = m_pos
+            m_obj.scale = Vector((m_sc, m_sc, m_sc))
+        else:
+            m_obj.scale = Vector((0.0001, 0.0001, 0.0001))
+        m_obj.keyframe_insert("location", frame=f)
+        m_obj.keyframe_insert("scale", frame=f)
 
     # 6. BEAT 4: Brass Newton's Cradle Exact Pendulum Clack Physics (t = 17.45s, 18.25s, 19.10s)!
     ang_b0 = 0.0
@@ -1972,20 +2421,40 @@ for f in range(1, TOTAL_FRAMES + 1):
         u_s = (t - 19.95) / 0.65
         ang_b0 = math.radians(34.0) * math.sin(u_s * math.pi)
 
-    clack_jolt = 0.0
-    for tc_imp in (17.45, 18.25, 19.10):
-        if 0.0 <= (t - tc_imp) < 0.14:
-            clack_jolt = math.sin((t - tc_imp) * 68.0) * math.exp(-(t - tc_imp) * 20.0) * math.radians(2.2)
-
+    # V9 Sympathetic Micro-Vibration (±0.8° damped high-frequency metallic buzz on the 3 middle chrome spheres!)
     for b_i, piv in enumerate(cradle_pivots):
         if b_i == 0:
             ry = ang_b0
         elif b_i == 4:
             ry = ang_b4
         else:
-            ry = clack_jolt * (1.0 if b_i % 2 == 0 else -1.0)
+            ry = 0.0
+            for tc_imp, dir_sgn in ((17.45, 1.0), (18.25, -1.0), (19.10, 1.0)):
+                lag = (b_i - 1) * 0.007 if dir_sgn > 0 else (3 - b_i) * 0.007
+                dt_i = t - tc_imp - lag
+                if 0.0 <= dt_i < 0.24:
+                    ry += math.sin(dt_i * 115.0) * math.exp(-dt_i * 14.0) * math.radians(0.8) * dir_sgn
         piv.rotation_euler = Euler((0.0, ry, 0.0))
         piv.keyframe_insert("rotation_euler", frame=f)
+
+    # V9 Crisp Golden-White Impact Flash Core at exact Clack collision contacts!
+    flash_sc = 0.0001
+    flash_x = CRADLE_PLINTH.x + 0.108
+    for tc_imp, fx_off, f_dur, f_peak in (
+        (17.45, 0.108, 0.18, 1.28),
+        (18.25, -0.108, 0.15, 0.85),
+        (19.10, 0.108, 0.14, 0.75),
+    ):
+        dt_fl = t - tc_imp
+        if 0.0 <= dt_fl < f_dur:
+            u_fl = dt_fl / f_dur
+            flash_sc = max(0.0001, (math.sin(u_fl * math.pi) ** 0.65) * f_peak)
+            flash_x = CRADLE_PLINTH.x + fx_off
+            break
+    clack_impact_flash.location = Vector((flash_x, CRADLE_PLINTH.y, CRADLE_BALL_Z))
+    clack_impact_flash.scale = Vector((flash_sc, flash_sc, flash_sc))
+    clack_impact_flash.keyframe_insert("location", frame=f)
+    clack_impact_flash.keyframe_insert("scale", frame=f)
 
     # 16 Golden Kinetic Sparks + Glowing Shock Ring Burst at exact t = 17.45s CLACK!
     dt_ck = t - 17.45
@@ -2041,7 +2510,7 @@ for f in range(1, TOTAL_FRAMES + 1):
     gravity_tether.keyframe_insert("scale", frame=f)
     gravity_tether.keyframe_insert("rotation_quaternion", frame=f)
 
-    # 8. BEAT 6 MODERN LEGACY: Sleek Metallic 3D Orbital Rocket + Self-Luminous Cinema Gold 3D Sky Monument!
+    # 8. BEAT 6 MODERN LEGACY: Sleek Metallic 3D Orbital Rocket + Golden Parabolic Trail + Comm Satellite + Sky Monument!
     rkt_u = smoothstep(25.55, 26.35, t)
     rkt_sc = max(0.0001, rkt_u)
     rocket_orbit_group.scale = Vector((rkt_sc, rkt_sc, rkt_sc))
@@ -2053,6 +2522,19 @@ for f in range(1, TOTAL_FRAMES + 1):
     rocket_ship.keyframe_insert("location", frame=f)
     rocket_ship.keyframe_insert("rotation_euler", frame=f)
 
+    rocket_trail.rotation_euler = Euler((0.0, 0.0, rkt_ang))
+    rocket_trail.keyframe_insert("rotation_euler", frame=f)
+
+    sat_ang = rkt_ang + math.pi
+    sat_ship.location = Vector((math.cos(sat_ang) * ROCKET_ORBIT_R, math.sin(sat_ang) * ROCKET_ORBIT_R, 0.0))
+    sat_ship.rotation_euler = Euler((math.radians(10.0), math.radians(-10.0), sat_ang))
+    sat_ship.keyframe_insert("location", frame=f)
+    sat_ship.keyframe_insert("rotation_euler", frame=f)
+
+    sat_pulse = 0.72 + 0.55 * (0.5 + 0.5 * math.sin(t * 14.0))
+    sat_beacon.scale = Vector((sat_pulse, sat_pulse, sat_pulse))
+    sat_beacon.keyframe_insert("scale", frame=f)
+
     plume_flick = 0.90 + 0.25 * math.sin(t * 44.0)
     r_plume.scale = Vector((1.0, 1.0, plume_flick))
     r_plume.keyframe_insert("scale", frame=f)
@@ -2062,85 +2544,125 @@ for f in range(1, TOTAL_FRAMES + 1):
     title_txt.scale = Vector((tit_sc, tit_sc, tit_sc))
     title_txt.keyframe_insert("scale", frame=f)
 
-    # 9. FULL 3/4-BODY ADULT MPFB2 CAST ACTING ON MOSSY FLAGSTONES (`FLOOR_Z = 0.0`)!
-    # TRUE MPFB2 +Z FACING: +yaw/+head_rz = LOOK RIGHT (+X), -yaw/-head_rz = LOOK LEFT (-X);
-    # head_rx < 0 tilts chin UP (sky/branch), head_rx > 0 tilts chin DOWN (plinth/falling apple)!
-    # V8 NATURAL ASYMMETRIC GESTURES: Non-gesturing arm hangs relaxed down beside the hip
-    # (upperarm (6, ±12, ∓8) + lowerarm (-14, 0, ∓10)) while the active arm gestures expressively!
+    # 9. V9 HOLLYWOOD CHARACTER MICRO-LIFE & EXPRESSIVE ACTING CHOREOGRAPHY (`FLOOR_Z = 0.0`)!
+    # TRUE MPFB2 +Z FACING: +yaw/+head_rz/+eye_yaw = LOOK RIGHT (+X), -yaw/-head_rz/-eye_yaw = LOOK LEFT (-X);
+    # head_rx < 0 / eye_pitch < 0 = LOOK UP (sky/hanging apple), head_rx > 0 / eye_pitch > 0 = LOOK DOWN (plinth/fallen apple)!
     breath = math.sin(t * 2.25) * 1.1
     if NEWTON_ACTOR is not None:
         nrig = NEWTON_ACTOR["rig"]
         n_lip = sample_lip_sync("newton", t)
+        n_narrow = sample_lip_narrow("newton", t)
         n_base_z = NEWTON_ACTOR.get("base_z", FLOOR_Z)
+        n_hand_l = "relaxed"
+        n_hand_r = "relaxed"
+        n_eye_yaw = 0.0
+        n_eye_pitch = 0.0
+        n_weight_shift = 0.0
 
         if t < 4.5:
-            # Beat 1: Newton (-1.06, 0.36), yaw=+26° — left arm casually gestured toward apple plinth, right arm relaxed at hip!
+            # Beat 1: Newton (-1.06, 0.36), yaw=+26° — eyes look UP (-14°) FIRST (0.1s ahead of head!) then track DOWN (+10°) as apple falls!
             nx, ny, nyaw = -1.06, 0.36, 26.0
             fall_track = smoothstep(0.65, 1.45, t)
+            eye_fall_track = smoothstep(0.55, 1.35, t)  # Eye-lead-head by 0.10s!
             wonder_up = smoothstep(2.55, 3.55, t)
+            eye_wonder_up = smoothstep(2.45, 3.45, t)   # Eye-lead-head by 0.10s!
             lean_x = lerp(-2.5, 4.0, fall_track) - wonder_up * 4.5 + breath * 0.4
             head_rx = lerp(-18.0, 12.0, fall_track) - wonder_up * 22.0
             head_rz = 14.0 + math.sin(t * 1.6) * 2.8
+            n_eye_pitch = lerp(-14.0, 10.0, eye_fall_track) - eye_wonder_up * 18.0
+            n_eye_yaw = lerp(12.0, 14.0, eye_fall_track) + math.sin(t * 1.9) * 1.6
             ua_l = (lerp(-20.0, -16.0, fall_track), 16.0, lerp(-22.0, -18.0, fall_track))
             la_l = (lerp(-30.0, -24.0, fall_track) + math.sin(t * 2.5) * 2.5, 0.0, -14.0)
             ua_r = (6.0 + math.sin(t * 1.3) * 1.0, -12.0, 8.0)
             la_r = (-14.0, 0.0, 10.0)
+            n_hand_l = "relaxed" if t < 1.55 else "present"
+            n_hand_r = "relaxed"
+            n_weight_shift = 0.35
             n_brow = lerp(0.25, 0.85, smoothstep(1.45, 2.20, t))
             n_smile = lerp(0.08, 0.48, wonder_up)
         elif t < 9.5:
-            # Beat 2: Courtyard Debate — Newton (0.05, 0.45), yaw=+28° — active left hand debates Halley, right arm relaxed at hip!
+            # Beat 2: Courtyard Debate — Newton (0.05, 0.45), yaw=+28° — eye-to-eye (+12°), listens calmly then "point" -> "present" speaking 6.95-9.35s!
             nx, ny, nyaw = 0.05, 0.45, 28.0
             sp_u = smoothstep(6.90, 7.35, t)
             lean_x = 2.5 + sp_u * 3.2 + breath * 0.4
             head_rx = 3.0 - sp_u * 3.5
             head_rz = 14.0 + math.sin(t * 3.4) * 3.2 * sp_u
+            n_eye_yaw = 12.0 + math.sin(t * 2.4) * 1.4 * sp_u
+            n_eye_pitch = lerp(1.0, -2.5, sp_u)
             ua_l = (lerp(-8.0, -28.0, sp_u), lerp(14.0, 16.0, sp_u), lerp(-14.0, -28.0, sp_u))
             la_l = (lerp(-20.0, -38.0, sp_u) + math.sin(t * 4.4) * 4.0 * sp_u, 0.0, lerp(-12.0, -14.0, sp_u))
             ua_r = (lerp(6.0, 3.0, sp_u) + math.sin(t * 1.4) * 0.8, lerp(-12.0, -14.0, sp_u), lerp(8.0, 10.0, sp_u))
             la_r = (lerp(-14.0, -18.0, sp_u), 0.0, 10.0)
+            if t < 6.85:
+                n_hand_l = "relaxed"
+            elif t < 8.05:
+                n_hand_l = "point"
+            else:
+                n_hand_l = "present"
+            n_hand_r = "relaxed"
+            n_weight_shift = lerp(-0.20, 0.34, sp_u)
             n_brow = lerp(-0.15, 0.58, sp_u)
             n_smile = lerp(0.05, 0.55, sp_u)
         elif t < 15.5:
-            # Beat 3: Shaded Stone Arch Alcove — Newton (-2.12, 0.42), yaw=-28° — right arm reaches toward rainbow, left arm relaxed at hip!
+            # Beat 3: Shaded Stone Arch Alcove — Newton (-2.12, 0.42), yaw=-28° — gazes LEFT (-14°, wide wonder brows 0.90), right hand open "present"!
             nx, ny, nyaw = -2.12, 0.42, -28.0
             bloom_u = smoothstep(10.60, 12.20, t)
             lean_x = 4.5 - bloom_u * 2.5 + breath * 0.4
             head_rx = 5.5 - bloom_u * 8.5
             head_rz = -16.0 + math.sin(t * 1.6) * 3.0
+            n_eye_yaw = -14.0 + math.sin(t * 1.5) * 1.6
+            n_eye_pitch = lerp(4.0, -3.0, smoothstep(10.50, 12.10, t))
             ua_r = (lerp(-18.0, -28.0, bloom_u), lerp(-18.0, -14.0, bloom_u), lerp(20.0, 28.0, bloom_u))
             la_r = (lerp(-28.0, -34.0, bloom_u) + math.sin(t * 2.4) * 2.8, 0.0, lerp(16.0, 12.0, bloom_u))
             ua_l = (6.0 + math.sin(t * 1.2) * 1.0, 12.0, -8.0)
             la_l = (-14.0, 0.0, -10.0)
-            n_brow = lerp(0.18, 0.88, bloom_u)
-            n_smile = lerp(0.15, 0.58, bloom_u)
+            n_hand_r = "present"
+            n_hand_l = "relaxed"
+            n_weight_shift = -0.30
+            n_brow = lerp(0.24, 0.90, bloom_u)
+            n_smile = lerp(0.18, 0.62, bloom_u)
         elif t < 20.5:
             # Beat 4: Newton off-camera far left while Halley reacts to Newton's Cradle on right balustrade!
             nx, ny, nyaw = -0.60, 0.58, 22.0
             lean_x, head_rx, head_rz = 2.0, 3.0, 14.0
+            n_eye_yaw, n_eye_pitch = 10.0, 0.0
             ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
             ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
+            n_hand_l, n_hand_r = "relaxed", "relaxed"
+            n_weight_shift = 0.15
             n_brow, n_smile = 0.20, 0.40
         elif t < 25.5:
-            # Beat 5: Starry Twilight — Newton (0.02, 0.45), yaw=+24° — left arm gestures skyward at Gravity Well, right arm relaxed at hip!
+            # Beat 5: Starry Twilight — Newton (0.02, 0.45), yaw=+24° — gazes up-right (+12°, -10°) presenting Giant Gravity Well!
             nx, ny, nyaw = 0.02, 0.45, 24.0
             lean_x = 2.0 + breath * 0.4
             head_rx = -8.0 + math.sin(t * 1.4) * 2.0
             head_rz = 14.0 + math.sin(t * 1.8) * 3.0
+            n_eye_yaw = 12.0 + math.sin(t * 1.7) * 1.8
+            n_eye_pitch = -10.0 + math.sin(t * 1.4) * 1.6
             ua_l = (-30.0 + math.sin(t * 2.0) * 2.8, 14.0, -28.0)
             la_l = (-34.0, 0.0, -14.0)
             ua_r = (6.0 + math.sin(t * 1.3) * 1.0, -12.0, 8.0)
             la_r = (-14.0, 0.0, 10.0)
-            n_brow, n_smile = 0.68, 0.68
+            n_hand_l = "present"
+            n_hand_r = "relaxed"
+            n_weight_shift = 0.32
+            n_brow, n_smile = 0.72, 0.70
         else:
-            # Beat 6: Moonlit Grand Finale — Newton (-0.05, 0.55), yaw=+18° — left arm open triumphant presentation, right arm relaxed at hip!
+            # Beat 6: Moonlit Grand Finale — Newton (-0.05, 0.55), yaw=+18° — proud contrapposto glancing from rocket toward camera!
             nx, ny, nyaw = -0.05, 0.55, 18.0
+            glance_cam = smoothstep(26.50, 29.20, t)
             lean_x = 1.0 + breath * 0.4
-            head_rx = -7.0 + math.sin(t * 1.3) * 2.0
-            head_rz = 10.0 + math.sin(t * 1.5) * 2.8
+            head_rx = lerp(-8.0, -4.5, glance_cam) + math.sin(t * 1.3) * 1.8
+            head_rz = lerp(11.0, 5.0, glance_cam) + math.sin(t * 1.5) * 2.2
+            n_eye_yaw = lerp(10.0, 2.0, glance_cam)
+            n_eye_pitch = lerp(-12.0, -4.0, glance_cam)
             ua_l = (-24.0 + math.sin(t * 1.6) * 2.0, 14.0, -24.0)
             la_l = (-30.0, 0.0, -14.0)
             ua_r = (6.0 + math.sin(t * 1.2) * 1.0, -12.0, 8.0)
             la_r = (-14.0, 0.0, 10.0)
+            n_hand_l = "present"
+            n_hand_r = "relaxed"
+            n_weight_shift = 0.28
             n_brow, n_smile = 0.58, 0.75
 
         nrig.location = Vector((nx, ny, n_base_z))
@@ -2148,42 +2670,67 @@ for f in range(1, TOTAL_FRAMES + 1):
         nrig.keyframe_insert("location", frame=f)
         nrig.keyframe_insert("rotation_euler", frame=f)
 
+        apply_natural_stance(nrig, frame=f, weight_shift=n_weight_shift, breath_phase=t * 2.25, knee_bend=0.0)
         set_bone_char_rot(nrig, "spine02", lean_x * 0.45, 0.0, 0.0, frame=f)
         set_bone_char_rot(nrig, "spine01", lean_x * 0.55, 0.0, 0.0, frame=f)
         set_bone_char_rot(nrig, "neck01", head_rx * 0.35, 0.0, head_rz * 0.35, frame=f)
         set_bone_char_rot(nrig, "head", head_rx * 0.65, 0.0, head_rz * 0.65, frame=f)
         apply_facial_acting(
-            nrig, t, f, jaw_open_deg=1.0 + n_lip * 16.5, brow_lift=n_brow, smile=n_smile, blink_period=3.1, blink_phase=0.5
+            nrig,
+            t,
+            f,
+            jaw_open_deg=1.0 + n_lip * 16.5,
+            brow_lift=n_brow,
+            smile=n_smile,
+            blink_period=3.1,
+            blink_phase=0.5,
+            eye_yaw_deg=n_eye_yaw,
+            eye_pitch_deg=n_eye_pitch,
+            lip_narrow=n_narrow,
         )
-        set_bone_char_rot(nrig, "upperarm01.R", *ua_r, frame=f)
-        set_bone_char_rot(nrig, "lowerarm01.R", *la_r, frame=f)
-        set_bone_char_rot(nrig, "upperarm01.L", *ua_l, frame=f)
-        set_bone_char_rot(nrig, "lowerarm01.L", *la_l, frame=f)
+        apply_arm_with_clavicle(nrig, "R", ua_r, la_r, frame=f)
+        apply_arm_with_clavicle(nrig, "L", ua_l, la_l, frame=f)
+        apply_hand_gesture(nrig, "R", n_hand_r, frame=f)
+        apply_hand_gesture(nrig, "L", n_hand_l, frame=f)
 
     if HALLEY_ACTOR is not None:
         hrig = HALLEY_ACTOR["rig"]
         h_lip = sample_lip_sync("halley", t)
+        h_narrow = sample_lip_narrow("halley", t)
         h_base_z = HALLEY_ACTOR.get("base_z", FLOOR_Z)
         knee_bend_u = 0.0
+        h_hand_l = "relaxed"
+        h_hand_r = "relaxed"
+        h_eye_yaw = 0.0
+        h_eye_pitch = 0.0
+        h_weight_shift = 0.0
 
         if t < 4.5:
             # Beat 1: Off-camera far right waiting cleanly for Beat 2
             hx_p, hy_p, hyaw = 2.40, 0.54, -22.0
             lean_x, head_rx, head_rz = 1.5, 3.0, -12.0
+            h_eye_yaw, h_eye_pitch = -8.0, 0.0
             ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
             ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
+            h_hand_l, h_hand_r = "relaxed", "relaxed"
+            h_weight_shift = -0.15
             jaw_bias, h_brow, h_smile = 0.0, -0.1, 0.0
         elif t < 9.5:
-            # Beat 2: Courtyard Debate — Halley (1.05, 0.45), yaw=-28° — right hand questions Newton, left arm relaxed at hip!
+            # Beat 2: Courtyard Debate — Halley (1.05, 0.45), yaw=-28° — eye-to-eye (-12°), "point" 4.5-6.9s -> amazed "present" at 6.95s!
             hx_p, hy_p, hyaw = 1.05, 0.45, -28.0
             ask = 1.0 - smoothstep(6.75, 7.20, t)
             lean_x = 4.5 * ask + breath * 0.4
             head_rx = 3.5 * ask - 2.0 * (1.0 - ask)
             head_rz = -14.0 + math.sin(t * 3.5) * 3.5 * ask
+            h_eye_yaw = -12.0 + math.sin(t * 2.6) * 1.5 * ask
+            h_eye_pitch = lerp(1.5, 4.5, smoothstep(6.95, 7.55, t))
             ua_r = (lerp(-8.0, -28.0, ask), lerp(-14.0, -16.0, ask), lerp(14.0, 28.0, ask))
             la_r = (lerp(-20.0, -38.0, ask) + math.sin(t * 4.2) * 4.0 * ask, 0.0, lerp(12.0, 14.0, ask))
             ua_l = (6.0 + math.sin(t * 1.4) * 1.0, 12.0, -8.0)
             la_l = (-14.0, 0.0, -10.0)
+            h_hand_r = "point" if t < 6.95 else "present"
+            h_hand_l = "relaxed"
+            h_weight_shift = lerp(-0.32, 0.24, smoothstep(6.85, 7.50, t))
             jaw_bias = 0.0
             h_brow = lerp(0.75, -0.45, ask)
             h_smile = lerp(0.15, -0.20, ask)
@@ -2191,13 +2738,17 @@ for f in range(1, TOTAL_FRAMES + 1):
             # Beat 3: Off-camera far right during Newton's Shaded Arch Optical Prism showcase
             hx_p, hy_p, hyaw = 1.85, 0.52, -18.0
             lean_x, head_rx, head_rz = 2.0, 4.0, -10.0
+            h_eye_yaw, h_eye_pitch = -8.0, 0.0
             ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
             ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
+            h_hand_l, h_hand_r = "relaxed", "relaxed"
+            h_weight_shift = -0.15
             jaw_bias, h_brow, h_smile = 0.0, 0.0, 0.0
         elif t < 20.5:
-            # Beat 4: Halley (2.34, 0.42), yaw=+24° — relaxed pre-clack stance -> asymmetric startled knee-bend recoil at 17.45s!
+            # Beat 4: Halley (2.34, 0.42), yaw=+24° — looks RIGHT (+14°) at Cradle -> at 17.45s CLACK BOTH hands snap to "shock" + knee-bend recoil!
             shock = smoothstep(17.42, 17.68, t)
             recoil_osc = math.sin((t - 17.45) * 19.0) * math.exp(-(t - 17.45) * 3.4) * 4.5 if t >= 17.45 else 0.0
+            eye_dart = math.sin((t - 17.45) * 13.0) * math.exp(-(t - 17.45) * 2.4) * 5.0 if t >= 17.45 else 0.0
             knee_bend_u = shock * (1.0 - 0.35 * smoothstep(18.60, 20.20, t))
             hx_p = 2.34 - shock * 0.07
             hy_p = 0.42 + shock * 0.09
@@ -2205,30 +2756,44 @@ for f in range(1, TOTAL_FRAMES + 1):
             lean_x = lerp(6.0, -12.5, shock) + recoil_osc
             head_rx = lerp(7.0, -10.0, shock)
             head_rz = lerp(16.0, 14.0, shock) + math.sin(t * 6.2) * 3.5 * shock
+            h_eye_yaw = 14.0 + eye_dart
+            h_eye_pitch = lerp(5.0, -7.0, shock)
             ua_l = (lerp(-20.0, -36.0, shock), lerp(16.0, 20.0, shock), lerp(-22.0, -36.0, shock))
             la_l = (lerp(-28.0, -54.0, shock), 0.0, lerp(-14.0, -30.0, shock))
             ua_r = (lerp(6.0, -24.0, shock), lerp(-12.0, -20.0, shock), lerp(8.0, 28.0, shock))
             la_r = (lerp(-14.0, -42.0, shock), 0.0, lerp(10.0, 26.0, shock))
-            jaw_bias = 13.0 * shock * (1.0 - smoothstep(18.10, 18.60, t))
+            h_hand_l = "point" if t < 17.45 else "shock"
+            h_hand_r = "relaxed" if t < 17.45 else "shock"
+            h_weight_shift = lerp(0.28, -0.45, shock)
+            jaw_bias = 14.5 * shock * (1.0 - smoothstep(18.05, 18.45, t))
             h_brow = lerp(-0.20, 1.0, shock)
             h_smile = lerp(0.30, -0.48, shock)
         elif t < 25.5:
             # Beat 5: Off-camera far right during Starry Twilight Gravity Well Climax
             hx_p, hy_p, hyaw = 2.40, 0.54, -20.0
             lean_x, head_rx, head_rz = 2.0, 3.0, -14.0
+            h_eye_yaw, h_eye_pitch = -10.0, 0.0
             ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
             ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
+            h_hand_l, h_hand_r = "relaxed", "relaxed"
+            h_weight_shift = -0.15
             jaw_bias, h_brow, h_smile = 0.0, 0.25, 0.15
         else:
-            # Beat 6: Moonlit Grand Finale — Halley (1.15, 0.55), yaw=-18° — right hand admires cosmos, left arm relaxed at hip!
+            # Beat 6: Moonlit Grand Finale — Halley (1.15, 0.55), yaw=-18° — proud contrapposto glancing from rocket toward camera!
             hx_p, hy_p, hyaw = 1.15, 0.55, -18.0
+            glance_cam = smoothstep(26.50, 29.20, t)
             lean_x = 1.0 + breath * 0.4
-            head_rx = -7.0 + math.sin(t * 1.4) * 2.0
-            head_rz = -10.0 + math.sin(t * 1.6) * 2.8
+            head_rx = lerp(-8.0, -4.5, glance_cam) + math.sin(t * 1.4) * 1.8
+            head_rz = lerp(-11.0, -5.0, glance_cam) + math.sin(t * 1.6) * 2.2
+            h_eye_yaw = lerp(-10.0, -2.0, glance_cam)
+            h_eye_pitch = lerp(-12.0, -4.0, glance_cam)
             ua_r = (-24.0 + math.sin(t * 1.5) * 2.0, -14.0, 24.0)
             la_r = (-30.0, 0.0, 14.0)
             ua_l = (6.0 + math.sin(t * 1.3) * 1.0, 12.0, -8.0)
             la_l = (-14.0, 0.0, -10.0)
+            h_hand_r = "present"
+            h_hand_l = "relaxed"
+            h_weight_shift = -0.28
             jaw_bias, h_brow, h_smile = 0.0, 0.58, 0.58
 
         # Exact trigonometric hip-drop keeps Halley's feet 100% grounded on FLOOR_Z=0.0 during Beat 4 knee-bend recoil!
@@ -2238,15 +2803,8 @@ for f in range(1, TOTAL_FRAMES + 1):
         hrig.keyframe_insert("location", frame=f)
         hrig.keyframe_insert("rotation_euler", frame=f)
 
-        # Full-body knee-bend leg articulation (zero rotation outside Beat 4 recoil!)
-        thigh_rx = -20.0 * knee_bend_u
-        shin_rx = 40.0 * knee_bend_u
-        foot_rx = -20.0 * knee_bend_u
-        for side in ("L", "R"):
-            set_bone_char_rot(hrig, f"upperleg01.{side}", thigh_rx, 0.0, 0.0, frame=f)
-            set_bone_char_rot(hrig, f"lowerleg01.{side}", shin_rx, 0.0, 0.0, frame=f)
-            set_bone_char_rot(hrig, f"foot.{side}", foot_rx, 0.0, 0.0, frame=f)
-
+        # V9 Natural Contrapposto Stance + Full-Body Beat 4 Knee-Bend Leg Articulation!
+        apply_natural_stance(hrig, frame=f, weight_shift=h_weight_shift, breath_phase=t * 2.35 + 1.1, knee_bend=knee_bend_u)
         set_bone_char_rot(hrig, "spine02", lean_x * 0.45, 0.0, 0.0, frame=f)
         set_bone_char_rot(hrig, "spine01", lean_x * 0.55, 0.0, 0.0, frame=f)
         set_bone_char_rot(hrig, "neck01", head_rx * 0.35, 0.0, head_rz * 0.35, frame=f)
@@ -2260,21 +2818,24 @@ for f in range(1, TOTAL_FRAMES + 1):
             smile=h_smile,
             blink_period=3.5,
             blink_phase=1.8,
+            eye_yaw_deg=h_eye_yaw,
+            eye_pitch_deg=h_eye_pitch,
+            lip_narrow=h_narrow,
         )
-        set_bone_char_rot(hrig, "upperarm01.L", *ua_l, frame=f)
-        set_bone_char_rot(hrig, "lowerarm01.L", *la_l, frame=f)
-        set_bone_char_rot(hrig, "upperarm01.R", *ua_r, frame=f)
-        set_bone_char_rot(hrig, "lowerarm01.R", *la_r, frame=f)
+        apply_arm_with_clavicle(hrig, "L", ua_l, la_l, frame=f)
+        apply_arm_with_clavicle(hrig, "R", ua_r, la_r, frame=f)
+        apply_hand_gesture(hrig, "L", h_hand_l, frame=f)
+        apply_hand_gesture(hrig, "R", h_hand_r, frame=f)
 
 
 # ============================================================================
 # 16. EXECUTE RENDER (QA 6-BEAT PREVIEW OR PRODUCTION FRAME RANGE!)
 # ============================================================================
 if ARGS.qa_only:
-    # Preview all 6 V8 Outdoor-to-Cosmos Beats (Orchard Apple+g, Courtyard Debate, Shaded Prism, Cradle Recoil, Twilight Well, Moonlit Rocket Finale!)
+    # Preview all 6 V9 Hollywood Mini-Film Polish Beats (Orchard Apple+g, Courtyard Debate, Shaded Prism, Cradle Shock, Twilight Well, Moonlit Rocket+Satellite Finale!)
     qa_times = [2.6, 8.5, 12.8, 17.8, 23.2, 28.2]
     qa_frames = [max(1, min(TOTAL_FRAMES, int(round(ts * FPS)) + 1)) for ts in qa_times]
-    print(f"[Newton V8 Outdoor-to-Cosmos QA] Rendering 6 Beat keyframes {qa_frames} ({FPS}fps, {ARGS.samples}spp, {ARGS.scale}% res) -> {OUT_DIR} ...")
+    print(f"[Newton V9 Hollywood Polish QA] Rendering 6 Beat keyframes {qa_frames} ({FPS}fps, {ARGS.samples}spp, {ARGS.scale}% res) -> {OUT_DIR} ...")
     t_render_start = time.time()
     for idx, qf in enumerate(qa_frames, 1):
         scene.frame_set(qf)
@@ -2287,9 +2848,9 @@ if ARGS.qa_only:
     )
 else:
     print(
-        f"[Newton V8 Outdoor-to-Cosmos] Rendering frames {scene.frame_start}..{scene.frame_end} "
+        f"[Newton V9 Hollywood Polish] Rendering frames {scene.frame_start}..{scene.frame_end} "
         f"({RES_X}x{RES_Y} @ {ARGS.scale}%, {FPS}fps, {ARGS.samples} spp OPTIX Turbo) -> {OUT_DIR} ..."
     )
     t_render_start = time.time()
     bpy.ops.render.render(animation=True)
-    print(f"[Newton V8 Outdoor-to-Cosmos] Batch {scene.frame_start}..{scene.frame_end} complete in {(time.time()-t_render_start)/60:.1f} min!")
+    print(f"[Newton V9 Hollywood Polish] Batch {scene.frame_start}..{scene.frame_end} complete in {(time.time()-t_render_start)/60:.1f} min!")

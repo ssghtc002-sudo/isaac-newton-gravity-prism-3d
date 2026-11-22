@@ -1,9 +1,10 @@
 """
 Pre-flight mathematical 9:16 portrait camera framing, ZERO-OVERLAP sightline & STATION ISOLATION verifier
-for Scientist #9: Isaac Newton V7 (Outdoor Woolsthorpe Apple Orchard & Cotswold Stone Terrace -> Starry Twilight Cosmos)!
+for Scientist #9: Isaac Newton V9 (Outdoor Woolsthorpe Apple Orchard & Cotswold Stone Terrace -> Starry Twilight Cosmos)!
 
 Verifies across all 6 Beats at true ground level (FLOOR_Z = 0.0, full 3/4-body 1.78m/1.79m adult cast):
   1. 100% of ALL Cast Heads (Z = 1.66m; Beat 4 knee-bend recoil Z = 1.60m) + Hero Scientific Centerpieces
+     (including V9 Beat 1 apple-to-Moon golden orbital arc & Beat 6 opposite-phase Comm Satellite!)
      stay cleanly inside the 9:16 portrait safe frame (|ndcX| <= 0.85, ndcY in [-0.50, +0.72]) —
      INCLUDING BOTH NewtonHead & HalleyHead in Beat 2a (t=5.5s), Beat 2b (t=8.5s) & Beat 6 (t=28.2s)!
   2. ZERO Instrument-Blocking-Face Overlap: checks horizontal screen separation |ndcX(Actor) - ndcX(HeroProp)| >= 0.42
@@ -43,7 +44,7 @@ def bezier_quad(p0, p1, p2, t):
     return p0 * (u * u) + p1 * (2.0 * u * t) + p2 * (t * t)
 
 
-# Exact V7 Outdoor Woolsthorpe Terrace Anchors (synchronized 1:1 with newton_world_v7.py & build_newton_scene.py!)
+# Exact V8/V9 Outdoor Woolsthorpe Terrace Anchors (synchronized 1:1 with newton_world_v7.py & build_newton_scene.py!)
 FLOOR_Z = 0.0
 HERO_APPLE_ATTACH = np.array([-0.52, 0.12, 1.94])
 APPLE_PLINTH = np.array([-0.52, 0.12, 0.88])
@@ -106,7 +107,7 @@ def compute_beat(b_idx, t):
         )
         tgt = lerp(np.array([0.34, 0.24, 1.44]), np.array([0.36, 0.26, 1.52]), u)
         return pos, tgt, lerp(37.0, 38.5, u)
-    # Beat 6: Moonlit Orchard-to-Cosmos Rocket Slingshot Finale — Newton(-0.05), Halley(+1.15), Centered Well(0.55), Rocket & Title!
+    # Beat 6: Moonlit Orchard-to-Cosmos Rocket & Satellite Slingshot Finale — Newton(-0.05), Halley(+1.15), Centered Well(0.55), Rocket, Satellite & Title!
     u = clamp01((t - 25.5) / 4.5)
     pos = bezier_quad(
         np.array([0.55, -2.35, 1.52]),
@@ -149,11 +150,12 @@ checks = [
     (
         0,
         2.6,
-        "Beat 1 Mid Golden-Hour Orchard: Newton(L) + Fallen Apple & g Arrow(R)",
+        "Beat 1 Mid Golden-Hour Orchard: Newton(L) + Fallen Apple, g Arrow & Orbital Arc(R)",
         {
             "NewtonHead": np.array([-1.06, 0.36, 1.66]),
             "AppleLanded": np.array([APPLE_PLINTH[0], APPLE_PLINTH[1], APPLE_PLINTH[2] + 0.058]),
             "GravityArrow": np.array([APPLE_PLINTH[0] + 0.08, APPLE_PLINTH[1], 1.34]),
+            "OrbitalArcTip": np.array([-0.26, 0.18, 1.88]),
         },
         [("NewtonHead", "GravityArrow", 0.42)],
     ),
@@ -218,12 +220,13 @@ checks = [
     (
         5,
         28.2,
-        "Beat 6 Moonlit Finale: BOTH Newton(L) + Halley(R) + Well + Rocket + Title",
+        "Beat 6 Moonlit Finale: BOTH Newton(L) + Halley(R) + Well + Rocket + CommSatellite + Title",
         {
             "NewtonHead": np.array([-0.05, 0.55, 1.66]),
             "HalleyHead": np.array([1.15, 0.55, 1.66]),
             "EarthCenter": np.array([0.55, 0.14, 1.50]),
             "RocketOrbitTop": np.array([0.55, 0.14, 2.14]),
+            "CommSatellite": np.array([0.55 + 0.29 * np.cos(3.535 + np.pi), 0.14 + 0.29 * np.sin(3.535 + np.pi), 2.04]),
             "TitleRight": np.array([1.01, 0.60, 2.52]),
         },
         [("NewtonHead", "HalleyHead", 0.60), ("NewtonHead", "EarthCenter", 0.30)],
@@ -286,4 +289,4 @@ for b_idx, t, label, pt, side in isolation_checks:
 if errors:
     print(f"\nFAILED: {errors} framing/overlap/isolation error(s)!")
     raise SystemExit(1)
-print("\nPASSED: 100% V7 Outdoor-to-Cosmos ZERO-OVERLAP Sightlines + Full-Stature Beat 2 2-Shot + Station Isolation across ALL 6 Beats!")
+print("\nPASSED: 100% V9 Hollywood Polish ZERO-OVERLAP Sightlines + Full-Stature Beat 2 2-Shot + Orbital Arc/Satellite + Station Isolation across ALL 6 Beats!")

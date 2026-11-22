@@ -80,11 +80,11 @@ and moons
 under one law!
 
 19
-00:00:25,625 --> 00:00:27,425
+00:00:25,625 --> 00:00:27,435
 Rockets, satellites,
 Moon landings today—
 
 20
-00:00:27,425 --> 00:00:29,184
+00:00:27,435 --> 00:00:29,184
 every launch flies
 on Isaac Newton's laws.
