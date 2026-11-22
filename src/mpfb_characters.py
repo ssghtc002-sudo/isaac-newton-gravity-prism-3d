@@ -1,5 +1,5 @@
 """
-Reusable MPFB2 V7 Authentic 17th-Century Cinema Human Character Engine for Blender 4.2.3 LTS Cycles (Kaggle GPU T4 x2)
+Reusable MPFB2 V8 Authentic 17th-Century Cinema Human Character Engine for Blender 4.2.3 LTS Cycles (Kaggle GPU T4 x2)
 Uses curated CC0/CC-BY MakeHuman Community 4K Asset Packs (delivered via ~1.2s GitHub CDN in Kaggle Cell 2!):
   - Real 4K Photo-Scanned Adult Masculine Skins with ENHANCED_SSS Cycles Shader (pores, real lips, brow
     shadows, wrinkles, knuckles — tuned to fast BURLEY SSS for Dual-T4 GPU speed!)
@@ -8,13 +8,12 @@ Uses curated CC0/CC-BY MakeHuman Community 4K Asset Packs (delivered via ~1.2s G
   - Real High-Poly Photoreal Eyes (high-poly.mhclo + PROCEDURAL_EYES EnhancedEye refractive cornea dome!)
   - Real Alpha-Card Eyebrows, Eyelashes, 3D Teeth & Tongue (realistic mouth during Kokoro lip-sync!)
   - Real Sleek Shoulder-Length Hair (`culturalibre_hair_01.mhclo` + 2K normal map) for Sir Isaac Newton's iconic
-    1689 Godfrey Kneller portrait look & swept adult gentleman hair (`short04.mhclo` / `short02.mhclo`) for Halley!
-  - Multi-Layer Historical 17th-Century Outfits (`shirt_assets`, `pants_assets`, `coat_assets`, `cloak_assets`,
-    `shoe_assets` — ZERO modern neckties! ZERO modern bowties!) with linear-safe `gamma_lift` color grading &
-    woven wool/velvet micro-bump normal shading!
-  - Optional Bone-Parented Rigged 17th-Century White Linen Ruffled Jabot Cravat (`add_cravat: True`) &
-    Draped Velvet Cambridge Scholar Shoulder-Mantle/Cape (`add_scholar_cloak: True`) fitted automatically to each
-    character's live MPFB2 torso landmarks with arm-swing anti-clipping clearance!
+    1689 Godfrey Kneller portrait look & swept adult gentleman hair (`short04.mhclo`) for Halley!
+  - 100% REAL 3D Sculpted MakeHuman Multi-Layer Historical 17th-Century Wardrobe (`pants_assets`, `shirt_assets`,
+    `vest_assets`, `coat_assets`, `cloak_assets`, `suit_assets`, `shoe_assets` — ZERO modern neckties, ZERO
+    modern bowties, ZERO blocky procedural foam straps or chin-covering neck-braces!) with linear-safe
+    `gamma_lift`, `sat_override`, `hue_shift`, `value_boost`, `tint_rgb`, velvet `sheen`, automatic sibling
+    `*_METAL.png` button hookup, and normal-map-preserving woven wool/velvet micro-bump relief!
   - Blender 4.2 safe ShaderNodeMix (socket.type == 'RGBA') + recursive ShaderNodeGroup copying so
     per-character wardrobe/hair grading ALWAYS renders without cross-contaminating actors!
   - Roll-proof character-space bone posing (M_rest^-1 @ R_char @ M_rest) + true MPFB2 +Z facing convention
@@ -27,7 +26,6 @@ import math
 import os
 import sys
 
-import bmesh
 import bpy
 from mathutils import Euler, Matrix, Vector
 
@@ -55,7 +53,7 @@ def enable_mpfb2():
                 mpfb_mod = importlib.import_module(amod)
                 if hasattr(mpfb_mod, key):
                     return getattr(mpfb_mod, key)
-        raise ImportError(f"MPFB2 module '{absolute_package_str}.{key}' not loaded! Install MPFB2 extension first.")
+        raise ImportError(f"MPFB2 module '{absolute_package_str}.{key}' not found! Install MPFB2 extension first.")
 
     return (
         dynamic_import("mpfb.services.humanservice", "HumanService"),
@@ -170,22 +168,65 @@ def _tune_procedural_eyes(eye_obj, major_rgb=(0.14, 0.36, 0.20), minor_rgb=(0.06
                     node.inputs["Clearcoat"].default_value = 0.85
 
 
-def _add_woven_fabric_bump(nt, bsdf, scale: float = 300.0, strength: float = 0.075):
-    """Attach subtle procedural woven broadcloth/velvet micro-bump to clothing lacking a baked normal map."""
+def _add_woven_fabric_bump(nt, bsdf, scale: float = 340.0, strength: float = 0.070):
+    """Attach subtle procedural woven broadcloth/velvet micro-bump to clothing.
+    If the garment ALREADY has a baked 2K normal map linked to `Normal`, chains a fine
+    woven micro-grain bump AFTER the baked normal map so 100% of baked folds are preserved!"""
     n_in = bsdf.inputs.get("Normal")
-    if n_in is None or n_in.is_linked:
+    if n_in is None:
         return
+    has_baked_nrm = n_in.is_linked
+    prev_nrm_socket = n_in.links[0].from_socket if has_baked_nrm else None
+    if has_baked_nrm:
+        nt.links.remove(n_in.links[0])
+
     tc = nt.nodes.new("ShaderNodeTexCoord")
     noise = nt.nodes.new("ShaderNodeTexNoise")
-    noise.inputs["Scale"].default_value = scale
+    noise.inputs["Scale"].default_value = 460.0 if has_baked_nrm else scale
     noise.inputs["Detail"].default_value = 5.0
     noise.inputs["Roughness"].default_value = 0.62
+
     bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = strength
-    bump.inputs["Distance"].default_value = 0.0022
+    bump.inputs["Strength"].default_value = min(strength, 0.036) if has_baked_nrm else strength
+    bump.inputs["Distance"].default_value = 0.0012 if has_baked_nrm else 0.0022
     nt.links.new(tc.outputs["Object"], noise.inputs["Vector"])
     nt.links.new(noise.outputs["Fac"], bump.inputs["Height"])
+    if prev_nrm_socket is not None:
+        nt.links.new(prev_nrm_socket, bump.inputs["Normal"])
     nt.links.new(bump.outputs["Normal"], n_in)
+
+
+def _try_attach_sibling_metal_map(nt, bsdf, obj_name: str):
+    """If a MakeHuman garment ships with a sibling `*_METAL.png` mask (e.g. `F_Lusekofta_METAL.png`
+    for engraved filigree brass/silver buttons) that MAKESKIN did not auto-link, wire it cleanly
+    as Non-Color into Principled BSDF `Metallic` so real metallic buttons gleam in Cycles!"""
+    m_in = bsdf.inputs.get("Metallic")
+    if m_in is None or m_in.is_linked:
+        return
+    for node in nt.nodes:
+        if node.type != "TEX_IMAGE" or getattr(node, "image", None) is None:
+            continue
+        raw_fp = bpy.path.abspath(node.image.filepath)
+        if not raw_fp or not os.path.isfile(raw_fp):
+            continue
+        stem, ext = os.path.splitext(raw_fp)
+        low_stem = stem.lower()
+        if any(suf in low_stem for suf in ("_nrm", "_norm", "_normal", "_spec", "_rough", "_metal", "_ao")):
+            continue
+        for cand_suffix in ("_METAL.png", "_metal.png", "_metallic.png", "_METAL.PNG"):
+            cand_path = stem + cand_suffix
+            if os.path.isfile(cand_path):
+                try:
+                    img = bpy.data.images.load(cand_path, check_existing=True)
+                    img.colorspace_settings.name = "Non-Color"
+                    m_tex = nt.nodes.new("ShaderNodeTexImage")
+                    m_tex.image = img
+                    nt.links.new(m_tex.outputs["Color"], m_in)
+                    print(f"[MPFB2 PBR] '{obj_name}' auto-wired metallic map -> {os.path.basename(cand_path)}")
+                    return
+                except Exception as merr:
+                    print(f"[MPFB2 PBR Warning] Failed wiring {cand_path}: {merr}")
+                return
 
 
 def _tint_asset_material(
@@ -197,12 +238,17 @@ def _tint_asset_material(
     silver_hair: bool = False,
     value_boost: float = 1.0,
     gamma_lift: float = 1.0,
+    sat_override: float | None = None,
+    hue_shift: float = 0.5,
+    sheen_weight: float | None = None,
     add_fabric_bump: bool = False,
+    auto_metal_map: bool = False,
 ):
     """Non-destructively color-grade an imported MPFB2 clothing or alpha-hair material while preserving
     100% of its original photo-scanned diffuse texture, fabric folds, normal/bump maps & alpha transparency!
-    Supports linear-safe `gamma_lift` (< 1.0 lifts dark base textures like black hair or dark cloth cleanly
-    into silver-pewter or rich royal indigo/burgundy without losing strand detail) and Blender 4.2-safe RGBA Mix."""
+    Supports linear-safe `gamma_lift`, `sat_override` (e.g. desaturating brown/blue base cloth before pure
+    Royal Midnight-Navy or Royal Burgundy grading!), `hue_shift`, `sheen_weight` velvet pile sheen,
+    automatic `*_METAL.png` button hookup, and Blender 4.2-safe RGBA Mix (`s.type == 'RGBA'`)."""
     if obj is None:
         return
     for slot in obj.material_slots:
@@ -220,35 +266,38 @@ def _tint_asset_material(
             if is_hair:
                 _set_bsdf(bsdf, "Roughness", roughness_override if roughness_override is not None else 0.42)
                 _set_bsdf(bsdf, "Coat Weight", 0.20)
-                _set_bsdf(bsdf, "Sheen Weight", 0.38)
+                _set_bsdf(bsdf, "Sheen Weight", sheen_weight if sheen_weight is not None else 0.38)
             else:
                 if roughness_override is not None and not bsdf.inputs["Roughness"].is_linked:
                     _set_bsdf(bsdf, "Roughness", roughness_override)
-                _set_bsdf(bsdf, "Sheen Weight", 0.52)
+                _set_bsdf(bsdf, "Sheen Weight", sheen_weight if sheen_weight is not None else 0.54)
+                _set_bsdf(bsdf, "Sheen Roughness", 0.42)
+                if auto_metal_map:
+                    _try_attach_sibling_metal_map(nt, bsdf, obj.name)
                 if add_fabric_bump:
                     _add_woven_fabric_bump(nt, bsdf)
 
             try:
+                eff_gamma = min(gamma_lift, 0.36) if silver_hair else gamma_lift
+                eff_sat = 0.14 if silver_hair else (sat_override if sat_override is not None else 1.0)
+                eff_val = max(1.30, value_boost) if silver_hair else value_boost
+                needs_hsv = silver_hair or (eff_sat != 1.0) or (eff_val != 1.0) or (hue_shift != 0.5)
+
                 if bc.is_linked:
                     src_socket = bc.links[0].from_socket
                     nt.links.remove(bc.links[0])
 
-                    eff_gamma = min(gamma_lift, 0.36) if silver_hair else gamma_lift
                     if eff_gamma != 1.0:
                         gam = nt.nodes.new("ShaderNodeGamma")
                         gam.inputs["Gamma"].default_value = eff_gamma
                         nt.links.new(src_socket, gam.inputs["Color"])
                         src_socket = gam.outputs["Color"]
 
-                    if silver_hair:
+                    if needs_hsv:
                         hsv = nt.nodes.new("ShaderNodeHueSaturation")
-                        hsv.inputs["Saturation"].default_value = 0.14
-                        hsv.inputs["Value"].default_value = max(1.30, value_boost)
-                        nt.links.new(src_socket, hsv.inputs["Color"])
-                        src_socket = hsv.outputs["Color"]
-                    elif value_boost != 1.0:
-                        hsv = nt.nodes.new("ShaderNodeHueSaturation")
-                        hsv.inputs["Value"].default_value = value_boost
+                        hsv.inputs["Hue"].default_value = hue_shift
+                        hsv.inputs["Saturation"].default_value = eff_sat
+                        hsv.inputs["Value"].default_value = eff_val
                         nt.links.new(src_socket, hsv.inputs["Color"])
                         src_socket = hsv.outputs["Color"]
 
@@ -265,11 +314,10 @@ def _tint_asset_material(
                         nt.links.new(src_socket, bc)
                 else:
                     orig = bc.default_value
-                    eff_gamma = min(gamma_lift, 0.36) if silver_hair else gamma_lift
-                    lifted = [min(1.0, (max(0.001, orig[c]) ** eff_gamma) * value_boost) for c in range(3)]
-                    if silver_hair:
-                        lum = 0.299 * lifted[0] + 0.587 * lifted[1] + 0.114 * lifted[2]
-                        lifted = [lum * 0.88 + lifted[c] * 0.12 for c in range(3)]
+                    lifted = [min(1.0, (max(0.001, orig[c]) ** eff_gamma) * eff_val) for c in range(3)]
+                    if eff_sat != 1.0:
+                        lum = 0.2126 * lifted[0] + 0.7152 * lifted[1] + 0.0722 * lifted[2]
+                        lifted = [lum + (lifted[c] - lum) * eff_sat for c in range(3)]
                     if tint_rgb is not None and mix_fac > 0.0:
                         bc.default_value = (
                             lifted[0] * (1.0 - mix_fac) + (lifted[0] * tint_rgb[0]) * mix_fac,
@@ -282,441 +330,6 @@ def _tint_asset_material(
             except Exception as tint_err:
                 print(f"[MPFB2 Tint Warning] {obj.name}/{mat.name}: {tint_err}")
 
-
-# ============================================================================
-# PROCEDURAL 17TH-CENTURY RIGGED GARMENTS (LINEN JABOT CRAVAT & VELVET CLOAK!)
-# ============================================================================
-def _link_to_active_collection(obj):
-    if obj.name not in bpy.context.collection.objects:
-        bpy.context.collection.objects.link(obj)
-
-
-def _parent_object_to_bone_exact(obj, rig, bone_name: str):
-    """Bone-parent a world-space mesh (built at rest pose while rig is at origin/identity)
-    to `bone_name` with ZERO transform jump across all Blender 4.x versions!"""
-    if bone_name not in rig.data.bones:
-        for fallback in ("spine01", "spine02", "neck01", "root"):
-            if fallback in rig.data.bones:
-                bone_name = fallback
-                break
-    obj.matrix_local = Matrix.Identity(4)
-    obj.parent = rig
-    obj.parent_type = "BONE"
-    obj.parent_bone = bone_name
-    obj.matrix_parent_inverse = Matrix.Identity(4)
-    bpy.context.view_layer.update()
-    # Self-calibrating exact inverse: guarantees obj.matrix_world == Identity at rest pose!
-    obj.matrix_parent_inverse = obj.matrix_world.inverted()
-    bpy.context.view_layer.update()
-
-
-def _measure_torso_landmarks(rig, basemesh) -> dict[str, float]:
-    """Sample exact rest-pose anatomical landmarks directly from the character's live MPFB2 skeleton & mesh
-    so the 17th-century cravat & draped velvet scholar cloak fit ANY height/weight/muscle cleanly!"""
-    bpy.context.view_layer.update()
-    mw = basemesh.matrix_world
-    verts = [mw @ v.co for v in basemesh.data.vertices]
-
-    # Skeleton joints in rest world coordinates
-    neck_b = rig.data.bones.get("neck01")
-    spine_b = rig.data.bones.get("spine01")
-    clav_l = rig.data.bones.get("clavicle.L")
-    clav_r = rig.data.bones.get("clavicle.R")
-
-    neck_head = (rig.matrix_world @ neck_b.head_local) if neck_b else Vector((0.0, 0.0, 1.46))
-    neck_tail = (rig.matrix_world @ neck_b.tail_local) if neck_b else Vector((0.0, 0.0, 1.53))
-    spine_head = (rig.matrix_world @ spine_b.head_local) if spine_b else Vector((0.0, 0.0, 1.32))
-
-    neck_base_z = neck_head.z
-    neck_mid_z = 0.5 * (neck_head.z + neck_tail.z)
-    neck_center_y = neck_head.y
-
-    # Measure neck radius from vertices right around the lower neck
-    neck_ring = [v for v in verts if abs(v.z - (neck_base_z + 0.025)) < 0.018 and abs(v.x) < 0.095]
-    if neck_ring:
-        neck_rx = max(0.052, max(abs(v.x) for v in neck_ring))
-        neck_front_y = min(v.y for v in neck_ring)
-        neck_back_y = max(v.y for v in neck_ring)
-    else:
-        neck_rx, neck_front_y, neck_back_y = 0.062, -0.062, 0.060
-
-    # Measure front sternum & upper-back contours below the collar
-    chest_verts = [v for v in verts if (neck_base_z - 0.16) <= v.z <= (neck_base_z - 0.02) and abs(v.x) < 0.065]
-    sternum_y = min((v.y for v in chest_verts), default=-0.125)
-    back_verts = [v for v in verts if (neck_base_z - 0.24) <= v.z <= (neck_base_z - 0.03) and abs(v.x) < 0.16]
-    back_y = max((v.y for v in back_verts), default=0.115)
-
-    # Measure outer shoulder width & shoulder top height (clavicle outer end)
-    sh_verts = [v for v in verts if (neck_base_z - 0.08) <= v.z <= (neck_base_z + 0.02) and abs(v.x) < 0.28]
-    if clav_l and clav_r:
-        clav_x = 0.5 * (abs((rig.matrix_world @ clav_l.tail_local).x) + abs((rig.matrix_world @ clav_r.tail_local).x))
-        shoulder_half_x = max(0.18, clav_x + 0.042)
-    else:
-        shoulder_half_x = max(0.20, max((abs(v.x) for v in sh_verts), default=0.22))
-
-    trap_verts = [v for v in verts if 0.08 <= abs(v.x) <= 0.17 and (neck_base_z - 0.10) <= v.z <= (neck_base_z + 0.04)]
-    shoulder_top_z = max((v.z for v in trap_verts), default=neck_base_z - 0.025)
-
-    return {
-        "neck_base_z": neck_base_z,
-        "neck_mid_z": neck_mid_z,
-        "neck_center_y": neck_center_y,
-        "neck_rx": neck_rx,
-        "neck_front_y": neck_front_y,
-        "neck_back_y": neck_back_y,
-        "sternum_y": sternum_y,
-        "back_y": back_y,
-        "shoulder_half_x": shoulder_half_x,
-        "shoulder_top_z": shoulder_top_z,
-        "spine_head_z": spine_head.z,
-    }
-
-
-def _make_linen_cravat_material(name: str, base_rgb=(0.92, 0.90, 0.85)):
-    """Create a tactile 17th-century antique ivory silk-linen Cycles material with fine weave bump & soft SSS."""
-    mat = bpy.data.materials.new(name=f"{name}_LinenCravatMat")
-    mat.use_nodes = True
-    nt = mat.node_tree
-    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
-    bsdf.inputs["Base Color"].default_value = (*base_rgb, 1.0)
-    _set_bsdf(bsdf, "Roughness", 0.72)
-    _set_bsdf(bsdf, "Sheen Weight", 0.68)
-    _set_bsdf(bsdf, "Sheen Roughness", 0.45)
-    _set_bsdf(bsdf, "Subsurface Weight", 0.07)
-    _set_bsdf(bsdf, "Subsurface Scale", 0.004)
-    if hasattr(bsdf, "subsurface_method"):
-        try:
-            bsdf.subsurface_method = "BURLEY"
-        except Exception:
-            pass
-    _add_woven_fabric_bump(nt, bsdf, scale=460.0, strength=0.065)
-    return mat
-
-
-def _make_velvet_cloak_materials(name: str, cloak_rgb=(0.045, 0.068, 0.165), trim_rgb=(0.68, 0.50, 0.20)):
-    """Create a feature-film Cycles velvet material (LayerWeight grazing velvet pile sheen + micro-bump)
-    plus an antique-gold brocade embroidery trim & chased brass clasp material."""
-    velvet = bpy.data.materials.new(name=f"{name}_VelvetCloakMat")
-    velvet.use_nodes = True
-    nt = velvet.node_tree
-    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
-
-    # Grazing-angle velvet pile highlight (classic feature-film velvet shading!)
-    lw = nt.nodes.new("ShaderNodeLayerWeight")
-    lw.inputs["Blend"].default_value = 0.32
-    mix = nt.nodes.new("ShaderNodeMix")
-    mix.data_type = "RGBA"
-    mix.blend_type = "MIX"
-    fac_in, col_a, col_b, col_out = _get_rgba_mix_sockets(mix)
-    col_a.default_value = (*cloak_rgb, 1.0)
-    # Velvet pile catches grazing warm/cool sheen brighter & slightly desaturated
-    pile_rgb = tuple(min(1.0, c * 2.15 + 0.035) for c in cloak_rgb)
-    col_b.default_value = (*pile_rgb, 1.0)
-    nt.links.new(lw.outputs["Facing"], fac_in)
-    nt.links.new(col_out, bsdf.inputs["Base Color"])
-
-    _set_bsdf(bsdf, "Roughness", 0.78)
-    _set_bsdf(bsdf, "Sheen Weight", 0.88)
-    _set_bsdf(bsdf, "Sheen Roughness", 0.36)
-    _add_woven_fabric_bump(nt, bsdf, scale=360.0, strength=0.085)
-
-    trim = bpy.data.materials.new(name=f"{name}_GoldBrocadeMat")
-    trim.use_nodes = True
-    t_nt = trim.node_tree
-    t_bsdf = next(n for n in t_nt.nodes if n.type == "BSDF_PRINCIPLED")
-    t_bsdf.inputs["Base Color"].default_value = (*trim_rgb, 1.0)
-    _set_bsdf(t_bsdf, "Metallic", 0.72)
-    _set_bsdf(t_bsdf, "Roughness", 0.34)
-    _add_woven_fabric_bump(t_nt, t_bsdf, scale=420.0, strength=0.10)
-    return velvet, trim
-
-
-def _add_grid_surface(bm, grid_pts: list[list[Vector]], mat_index: int = 0, closed_u: bool = False):
-    """Build a smooth quad strip surface from a 2D array of Vector points `[row][col]` inside a BMesh."""
-    rows = len(grid_pts)
-    cols = len(grid_pts[0])
-    vgrid = [[bm.verts.new(p) for p in row] for row in grid_pts]
-    for r in range(rows - 1):
-        c_max = cols if closed_u else cols - 1
-        for c in range(c_max):
-            c_next = (c + 1) % cols
-            v00, v01 = vgrid[r][c], vgrid[r][c_next]
-            v11, v10 = vgrid[r + 1][c_next], vgrid[r + 1][c]
-            try:
-                f = bm.faces.new((v00, v01, v11, v10))
-                f.smooth = True
-                f.material_index = mat_index
-            except ValueError:
-                pass
-
-
-def _build_17c_cravat(name: str, rig, basemesh, lm: dict[str, float], cfg: dict):
-    """Build a smooth, multi-tiered 17th-century white silk-linen ruffled jabot or Steinkirk cravat
-    fitted directly to the actor's live neck & sternum landmarks and bone-parented cleanly to `spine01`."""
-    style = str(cfg.get("cravat_style", "jabot")).lower()
-    cravat_rgb = cfg.get("cravat_rgb", (0.92, 0.90, 0.85))
-    cravat_bone = str(cfg.get("cravat_bone", "spine01"))
-
-    bm = bmesh.new()
-
-    # 1. High-folded linen neckband collar hugging the base of the throat cleanly outside skin & shirt collar
-    rx = lm["neck_rx"] + 0.013
-    ry_front = abs(lm["neck_front_y"] - lm["neck_center_y"]) + 0.015
-    ry_back = abs(lm["neck_back_y"] - lm["neck_center_y"]) + 0.014
-    cy = lm["neck_center_y"]
-    z_bot = lm["neck_base_z"] - 0.022
-    z_top = lm["neck_base_z"] + 0.036
-
-    n_seg = 32
-    n_rings = 5
-    collar_grid = []
-    for r in range(n_rings):
-        v = r / (n_rings - 1)
-        z = z_bot + (z_top - z_bot) * v
-        # Soft tapered bell flare at bottom, rolled crisp collar lip at top
-        flare = 1.0 + 0.10 * ((1.0 - v) ** 1.6) + 0.03 * math.sin(v * math.pi)
-        ring = []
-        for s in range(n_seg):
-            ang = (s / n_seg) * 2.0 * math.pi
-            ca, sa = math.cos(ang), math.sin(ang)
-            ry = ry_front if sa < 0 else ry_back
-            # Subtle linen fold ripple along collar
-            pleat = 1.0 + 0.022 * math.sin(ang * 6.0 + v * 1.4)
-            # Dip slightly lower in front center (authentic anatomical throat notch)
-            z_dip = -0.011 * max(0.0, -sa) * (1.0 - 0.45 * v)
-            ring.append(Vector((ca * rx * flare * pleat, cy + sa * ry * flare * pleat, z + z_dip)))
-        collar_grid.append(ring)
-    _add_grid_surface(bm, collar_grid, mat_index=0, closed_u=True)
-
-    # 2. Softly tied silk-linen stock knot tucked cleanly at the suprasternal notch
-    knot_z = lm["neck_base_z"] - 0.022
-    knot_y = min(lm["neck_front_y"] - 0.018, lm["sternum_y"] - 0.014)
-    knot_mat = (
-        Matrix.Translation((0.0, knot_y, knot_z))
-        @ Matrix.Diagonal((0.027, 0.016, 0.020, 1.0))
-    )
-    bmesh.ops.create_uvsphere(bm, u_segments=18, v_segments=12, radius=1.0, matrix=knot_mat)
-
-    # 3. Layered cascading ruffled jabot frills (Newton) OR sleek folded Steinkirk cravat (Halley)
-    chest_base_y = lm["sternum_y"] - 0.016
-    if style == "tied":
-        tiers = [
-            # (length, w_top, w_bot, z_offset, y_proud, wave_amp, wave_freq, x_skew)
-            (0.115, 0.024, 0.044, -0.022, 0.014, 0.0045, 3.5, -0.004),
-            (0.145, 0.020, 0.052, -0.025, 0.008, 0.0055, 4.0, 0.005),
-        ]
-    else:
-        # Authentic Godfrey Kneller 1689 Sir Isaac Newton multi-tiered ruffled white silk jabot!
-        tiers = [
-            (0.088, 0.028, 0.068, -0.020, 0.022, 0.0075, 5.0, 0.000),
-            (0.132, 0.032, 0.086, -0.024, 0.015, 0.0085, 6.0, 0.002),
-            (0.168, 0.028, 0.074, -0.028, 0.008, 0.0070, 5.5, -0.002),
-        ]
-
-    for length, w_top, w_bot, z_off, y_proud, w_amp, w_freq, x_skew in tiers:
-        rows, cols = 12, 25
-        grid = []
-        for r in range(rows):
-            v = r / (rows - 1)  # 0 at knot -> 1 at ruffled bottom hem
-            z = lm["neck_base_z"] + z_off - length * v
-            # Follow natural chest curve forward at upper sternum then gently down
-            chest_bulge = math.sin(v * math.pi * 0.85) * 0.012
-            half_w = (w_top * (1.0 - v) + w_bot * (v ** 0.78)) * 0.5
-            row_pts = []
-            for c in range(cols):
-                u = (c / (cols - 1)) * 2.0 - 1.0  # -1..+1
-                # Scalloped rounded bottom hem so jabot looks like soft draped silk lace, never a stiff rectangle!
-                hem_curve = math.sqrt(max(0.08, 1.0 - 0.65 * (u * u)))
-                z_pt = lm["neck_base_z"] + z_off - length * v * (0.72 + 0.28 * hem_curve)
-                x = u * half_w + x_skew * v
-                # Organic sinusoidal vertical linen pleats deepening gracefully toward the hem
-                pleat_env = (v ** 0.85) * (0.45 + 0.55 * abs(u))
-                ripple_y = -w_amp * pleat_env * math.cos(u * math.pi * w_freq)
-                # Slight arch wrapping softly around sternum curvature
-                arch_y = 0.010 * (u * u)
-                y = chest_base_y - y_proud - chest_bulge + ripple_y + arch_y
-                row_pts.append(Vector((x, y, z_pt)))
-            grid.append(row_pts)
-        _add_grid_surface(bm, grid, mat_index=0, closed_u=False)
-
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    mesh = bpy.data.meshes.new(f"{name}_CravatMesh")
-    bm.to_mesh(mesh)
-    bm.free()
-
-    for p in mesh.polygons:
-        p.use_smooth = True
-
-    obj = bpy.data.objects.new(f"{name}_17cCravat", mesh)
-    _link_to_active_collection(obj)
-    obj.data.materials.append(_make_linen_cravat_material(name, base_rgb=cravat_rgb))
-
-    # Add real subtle cloth thickness (2.2mm) so silhouette edges catch warm key & rim light!
-    sol = obj.modifiers.new("LinenThickness", "SOLIDIFY")
-    sol.thickness = 0.0022
-    sol.offset = 0.0
-
-    _parent_object_to_bone_exact(obj, rig, cravat_bone)
-    return obj
-
-
-def _build_17c_scholar_cloak(name: str, rig, basemesh, lm: dict[str, float], cfg: dict):
-    """Build a sumptuous, clip-proof 17th-century draped velvet Cambridge Scholar / Royal Society
-    Shoulder-Mantle & Flowing Back-Cape fitted directly to the actor's live shoulder & back landmarks!
-    Front academic stoles stay cleanly inboard of the shoulder joints (`|x| <= 0.72 * shoulder_half_x`)
-    and the flowing pleated cape drapes cleanly behind the shoulder blades so raised arm gestures NEVER clip!"""
-    cloak_rgb = cfg.get("cloak_rgb", (0.045, 0.068, 0.165))
-    trim_rgb = cfg.get("cloak_trim_rgb", (0.68, 0.50, 0.20))
-    cloak_style = str(cfg.get("cloak_style", "cambridge_scholar")).lower()
-    cloak_bone = str(cfg.get("cloak_bone", "spine01"))
-    add_clasp = bool(cfg.get("cloak_clasp", cloak_style == "captain_mantle"))
-
-    bm = bmesh.new()
-    sh_x = lm["shoulder_half_x"]
-    sh_z = lm["shoulder_top_z"]
-    neck_z = lm["neck_base_z"]
-    back_y = lm["back_y"]
-    front_y = lm["sternum_y"]
-
-    # 1. Flowing Pleated Velvet Back-Cape & Sculpted Shoulder Cap
-    # Circumferential angle theta: 0 = straight back (+Y), +/- pi*0.58 = wrapping just over outer-back shoulders!
-    # Stays safely behind the forward upper-arm swing cone so gesturing arms NEVER intersect the cloak!
-    rows_b = 16
-    cols_b = 31
-    cape_len = 0.70 if cloak_style == "cambridge_scholar" else 0.62
-    cape_grid = []
-    for r in range(rows_b):
-        v = r / (rows_b - 1)  # 0 at collar rim -> 1 at flowing mid-thigh hem
-        # Angular sweep narrows slightly around mid-arms (avoiding elbow swing!) then flares gracefully at hem
-        max_ang = math.radians(104.0 * (1.0 - 0.20 * math.sin(v * math.pi * 0.75)))
-        row_pts = []
-        for c in range(cols_b):
-            u = (c / (cols_b - 1)) * 2.0 - 1.0  # -1 (right) .. +1 (left)
-            ang = u * max_ang
-            sa, ca = math.sin(ang), math.cos(ang)  # ca=1 at back (+Y), sa=+-1 at sides (+-X)
-
-            # Vertical drop curves smoothly from collar top over shoulder arch then hangs straight down
-            if v < 0.18:
-                t_sh = v / 0.18
-                z = (neck_z + 0.024) * (1.0 - t_sh) + (sh_z + 0.015) * t_sh
-                rad_x = (lm["neck_rx"] + 0.020) * (1.0 - t_sh) + (sh_x + 0.022) * t_sh
-                rad_y = (abs(lm["neck_back_y"] - lm["neck_center_y"]) + 0.024) * (1.0 - t_sh) + (back_y + 0.030) * t_sh
-                pleat_r = 0.004 * t_sh * math.cos(u * math.pi * 5.0)
-            else:
-                t_dr = (v - 0.18) / 0.82
-                z = (sh_z + 0.015) - cape_len * t_dr
-                # Graceful A-line gravity drape flaring slightly at hem + organic heavy velvet drapery folds
-                rad_x = (sh_x + 0.022) + 0.085 * (t_dr ** 1.15)
-                rad_y = (back_y + 0.030) + 0.095 * (t_dr ** 1.10)
-                pleat_r = (0.022 * (t_dr ** 0.85)) * math.cos(u * math.pi * 5.5)
-
-            x = sa * (rad_x + pleat_r * 0.65)
-            # Keep cape body cleanly behind the arm plane once below the shoulder cap!
-            y = max(lm["neck_center_y"] + 0.020 * min(1.0, v * 3.0), ca * (rad_y + pleat_r))
-            if v >= 0.18:
-                y = max(y, back_y * 0.45 + 0.028)
-            row_pts.append(Vector((x, y, z)))
-        cape_grid.append(row_pts)
-    _add_grid_surface(bm, cape_grid, mat_index=0, closed_u=False)
-
-    # 2. Draped Velvet Academic Front Stoles / Scholar Lapels (Left & Right, framing the white cravat!)
-    # Stay strictly inboard of the shoulder joints (`|x| in [0.052 .. 0.148m]`) so arms move 100% freely!
-    stole_len = 0.40 if cloak_style == "cambridge_scholar" else 0.34
-    for side in (-1.0, 1.0):
-        stole_grid = []
-        trim_grid = []
-        s_rows, s_cols = 14, 9
-        for r in range(s_rows):
-            v = r / (s_rows - 1)  # 0 at back-of-neck collar -> 1 at lower chest hem
-            # Arch gracefully over trapezius (v in 0..0.24) then cascade down chest (v in 0.24..1.0)
-            if v < 0.24:
-                t_a = v / 0.24
-                z_base = (neck_z + 0.022) * (1.0 - t_a) + (sh_z + 0.008) * t_a
-                y_base = (lm["neck_back_y"] + 0.010) * (1.0 - t_a) + (front_y - 0.020) * (t_a ** 1.15)
-                x_in = (lm["neck_rx"] + 0.014) * (1.0 - t_a) + 0.056 * t_a
-                stole_w = 0.058 * (1.0 - t_a) + 0.088 * t_a
-            else:
-                t_d = (v - 0.24) / 0.76
-                z_base = (sh_z + 0.008) - stole_len * t_d
-                # Hug front chest contour proudly (+0.022m outside shirt fabric, zero clipping!)
-                chest_env = math.sin(t_d * math.pi * 0.80) * 0.014
-                y_base = (front_y - 0.022) - chest_env + 0.012 * (t_d ** 1.6)
-                # Gently open outward framing the white jabot cravat!
-                x_in = 0.056 + 0.026 * math.sin(t_d * math.pi * 0.65)
-                stole_w = 0.088 + 0.016 * t_d
-
-            row_pts = []
-            t_row_pts = []
-            for c in range(s_cols):
-                u = c / (s_cols - 1)  # 0 = inner edge next to cravat, 1 = outer shoulder edge
-                x_mag = x_in + u * stole_w
-                # Clamp outer edge safely inboard of shoulder joint ball so arm gestures never clip!
-                x_mag = min(x_mag, sh_x * 0.78)
-                # Natural velvet fold ripple across stole width
-                fold_y = -0.008 * math.sin(u * math.pi * 2.5) * min(1.0, v * 2.5)
-                # Outer edge curves softly back around ribcage contour
-                wrap_y = 0.032 * (u ** 1.8)
-                z_pt = z_base - 0.010 * (u ** 1.2) * (1.0 - 0.5 * v)
-                pt = Vector((side * x_mag, y_base + fold_y + wrap_y, z_pt))
-                row_pts.append(pt)
-                if c <= 1:
-                    # Slight forward offset for embossed gold brocade trim along inner border
-                    t_row_pts.append(pt + Vector((0.0, -0.0032, 0.0)))
-            stole_grid.append(row_pts)
-            trim_grid.append(t_row_pts)
-
-        # Flip winding on negative side so face normals consistently point outward!
-        if side < 0:
-            stole_grid = [list(reversed(row)) for row in stole_grid]
-            trim_grid = [list(reversed(row)) for row in trim_grid]
-        _add_grid_surface(bm, stole_grid, mat_index=0, closed_u=False)
-        _add_grid_surface(bm, trim_grid, mat_index=1, closed_u=False)
-
-    # 3. Optional Antique Chased-Brass Cloak Clasps at upper collar corners (authentic 17th-c Royal Society / Captain mantle!)
-    if add_clasp:
-        clasp_z = sh_z - 0.018
-        clasp_y = front_y - 0.032
-        for side in (-1.0, 1.0):
-            c_mat = (
-                Matrix.Translation((side * 0.064, clasp_y, clasp_z))
-                @ Matrix.Rotation(math.radians(90.0), 4, "X")
-            )
-            ret = bmesh.ops.create_cone(
-                bm,
-                cap_ends=True,
-                cap_tris=False,
-                segments=16,
-                radius1=0.014,
-                radius2=0.011,
-                depth=0.006,
-                matrix=c_mat,
-            )
-            for v_c in ret["verts"]:
-                for f_c in v_c.link_faces:
-                    f_c.material_index = 1
-                    f_c.smooth = True
-
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    mesh = bpy.data.meshes.new(f"{name}_ScholarCloakMesh")
-    bm.to_mesh(mesh)
-    bm.free()
-
-    for p in mesh.polygons:
-        p.use_smooth = True
-
-    obj = bpy.data.objects.new(f"{name}_17cScholarCloak", mesh)
-    _link_to_active_collection(obj)
-    velvet_mat, trim_mat = _make_velvet_cloak_materials(name, cloak_rgb=cloak_rgb, trim_rgb=trim_rgb)
-    obj.data.materials.append(velvet_mat)
-    obj.data.materials.append(trim_mat)
-
-    # Sumptuous 4mm heavy velvet cloth thickness!
-    sol = obj.modifiers.new("VelvetThickness", "SOLIDIFY")
-    sol.thickness = 0.0042
-    sol.offset = 0.25
-
-    _parent_object_to_bone_exact(obj, rig, cloak_bone)
-    return obj
 
 
 # ============================================================================
@@ -808,7 +421,7 @@ def apply_relaxed_fingers(rig):
 
 
 # ============================================================================
-# PUBLIC FACTORY: CREATE V7 AUTHENTIC 17TH-CENTURY ULTRA-REALISTIC MPFB2 HUMAN!
+# PUBLIC FACTORY: CREATE V8 AUTHENTIC 17TH-CENTURY ULTRA-REALISTIC MPFB2 HUMAN!
 # ============================================================================
 def _equip_clothing_layer(
     HumanService,
@@ -822,8 +435,10 @@ def _equip_clothing_layer(
     prefix: str,
     default_roughness: float = 0.74,
     add_fabric_bump: bool = True,
+    auto_metal_map: bool = True,
 ):
-    """Load an optional MPFB2 clothing layer (shirt/pants/coat/cloak/suit/shoes) with independent color grading."""
+    """Load an optional MPFB2 3D clothing layer (pants/shirt/vest/coat/cloak/suit/shoes)
+    with independent linear-safe color grading, velvet sheen, woven micro-bump & sibling *_METAL.png hookup."""
     if not candidates:
         return None
     apath, _ = _find_best_asset(AssetService, ("clothes",), candidates)
@@ -846,8 +461,23 @@ def _equip_clothing_layer(
     tint_fac = float(cfg.get(f"{prefix}_tint_fac", 0.0))
     val_boost = float(cfg.get(f"{prefix}_value_boost", 1.0))
     gam_lift = float(cfg.get(f"{prefix}_gamma_lift", 1.0))
+    sat_ovr = cfg.get(f"{prefix}_sat_override")
+    hue_sh = float(cfg.get(f"{prefix}_hue_shift", 0.5))
+    sheen_w = cfg.get(f"{prefix}_sheen")
     rough = cfg.get(f"{prefix}_roughness", default_roughness)
-    if tint_rgb or tint_fac > 0.0 or val_boost != 1.0 or gam_lift != 1.0 or add_fabric_bump:
+    use_metal = bool(cfg.get(f"{prefix}_auto_metal_map", auto_metal_map))
+
+    if (
+        tint_rgb
+        or tint_fac > 0.0
+        or val_boost != 1.0
+        or gam_lift != 1.0
+        or sat_ovr is not None
+        or hue_sh != 0.5
+        or sheen_w is not None
+        or add_fabric_bump
+        or use_metal
+    ):
         _tint_asset_material(
             obj,
             tint_rgb=tint_rgb,
@@ -856,7 +486,11 @@ def _equip_clothing_layer(
             is_hair=False,
             value_boost=val_boost,
             gamma_lift=gam_lift,
+            sat_override=float(sat_ovr) if sat_ovr is not None else None,
+            hue_shift=hue_sh,
+            sheen_weight=float(sheen_w) if sheen_w is not None else None,
             add_fabric_bump=add_fabric_bump,
+            auto_metal_map=use_metal,
         )
     return obj
 
@@ -871,9 +505,9 @@ def create_realistic_scientist(
 ):
     """Build an ultra-realistic Cycles human using official MakeHuman 4K photo-scanned adult skins,
     PROCEDURAL_EYES high-poly eyes, alpha eyebrows/eyelashes, 3D teeth/tongue, authentic hair,
-    multi-layer 17th-century historical attire (shirt/tunic, wool trousers, optional coat/cloak,
-    leather boots — ZERO modern ties!), plus optional rigged 17th-century white linen jabot cravat
-    and draped velvet Cambridge scholar shoulder-mantle/cape!
+    and 100% REAL 3D Sculpted MakeHuman multi-layer 17th-century historical attire (`pants_assets`,
+    `shirt_assets`, `vest_assets`, `coat_assets`, `cloak_assets`, `suit_assets`, `shoe_assets` —
+    ZERO modern ties, ZERO modern bowties, ZERO blocky procedural foam straps or neck-braces!).
     Note: +yaw_deg faces toward +X (Screen Right); -yaw_deg faces toward -X (Screen Left)."""
     HumanService, TargetService, AssetService, HumanObjectProperties = enable_mpfb2()
     AssetService.update_all_asset_lists()
@@ -960,7 +594,7 @@ def create_realistic_scientist(
     # 5. Equip Real Alpha-Strand / Normal-Mapped Hair (distinct per character — subdiv_levels=0!)
     hair_cands = cfg.get(
         "hair_assets",
-        ["culturalibre_hair_01.mhclo", "bob02.mhclo", "short04.mhclo", "short02.mhclo"],
+        ["culturalibre_hair_01.mhclo", "short04.mhclo"],
     )
     hair_path, _ = _find_best_asset(AssetService, ("hair",), hair_cands)
     if hair_path:
@@ -1012,9 +646,10 @@ def create_realistic_scientist(
                 gamma_lift=float(cfg.get("beard_gamma_lift", 1.0)),
             )
 
-    # 7. Equip Multi-Layer Authentic 17th-Century Historical Outfit (subdiv_levels=0 for OOM-proof T4 GPU speed!)
-    # Load trousers BEFORE outer tunic/coat so MPFB2 z_depth & delete_verts stack cleanly!
-    has_layered = any(cfg.get(k) for k in ("shirt_assets", "pants_assets", "coat_assets", "cloak_assets"))
+    # 7. Equip Multi-Layer 100% REAL 3D MakeHuman Historical Wardrobe (subdiv_levels=0 for OOM-proof T4 GPU!)
+    # Load inner layers (pants -> shirt -> vest) BEFORE outer layers (coat -> cloak) for clean MPFB2 stacking!
+    layered_keys = ("pants_assets", "shirt_assets", "vest_assets", "coat_assets", "cloak_assets")
+    has_layered = any(cfg.get(k) for k in layered_keys)
 
     if cfg.get("pants_assets"):
         _equip_clothing_layer(
@@ -1026,6 +661,12 @@ def create_realistic_scientist(
         _equip_clothing_layer(
             HumanService, AssetService, basemesh, name, equipped,
             "Shirt", cfg["shirt_assets"], cfg, "shirt", default_roughness=0.74, add_fabric_bump=True,
+        )
+
+    if cfg.get("vest_assets"):
+        _equip_clothing_layer(
+            HumanService, AssetService, basemesh, name, equipped,
+            "Vest", cfg["vest_assets"], cfg, "vest", default_roughness=0.72, add_fabric_bump=True,
         )
 
     if cfg.get("coat_assets"):
@@ -1043,16 +684,11 @@ def create_realistic_scientist(
     # Backwards-compatible single-piece suit slot (ONLY used if explicitly requested, or if no layered pieces provided)
     suit_cands = cfg.get("suit_assets")
     if suit_cands is None and not has_layered:
-        # Default fallback is historical layered doublet + wool trousers (NEVER modern tie suits!)
+        # Default fallback is real 3D MakeHuman Cambridge scholar robe (NEVER modern tie suits!)
         _equip_clothing_layer(
             HumanService, AssetService, basemesh, name, equipped,
-            "Pants", ["mindfront_male_trousers_2.mhclo", "toigo_wool_pants.mhclo"], cfg, "pants",
-            default_roughness=0.78, add_fabric_bump=True,
-        )
-        _equip_clothing_layer(
-            HumanService, AssetService, basemesh, name, equipped,
-            "Shirt", ["elvs_male_boho_top1.mhclo", "elvs_male_shirt_untucked_bd1.mhclo"], cfg, "shirt",
-            default_roughness=0.74, add_fabric_bump=True,
+            "Coat", ["donitz_monk_robe.mhclo", "mindfront_lusekofta.mhclo", "elvs_male_boho_top1.mhclo"],
+            cfg, "coat", default_roughness=0.76, add_fabric_bump=True,
         )
     elif suit_cands:
         _equip_clothing_layer(
@@ -1063,27 +699,22 @@ def create_realistic_scientist(
     # Authentic 17th-Century Leather Boots / Shoes
     shoe_cands = cfg.get(
         "shoe_assets",
-        ["toigo_ankle_boots_male.mhclo", "punkduck_medieval_boots.mhclo", "culturalibre_male_boots.mhclo"],
+        ["toigo_ankle_boots_male.mhclo", "punkduck_medieval_boots.mhclo"],
     )
     _equip_clothing_layer(
         HumanService, AssetService, basemesh, name, equipped,
-        "Shoes", shoe_cands, cfg, "shoe", default_roughness=0.46, add_fabric_bump=False,
+        "Shoes", shoe_cands, cfg, "shoe", default_roughness=0.46, add_fabric_bump=False, auto_metal_map=False,
     )
 
-    # 8. Optional Rigged 17th-Century White Linen Ruffled Jabot Cravat & Draped Velvet Scholar Cloak!
-    # Built cleanly in rest pose (rig at origin/identity) from live torso measurements and bone-parented!
+    # V8 Guard: Legacy procedural `add_cravat` & `add_scholar_cloak` default False and are intentionally
+    # disabled in V8 so blocky procedural foam straps & chin-burying neck-braces NEVER render!
     if cfg.get("add_cravat", False) or cfg.get("add_scholar_cloak", False):
-        lm = _measure_torso_landmarks(rig, basemesh)
-        if cfg.get("add_cravat", False):
-            cravat_obj = _build_17c_cravat(name, rig, basemesh, lm, cfg)
-            equipped["Cravat"] = cravat_obj
-            print(f"[MPFB2 17c]   '{name}' Cravat     -> Rigged 17c Linen ({cfg.get('cravat_style', 'jabot')}, bone={cfg.get('cravat_bone', 'spine01')})")
-        if cfg.get("add_scholar_cloak", False):
-            cloak_obj = _build_17c_scholar_cloak(name, rig, basemesh, lm, cfg)
-            equipped["ScholarCloak"] = cloak_obj
-            print(f"[MPFB2 17c]   '{name}' Mantle     -> Rigged 17c Velvet ({cfg.get('cloak_style', 'cambridge_scholar')}, bone={cfg.get('cloak_bone', 'spine01')})")
+        print(
+            f"[MPFB2 V8 Guard] '{name}': Ignoring legacy procedural add_cravat/add_scholar_cloak — "
+            f"using 100% real 3D sculpted MakeHuman .mhclo garments!"
+        )
 
-    # 9. Natural relaxed curled fingers + Adult Stature Normalization (`target_height_m`) + exact floor grounding!
+    # 8. Natural relaxed curled fingers + Adult Stature Normalization (`target_height_m`) + exact floor grounding!
     apply_relaxed_fingers(rig)
 
     bpy.context.view_layer.update()
@@ -1115,7 +746,8 @@ def create_realistic_scientist(
 
     final_h = max_z - min_z
     print(
-        f"[MPFB2 V7 READY] '{name}' ({len(equipped)} authentic 17c/4K assets equipped, age={raw_age:.2f}, "
+        f"[MPFB2 V8 READY] '{name}' ({len(equipped)} real 3D 17c/4K MakeHuman assets equipped, age={raw_age:.2f}, "
         f"height={final_h:.2f}m, feet@z={floor_z:.2f}m, head_top@z={floor_z + final_h:.2f}m)"
     )
     return {"rig": rig, "body": basemesh, "equipped": equipped, "height": final_h, "base_z": base_z}
+

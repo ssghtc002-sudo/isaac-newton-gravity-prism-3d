@@ -1,34 +1,35 @@
 """
 Scientist #9: Isaac Newton (1666-1687) — The Falling Apple, Rainbow Prism & Universal Gravity
-Full 30-Second (720 Frames @ 24fps, 1080x1920 Lanczos) Blender 4.2 LTS Cycles V7 Dual-GPU Cinema Short
+Full 30-Second (720 Frames @ 24fps, 1080x1920 Lanczos) Blender 4.2 LTS Cycles V8 Dual-GPU Cinema Short
 
-100% Brand-New V7 Visual Identity (Outdoor Woolsthorpe Apple Orchard & Cotswold Stone Terrace -> Starry Twilight Cosmos):
+100% Brand-New V8 Visual Identity (Outdoor Woolsthorpe Apple Orchard & Cotswold Stone Terrace -> Starry Twilight Cosmos):
   - True Ground-Level Outdoor World (`FLOOR_Z = 0.0`) built by `src/newton_world_v7.py`: mossy Cotswold
     flagstones, lush orchard meadow, towering Woolsthorpe Apple Tree with real overhanging branch,
     carved stone garden plinths, dramatic shaded stone arch optical alcove with pinhole shutter, and
     seamless Golden-Hour -> Starry Twilight Cosmos sky transformation with Crescent Moon & 160 stars!
-  - Full 3/4-Body Adult 4K MPFB2 Cast (`1.78m` Sir Isaac Newton with 17th-century white ruffled linen
-    cravat & dark-indigo scholar cloak + `1.79m` Edmond Halley with white cravat — ZERO shopkeeper desk!).
-  - Blender 4.2 Cycles V7 Optical Compositor (`FOG_GLOW` Glare + Filmic Color Balance) + 16 spp Adaptive
-    GPU OIDN + `AgX - Punchy` + `texture_limit_render = "2048"` (OOM-proof on Kaggle `GPU T4 x2`!).
+  - Full 3/4-Body Adult 4K MPFB2 Cast (`1.78m` Sir Isaac Newton + `1.79m` Edmond Halley) with relaxed,
+    asymmetric natural human film gestures across all 6 beats (ZERO symmetrical invisible-box poses!).
+  - Blender 4.2 Cycles V8 Zero-Quality-Drop OPTIX Turbo (`12 spp` Adaptive + Hardware `OPTIX`
+    `RGB_ALBEDO_NORMAL` + `AgX - Punchy` + `texture_limit_render = "2048"` + 3s FFmpeg optical bloom!).
   - Beat 1 (0.0-4.5s): Golden-Hour Woolsthorpe Orchard — Hero ruby-gold lacquered apple detaches from real
     overhanging branch (`HERO_APPLE_ATTACH`), accelerates under `1/2 g t²` onto gold-braided crimson velvet
-    pad atop `APPLE_PLINTH`, spawning glowing golden downward `g` force arrow & expanding ripple ring!
+    pad atop `APPLE_PLINTH`, spawning molten-gold brass-rimmed downward `g` force arrow & ripple rings!
   - Beat 2 (4.5-9.5s): Sunlit Stone Courtyard Face-to-Face Debate — Full-stature eye-to-eye Newton & Halley
     flanking open *Principia Mathematica*, brass dividers, crystal inkwell & quill on `PRINCIPIA_PLINTH` as
-    crisp 3D `F = m a` snaps at `6.95s` into radiant cyan-gold `F = G m1 m2 / r²`!
-  - Beat 3 (9.5-15.5s): Shaded Stone Arch Optical Alcove — Tall Brass Optical Field Tripod holding a crystal
-    beveled Flint-Glass Equilateral Prism (`IOR = 1.62`) splits a golden-white sunbeam from `PRISM_PINHOLE`
-    into 7 wide glowing translucent diverging rainbow dispersion ribbons projecting onto an obsidian easel!
+    high-contrast dark-haloed 3D `F = m a` snaps at `6.95s` into radiant cyan `F = G m1 m2 / r²`!
+  - Beat 3 (9.5-15.5s): Shaded Stone Arch Optical Alcove — Tall Brass Optical Field Tripod holding a
+    museum-grade catchlight-rimmed Flint-Glass Equilateral Prism (`IOR = 1.62`) splits a golden-white sunbeam
+    from `PRISM_PINHOLE` into 7 jewel-saturated diverging rainbow dispersion ribbons onto an obsidian easel!
   - Beat 4 (15.5-20.5s): `3.8°` Dutch-Tilt Garden Balustrade Comedy — Stepped mahogany & brass Newton's Cradle
     on `CRADLE_PLINTH` with 5 mirror-chrome spheres (`Roughness = 0.03`): Sphere 0 clacks at `17.45s` launching
     Sphere 4 to `+62°` with 16 golden sparks & shock ring as Halley performs a full-body knee-bend recoil!
   - Beat 5 (20.5-25.5s): Starry Twilight Cosmos Transformation — Full-height Brass Newtonian Reflecting
     Telescope on a tall mahogany outdoor tripod beneath a GIGANTIC luminous sapphire-gold 3D Curved Space-Time
-    Gravity Well cradling procedural 3D Earth (with Fresnel atmosphere) & orbiting cratered 3D Moon!
+    Gravity Well cradling high-contrast procedural 3D Earth (sapphire oceans, emerald/ochre landmasses,
+    bright wispy clouds, Fresnel atmosphere) & orbiting cratered 3D Moon!
   - Beat 6 (25.5-30.0s): Epic Moonlit Orchard-to-Cosmos Rocket Slingshot Finale — Centered Gravity Well,
     sleek metallic 3D Orbital Rocket with blazing amber-cyan plasma thruster along tilted golden orbit halo,
-    crowned by self-luminous gold 3D monument `ISAAC NEWTON / F = G m1 m2 / r²` & full flanking cast!
+    crowned by glowing gold 3D sky monument `ISAAC NEWTON / F = G m1 m2 / r²` & full flanking cast!
 """
 from __future__ import annotations
 
@@ -67,11 +68,11 @@ from newton_world_v7 import (
 # ============================================================================
 def parse_args():
     argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
-    p = argparse.ArgumentParser(description="Isaac Newton V7 Cycles Dual-GPU Outdoor-to-Cosmos 3D Short Renderer")
+    p = argparse.ArgumentParser(description="Isaac Newton V8 Cycles OPTIX Dual-GPU Outdoor-to-Cosmos 3D Short Renderer")
     p.add_argument("--start-frame", type=int, default=1)
     p.add_argument("--end-frame", type=int, default=720)
     p.add_argument("--fps", type=int, default=int(os.environ.get("NEWTON_FPS", "24")))
-    p.add_argument("--samples", type=int, default=int(os.environ.get("NEWTON_SAMPLES", "16")))
+    p.add_argument("--samples", type=int, default=int(os.environ.get("NEWTON_SAMPLES", "12")))
     p.add_argument("--scale", type=int, default=int(os.environ.get("NEWTON_SCALE", "75")))
     p.add_argument("--out-dir", type=str, default=os.environ.get("NEWTON_FRAMES_DIR", "render_frames"))
     p.add_argument("--qa-only", action="store_true", help="Render 6 hero Beat keyframes to qa_frames/")
@@ -167,7 +168,7 @@ scene.render.use_placeholder = False
 scene.frame_start = max(1, ARGS.start_frame)
 scene.frame_end = min(TOTAL_FRAMES, ARGS.end_frame)
 
-# V7 Zero-Quality-Drop Cycles OPTIX Turbo (Full 75%->1080p, 2048px 4K Cast, ~6.5-8m on Dual-T4!)
+# V8 Zero-Quality-Drop Cycles OPTIX Turbo (Full 75%->1080p, 2048px 4K Cast, ~6.5-8m on Dual-T4!)
 scene.cycles.samples = ARGS.samples
 scene.cycles.use_adaptive_sampling = True
 scene.cycles.adaptive_threshold = 0.055
@@ -234,7 +235,7 @@ try:
                     except Exception:
                         pass
                 print(
-                    f"[Cycles V7 Zero-Loss Turbo] {backend} GPU ({len(gpu_devices)} device(s)) | "
+                    f"[Cycles V8 Zero-Loss Turbo] {backend} GPU ({len(gpu_devices)} device(s)) | "
                     f"Denoiser={scene.cycles.denoiser} (RGB_ALBEDO_NORMAL) | "
                     f"Frames {scene.frame_start}..{scene.frame_end} ({FPS}fps, {ARGS.scale}% res, {ARGS.samples} spp)"
                 )
@@ -348,6 +349,46 @@ def make_glass_mat(name, ior=1.62, tint=(0.96, 0.99, 1.0), rough=0.005, coat=0.7
     return mat
 
 
+def make_optical_prism_mat(name, ior=1.62, tint=(0.97, 0.995, 1.0), rough=0.003):
+    """Museum-grade optical flint-glass prism with crisp diamond Fresnel specular catchlight rim!"""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    bsdf = nt.nodes["Principled BSDF"]
+    out = nt.nodes["Material Output"]
+    set_bsdf(bsdf, "Base Color", (*tint, 1.0))
+    set_bsdf(bsdf, "Roughness", rough)
+    set_bsdf(bsdf, "IOR", ior)
+    set_bsdf(bsdf, "Transmission Weight", 0.98)
+    set_bsdf(bsdf, "Transmission", 0.98)
+    set_bsdf(bsdf, "Specular IOR Level", 0.92)
+    set_bsdf(bsdf, "Coat Weight", 1.0)
+    set_bsdf(bsdf, "Coat Roughness", 0.008)
+
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.22
+    pw = nt.nodes.new("ShaderNodeMath")
+    pw.operation = "POWER"
+    pw.inputs[1].default_value = 2.8
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.clamp = True
+    mr.inputs["From Min"].default_value = 0.14
+    mr.inputs["From Max"].default_value = 1.0
+    mr.inputs["To Min"].default_value = 0.0
+    mr.inputs["To Max"].default_value = 2.6
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (0.95, 0.99, 1.0, 1.0)
+    add_sh = nt.nodes.new("ShaderNodeAddShader")
+
+    nt.links.new(lw.outputs["Fresnel"], pw.inputs[0])
+    nt.links.new(pw.outputs["Value"], mr.inputs["Value"])
+    nt.links.new(mr.outputs["Result"], em.inputs["Strength"])
+    nt.links.new(bsdf.outputs["BSDF"], add_sh.inputs[0])
+    nt.links.new(em.outputs["Emission"], add_sh.inputs[1])
+    nt.links.new(add_sh.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
 def make_emissive_mat(name, rgb, strength=4.5):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
@@ -358,6 +399,139 @@ def make_emissive_mat(name, rgb, strength=4.5):
     em.inputs["Color"].default_value = (*rgb, 1.0)
     em.inputs["Strength"].default_value = strength
     nt.links.new(em.outputs["Emission"], out.inputs["Surface"])
+    return mat
+
+
+def make_molten_gold_arrow_mat(name="MoltenGoldGravityArrowV8"):
+    """Rich 24K molten-gold gravity vector core framed by a burnished antique-brass Fresnel rim accent!"""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (1.0, 0.62, 0.06, 1.0)
+    em.inputs["Strength"].default_value = 5.6
+    rim_bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    set_bsdf(rim_bsdf, "Base Color", (0.88, 0.56, 0.12, 1.0))
+    set_bsdf(rim_bsdf, "Metallic", 0.98)
+    set_bsdf(rim_bsdf, "Roughness", 0.14)
+    set_bsdf(rim_bsdf, "Emission Color", (1.0, 0.64, 0.08, 1.0))
+    set_bsdf(rim_bsdf, "Emission Strength", 0.85)
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.36
+    rmp = nt.nodes.new("ShaderNodeValToRGB")
+    rmp.color_ramp.elements[0].position = 0.38
+    rmp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
+    rmp.color_ramp.elements[1].position = 0.78
+    rmp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
+    nt.links.new(lw.outputs["Facing"], rmp.inputs["Fac"])
+    nt.links.new(rmp.outputs["Color"], mix.inputs["Fac"])
+    nt.links.new(em.outputs["Emission"], mix.inputs[1])
+    nt.links.new(rim_bsdf.outputs["BSDF"], mix.inputs[2])
+    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def make_crisp_formula_mat(name, glow_rgb, strength=5.5, rim_rgb=(0.024, 0.014, 0.006)):
+    """High-contrast daylight-proof 3D formula shader: radiant emissive face + dark obsidian-metallic beveled rim!"""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (*glow_rgb, 1.0)
+    em.inputs["Strength"].default_value = strength
+    rim_bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    set_bsdf(rim_bsdf, "Base Color", (*rim_rgb, 1.0))
+    set_bsdf(rim_bsdf, "Metallic", 0.55)
+    set_bsdf(rim_bsdf, "Roughness", 0.28)
+    set_bsdf(rim_bsdf, "Emission Color", (*rim_rgb, 1.0))
+    set_bsdf(rim_bsdf, "Emission Strength", 0.12)
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.42
+    rmp = nt.nodes.new("ShaderNodeValToRGB")
+    rmp.color_ramp.elements[0].position = 0.30
+    rmp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
+    rmp.color_ramp.elements[1].position = 0.66
+    rmp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
+    nt.links.new(lw.outputs["Facing"], rmp.inputs["Fac"])
+    nt.links.new(rmp.outputs["Color"], mix.inputs["Fac"])
+    nt.links.new(em.outputs["Emission"], mix.inputs[1])
+    nt.links.new(rim_bsdf.outputs["BSDF"], mix.inputs[2])
+    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def make_formula_halo_mat(name="FormulaObsidianHaloV8", opacity=0.62):
+    """Sleek feathered elliptical dark-obsidian shadow halo backing strip (ZERO hard card border, ZERO sun glare!)."""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    dark_em = nt.nodes.new("ShaderNodeEmission")
+    dark_em.inputs["Color"].default_value = (0.004, 0.008, 0.018, 1.0)
+    dark_em.inputs["Strength"].default_value = 0.03
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    mx = nt.nodes.new("ShaderNodeMapRange")
+    mx.clamp = False
+    mx.inputs["From Min"].default_value = 0.0
+    mx.inputs["From Max"].default_value = 1.0
+    mx.inputs["To Min"].default_value = -1.0
+    mx.inputs["To Max"].default_value = 1.0
+    my = nt.nodes.new("ShaderNodeMapRange")
+    my.clamp = False
+    my.inputs["From Min"].default_value = 0.0
+    my.inputs["From Max"].default_value = 1.0
+    my.inputs["To Min"].default_value = -1.0
+    my.inputs["To Max"].default_value = 1.0
+
+    sx = nt.nodes.new("ShaderNodeMath")
+    sx.operation = "MULTIPLY"
+    sy = nt.nodes.new("ShaderNodeMath")
+    sy.operation = "MULTIPLY"
+    r2 = nt.nodes.new("ShaderNodeMath")
+    r2.operation = "ADD"
+
+    fall = nt.nodes.new("ShaderNodeMapRange")
+    fall.interpolation_type = "SMOOTHSTEP"
+    fall.clamp = True
+    fall.inputs["From Min"].default_value = 0.10
+    fall.inputs["From Max"].default_value = 0.96
+    fall.inputs["To Min"].default_value = 0.0
+    fall.inputs["To Max"].default_value = 1.0
+
+    inv = nt.nodes.new("ShaderNodeMath")
+    inv.operation = "SUBTRACT"
+    inv.inputs[0].default_value = 1.0
+    mul = nt.nodes.new("ShaderNodeMath")
+    mul.operation = "MULTIPLY"
+    mul.inputs[1].default_value = opacity
+
+    nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
+    nt.links.new(sep.outputs["X"], mx.inputs["Value"])
+    nt.links.new(sep.outputs["Y"], my.inputs["Value"])
+    nt.links.new(mx.outputs["Result"], sx.inputs[0])
+    nt.links.new(mx.outputs["Result"], sx.inputs[1])
+    nt.links.new(my.outputs["Result"], sy.inputs[0])
+    nt.links.new(my.outputs["Result"], sy.inputs[1])
+    nt.links.new(sx.outputs["Value"], r2.inputs[0])
+    nt.links.new(sy.outputs["Value"], r2.inputs[1])
+    nt.links.new(r2.outputs["Value"], fall.inputs["Value"])
+    nt.links.new(fall.outputs["Result"], inv.inputs[1])
+    nt.links.new(inv.outputs["Value"], mul.inputs[0])
+    nt.links.new(mul.outputs["Value"], mix.inputs["Fac"])
+    nt.links.new(tr.outputs["BSDF"], mix.inputs[1])
+    nt.links.new(dark_em.outputs["Emission"], mix.inputs[2])
+    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
     return mat
 
 
@@ -396,7 +570,7 @@ def make_feathered_beam_mat(name, rgb, strength=5.4, power=1.40, opacity=0.84):
 
 def make_ruby_apple_mat():
     """Glossy ruby-gold mottled Woolsthorpe heirloom apple skin with rich clearcoat lacquer (Coat=0.92)."""
-    mat = bpy.data.materials.new("WoolsthorpeRubyAppleV7")
+    mat = bpy.data.materials.new("WoolsthorpeRubyAppleV8")
     mat.use_nodes = True
     nt = mat.node_tree
     bsdf = nt.nodes["Principled BSDF"]
@@ -430,57 +604,66 @@ def make_ruby_apple_mat():
 
 
 def make_earth_planet_mat():
-    """High-detail procedural 3D Earth: deep sapphire oceans, emerald/ochre continents & swirling white clouds!"""
-    mat = bpy.data.materials.new("ProceduralEarth3DV7")
+    """High-contrast NASA Blue-Marble 3D Earth: deep sapphire oceans, crisp emerald/ochre continents & bright wispy clouds!"""
+    mat = bpy.data.materials.new("ProceduralEarth3DV8")
     mat.use_nodes = True
     nt = mat.node_tree
     bsdf = nt.nodes["Principled BSDF"]
     tc = nt.nodes.new("ShaderNodeTexCoord")
 
     ns_land = nt.nodes.new("ShaderNodeTexNoise")
-    ns_land.inputs["Scale"].default_value = 3.2
-    ns_land.inputs["Detail"].default_value = 10.0
-    ns_land.inputs["Roughness"].default_value = 0.58
+    ns_land.inputs["Scale"].default_value = 2.6
+    ns_land.inputs["Detail"].default_value = 12.0
+    ns_land.inputs["Roughness"].default_value = 0.55
+    ns_land.inputs["Distortion"].default_value = 0.35
 
     land_rmp = nt.nodes.new("ShaderNodeValToRGB")
     cr = land_rmp.color_ramp
-    cr.elements[0].position = 0.46
-    cr.elements[0].color = (0.010, 0.095, 0.44, 1.0)  # Deep sapphire ocean
-    e_sh = cr.elements.new(0.51)
-    e_sh.color = (0.028, 0.25, 0.58, 1.0)  # Coastal turquoise
-    e_gr = cr.elements.new(0.54)
-    e_gr.color = (0.062, 0.38, 0.11, 1.0)  # Emerald continent
-    cr.elements[-1].position = 0.72
-    cr.elements[-1].color = (0.50, 0.37, 0.16, 1.0)  # Warm ochre highlands
+    cr.elements[0].position = 0.44
+    cr.elements[0].color = (0.004, 0.042, 0.30, 1.0)  # Deep sapphire abyssal ocean
+    e_mid = cr.elements.new(0.505)
+    e_mid.color = (0.010, 0.135, 0.48, 1.0)  # Rich cobalt mid-ocean
+    e_sh = cr.elements.new(0.525)
+    e_sh.color = (0.020, 0.32, 0.56, 1.0)  # Crisp narrow turquoise coastal shelf
+    e_gr = cr.elements.new(0.540)
+    e_gr.color = (0.032, 0.44, 0.075, 1.0)  # Razor-sharp emerald continent coastline
+    e_sav = cr.elements.new(0.635)
+    e_sav.color = (0.18, 0.46, 0.095, 1.0)  # Sunlit green lowlands
+    e_och = cr.elements.new(0.710)
+    e_och.color = (0.64, 0.44, 0.15, 1.0)  # Warm golden-ochre deserts & plateaus
+    cr.elements[-1].position = 0.795
+    cr.elements[-1].color = (0.86, 0.80, 0.70, 1.0)  # High mountain snow caps
 
     ns_cl = nt.nodes.new("ShaderNodeTexNoise")
-    ns_cl.inputs["Scale"].default_value = 5.4
-    ns_cl.inputs["Detail"].default_value = 8.0
-    ns_cl.inputs["Distortion"].default_value = 1.48
+    ns_cl.inputs["Scale"].default_value = 4.6
+    ns_cl.inputs["Detail"].default_value = 10.0
+    ns_cl.inputs["Roughness"].default_value = 0.62
+    ns_cl.inputs["Distortion"].default_value = 1.85
 
     cl_rmp = nt.nodes.new("ShaderNodeValToRGB")
-    cl_rmp.color_ramp.elements[0].position = 0.56
+    cl_rmp.color_ramp.elements[0].position = 0.55
     cl_rmp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
-    cl_rmp.color_ramp.elements[1].position = 0.76
-    cl_rmp.color_ramp.elements[1].color = (0.96, 0.98, 1.0, 1.0)
+    cl_rmp.color_ramp.elements[1].position = 0.72
+    cl_rmp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
 
     mix_cl = nt.nodes.new("ShaderNodeMix")
     mix_cl.data_type = "RGBA"
     mix_cl.blend_type = "MIX"
     mc_fac, mc_a, mc_b, mc_out = get_rgba_mix_sockets(mix_cl)
-    mc_b.default_value = (0.96, 0.98, 1.0, 1.0)
+    mc_b.default_value = (0.98, 0.99, 1.0, 1.0)
 
     rough_rmp = nt.nodes.new("ShaderNodeValToRGB")
-    rough_rmp.color_ramp.elements[0].position = 0.49
-    rough_rmp.color_ramp.elements[0].color = (0.15, 0.15, 0.15, 1.0)
-    rough_rmp.color_ramp.elements[1].position = 0.54
-    rough_rmp.color_ramp.elements[1].color = (0.68, 0.68, 0.68, 1.0)
+    rough_rmp.color_ramp.elements[0].position = 0.515
+    rough_rmp.color_ramp.elements[0].color = (0.10, 0.10, 0.10, 1.0)
+    rough_rmp.color_ramp.elements[1].position = 0.545
+    rough_rmp.color_ramp.elements[1].color = (0.76, 0.76, 0.76, 1.0)
 
     bmp = nt.nodes.new("ShaderNodeBump")
-    bmp.inputs["Strength"].default_value = 0.08
+    bmp.inputs["Strength"].default_value = 0.10
 
-    set_bsdf(bsdf, "Coat Weight", 0.28)
-    set_bsdf(bsdf, "Emission Strength", 0.34)
+    set_bsdf(bsdf, "Coat Weight", 0.35)
+    set_bsdf(bsdf, "Coat Roughness", 0.10)
+    set_bsdf(bsdf, "Emission Strength", 0.58)
 
     nt.links.new(tc.outputs["Object"], ns_land.inputs["Vector"])
     nt.links.new(ns_land.outputs["Fac"], land_rmp.inputs["Fac"])
@@ -499,8 +682,8 @@ def make_earth_planet_mat():
 
 
 def make_earth_atmo_halo_mat():
-    """Glowing blue Fresnel atmospheric halo around Earth (LayerWeight Facing^2.5)."""
-    mat = bpy.data.materials.new("EarthAtmosphereHaloV7")
+    """Glowing celestial azure Fresnel atmospheric halo around Earth (LayerWeight Facing^2.6)."""
+    mat = bpy.data.materials.new("EarthAtmosphereHaloV8")
     mat.use_nodes = True
     nt = mat.node_tree
     nt.nodes.clear()
@@ -508,13 +691,13 @@ def make_earth_atmo_halo_mat():
     mix = nt.nodes.new("ShaderNodeMixShader")
     tr = nt.nodes.new("ShaderNodeBsdfTransparent")
     em = nt.nodes.new("ShaderNodeEmission")
-    em.inputs["Color"].default_value = (0.16, 0.66, 1.0, 1.0)
-    em.inputs["Strength"].default_value = 4.6
+    em.inputs["Color"].default_value = (0.14, 0.68, 1.0, 1.0)
+    em.inputs["Strength"].default_value = 5.0
     lw = nt.nodes.new("ShaderNodeLayerWeight")
-    lw.inputs["Blend"].default_value = 0.36
+    lw.inputs["Blend"].default_value = 0.34
     pw = nt.nodes.new("ShaderNodeMath")
     pw.operation = "POWER"
-    pw.inputs[1].default_value = 2.5
+    pw.inputs[1].default_value = 2.6
     nt.links.new(lw.outputs["Facing"], pw.inputs[0])
     nt.links.new(pw.outputs["Value"], mix.inputs["Fac"])
     nt.links.new(tr.outputs["BSDF"], mix.inputs[1])
@@ -525,7 +708,7 @@ def make_earth_atmo_halo_mat():
 
 def make_cratered_moon_mat():
     """Procedural Voronoi-cratered dusty lunar regolith."""
-    mat = bpy.data.materials.new("CrateredMoon3DV7")
+    mat = bpy.data.materials.new("CrateredMoon3DV8")
     mat.use_nodes = True
     nt = mat.node_tree
     bsdf = nt.nodes["Principled BSDF"]
@@ -554,70 +737,73 @@ def make_cratered_moon_mat():
     return mat
 
 
-# Instantiate V7 hero scientific & physics apparatus material palette
+# Instantiate V8 hero scientific & physics apparatus material palette
 mahogany_mat = make_mahogany_mat("InstrumentMahogany", (1.5, 5.2, 1.5), dark=False)
 mahogany_dark_mat = make_mahogany_mat("InstrumentMahoganyDark", (2.0, 2.0, 2.0), dark=True)
-brass_mat = make_metal_mat("OpticalBrassV7", (0.91, 0.66, 0.22), rough=0.16, metallic=0.96, bump_str=0.018)
-bronze_mat = make_metal_mat("AgedBronzeV7", (0.28, 0.19, 0.095), rough=0.30, metallic=0.88, bump_str=0.024)
-mirror_chrome_mat = make_metal_mat("NewtonCradleChromeV7", (0.94, 0.96, 0.99), rough=0.030, metallic=1.0, bump_str=0.0)
-ebony_mat = make_metal_mat("ObsidianOpticalEaselV7", (0.012, 0.014, 0.022), rough=0.20, metallic=0.06, bump_str=0.008, coat=0.32)
-crimson_velvet_mat = make_metal_mat("CrimsonVelvetPadV7", (0.30, 0.022, 0.036), rough=0.88, metallic=0.0, bump_str=0.0)
-leather_navy_mat = make_metal_mat("PrincipiaLeatherV7", (0.055, 0.082, 0.185), rough=0.50, metallic=0.0, bump_str=0.032)
-parchment_mat = make_metal_mat("PrincipiaParchmentV7", (0.94, 0.87, 0.71), rough=0.64, metallic=0.0, bump_str=0.020)
-ink_dark_mat = make_metal_mat("PrincipiaInkV7", (0.032, 0.026, 0.020), rough=0.28, metallic=0.0, bump_str=0.0)
-quill_white_mat = make_metal_mat("GooseQuillWhiteV7", (0.95, 0.93, 0.89), rough=0.44, metallic=0.0, bump_str=0.0)
-rocket_white_mat = make_metal_mat("RocketCeramicWhiteV7", (0.91, 0.93, 0.96), rough=0.16, metallic=0.35, bump_str=0.0, coat=0.58)
-rocket_dark_mat = make_metal_mat("RocketCarbonObsidianV7", (0.055, 0.065, 0.092), rough=0.18, metallic=0.86, bump_str=0.0)
-speculum_mirror_mat = make_metal_mat("SpeculumMirrorV7", (0.90, 0.93, 0.97), rough=0.035, metallic=1.0, bump_str=0.0)
+brass_mat = make_metal_mat("OpticalBrassV8", (0.91, 0.66, 0.22), rough=0.16, metallic=0.96, bump_str=0.018)
+bronze_mat = make_metal_mat("AgedBronzeV8", (0.28, 0.19, 0.095), rough=0.30, metallic=0.88, bump_str=0.024)
+mirror_chrome_mat = make_metal_mat("NewtonCradleChromeV8", (0.94, 0.96, 0.99), rough=0.030, metallic=1.0, bump_str=0.0)
+ebony_mat = make_metal_mat("ObsidianOpticalEaselV8", (0.012, 0.014, 0.022), rough=0.20, metallic=0.06, bump_str=0.008, coat=0.32)
+crimson_velvet_mat = make_metal_mat("CrimsonVelvetPadV8", (0.30, 0.022, 0.036), rough=0.88, metallic=0.0, bump_str=0.0)
+leather_navy_mat = make_metal_mat("PrincipiaLeatherV8", (0.055, 0.082, 0.185), rough=0.50, metallic=0.0, bump_str=0.032)
+parchment_mat = make_metal_mat("PrincipiaParchmentV8", (0.94, 0.87, 0.71), rough=0.64, metallic=0.0, bump_str=0.020)
+ink_dark_mat = make_metal_mat("PrincipiaInkV8", (0.032, 0.026, 0.020), rough=0.28, metallic=0.0, bump_str=0.0)
+quill_white_mat = make_metal_mat("GooseQuillWhiteV8", (0.95, 0.93, 0.89), rough=0.44, metallic=0.0, bump_str=0.0)
+rocket_white_mat = make_metal_mat("RocketCeramicWhiteV8", (0.91, 0.93, 0.96), rough=0.16, metallic=0.35, bump_str=0.0, coat=0.58)
+rocket_dark_mat = make_metal_mat("RocketCarbonObsidianV8", (0.055, 0.065, 0.092), rough=0.18, metallic=0.86, bump_str=0.0)
+speculum_mirror_mat = make_metal_mat("SpeculumMirrorV8", (0.90, 0.93, 0.97), rough=0.035, metallic=1.0, bump_str=0.0)
 
-flint_glass_mat = make_glass_mat("FlintGlassPrismV7", ior=1.62, tint=(0.96, 0.99, 1.0), rough=0.005, coat=0.72)
-inkwell_glass_mat = make_glass_mat("CrystalInkwellGlassV7", ior=1.52, tint=(0.88, 0.95, 1.0), rough=0.02, coat=0.48)
+flint_glass_mat = make_optical_prism_mat("FlintGlassPrismV8", ior=1.62, tint=(0.97, 0.995, 1.0), rough=0.003)
+inkwell_glass_mat = make_glass_mat("CrystalInkwellGlassV8", ior=1.52, tint=(0.88, 0.95, 1.0), rough=0.02, coat=0.48)
 
 ruby_apple_mat = make_ruby_apple_mat()
-apple_stem_mat = make_metal_mat("AppleWoodStemV7", (0.11, 0.068, 0.032), rough=0.80, metallic=0.0, bump_str=0.04)
-emerald_leaf_mat = make_metal_mat("AppleEmeraldLeafV7", (0.052, 0.30, 0.045), rough=0.30, metallic=0.0, bump_str=0.025, coat=0.24)
+apple_stem_mat = make_metal_mat("AppleWoodStemV8", (0.11, 0.068, 0.032), rough=0.80, metallic=0.0, bump_str=0.04)
+emerald_leaf_mat = make_metal_mat("AppleEmeraldLeafV8", (0.052, 0.30, 0.045), rough=0.30, metallic=0.0, bump_str=0.025, coat=0.24)
 earth_planet_mat = make_earth_planet_mat()
 earth_atmo_mat = make_earth_atmo_halo_mat()
 cratered_moon_mat = make_cratered_moon_mat()
 
-# AgX-calibrated vivid glowing optical materials (bloom beautifully via FOG_GLOW Compositor!)
-gold_glow_mat = make_emissive_mat("NewtonGoldGlowV7", (1.0, 0.68, 0.10), strength=5.0)
-cyan_glow_mat = make_emissive_mat("GravitySapphireGlowV7", (0.08, 0.70, 1.0), strength=4.6)
-pinhole_flare_mat = make_emissive_mat("PrismPinholeFlareV7", (1.0, 0.92, 0.68), strength=8.5)
-sunbeam_goldwhite_mat = make_feathered_beam_mat("PrismGoldenSunbeamV7", (1.0, 0.94, 0.78), strength=6.2, power=1.30, opacity=0.90)
-rocket_plume_mat = make_feathered_beam_mat("RocketPlasmaPlumeV7", (0.30, 0.78, 1.0), strength=8.0, power=1.35, opacity=0.92)
-rocket_core_mat = make_emissive_mat("RocketCoreFlameV7", (1.0, 0.64, 0.14), strength=8.5)
+# AgX-calibrated vivid glowing optical materials (bloom crisply via Cell 5 FFmpeg optical highlight bloom!)
+gold_glow_mat = make_emissive_mat("NewtonGoldGlowV8", (1.0, 0.64, 0.08), strength=5.2)
+molten_gold_arrow_mat = make_molten_gold_arrow_mat("MoltenGoldGravityArrowV8")
+cyan_glow_mat = make_emissive_mat("GravitySapphireGlowV8", (0.06, 0.72, 1.0), strength=4.8)
+pinhole_flare_mat = make_emissive_mat("PrismPinholeFlareV8", (1.0, 0.92, 0.68), strength=8.5)
+sunbeam_goldwhite_mat = make_feathered_beam_mat("PrismGoldenSunbeamV8", (1.0, 0.94, 0.78), strength=6.2, power=1.30, opacity=0.90)
+rocket_plume_mat = make_feathered_beam_mat("RocketPlasmaPlumeV8", (0.30, 0.78, 1.0), strength=8.0, power=1.35, opacity=0.92)
+rocket_core_mat = make_emissive_mat("RocketCoreFlameV8", (1.0, 0.64, 0.14), strength=8.5)
 
-# 7 Distinct Spectral Dispersion Ribbon & Easel Band Materials (Red..Violet!)
+# 7 Jewel-Saturated Spectral Dispersion Ribbon & Easel Band Materials (Deep Crimson -> Vivid Violet!)
 SPECTRAL_RGBS = [
-    ("Red", (1.00, 0.05, 0.04)),
-    ("Orange", (1.00, 0.36, 0.03)),
-    ("Yellow", (1.00, 0.84, 0.04)),
-    ("Green", (0.05, 0.94, 0.18)),
-    ("Cyan", (0.04, 0.82, 1.00)),
-    ("Blue", (0.08, 0.28, 1.00)),
-    ("Violet", (0.64, 0.10, 1.00)),
+    ("Red", (1.00, 0.012, 0.010)),     # Deep crimson red
+    ("Orange", (1.00, 0.24, 0.006)),   # Vibrant tangerine
+    ("Yellow", (1.00, 0.72, 0.008)),   # Pure molten gold
+    ("Green", (0.012, 0.92, 0.095)),   # Lush emerald
+    ("Cyan", (0.008, 0.74, 1.00)),     # Electric cyan
+    ("Blue", (0.022, 0.16, 1.00)),     # Royal blue
+    ("Violet", (0.54, 0.025, 1.00)),   # Vivid violet
 ]
 rainbow_ribbon_mats = [
-    make_feathered_beam_mat(f"PrismRibbonV7_{cname}", rgb, strength=6.0, power=1.18, opacity=0.86)
+    make_feathered_beam_mat(f"PrismRibbonV8_{cname}", rgb, strength=5.6, power=1.15, opacity=0.90)
     for cname, rgb in SPECTRAL_RGBS
 ]
 rainbow_band_mats = [
-    make_emissive_mat(f"SpectralBandV7_{cname}", rgb, strength=4.8)
+    make_emissive_mat(f"SpectralBandV8_{cname}", rgb, strength=4.6)
     for cname, rgb in SPECTRAL_RGBS
 ]
 
-# Razor-sharp anti-washout 3D Formula & Monument Title materials + bundled DejaVuSans-Bold font
-text_gold_mat = make_emissive_mat("TextGoldCrispV7", (1.0, 0.74, 0.14), strength=2.60)
-text_cyangold_mat = make_emissive_mat("TextCyanGoldCrispV7", (0.18, 0.86, 1.0), strength=2.80)
-title_gold_mat = bpy.data.materials.new("TitleCinemaGoldV7")
+# Razor-sharp daylight-proof dark-rimmed 3D Formula, Obsidian Shadow Halo & Starry Sky Monument Gold materials
+text_gold_mat = make_crisp_formula_mat("TextGoldCrispV8", (1.0, 0.70, 0.08), strength=5.5, rim_rgb=(0.024, 0.014, 0.006))
+text_cyangold_mat = make_crisp_formula_mat("TextCyanCrispV8", (0.10, 0.86, 1.0), strength=5.2, rim_rgb=(0.006, 0.022, 0.044))
+formula_halo_mat = make_formula_halo_mat("FormulaObsidianHaloV8", opacity=0.62)
+
+title_gold_mat = bpy.data.materials.new("TitleCinemaGoldV8")
 title_gold_mat.use_nodes = True
 _tbsdf = title_gold_mat.node_tree.nodes["Principled BSDF"]
-set_bsdf(_tbsdf, "Base Color", (1.0, 0.80, 0.26, 1.0))
-set_bsdf(_tbsdf, "Metallic", 0.78)
-set_bsdf(_tbsdf, "Roughness", 0.20)
-set_bsdf(_tbsdf, "Emission Color", (1.0, 0.74, 0.18, 1.0))
-set_bsdf(_tbsdf, "Emission Strength", 2.15)
+set_bsdf(_tbsdf, "Base Color", (1.0, 0.82, 0.24, 1.0))
+set_bsdf(_tbsdf, "Metallic", 0.82)
+set_bsdf(_tbsdf, "Roughness", 0.16)
+set_bsdf(_tbsdf, "Emission Color", (1.0, 0.74, 0.16, 1.0))
+set_bsdf(_tbsdf, "Emission Strength", 3.60)
 
 FONT_PATH = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "subtitles", "fonts", "DejaVuSans-Bold.ttf"))
 HERO_FONT = bpy.data.fonts.load(FONT_PATH) if os.path.isfile(FONT_PATH) else None
@@ -867,11 +1053,26 @@ def build_equilateral_prism(name, loc, side=0.148, depth_y=0.120, mat=None):
     obj.location = Vector(loc)
     scene.collection.objects.link(obj)
     bv = obj.modifiers.new("OpticalBevel", "BEVEL")
-    bv.width = 0.0032
-    bv.segments = 3
+    bv.width = 0.0040
+    bv.segments = 4
     if mat:
         obj.data.materials.append(mat)
     return obj
+
+
+def add_formula_halo_strip(name: str, parent_txt, width: float, height: float, z_back: float = -0.018):
+    """Add a sleek feathered translucent dark-obsidian shadow halo strip behind a 3D formula for daylight pop."""
+    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0.0, 0.0, z_back))
+    halo = bpy.context.active_object
+    halo.name = name
+    halo.scale = (width, height, 1.0)
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    halo.data.materials.append(formula_halo_mat)
+    halo.visible_shadow = False
+    halo.visible_diffuse = False
+    halo.visible_glossy = False
+    halo.parent = parent_txt
+    return halo
 
 
 def build_tripod_legs(prefix: str, parent_obj, hub_z: float, foot_r: float, leg_r: float, leg_mat, collar_mat, az_offset_deg: float = 30.0):
@@ -909,27 +1110,34 @@ add_torus("AppleVelvetGoldBraid", (APPLE_PLINTH.x, APPLE_PLINTH.y, APPLE_PLINTH.
 # HERO FALLING APPLE attached to REAL overhanging Woolsthorpe tree branch at HERO_APPLE_ATTACH = (-0.52, 0.12, 1.94)!
 hero_apple = build_organic_apple("HeroFallingApple", HERO_APPLE_ATTACH, radius=0.044)
 
-# Glowing Golden Downward Gravity Force Arrow ('g', Z = 1.15..1.52) + Expanding Energy Ripple Rings!
+# Rich Molten-Gold Downward Gravity Force Arrow ('g', Z = 1.15..1.52) w/ Subtle Chased Brass Rim Accents + Ripple Rings!
 G_ARROW_POS = Vector((APPLE_PLINTH.x + 0.08, APPLE_PLINTH.y, 1.34))
 bpy.ops.object.empty_add(type="PLAIN_AXES", location=G_ARROW_POS)
 gravity_arrow_root = bpy.context.active_object
 gravity_arrow_root.name = "GravityForceArrowRoot"
 
-g_shaft = add_cyl("GravityArrowShaft", (0.0, 0.0, 0.055), 0.010, 0.250, gold_glow_mat, verts=20)
+g_shaft = add_cyl("GravityArrowShaft", (0.0, 0.0, 0.055), 0.0105, 0.250, molten_gold_arrow_mat, verts=24)
 g_shaft.parent = gravity_arrow_root
-g_head = add_cone("GravityArrowHead", (0.0, 0.0, -0.115), 0.032, 0.001, 0.084, gold_glow_mat, rot=(math.pi, 0.0, 0.0), verts=24)
+g_head = add_cone("GravityArrowHead", (0.0, 0.0, -0.115), 0.033, 0.001, 0.084, molten_gold_arrow_mat, rot=(math.pi, 0.0, 0.0), verts=28)
 g_head.parent = gravity_arrow_root
+g_top_rim = add_torus("GravityArrowTopRim", (0.0, 0.0, 0.178), 0.0115, 0.0030, brass_mat, maj_seg=28, min_seg=10)
+g_top_rim.parent = gravity_arrow_root
+g_collar_rim = add_torus("GravityArrowCollarRim", (0.0, 0.0, -0.070), 0.0135, 0.0034, brass_mat, maj_seg=28, min_seg=10)
+g_collar_rim.parent = gravity_arrow_root
+g_head_rim = add_torus("GravityArrowHeadRim", (0.0, 0.0, -0.074), 0.0335, 0.0032, brass_mat, maj_seg=36, min_seg=10)
+g_head_rim.parent = gravity_arrow_root
 
-bpy.ops.object.text_add(location=(0.068, -0.012, 0.035), rotation=(math.pi * 0.5, 0.0, 0.0))
+bpy.ops.object.text_add(location=(0.072, -0.012, 0.068), rotation=(math.pi * 0.5, 0.0, 0.0))
 g_label = bpy.context.active_object
 g_label.name = "GravityLabelG"
 if HERO_FONT is not None:
     g_label.data.font = HERO_FONT
 g_label.data.body = "g"
 g_label.data.align_x = "CENTER"
-g_label.data.size = 0.094
-g_label.data.extrude = 0.0055
-g_label.data.bevel_depth = 0.0006
+g_label.data.align_y = "CENTER"
+g_label.data.size = 0.102
+g_label.data.extrude = 0.0075
+g_label.data.bevel_depth = 0.0010
 g_label.data.materials.append(text_gold_mat)
 g_label.parent = gravity_arrow_root
 
@@ -1004,32 +1212,36 @@ q_shaft.parent = principia_props_root
 q_plume = add_box("QuillPlume", (0.198, 0.142, 0.160), (0.024, 0.004, 0.105), quill_white_mat, rot=(0.10, math.radians(20.0), 0.0), bevel_w=0.002)
 q_plume.parent = principia_props_root
 
-# Floating 3D Formulas (`DejaVuSans-Bold.ttf`, Y = -0.02, centered in the gap between Newton & Halley!)
-bpy.ops.object.text_add(location=(PRINCIPIA_PLINTH.x, -0.02, 1.22), rotation=(math.pi * 0.5, 0.0, 0.0))
+# Bold Daylight-Proof 3D Formulas (`DejaVuSans-Bold.ttf`, dark-rimmed glow + feathered obsidian shadow halo!)
+bpy.ops.object.text_add(location=(PRINCIPIA_PLINTH.x, -0.02, 1.24), rotation=(math.pi * 0.5, 0.0, 0.0))
 formula_fma_txt = bpy.context.active_object
 formula_fma_txt.name = "NewtonFormula_Fma"
 if HERO_FONT is not None:
     formula_fma_txt.data.font = HERO_FONT
 formula_fma_txt.data.body = "F = m a"
 formula_fma_txt.data.align_x = "CENTER"
-formula_fma_txt.data.size = 0.078
+formula_fma_txt.data.align_y = "CENTER"
+formula_fma_txt.data.size = 0.088
 formula_fma_txt.data.space_character = 1.15
-formula_fma_txt.data.extrude = 0.0060
-formula_fma_txt.data.bevel_depth = 0.0006
+formula_fma_txt.data.extrude = 0.0080
+formula_fma_txt.data.bevel_depth = 0.0012
 formula_fma_txt.data.materials.append(text_gold_mat)
+add_formula_halo_strip("FormulaHalo_Fma", formula_fma_txt, width=0.58, height=0.180, z_back=-0.018)
 
-bpy.ops.object.text_add(location=(PRINCIPIA_PLINTH.x, -0.02, 1.26), rotation=(math.pi * 0.5, 0.0, 0.0))
+bpy.ops.object.text_add(location=(PRINCIPIA_PLINTH.x, -0.02, 1.28), rotation=(math.pi * 0.5, 0.0, 0.0))
 formula_grav_txt = bpy.context.active_object
 formula_grav_txt.name = "NewtonFormula_Gravity"
 if HERO_FONT is not None:
     formula_grav_txt.data.font = HERO_FONT
 formula_grav_txt.data.body = "F = G m1 m2 / r²"
 formula_grav_txt.data.align_x = "CENTER"
-formula_grav_txt.data.size = 0.062
+formula_grav_txt.data.align_y = "CENTER"
+formula_grav_txt.data.size = 0.072
 formula_grav_txt.data.space_character = 1.13
-formula_grav_txt.data.extrude = 0.0060
-formula_grav_txt.data.bevel_depth = 0.0006
+formula_grav_txt.data.extrude = 0.0080
+formula_grav_txt.data.bevel_depth = 0.0012
 formula_grav_txt.data.materials.append(text_cyangold_mat)
+add_formula_halo_strip("FormulaHalo_Grav", formula_grav_txt, width=0.90, height=0.165, z_back=-0.018)
 
 
 # ============================================================================
@@ -1351,8 +1563,8 @@ r_core = add_cone("RocketCoreFlame", (0.0, -0.116, 0.0), 0.001, 0.012, 0.054, ro
 r_core.visible_shadow = False
 r_core.parent = rocket_ship
 
-# Hero 2-Line Self-Luminous Cinema Gold 3D Sky Monument floating cleanly at (0.55, 0.60, 2.52)!
-bpy.ops.object.text_add(location=(0.55, 0.60, 2.52), rotation=(math.pi * 0.5, 0.0, 0.0))
+# Hero 2-Line Self-Luminous Cinema Gold 3D Sky Monument floating cleanly at (0.55, 0.56, 2.48) in open starry sky!
+bpy.ops.object.text_add(location=(0.55, 0.56, 2.48), rotation=(math.pi * 0.5, 0.0, 0.0))
 title_txt = bpy.context.active_object
 title_txt.name = "NewtonTitle3D"
 if HERO_FONT is not None:
@@ -1360,19 +1572,20 @@ if HERO_FONT is not None:
 title_txt.data.body = "ISAAC NEWTON\nF = G m1 m2 / r²"
 title_txt.data.align_x = "CENTER"
 title_txt.data.align_y = "CENTER"
-title_txt.data.size = 0.084
+title_txt.data.size = 0.092
 title_txt.data.space_character = 1.12
 title_txt.data.space_line = 1.28
-title_txt.data.extrude = 0.0070
-title_txt.data.bevel_depth = 0.0007
+title_txt.data.extrude = 0.0085
+title_txt.data.bevel_depth = 0.0010
 title_txt.data.materials.append(title_gold_mat)
 
 
 # ============================================================================
-# 12. REALISTIC ADULT MPFB2 V7 4K HUMAN CAST (1.78m NEWTON & 1.79m HALLEY!)
+# 12. V8 100% REAL 3D MAKEHUMAN 17TH-CENTURY ADULT CAST (1.78m NEWTON & 1.79m HALLEY!)
 # ============================================================================
-# CRITICAL V7 CAST FIX: BOTH Newton & Halley are FULL ADULT HEIGHT (age >= 0.56, 1.78m & 1.79m!)
-# Standing on mossy Cotswold flagstones at FLOOR_Z = 0.0 with period-authentic 17th-c cravat & scholar cloak!
+# Visually verified via MakeHuman .thumb renders + 3D .obj clearances (ZERO procedural cardboard straps!):
+# - Newton: donitz_monk_robe.mhclo (10,233-vert Cambridge Lucasian Scholar Gown + sculpted shoulder mantle & waist cord!)
+# - Halley: mindfront_lusekofta.mhclo (Baroque brocade coat w/ 6 sculpted metallic filigree buttons!) + wool trousers + boots
 NEWTON_ACTOR = None
 HALLEY_ACTOR = None
 try:
@@ -1391,8 +1604,8 @@ try:
             "iris_major_rgb": (0.14, 0.36, 0.56),
             "iris_minor_rgb": (0.06, 0.14, 0.26),
             "eyebrow_assets": ["eyebrow002.mhclo", "eyebrow001.mhclo"],
-            "hair_assets": ["culturalibre_hair_01.mhclo", "bob02.mhclo"],
-            # Lifts diffuse_black (meanRGB=0.07) into lustrous 1689 Kneller silver-pewter / warm ash-chestnut!
+            "hair_assets": ["culturalibre_hair_01.mhclo"],
+            # Preserves proven V7 silver-pewter 1689 Kneller portrait hair!
             "hair_gamma_lift": 0.34,
             "hair_value_boost": 1.28,
             "hair_tint_rgb": (0.82, 0.76, 0.68),
@@ -1401,24 +1614,19 @@ try:
             "brow_tint_fac": 0.48,
             "silver_hair": False,
             "silver_hair_main": False,
-            # Authentic 17th-century scholar doublet + wool trousers + leather boots (ZERO modern tie!)
-            "shirt_assets": ["elvs_male_boho_top1.mhclo"],
-            "shirt_gamma_lift": 0.72,
-            "shirt_tint_rgb": (0.30, 0.42, 0.78),
-            "shirt_tint_fac": 0.55,
-            "pants_assets": ["mindfront_male_trousers_2.mhclo", "toigo_wool_pants.mhclo"],
-            "pants_tint_rgb": (0.16, 0.19, 0.28),
-            "pants_tint_fac": 0.68,
-            "shoe_assets": ["toigo_ankle_boots_male.mhclo", "punkduck_medieval_boots.mhclo"],
-            # Rigged 1689 Kneller white silk-linen ruffled jabot cravat + draped Cambridge velvet scholar cloak!
-            "add_cravat": True,
-            "cravat_style": "jabot",
-            "cravat_rgb": (0.93, 0.91, 0.86),
-            "add_scholar_cloak": True,
-            "cloak_style": "cambridge_scholar",
-            "cloak_rgb": (0.042, 0.068, 0.175),
-            "cloak_trim_rgb": (0.72, 0.54, 0.22),
-            "cloak_clasp": False,
+            # V8 100% REAL 3D MakeHuman Cambridge Scholar Gown + Draped Shoulder Mantle (10,233 verts, 2K NRM, CC0)
+            # Graded in Cambridge Royal Midnight-Navy Velvet w/ silver-pewter braided waist cord!
+            "coat_assets": ["donitz_monk_robe.mhclo"],
+            "coat_gamma_lift": 0.45,
+            "coat_sat_override": 0.12,
+            "coat_value_boost": 1.05,
+            "coat_tint_rgb": (0.065, 0.145, 0.44),
+            "coat_tint_fac": 0.94,
+            "coat_roughness": 0.78,
+            "coat_sheen": 0.78,
+            "shoe_assets": ["toigo_ankle_boots_male.mhclo"],
+            "add_cravat": False,
+            "add_scholar_cloak": False,
         },
         brass_mat=brass_mat,
     )
@@ -1437,8 +1645,8 @@ try:
             "iris_major_rgb": (0.32, 0.21, 0.10),
             "iris_minor_rgb": (0.12, 0.08, 0.04),
             "eyebrow_assets": ["eyebrow003.mhclo", "eyebrow002.mhclo"],
-            "hair_assets": ["short04.mhclo", "short02.mhclo"],
-            # Distinguished dark espresso-chestnut gentleman hair
+            "hair_assets": ["short04.mhclo"],
+            # Preserves proven V7 dark espresso-chestnut gentleman hair!
             "hair_gamma_lift": 0.68,
             "hair_value_boost": 1.05,
             "hair_tint_rgb": (0.42, 0.26, 0.16),
@@ -1446,25 +1654,23 @@ try:
             "brow_tint_rgb": (0.30, 0.20, 0.12),
             "brow_tint_fac": 0.50,
             "silver_hair": False,
-            # Authentic 17th-century Royal Society & HMS Paramour Sea Captain attire (ZERO modern bowtie!)
-            "shirt_assets": ["elvs_male_shirt_untucked_bd1.mhclo"],
-            "shirt_gamma_lift": 0.58,
-            "shirt_value_boost": 1.15,
-            "shirt_tint_rgb": (0.68, 0.16, 0.18),
-            "shirt_tint_fac": 0.78,
-            "pants_assets": ["mindfront_male_trousers_2.mhclo", "toigo_wool_pants.mhclo"],
+            # V8 100% REAL 3D MakeHuman Baroque Brocade Gentleman's Coat w/ 6 Metallic Filigree Buttons + Wool Trousers + Boots
+            # Graded in Warm Royal Burgundy / Espresso-Mahogany!
+            "coat_assets": ["mindfront_lusekofta.mhclo", "elvs_male_boho_top1.mhclo"],
+            "coat_gamma_lift": 0.62,
+            "coat_sat_override": 0.14,
+            "coat_value_boost": 1.05,
+            "coat_tint_rgb": (0.52, 0.10, 0.09),
+            "coat_tint_fac": 0.92,
+            "coat_roughness": 0.72,
+            "coat_sheen": 0.62,
+            "coat_auto_metal_map": True,
+            "pants_assets": ["mindfront_male_trousers_2.mhclo"],
             "pants_tint_rgb": (0.20, 0.17, 0.15),
             "pants_tint_fac": 0.68,
-            "shoe_assets": ["punkduck_medieval_boots.mhclo", "culturalibre_male_boots.mhclo"],
-            # Rigged 17th-century folded Steinkirk white linen cravat + Royal Claret velvet shoulder-mantle w/ brass clasps!
-            "add_cravat": True,
-            "cravat_style": "tied",
-            "cravat_rgb": (0.91, 0.89, 0.84),
-            "add_scholar_cloak": True,
-            "cloak_style": "captain_mantle",
-            "cloak_rgb": (0.22, 0.036, 0.046),
-            "cloak_trim_rgb": (0.76, 0.58, 0.24),
-            "cloak_clasp": True,
+            "shoe_assets": ["punkduck_medieval_boots.mhclo"],
+            "add_cravat": False,
+            "add_scholar_cloak": False,
         },
         brass_mat=brass_mat,
     )
@@ -1693,14 +1899,14 @@ for f in range(1, TOTAL_FRAMES + 1):
     fma_vis = smoothstep(4.55, 5.02, t) * (1.0 - smoothstep(6.82, 7.02, t))
     fma_sc = max(0.0001, fma_vis)
     formula_fma_txt.scale = Vector((fma_sc, fma_sc, fma_sc))
-    formula_fma_txt.location = Vector((PRINCIPIA_PLINTH.x, -0.02, 1.22 + math.sin(t * 2.5) * 0.010))
+    formula_fma_txt.location = Vector((PRINCIPIA_PLINTH.x, -0.02, 1.24 + math.sin(t * 2.5) * 0.010))
     formula_fma_txt.keyframe_insert("scale", frame=f)
     formula_fma_txt.keyframe_insert("location", frame=f)
 
     fgrav_vis = smoothstep(6.95, 7.32, t) * (1.0 - smoothstep(9.80, 10.20, t))
     fgrav_sc = max(0.0001, fgrav_vis)
     formula_grav_txt.scale = Vector((fgrav_sc, fgrav_sc, fgrav_sc))
-    formula_grav_txt.location = Vector((PRINCIPIA_PLINTH.x, -0.02, 1.26 + math.sin(t * 2.3) * 0.010))
+    formula_grav_txt.location = Vector((PRINCIPIA_PLINTH.x, -0.02, 1.28 + math.sin(t * 2.3) * 0.010))
     formula_grav_txt.keyframe_insert("scale", frame=f)
     formula_grav_txt.keyframe_insert("location", frame=f)
 
@@ -1859,6 +2065,8 @@ for f in range(1, TOTAL_FRAMES + 1):
     # 9. FULL 3/4-BODY ADULT MPFB2 CAST ACTING ON MOSSY FLAGSTONES (`FLOOR_Z = 0.0`)!
     # TRUE MPFB2 +Z FACING: +yaw/+head_rz = LOOK RIGHT (+X), -yaw/-head_rz = LOOK LEFT (-X);
     # head_rx < 0 tilts chin UP (sky/branch), head_rx > 0 tilts chin DOWN (plinth/falling apple)!
+    # V8 NATURAL ASYMMETRIC GESTURES: Non-gesturing arm hangs relaxed down beside the hip
+    # (upperarm (6, ±12, ∓8) + lowerarm (-14, 0, ∓10)) while the active arm gestures expressively!
     breath = math.sin(t * 2.25) * 1.1
     if NEWTON_ACTOR is not None:
         nrig = NEWTON_ACTOR["rig"]
@@ -1866,73 +2074,73 @@ for f in range(1, TOTAL_FRAMES + 1):
         n_base_z = NEWTON_ACTOR.get("base_z", FLOOR_Z)
 
         if t < 4.5:
-            # Beat 1: Newton stands full 3/4 body (-1.06, 0.36, 0.0), yaw=+26°, looking UP (-18°) then tracking DOWN (+12°)!
+            # Beat 1: Newton (-1.06, 0.36), yaw=+26° — left arm casually gestured toward apple plinth, right arm relaxed at hip!
             nx, ny, nyaw = -1.06, 0.36, 26.0
             fall_track = smoothstep(0.65, 1.45, t)
             wonder_up = smoothstep(2.55, 3.55, t)
             lean_x = lerp(-2.5, 4.0, fall_track) - wonder_up * 4.5 + breath * 0.4
             head_rx = lerp(-18.0, 12.0, fall_track) - wonder_up * 22.0
             head_rz = 14.0 + math.sin(t * 1.6) * 2.8
-            ua_l = (lerp(-28.0, -20.0, fall_track), 20.0, lerp(-32.0, -24.0, fall_track))
-            la_l = (lerp(-42.0, -34.0, fall_track) + math.sin(t * 2.8) * 3.0, 0.0, -18.0)
-            ua_r = (-10.0, -28.0, 14.0)
-            la_r = (-24.0, 0.0, 18.0)
+            ua_l = (lerp(-20.0, -16.0, fall_track), 16.0, lerp(-22.0, -18.0, fall_track))
+            la_l = (lerp(-30.0, -24.0, fall_track) + math.sin(t * 2.5) * 2.5, 0.0, -14.0)
+            ua_r = (6.0 + math.sin(t * 1.3) * 1.0, -12.0, 8.0)
+            la_r = (-14.0, 0.0, 10.0)
             n_brow = lerp(0.25, 0.85, smoothstep(1.45, 2.20, t))
             n_smile = lerp(0.08, 0.48, wonder_up)
         elif t < 9.5:
-            # Beat 2: Sunlit Stone Courtyard Debate — Newton (0.05, 0.45, 0.0), yaw=+28°, head_rz=+14° facing Halley eye-to-eye!
+            # Beat 2: Courtyard Debate — Newton (0.05, 0.45), yaw=+28° — active left hand debates Halley, right arm relaxed at hip!
             nx, ny, nyaw = 0.05, 0.45, 28.0
             sp_u = smoothstep(6.90, 7.35, t)
             lean_x = 2.5 + sp_u * 3.2 + breath * 0.4
             head_rx = 3.0 - sp_u * 3.5
             head_rz = 14.0 + math.sin(t * 3.4) * 3.2 * sp_u
-            ua_l = (lerp(-14.0, -30.0, sp_u), lerp(26.0, 18.0, sp_u), lerp(-20.0, -34.0, sp_u))
-            la_l = (lerp(-28.0, -42.0, sp_u) + math.sin(t * 4.6) * 4.2 * sp_u, 0.0, lerp(-22.0, -16.0, sp_u))
-            ua_r = (lerp(-10.0, -18.0, sp_u), lerp(-28.0, -24.0, sp_u), lerp(14.0, 22.0, sp_u))
-            la_r = (lerp(-24.0, -32.0, sp_u), 0.0, lerp(18.0, 20.0, sp_u))
+            ua_l = (lerp(-8.0, -28.0, sp_u), lerp(14.0, 16.0, sp_u), lerp(-14.0, -28.0, sp_u))
+            la_l = (lerp(-20.0, -38.0, sp_u) + math.sin(t * 4.4) * 4.0 * sp_u, 0.0, lerp(-12.0, -14.0, sp_u))
+            ua_r = (lerp(6.0, 3.0, sp_u) + math.sin(t * 1.4) * 0.8, lerp(-12.0, -14.0, sp_u), lerp(8.0, 10.0, sp_u))
+            la_r = (lerp(-14.0, -18.0, sp_u), 0.0, 10.0)
             n_brow = lerp(-0.15, 0.58, sp_u)
             n_smile = lerp(0.05, 0.55, sp_u)
         elif t < 15.5:
-            # Beat 3: Shaded Stone Arch Alcove — Newton (-2.12, 0.42, 0.0), yaw=-28°, head_rz=-16° gazing LEFT in awe at rainbow!
+            # Beat 3: Shaded Stone Arch Alcove — Newton (-2.12, 0.42), yaw=-28° — right arm reaches toward rainbow, left arm relaxed at hip!
             nx, ny, nyaw = -2.12, 0.42, -28.0
             bloom_u = smoothstep(10.60, 12.20, t)
             lean_x = 4.5 - bloom_u * 2.5 + breath * 0.4
             head_rx = 5.5 - bloom_u * 8.5
             head_rz = -16.0 + math.sin(t * 1.6) * 3.0
-            ua_r = (lerp(-20.0, -32.0, bloom_u), lerp(-24.0, -18.0, bloom_u), lerp(24.0, 34.0, bloom_u))
-            la_r = (lerp(-32.0, -40.0, bloom_u) + math.sin(t * 2.6) * 3.0, 0.0, lerp(20.0, 16.0, bloom_u))
-            ua_l = (-10.0, 28.0, -14.0)
-            la_l = (-24.0, 0.0, -18.0)
+            ua_r = (lerp(-18.0, -28.0, bloom_u), lerp(-18.0, -14.0, bloom_u), lerp(20.0, 28.0, bloom_u))
+            la_r = (lerp(-28.0, -34.0, bloom_u) + math.sin(t * 2.4) * 2.8, 0.0, lerp(16.0, 12.0, bloom_u))
+            ua_l = (6.0 + math.sin(t * 1.2) * 1.0, 12.0, -8.0)
+            la_l = (-14.0, 0.0, -10.0)
             n_brow = lerp(0.18, 0.88, bloom_u)
             n_smile = lerp(0.15, 0.58, bloom_u)
         elif t < 20.5:
             # Beat 4: Newton off-camera far left while Halley reacts to Newton's Cradle on right balustrade!
             nx, ny, nyaw = -0.60, 0.58, 22.0
             lean_x, head_rx, head_rz = 2.0, 3.0, 14.0
-            ua_r, la_r = (-10.0, -28.0, 14.0), (-24.0, 0.0, 18.0)
-            ua_l, la_l = (-10.0, 28.0, -14.0), (-24.0, 0.0, -18.0)
+            ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
+            ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
             n_brow, n_smile = 0.20, 0.40
         elif t < 25.5:
-            # Beat 5: Starry Twilight — Newton (0.02, 0.45, 0.0), yaw=+24°, head_rx=-8°, head_rz=+14° gazing up-right in triumph!
+            # Beat 5: Starry Twilight — Newton (0.02, 0.45), yaw=+24° — left arm gestures skyward at Gravity Well, right arm relaxed at hip!
             nx, ny, nyaw = 0.02, 0.45, 24.0
             lean_x = 2.0 + breath * 0.4
             head_rx = -8.0 + math.sin(t * 1.4) * 2.0
             head_rz = 14.0 + math.sin(t * 1.8) * 3.0
-            ua_l = (-32.0 + math.sin(t * 2.2) * 3.0, 18.0, -34.0)
-            la_l = (-38.0, 0.0, -16.0)
-            ua_r = (-12.0, -28.0, 14.0)
-            la_r = (-26.0, 0.0, 18.0)
+            ua_l = (-30.0 + math.sin(t * 2.0) * 2.8, 14.0, -28.0)
+            la_l = (-34.0, 0.0, -14.0)
+            ua_r = (6.0 + math.sin(t * 1.3) * 1.0, -12.0, 8.0)
+            la_r = (-14.0, 0.0, 10.0)
             n_brow, n_smile = 0.68, 0.68
         else:
-            # Beat 6: Moonlit Grand Finale — Newton (-0.05, 0.55, 0.0), yaw=+18° flanking cosmic centerpiece!
+            # Beat 6: Moonlit Grand Finale — Newton (-0.05, 0.55), yaw=+18° — left arm open triumphant presentation, right arm relaxed at hip!
             nx, ny, nyaw = -0.05, 0.55, 18.0
             lean_x = 1.0 + breath * 0.4
             head_rx = -7.0 + math.sin(t * 1.3) * 2.0
             head_rz = 10.0 + math.sin(t * 1.5) * 2.8
-            ua_l = (-28.0, 20.0, -30.0)
-            la_l = (-36.0, 0.0, -18.0)
-            ua_r = (-12.0, -28.0, 14.0)
-            la_r = (-26.0, 0.0, 18.0)
+            ua_l = (-24.0 + math.sin(t * 1.6) * 2.0, 14.0, -24.0)
+            la_l = (-30.0, 0.0, -14.0)
+            ua_r = (6.0 + math.sin(t * 1.2) * 1.0, -12.0, 8.0)
+            la_r = (-14.0, 0.0, 10.0)
             n_brow, n_smile = 0.58, 0.75
 
         nrig.location = Vector((nx, ny, n_base_z))
@@ -1962,20 +2170,20 @@ for f in range(1, TOTAL_FRAMES + 1):
             # Beat 1: Off-camera far right waiting cleanly for Beat 2
             hx_p, hy_p, hyaw = 2.40, 0.54, -22.0
             lean_x, head_rx, head_rz = 1.5, 3.0, -12.0
-            ua_l, la_l = (-10.0, 28.0, -14.0), (-24.0, 0.0, -18.0)
-            ua_r, la_r = (-10.0, -28.0, 14.0), (-24.0, 0.0, 18.0)
+            ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
+            ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
             jaw_bias, h_brow, h_smile = 0.0, -0.1, 0.0
         elif t < 9.5:
-            # Beat 2: Sunlit Stone Courtyard — Halley (1.05, 0.45, 0.0), yaw=-28°, head_rz=-14° eye-to-eye with Newton!
+            # Beat 2: Courtyard Debate — Halley (1.05, 0.45), yaw=-28° — right hand questions Newton, left arm relaxed at hip!
             hx_p, hy_p, hyaw = 1.05, 0.45, -28.0
             ask = 1.0 - smoothstep(6.75, 7.20, t)
             lean_x = 4.5 * ask + breath * 0.4
             head_rx = 3.5 * ask - 2.0 * (1.0 - ask)
             head_rz = -14.0 + math.sin(t * 3.5) * 3.5 * ask
-            ua_r = (lerp(-16.0, -30.0, ask), lerp(-26.0, -18.0, ask), lerp(20.0, 34.0, ask))
-            la_r = (lerp(-28.0, -42.0, ask) + math.sin(t * 4.2) * 4.2 * ask, 0.0, lerp(22.0, 16.0, ask))
-            ua_l = (-12.0, 28.0, -16.0)
-            la_l = (-26.0, 0.0, -20.0)
+            ua_r = (lerp(-8.0, -28.0, ask), lerp(-14.0, -16.0, ask), lerp(14.0, 28.0, ask))
+            la_r = (lerp(-20.0, -38.0, ask) + math.sin(t * 4.2) * 4.0 * ask, 0.0, lerp(12.0, 14.0, ask))
+            ua_l = (6.0 + math.sin(t * 1.4) * 1.0, 12.0, -8.0)
+            la_l = (-14.0, 0.0, -10.0)
             jaw_bias = 0.0
             h_brow = lerp(0.75, -0.45, ask)
             h_smile = lerp(0.15, -0.20, ask)
@@ -1983,11 +2191,11 @@ for f in range(1, TOTAL_FRAMES + 1):
             # Beat 3: Off-camera far right during Newton's Shaded Arch Optical Prism showcase
             hx_p, hy_p, hyaw = 1.85, 0.52, -18.0
             lean_x, head_rx, head_rz = 2.0, 4.0, -10.0
-            ua_l, la_l = (-10.0, 28.0, -14.0), (-24.0, 0.0, -18.0)
-            ua_r, la_r = (-10.0, -28.0, 14.0), (-24.0, 0.0, 18.0)
+            ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
+            ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
             jaw_bias, h_brow, h_smile = 0.0, 0.0, 0.0
         elif t < 20.5:
-            # Beat 4: Halley (2.34, 0.42, 0.0), yaw=+24° looking RIGHT at Cradle -> FULL-BODY KNEE-BEND & TORSO RECOIL at 17.45s!
+            # Beat 4: Halley (2.34, 0.42), yaw=+24° — relaxed pre-clack stance -> asymmetric startled knee-bend recoil at 17.45s!
             shock = smoothstep(17.42, 17.68, t)
             recoil_osc = math.sin((t - 17.45) * 19.0) * math.exp(-(t - 17.45) * 3.4) * 4.5 if t >= 17.45 else 0.0
             knee_bend_u = shock * (1.0 - 0.35 * smoothstep(18.60, 20.20, t))
@@ -1997,10 +2205,10 @@ for f in range(1, TOTAL_FRAMES + 1):
             lean_x = lerp(6.0, -12.5, shock) + recoil_osc
             head_rx = lerp(7.0, -10.0, shock)
             head_rz = lerp(16.0, 14.0, shock) + math.sin(t * 6.2) * 3.5 * shock
-            ua_l = (lerp(-24.0, -36.0, shock), lerp(22.0, 24.0, shock), lerp(-28.0, -38.0, shock))
-            la_l = (lerp(-32.0, -56.0, shock), 0.0, lerp(-18.0, -34.0, shock))
-            ua_r = (lerp(-14.0, -34.0, shock), lerp(-28.0, -24.0, shock), lerp(16.0, 36.0, shock))
-            la_r = (lerp(-28.0, -56.0, shock), 0.0, lerp(20.0, 34.0, shock))
+            ua_l = (lerp(-20.0, -36.0, shock), lerp(16.0, 20.0, shock), lerp(-22.0, -36.0, shock))
+            la_l = (lerp(-28.0, -54.0, shock), 0.0, lerp(-14.0, -30.0, shock))
+            ua_r = (lerp(6.0, -24.0, shock), lerp(-12.0, -20.0, shock), lerp(8.0, 28.0, shock))
+            la_r = (lerp(-14.0, -42.0, shock), 0.0, lerp(10.0, 26.0, shock))
             jaw_bias = 13.0 * shock * (1.0 - smoothstep(18.10, 18.60, t))
             h_brow = lerp(-0.20, 1.0, shock)
             h_smile = lerp(0.30, -0.48, shock)
@@ -2008,19 +2216,19 @@ for f in range(1, TOTAL_FRAMES + 1):
             # Beat 5: Off-camera far right during Starry Twilight Gravity Well Climax
             hx_p, hy_p, hyaw = 2.40, 0.54, -20.0
             lean_x, head_rx, head_rz = 2.0, 3.0, -14.0
-            ua_l, la_l = (-10.0, 28.0, -14.0), (-24.0, 0.0, -18.0)
-            ua_r, la_r = (-10.0, -28.0, 14.0), (-24.0, 0.0, 18.0)
+            ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
+            ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
             jaw_bias, h_brow, h_smile = 0.0, 0.25, 0.15
         else:
-            # Beat 6: Moonlit Grand Finale — Halley (1.15, 0.55, 0.0), yaw=-18° flanking cosmic centerpiece!
+            # Beat 6: Moonlit Grand Finale — Halley (1.15, 0.55), yaw=-18° — right hand admires cosmos, left arm relaxed at hip!
             hx_p, hy_p, hyaw = 1.15, 0.55, -18.0
             lean_x = 1.0 + breath * 0.4
             head_rx = -7.0 + math.sin(t * 1.4) * 2.0
             head_rz = -10.0 + math.sin(t * 1.6) * 2.8
-            ua_r = (-28.0, -20.0, 30.0)
-            la_r = (-36.0, 0.0, 18.0)
-            ua_l = (-12.0, 28.0, -14.0)
-            la_l = (-26.0, 0.0, -18.0)
+            ua_r = (-24.0 + math.sin(t * 1.5) * 2.0, -14.0, 24.0)
+            la_r = (-30.0, 0.0, 14.0)
+            ua_l = (6.0 + math.sin(t * 1.3) * 1.0, 12.0, -8.0)
+            la_l = (-14.0, 0.0, -10.0)
             jaw_bias, h_brow, h_smile = 0.0, 0.58, 0.58
 
         # Exact trigonometric hip-drop keeps Halley's feet 100% grounded on FLOOR_Z=0.0 during Beat 4 knee-bend recoil!
@@ -2063,10 +2271,10 @@ for f in range(1, TOTAL_FRAMES + 1):
 # 16. EXECUTE RENDER (QA 6-BEAT PREVIEW OR PRODUCTION FRAME RANGE!)
 # ============================================================================
 if ARGS.qa_only:
-    # Preview all 6 V7 Outdoor-to-Cosmos Beats (Orchard Apple+g, Courtyard Debate, Shaded Prism, Cradle Recoil, Twilight Well, Moonlit Rocket Finale!)
+    # Preview all 6 V8 Outdoor-to-Cosmos Beats (Orchard Apple+g, Courtyard Debate, Shaded Prism, Cradle Recoil, Twilight Well, Moonlit Rocket Finale!)
     qa_times = [2.6, 8.5, 12.8, 17.8, 23.2, 28.2]
     qa_frames = [max(1, min(TOTAL_FRAMES, int(round(ts * FPS)) + 1)) for ts in qa_times]
-    print(f"[Newton V7 Outdoor-to-Cosmos QA] Rendering 6 Beat keyframes {qa_frames} ({FPS}fps, {ARGS.samples}spp, {ARGS.scale}% res) -> {OUT_DIR} ...")
+    print(f"[Newton V8 Outdoor-to-Cosmos QA] Rendering 6 Beat keyframes {qa_frames} ({FPS}fps, {ARGS.samples}spp, {ARGS.scale}% res) -> {OUT_DIR} ...")
     t_render_start = time.time()
     for idx, qf in enumerate(qa_frames, 1):
         scene.frame_set(qf)
@@ -2079,9 +2287,9 @@ if ARGS.qa_only:
     )
 else:
     print(
-        f"[Newton V7 Outdoor-to-Cosmos] Rendering frames {scene.frame_start}..{scene.frame_end} "
-        f"({RES_X}x{RES_Y} @ {ARGS.scale}%, {FPS}fps, {ARGS.samples} spp + FOG_GLOW Bloom) -> {OUT_DIR} ..."
+        f"[Newton V8 Outdoor-to-Cosmos] Rendering frames {scene.frame_start}..{scene.frame_end} "
+        f"({RES_X}x{RES_Y} @ {ARGS.scale}%, {FPS}fps, {ARGS.samples} spp OPTIX Turbo) -> {OUT_DIR} ..."
     )
     t_render_start = time.time()
     bpy.ops.render.render(animation=True)
-    print(f"[Newton V7 Outdoor-to-Cosmos] Batch {scene.frame_start}..{scene.frame_end} complete in {(time.time()-t_render_start)/60:.1f} min!")
+    print(f"[Newton V8 Outdoor-to-Cosmos] Batch {scene.frame_start}..{scene.frame_end} complete in {(time.time()-t_render_start)/60:.1f} min!")

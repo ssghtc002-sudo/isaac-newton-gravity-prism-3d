@@ -1,33 +1,34 @@
 """
-V7 Outdoor Woolsthorpe Orchard & Cosmos Environment Module for Scientist #9: Isaac Newton
-=========================================================================================
+V8 Photoreal Outdoor Woolsthorpe Orchard & Cosmos Environment Module for Scientist #9: Isaac Newton
+====================================================================================================
 
-100% brand-new outdoor-to-cosmos Cycles environment (ZERO indoor brick room, ZERO bookshelves,
-ZERO shopkeeper counter, ZERO blocky rotated arch cubes, ZERO linear stars, ZERO black moon ball!).
+100% outdoor-to-cosmos Cycles photoreal environment (ZERO Play-Doh canopy spheres, ZERO indoor brick
+room, ZERO cartoon green mortar lines, ZERO blown-out grey daylight sky, ZERO black moon ball!).
 
 Features:
-  1. Animated Physical Cycles Sky: NISHITA Golden-Hour Afternoon (Beats 1-4) smoothly blending
-     into a Deep Starry Celestial Twilight Sky (Beats 5-6, t = 19.8..22.2s).
+  1. Animated Physical Cycles Sky: Calibrated NISHITA Golden-Hour Amber-to-Sapphire Sunset (Beats 1-4:
+     5.8° sun elevation, ozone=3.8, Strength=0.24) blending smoothly into Deep Starry Celestial Twilight
+     (Beats 5-6, t = 19.8..22.2s).
   2. 160 True 3D Random Spherical Stars (warm-gold & sapphire-white, random.Random(1687)) +
      True 3D Sculpted Crescent Moon (pure smooth bmesh lunar crescent, ZERO black occluder!).
-  3. Rolling Woolsthorpe Meadow Grass Terrain, Curved Mossy Cotswold Limestone Flagstone
-     Courtyard (exact Z = 0.000), Carved Cotswold Stone Garden Balustrade (18 turned stone urn
-     balusters + 3 pier finials), 3 Atmospheric Rolling Countryside Hill Ridges with distant
-     English tree clusters, and 140 merged 3D Meadow Grass Clumps & Golden/White Wildflowers.
-  4. Monumental 3.6m-tall Sculpted Woolsthorpe Apple Tree rooted at (-0.18, +1.35, 0.0) with
-     gnarled bark & buttress roots, 5 sweeping organic boughs including the continuous Hero
-     Overhanging Apple Bough terminating at exact HERO_APPLE_ATTACH = (-0.52, 0.12, 1.94),
-     14 organic canopy clusters + 280 sculpted leaves with backlit translucent Cycles shader,
-     and 12 glossy ruby-gold heirloom hanging apples.
-  5. Shaded Left Cotswold Stone Manor Garden Loggia / Optical Alcove (X in [-3.75, -1.80])
-     featuring smooth continuous semicircular carved stone arches, dark walnut timber optical
-     shutter with a physical circular brass-rimmed pinhole at exact PRISM_PINHOLE = (-3.38, 0.06, 1.54),
-     and pitch-rich shadowed dark limestone back wall for Beat 3's 7-spectral rainbow showstopper.
+  3. Rolling Woolsthorpe Meadow Grass Terrain, Weathered Cotswold Honey-Buff & Taupe-Grey Flagstone
+     Courtyard (exact Z = 0.000, dark charcoal-umber recessed mortar, corner-only damp moss, Cycles AO),
+     Carved Cotswold Stone Garden Balustrade (18 turned stone urn balusters + 3 pier finials with AO),
+     3 Layered Atmospheric Rolling Hill Ridges with organic tree-line silhouette variation & misty
+     golden-hour perspective, and 140 merged 3D Meadow Grass Clumps & Golden/White Wildflowers.
+  4. Monumental 3.5m-tall Sculpted Woolsthorpe Apple Tree rooted at (-0.18, +1.35, 0.0) with deeply
+     fissured AO gnarled bark, 5 sweeping organic primary boughs (Hero Overhanging Bough terminating at
+     exact HERO_APPLE_ATTACH = (-0.52, 0.12, 1.94)), 50+ slender woody branches & sub-twigs, ~2,600
+     individual sculpted 6-vert matte-botanical leaves (ZERO blob spheres!), shaped cleanly left/low
+     of Beat 6's starry sky title zone, and 10 heirloom ruby-gold hanging apples on real twigs.
+  5. Shaded Left Cotswold Stone Manor Garden Loggia / Optical Alcove (X in [-3.75, -1.80]) with
+     semicircular carved stone arch, walnut optical shutter with physical brass-rimmed pinhole at exact
+     PRISM_PINHOLE = (-3.38, 0.06, 1.54), and dark limestone chiaroscuro back wall for Beat 3's prism.
   6. Three Sculpted Cotswold Stone Garden Plinths (APPLE_PLINTH, PRINCIPIA_PLINTH, CRADLE_PLINTH)
-     plus open flagstone anchors (PRISM_ANCHOR, ORBIT_ANCHOR).
+     with Cycles Ambient Occlusion crevice depth, plus open flagstone anchors (PRISM_ANCHOR, ORBIT_ANCHOR).
   7. Volumetric Golden-Hour God-Rays + 45 Randomly Scattered 3D Drifting Golden Pollen Motes
      (random.Random(1666)).
-  8. Outdoor Golden-Hour Sun & Rembrandt Lighting Rig animating smoothly to Moonlit Twilight.
+  8. Hollywood Golden-Hour Chiaroscuro Sun & Rembrandt Lighting Rig animating smoothly to Moonlit Twilight.
 """
 from __future__ import annotations
 
@@ -134,7 +135,7 @@ def _finalize_bmesh(
 # 3. PROCEDURAL CYCLES PBR MATERIALS (COTSWOLD ORCHARD & COSMOS PALETTE)
 # ============================================================================
 def _make_cotswold_stone_mat(name: str = "CotswoldCarvedLimestone", dark: bool = False):
-    """Warm honey-golden Cotswold limestone (or deep shadowed charcoal-stone for Beat 3 loggia)."""
+    """Weathered 17th-century Cotswold limestone with Cycles Ambient Occlusion crevice shading & crisp carved grain."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -142,57 +143,77 @@ def _make_cotswold_stone_mat(name: str = "CotswoldCarvedLimestone", dark: bool =
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
     ns_macro = nt.nodes.new("ShaderNodeTexNoise")
-    ns_macro.inputs["Scale"].default_value = 4.2
-    ns_macro.inputs["Detail"].default_value = 8.0
-    ns_macro.inputs["Roughness"].default_value = 0.62
+    ns_macro.inputs["Scale"].default_value = 4.6
+    ns_macro.inputs["Detail"].default_value = 9.0
+    ns_macro.inputs["Roughness"].default_value = 0.66
 
     ns_fine = nt.nodes.new("ShaderNodeTexNoise")
-    ns_fine.inputs["Scale"].default_value = 22.0
-    ns_fine.inputs["Detail"].default_value = 9.0
-    ns_fine.inputs["Roughness"].default_value = 0.68
+    ns_fine.inputs["Scale"].default_value = 26.0
+    ns_fine.inputs["Detail"].default_value = 10.0
+    ns_fine.inputs["Roughness"].default_value = 0.70
 
     rmp = nt.nodes.new("ShaderNodeValToRGB")
     if dark:
         rmp.color_ramp.elements[0].position = 0.22
-        rmp.color_ramp.elements[0].color = (0.022, 0.020, 0.024, 1.0)
+        rmp.color_ramp.elements[0].color = (0.020, 0.018, 0.022, 1.0)
         e_mid = rmp.color_ramp.elements.new(0.55)
-        e_mid.color = (0.044, 0.039, 0.038, 1.0)
+        e_mid.color = (0.040, 0.036, 0.034, 1.0)
         rmp.color_ramp.elements[-1].position = 0.86
-        rmp.color_ramp.elements[-1].color = (0.072, 0.062, 0.054, 1.0)
+        rmp.color_ramp.elements[-1].color = (0.066, 0.058, 0.050, 1.0)
     else:
         rmp.color_ramp.elements[0].position = 0.20
-        rmp.color_ramp.elements[0].color = (0.24, 0.19, 0.125, 1.0)
+        rmp.color_ramp.elements[0].color = (0.205, 0.162, 0.108, 1.0)
         e_mid = rmp.color_ramp.elements.new(0.55)
-        e_mid.color = (0.37, 0.30, 0.205, 1.0)
-        rmp.color_ramp.elements[-1].position = 0.85
-        rmp.color_ramp.elements[-1].color = (0.48, 0.40, 0.285, 1.0)
+        e_mid.color = (0.315, 0.258, 0.178, 1.0)
+        rmp.color_ramp.elements[-1].position = 0.86
+        rmp.color_ramp.elements[-1].color = (0.415, 0.348, 0.248, 1.0)
 
-    # Subtle weathered garden moss undertone near crevices
+    # Subtle weathered garden lichen/damp moss undertone in shaded pockets
     ns_moss = nt.nodes.new("ShaderNodeTexNoise")
-    ns_moss.inputs["Scale"].default_value = 3.1
+    ns_moss.inputs["Scale"].default_value = 2.6
     ns_moss.inputs["Detail"].default_value = 6.0
     moss_rmp = nt.nodes.new("ShaderNodeValToRGB")
-    moss_rmp.color_ramp.elements[0].position = 0.62
+    moss_rmp.color_ramp.elements[0].position = 0.66
     moss_rmp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
-    moss_rmp.color_ramp.elements[1].position = 0.86
-    moss_rmp.color_ramp.elements[1].color = (0.26 if not dark else 0.12, 0.26 if not dark else 0.12, 0.26 if not dark else 0.12, 1.0)
+    moss_rmp.color_ramp.elements[1].position = 0.88
+    m_v = 0.22 if not dark else 0.10
+    moss_rmp.color_ramp.elements[1].color = (m_v, m_v, m_v, 1.0)
 
     mix_moss = nt.nodes.new("ShaderNodeMix")
     mix_moss.data_type = "RGBA"
     mix_moss.blend_type = "MIX"
     mm_fac, mm_a, mm_b, mm_out = get_rgba_mix_sockets(mix_moss)
-    mm_b.default_value = (0.045, 0.095, 0.028, 1.0) if not dark else (0.018, 0.036, 0.016, 1.0)
+    mm_b.default_value = (0.032, 0.054, 0.020, 1.0) if not dark else (0.015, 0.026, 0.014, 1.0)
+
+    # Photorealistic Cycles Ambient Occlusion darkening flutes, plinth moldings & urn crevices
+    ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
+    ao.samples = 8
+    ao.inputs["Distance"].default_value = 0.45
+    ao_rmp = nt.nodes.new("ShaderNodeValToRGB")
+    ao_rmp.color_ramp.elements[0].position = 0.12
+    ao_rmp.color_ramp.elements[0].color = (0.42, 0.40, 0.37, 1.0)
+    ao_rmp.color_ramp.elements[1].position = 0.94
+    ao_rmp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
+
+    mix_ao = nt.nodes.new("ShaderNodeMix")
+    mix_ao.data_type = "RGBA"
+    mix_ao.blend_type = "MULTIPLY"
+    mao_fac, mao_a, mao_b, mao_out = get_rgba_mix_sockets(mix_ao)
+    mao_fac.default_value = 1.0
 
     r_map = nt.nodes.new("ShaderNodeMapRange")
+    r_map.clamp = True
     r_map.inputs["From Min"].default_value = 0.20
-    r_map.inputs["From Max"].default_value = 0.80
-    r_map.inputs["To Min"].default_value = 0.60 if not dark else 0.72
-    r_map.inputs["To Max"].default_value = 0.84 if not dark else 0.90
+    r_map.inputs["From Max"].default_value = 0.82
+    r_map.inputs["To Min"].default_value = 0.58 if not dark else 0.72
+    r_map.inputs["To Max"].default_value = 0.86 if not dark else 0.92
 
     bmp_fine = nt.nodes.new("ShaderNodeBump")
-    bmp_fine.inputs["Strength"].default_value = 0.14
+    bmp_fine.inputs["Strength"].default_value = 0.18
+    bmp_fine.inputs["Distance"].default_value = 0.008
     bmp_macro = nt.nodes.new("ShaderNodeBump")
-    bmp_macro.inputs["Strength"].default_value = 0.20
+    bmp_macro.inputs["Strength"].default_value = 0.28
+    bmp_macro.inputs["Distance"].default_value = 0.018
 
     nt.links.new(tc.outputs["Object"], ns_macro.inputs["Vector"])
     nt.links.new(tc.outputs["Object"], ns_fine.inputs["Vector"])
@@ -201,7 +222,10 @@ def _make_cotswold_stone_mat(name: str = "CotswoldCarvedLimestone", dark: bool =
     nt.links.new(ns_moss.outputs["Fac"], moss_rmp.inputs["Fac"])
     nt.links.new(moss_rmp.outputs["Color"], mm_fac)
     nt.links.new(rmp.outputs["Color"], mm_a)
-    nt.links.new(mm_out, bsdf.inputs["Base Color"])
+    nt.links.new(ao.outputs["AO"], ao_rmp.inputs["Fac"])
+    nt.links.new(mm_out, mao_a)
+    nt.links.new(ao_rmp.outputs["Color"], mao_b)
+    nt.links.new(mao_out, bsdf.inputs["Base Color"])
     nt.links.new(ns_fine.outputs["Fac"], r_map.inputs["Value"])
     nt.links.new(r_map.outputs["Result"], bsdf.inputs["Roughness"])
     nt.links.new(ns_fine.outputs["Fac"], bmp_fine.inputs["Height"])
@@ -212,7 +236,7 @@ def _make_cotswold_stone_mat(name: str = "CotswoldCarvedLimestone", dark: bool =
 
 
 def _make_cotswold_ashlar_mat(name: str = "CotswoldManorAshlar", dark: bool = False):
-    """Weathered Cotswold manor ashlar stone blocks with mortar relief (for exterior loggia & dark alcove)."""
+    """Weathered Cotswold manor ashlar stone blocks with mortar relief & Cycles AO crevice depth."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -226,13 +250,13 @@ def _make_cotswold_ashlar_mat(name: str = "CotswoldManorAshlar", dark: bool = Fa
     br = nt.nodes.new("ShaderNodeTexBrick")
     br.offset = 0.5
     if dark:
-        br.inputs["Color1"].default_value = (0.042, 0.038, 0.036, 1.0)
-        br.inputs["Color2"].default_value = (0.026, 0.024, 0.025, 1.0)
-        br.inputs["Mortar"].default_value = (0.010, 0.010, 0.011, 1.0)
+        br.inputs["Color1"].default_value = (0.040, 0.036, 0.034, 1.0)
+        br.inputs["Color2"].default_value = (0.024, 0.022, 0.024, 1.0)
+        br.inputs["Mortar"].default_value = (0.009, 0.009, 0.010, 1.0)
     else:
-        br.inputs["Color1"].default_value = (0.36, 0.285, 0.190, 1.0)
-        br.inputs["Color2"].default_value = (0.26, 0.205, 0.135, 1.0)
-        br.inputs["Mortar"].default_value = (0.11, 0.095, 0.072, 1.0)
+        br.inputs["Color1"].default_value = (0.31, 0.245, 0.165, 1.0)
+        br.inputs["Color2"].default_value = (0.22, 0.175, 0.120, 1.0)
+        br.inputs["Mortar"].default_value = (0.065, 0.056, 0.045, 1.0)
     br.inputs["Scale"].default_value = 2.6
     br.inputs["Mortar Size"].default_value = 0.018
     br.inputs["Mortar Smooth"].default_value = 0.18
@@ -240,26 +264,41 @@ def _make_cotswold_ashlar_mat(name: str = "CotswoldManorAshlar", dark: bool = Fa
     br.inputs["Row Height"].default_value = 0.28
 
     ns = nt.nodes.new("ShaderNodeTexNoise")
-    ns.inputs["Scale"].default_value = 8.5
-    ns.inputs["Detail"].default_value = 9.0
-    ns.inputs["Roughness"].default_value = 0.65
+    ns.inputs["Scale"].default_value = 9.0
+    ns.inputs["Detail"].default_value = 10.0
+    ns.inputs["Roughness"].default_value = 0.68
 
     rmp = nt.nodes.new("ShaderNodeValToRGB")
-    rmp.color_ramp.elements[0].position = 0.25
-    rmp.color_ramp.elements[0].color = (0.62, 0.58, 0.52, 1.0)
-    rmp.color_ramp.elements[1].position = 0.80
+    rmp.color_ramp.elements[0].position = 0.22
+    rmp.color_ramp.elements[0].color = (0.58, 0.54, 0.48, 1.0)
+    rmp.color_ramp.elements[1].position = 0.82
     rmp.color_ramp.elements[1].color = (1.0, 0.96, 0.90, 1.0)
 
     mix_w = nt.nodes.new("ShaderNodeMix")
     mix_w.data_type = "RGBA"
     mix_w.blend_type = "MULTIPLY"
     mw_fac, mw_a, mw_b, mw_out = get_rgba_mix_sockets(mix_w)
-    mw_fac.default_value = 0.38
+    mw_fac.default_value = 0.42
+
+    ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
+    ao.samples = 8
+    ao.inputs["Distance"].default_value = 0.45
+    ao_rmp = nt.nodes.new("ShaderNodeValToRGB")
+    ao_rmp.color_ramp.elements[0].position = 0.10
+    ao_rmp.color_ramp.elements[0].color = (0.42, 0.40, 0.38, 1.0)
+    ao_rmp.color_ramp.elements[1].position = 0.94
+    ao_rmp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
+
+    mix_ao = nt.nodes.new("ShaderNodeMix")
+    mix_ao.data_type = "RGBA"
+    mix_ao.blend_type = "MULTIPLY"
+    mao_fac, mao_a, mao_b, mao_out = get_rgba_mix_sockets(mix_ao)
+    mao_fac.default_value = 1.0
 
     bmp_g = nt.nodes.new("ShaderNodeBump")
-    bmp_g.inputs["Strength"].default_value = 0.15
+    bmp_g.inputs["Strength"].default_value = 0.22
     bmp_m = nt.nodes.new("ShaderNodeBump")
-    bmp_m.inputs["Strength"].default_value = 0.34 if not dark else 0.22
+    bmp_m.inputs["Strength"].default_value = 0.38 if not dark else 0.24
 
     set_bsdf(bsdf, "Roughness", 0.78 if not dark else 0.86)
 
@@ -269,7 +308,10 @@ def _make_cotswold_ashlar_mat(name: str = "CotswoldManorAshlar", dark: bool = Fa
     nt.links.new(ns.outputs["Fac"], rmp.inputs["Fac"])
     nt.links.new(br.outputs["Color"], mw_a)
     nt.links.new(rmp.outputs["Color"], mw_b)
-    nt.links.new(mw_out, bsdf.inputs["Base Color"])
+    nt.links.new(ao.outputs["AO"], ao_rmp.inputs["Fac"])
+    nt.links.new(mw_out, mao_a)
+    nt.links.new(ao_rmp.outputs["Color"], mao_b)
+    nt.links.new(mao_out, bsdf.inputs["Base Color"])
     nt.links.new(ns.outputs["Fac"], bmp_g.inputs["Height"])
     nt.links.new(br.outputs["Fac"], bmp_m.inputs["Height"])
     nt.links.new(bmp_g.outputs["Normal"], bmp_m.inputs["Normal"])
@@ -278,7 +320,7 @@ def _make_cotswold_ashlar_mat(name: str = "CotswoldManorAshlar", dark: bool = Fa
 
 
 def _make_mossy_flagstone_mat(name: str = "CotswoldMossyFlagstone"):
-    """Warm honey Cotswold limestone courtyard paving slabs with Voronoi/Ashlar seams & mossy crevices."""
+    """Weathered Cotswold honey-buff & warm taupe-grey flagstones with dark charcoal-umber mortar, corner-only damp moss & AO."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -286,76 +328,119 @@ def _make_mossy_flagstone_mat(name: str = "CotswoldMossyFlagstone"):
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
 
-    # Organic slight warp so paving seams look hand-laid antique limestone
+    # Hand-laid organic slight warp so antique limestone slab joints never look like a CGI grid
     ns_warp = nt.nodes.new("ShaderNodeTexNoise")
-    ns_warp.inputs["Scale"].default_value = 2.4
-    ns_warp.inputs["Detail"].default_value = 4.0
+    ns_warp.inputs["Scale"].default_value = 2.1
+    ns_warp.inputs["Detail"].default_value = 4.5
 
     vec_scale = nt.nodes.new("ShaderNodeVectorMath")
     vec_scale.operation = "SCALE"
-    vec_scale.inputs["Scale"].default_value = 0.045
+    vec_scale.inputs["Scale"].default_value = 0.052
 
     vec_add = nt.nodes.new("ShaderNodeVectorMath")
     vec_add.operation = "ADD"
 
     br = nt.nodes.new("ShaderNodeTexBrick")
-    br.offset = 0.42
-    br.inputs["Color1"].default_value = (0.34, 0.275, 0.185, 1.0)
-    br.inputs["Color2"].default_value = (0.24, 0.195, 0.132, 1.0)
-    br.inputs["Mortar"].default_value = (0.048, 0.088, 0.028, 1.0)  # Mossy mortar crevice!
-    br.inputs["Scale"].default_value = 2.15
-    br.inputs["Mortar Size"].default_value = 0.026
-    br.inputs["Mortar Smooth"].default_value = 0.24
-    br.inputs["Brick Width"].default_value = 0.72
-    br.inputs["Row Height"].default_value = 0.48
+    br.offset = 0.44
+    br.inputs["Color1"].default_value = (0.265, 0.212, 0.148, 1.0)  # Weathered Cotswold honey-buff limestone
+    br.inputs["Color2"].default_value = (0.172, 0.156, 0.132, 1.0)  # Aged warm taupe-grey flagstone
+    br.inputs["Mortar"].default_value = (0.032, 0.030, 0.026, 1.0)  # Dark earthy charcoal-umber recessed mortar!
+    br.inputs["Bias"].default_value = -0.08
+    br.inputs["Scale"].default_value = 2.05
+    br.inputs["Mortar Size"].default_value = 0.020
+    br.inputs["Mortar Smooth"].default_value = 0.20
+    br.inputs["Brick Width"].default_value = 0.74
+    br.inputs["Row Height"].default_value = 0.50
 
-    # Secondary Voronoi flagstone mineral speckle + weathering
-    vor = nt.nodes.new("ShaderNodeTexVoronoi")
-    vor.inputs["Scale"].default_value = 3.2
+    # Stone grain & mineral weathering across individual slabs
     ns_stone = nt.nodes.new("ShaderNodeTexNoise")
-    ns_stone.inputs["Scale"].default_value = 11.0
-    ns_stone.inputs["Detail"].default_value = 9.0
-    ns_stone.inputs["Roughness"].default_value = 0.64
+    ns_stone.inputs["Scale"].default_value = 11.5
+    ns_stone.inputs["Detail"].default_value = 10.0
+    ns_stone.inputs["Roughness"].default_value = 0.68
+
+    ns_fine = nt.nodes.new("ShaderNodeTexNoise")
+    ns_fine.inputs["Scale"].default_value = 32.0
+    ns_fine.inputs["Detail"].default_value = 8.0
+    ns_fine.inputs["Roughness"].default_value = 0.72
 
     rmp_tint = nt.nodes.new("ShaderNodeValToRGB")
     rmp_tint.color_ramp.elements[0].position = 0.20
-    rmp_tint.color_ramp.elements[0].color = (0.72, 0.68, 0.60, 1.0)
-    rmp_tint.color_ramp.elements[1].position = 0.85
-    rmp_tint.color_ramp.elements[1].color = (1.08, 1.02, 0.92, 1.0)
+    rmp_tint.color_ramp.elements[0].color = (0.64, 0.60, 0.54, 1.0)
+    rmp_tint.color_ramp.elements[1].position = 0.84
+    rmp_tint.color_ramp.elements[1].color = (1.06, 1.00, 0.92, 1.0)
 
     mix_tint = nt.nodes.new("ShaderNodeMix")
     mix_tint.data_type = "RGBA"
     mix_tint.blend_type = "MULTIPLY"
     mt_fac, mt_a, mt_b, mt_out = get_rgba_mix_sockets(mix_tint)
-    mt_fac.default_value = 0.42
+    mt_fac.default_value = 0.48
 
-    # Moss creep around mortar joints & shady corners
-    ns_moss = nt.nodes.new("ShaderNodeTexNoise")
-    ns_moss.inputs["Scale"].default_value = 5.5
-    ns_moss.inputs["Detail"].default_value = 8.0
+    # Subtle irregular dark-moss patches ONLY in damp corners (low-frequency macro mask * patchy detail)
+    ns_damp_macro = nt.nodes.new("ShaderNodeTexNoise")
+    ns_damp_macro.inputs["Scale"].default_value = 1.15
+    ns_damp_macro.inputs["Detail"].default_value = 5.0
+    ns_damp_macro.inputs["Roughness"].default_value = 0.55
+
+    ns_moss_detail = nt.nodes.new("ShaderNodeTexNoise")
+    ns_moss_detail.inputs["Scale"].default_value = 4.8
+    ns_moss_detail.inputs["Detail"].default_value = 7.0
+
+    moss_mul = nt.nodes.new("ShaderNodeMath")
+    moss_mul.operation = "MULTIPLY"
+
     moss_rmp = nt.nodes.new("ShaderNodeValToRGB")
-    moss_rmp.color_ramp.elements[0].position = 0.56
+    moss_rmp.color_ramp.elements[0].position = 0.42
     moss_rmp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
-    moss_rmp.color_ramp.elements[1].position = 0.82
-    moss_rmp.color_ramp.elements[1].color = (0.45, 0.45, 0.45, 1.0)
+    moss_rmp.color_ramp.elements[1].position = 0.66
+    moss_rmp.color_ramp.elements[1].color = (0.42, 0.42, 0.42, 1.0)
 
     mix_moss = nt.nodes.new("ShaderNodeMix")
     mix_moss.data_type = "RGBA"
     mix_moss.blend_type = "MIX"
     mm_fac, mm_a, mm_b, mm_out = get_rgba_mix_sockets(mix_moss)
-    mm_b.default_value = (0.052, 0.125, 0.028, 1.0)
+    mm_b.default_value = (0.024, 0.048, 0.015, 1.0)  # Deep earthy damp olive moss (NEVER bright neon green!)
 
-    # Roughness: worn limestone centers (0.54) -> matte mossy joints (0.86)
+    # Cycles Ambient Occlusion grounding plinths, balustrade base & boots into the flagstones
+    ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
+    ao.samples = 8
+    ao.inputs["Distance"].default_value = 0.35
+    ao_rmp = nt.nodes.new("ShaderNodeValToRGB")
+    ao_rmp.color_ramp.elements[0].position = 0.14
+    ao_rmp.color_ramp.elements[0].color = (0.36, 0.34, 0.31, 1.0)
+    ao_rmp.color_ramp.elements[1].position = 0.94
+    ao_rmp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
+
+    mix_ao = nt.nodes.new("ShaderNodeMix")
+    mix_ao.data_type = "RGBA"
+    mix_ao.blend_type = "MULTIPLY"
+    mao_fac, mao_a, mao_b, mao_out = get_rgba_mix_sockets(mix_ao)
+    mao_fac.default_value = 0.92
+
+    # Realistic specular roughness variation (0.48 worn stone centers .. 0.84 matte mortar & rough mineral pockets)
+    rough_mix = nt.nodes.new("ShaderNodeMath")
+    rough_mix.operation = "MULTIPLY"
+    rough_mix.inputs[1].default_value = 0.55
+
+    rough_add = nt.nodes.new("ShaderNodeMath")
+    rough_add.operation = "ADD"
+
     r_map = nt.nodes.new("ShaderNodeMapRange")
-    r_map.inputs["From Min"].default_value = 0.0
-    r_map.inputs["From Max"].default_value = 1.0
-    r_map.inputs["To Min"].default_value = 0.54
-    r_map.inputs["To Max"].default_value = 0.86
+    r_map.clamp = True
+    r_map.inputs["From Min"].default_value = 0.15
+    r_map.inputs["From Max"].default_value = 1.35
+    r_map.inputs["To Min"].default_value = 0.48
+    r_map.inputs["To Max"].default_value = 0.84
 
+    # Strong stone grain bump (0.26) + crisp recessed mortar relief (0.48)
+    bmp_fine = nt.nodes.new("ShaderNodeBump")
+    bmp_fine.inputs["Strength"].default_value = 0.12
+    bmp_fine.inputs["Distance"].default_value = 0.006
     bmp_grain = nt.nodes.new("ShaderNodeBump")
-    bmp_grain.inputs["Strength"].default_value = 0.14
+    bmp_grain.inputs["Strength"].default_value = 0.26
+    bmp_grain.inputs["Distance"].default_value = 0.015
     bmp_seam = nt.nodes.new("ShaderNodeBump")
-    bmp_seam.inputs["Strength"].default_value = 0.36
+    bmp_seam.inputs["Strength"].default_value = 0.48
+    bmp_seam.inputs["Distance"].default_value = 0.026
     bmp_seam.invert = True
 
     nt.links.new(tc.outputs["Object"], ns_warp.inputs["Vector"])
@@ -363,27 +448,38 @@ def _make_mossy_flagstone_mat(name: str = "CotswoldMossyFlagstone"):
     nt.links.new(tc.outputs["Object"], vec_add.inputs[0])
     nt.links.new(vec_scale.outputs["Vector"], vec_add.inputs[1])
     nt.links.new(vec_add.outputs["Vector"], br.inputs["Vector"])
-    nt.links.new(tc.outputs["Object"], vor.inputs["Vector"])
     nt.links.new(tc.outputs["Object"], ns_stone.inputs["Vector"])
+    nt.links.new(tc.outputs["Object"], ns_fine.inputs["Vector"])
     nt.links.new(ns_stone.outputs["Fac"], rmp_tint.inputs["Fac"])
     nt.links.new(br.outputs["Color"], mt_a)
     nt.links.new(rmp_tint.outputs["Color"], mt_b)
-    nt.links.new(tc.outputs["Object"], ns_moss.inputs["Vector"])
-    nt.links.new(ns_moss.outputs["Fac"], moss_rmp.inputs["Fac"])
+    nt.links.new(tc.outputs["Object"], ns_damp_macro.inputs["Vector"])
+    nt.links.new(tc.outputs["Object"], ns_moss_detail.inputs["Vector"])
+    nt.links.new(ns_damp_macro.outputs["Fac"], moss_mul.inputs[0])
+    nt.links.new(ns_moss_detail.outputs["Fac"], moss_mul.inputs[1])
+    nt.links.new(moss_mul.outputs["Value"], moss_rmp.inputs["Fac"])
     nt.links.new(moss_rmp.outputs["Color"], mm_fac)
     nt.links.new(mt_out, mm_a)
-    nt.links.new(mm_out, bsdf.inputs["Base Color"])
-    nt.links.new(br.outputs["Fac"], r_map.inputs["Value"])
+    nt.links.new(ao.outputs["AO"], ao_rmp.inputs["Fac"])
+    nt.links.new(mm_out, mao_a)
+    nt.links.new(ao_rmp.outputs["Color"], mao_b)
+    nt.links.new(mao_out, bsdf.inputs["Base Color"])
+    nt.links.new(ns_stone.outputs["Fac"], rough_mix.inputs[0])
+    nt.links.new(br.outputs["Fac"], rough_add.inputs[0])
+    nt.links.new(rough_mix.outputs["Value"], rough_add.inputs[1])
+    nt.links.new(rough_add.outputs["Value"], r_map.inputs["Value"])
     nt.links.new(r_map.outputs["Result"], bsdf.inputs["Roughness"])
+    nt.links.new(ns_fine.outputs["Fac"], bmp_fine.inputs["Height"])
     nt.links.new(ns_stone.outputs["Fac"], bmp_grain.inputs["Height"])
     nt.links.new(br.outputs["Fac"], bmp_seam.inputs["Height"])
+    nt.links.new(bmp_fine.outputs["Normal"], bmp_grain.inputs["Normal"])
     nt.links.new(bmp_grain.outputs["Normal"], bmp_seam.inputs["Normal"])
     nt.links.new(bmp_seam.outputs["Normal"], bsdf.inputs["Normal"])
     return mat
 
 
 def _make_meadow_grass_mat(name: str = "WoolsthorpeMeadowGrass", distant: bool = False, haze_mix: float = 0.0):
-    """Multi-layered procedural emerald Woolsthorpe meadow grass (Voronoi + multi-octave Noise + fine blade bump)."""
+    """Natural botanical Woolsthorpe meadow grass (or layered golden-hour atmospheric misty Lincolnshire hills)."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -391,59 +487,77 @@ def _make_meadow_grass_mat(name: str = "WoolsthorpeMeadowGrass", distant: bool =
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
 
-    # Macro pasture sunlight & clover patches
+    # Macro pasture patchwork & tree-line hedgerow variation
     ns_macro = nt.nodes.new("ShaderNodeTexNoise")
-    ns_macro.inputs["Scale"].default_value = 0.65 if distant else 1.45
-    ns_macro.inputs["Detail"].default_value = 7.0
-    ns_macro.inputs["Roughness"].default_value = 0.58
+    ns_macro.inputs["Scale"].default_value = 0.48 if distant else 1.45
+    ns_macro.inputs["Detail"].default_value = 8.0
+    ns_macro.inputs["Roughness"].default_value = 0.62
 
-    # Fine grass-blade + moss Voronoi/Noise
+    # Fine grass-blade + hedgerow Voronoi/Noise
     vor = nt.nodes.new("ShaderNodeTexVoronoi")
-    vor.inputs["Scale"].default_value = 18.0 if distant else 42.0
+    vor.inputs["Scale"].default_value = 3.2 if distant else 42.0
     ns_blade = nt.nodes.new("ShaderNodeTexNoise")
-    ns_blade.inputs["Scale"].default_value = 24.0 if distant else 58.0
+    ns_blade.inputs["Scale"].default_value = 12.0 if distant else 58.0
     ns_blade.inputs["Detail"].default_value = 10.0
     ns_blade.inputs["Roughness"].default_value = 0.72
 
     rmp_macro = nt.nodes.new("ShaderNodeValToRGB")
     cr = rmp_macro.color_ramp
-    cr.elements[0].position = 0.22
-    cr.elements[0].color = (0.024, 0.088, 0.018, 1.0)  # Deep lush English meadow emerald
-    e1 = cr.elements.new(0.54)
-    e1.color = (0.056, 0.155, 0.026, 1.0)  # Rich Woolsthorpe orchard green
-    cr.elements[-1].position = 0.84
-    cr.elements[-1].color = (0.125, 0.215, 0.038, 1.0)  # Warm sunlit golden-clover pasture
+    if distant:
+        cr.elements[0].position = 0.22
+        cr.elements[0].color = (0.022, 0.052, 0.020, 1.0)  # Shaded distant woodland hedgerow
+        e1 = cr.elements.new(0.54)
+        e1.color = (0.058, 0.095, 0.032, 1.0)  # Sun-kissed olive Lincolnshire pasture
+        cr.elements[-1].position = 0.84
+        cr.elements[-1].color = (0.135, 0.145, 0.052, 1.0)  # Golden-hour dry meadow ridge
+    else:
+        cr.elements[0].position = 0.22
+        cr.elements[0].color = (0.020, 0.068, 0.015, 1.0)  # Deep natural English orchard meadow
+        e1 = cr.elements.new(0.54)
+        e1.color = (0.048, 0.125, 0.022, 1.0)  # Rich natural olive-emerald grass
+        cr.elements[-1].position = 0.84
+        cr.elements[-1].color = (0.118, 0.175, 0.034, 1.0)  # Warm golden-clover sunlit pasture
 
     rmp_blade = nt.nodes.new("ShaderNodeValToRGB")
     rmp_blade.color_ramp.elements[0].position = 0.18
-    rmp_blade.color_ramp.elements[0].color = (0.68, 0.74, 0.62, 1.0)
+    rmp_blade.color_ramp.elements[0].color = (0.64, 0.68, 0.58, 1.0)
     rmp_blade.color_ramp.elements[1].position = 0.84
-    rmp_blade.color_ramp.elements[1].color = (1.15, 1.12, 0.92, 1.0)
+    rmp_blade.color_ramp.elements[1].color = (1.12, 1.08, 0.90, 1.0)
 
     mix_b = nt.nodes.new("ShaderNodeMix")
     mix_b.data_type = "RGBA"
     mix_b.blend_type = "MULTIPLY"
     mb_fac, mb_a, mb_b, mb_out = get_rgba_mix_sockets(mix_b)
-    mb_fac.default_value = 0.45
+    mb_fac.default_value = 0.46
 
     final_col_out = mb_out
     if haze_mix > 0.0:
+        # Layered atmospheric perspective: warm golden-hour valley mist transitioning to soft dusty haze!
+        sep_z = nt.nodes.new("ShaderNodeSeparateXYZ")
+        alt_rmp = nt.nodes.new("ShaderNodeValToRGB")
+        alt_rmp.color_ramp.elements[0].position = 0.05
+        alt_rmp.color_ramp.elements[0].color = (0.24, 0.20, 0.15, 1.0)  # Warm golden-hour valley mist
+        alt_rmp.color_ramp.elements[1].position = 0.85
+        alt_rmp.color_ramp.elements[1].color = (0.15, 0.17, 0.20, 1.0)  # Cool distant horizon atmospheric haze
+
         mix_haze = nt.nodes.new("ShaderNodeMix")
         mix_haze.data_type = "RGBA"
         mix_haze.blend_type = "MIX"
         mh_fac, mh_a, mh_b, mh_out = get_rgba_mix_sockets(mix_haze)
         mh_fac.default_value = clamp01(haze_mix)
-        mh_b.default_value = (0.052, 0.095, 0.120, 1.0)  # Atmospheric misty English valley blue-sage
+        nt.links.new(tc.outputs["Generated"], sep_z.inputs["Vector"])
+        nt.links.new(sep_z.outputs["Z"], alt_rmp.inputs["Fac"])
         nt.links.new(mb_out, mh_a)
+        nt.links.new(alt_rmp.outputs["Color"], mh_b)
         final_col_out = mh_out
 
     bmp_vor = nt.nodes.new("ShaderNodeBump")
-    bmp_vor.inputs["Strength"].default_value = 0.18 if distant else 0.28
+    bmp_vor.inputs["Strength"].default_value = 0.22 if distant else 0.28
     bmp_bl = nt.nodes.new("ShaderNodeBump")
-    bmp_bl.inputs["Strength"].default_value = 0.20 if distant else 0.36
+    bmp_bl.inputs["Strength"].default_value = 0.24 if distant else 0.36
 
-    set_bsdf(bsdf, "Roughness", 0.86 if not distant else 0.92)
-    set_bsdf(bsdf, "Specular IOR Level", 0.22)
+    set_bsdf(bsdf, "Roughness", 0.88 if not distant else 0.94)
+    set_bsdf(bsdf, "Specular IOR Level", 0.18)
 
     nt.links.new(tc.outputs["Object"], ns_macro.inputs["Vector"])
     nt.links.new(tc.outputs["Object"], vor.inputs["Vector"])
@@ -461,7 +575,7 @@ def _make_meadow_grass_mat(name: str = "WoolsthorpeMeadowGrass", distant: bool =
 
 
 def _make_gnarled_bark_mat(name: str = "WoolsthorpeGnarledBark"):
-    """Gnarled dark-oak Woolsthorpe apple tree bark with deep vertical fissures & pale sage lichen patches."""
+    """Ancient gnarled apple-tree bark: deep vertical fissures (Z=0.35, X/Y=5.5, Bump=0.62), espresso crevices & AO."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -469,59 +583,91 @@ def _make_gnarled_bark_mat(name: str = "WoolsthorpeGnarledBark"):
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
     mp = nt.nodes.new("ShaderNodeMapping")
-    mp.inputs["Scale"].default_value = (4.8, 4.8, 1.35)  # Vertically elongated bark fissures!
+    mp.inputs["Scale"].default_value = (5.5, 5.5, 0.35)  # Deeply vertically stretched ancient bark fissures!
 
     ns_bark = nt.nodes.new("ShaderNodeTexNoise")
-    ns_bark.inputs["Scale"].default_value = 7.2
-    ns_bark.inputs["Detail"].default_value = 11.0
-    ns_bark.inputs["Roughness"].default_value = 0.74
-    ns_bark.inputs["Distortion"].default_value = 1.25
+    ns_bark.inputs["Scale"].default_value = 6.2
+    ns_bark.inputs["Detail"].default_value = 12.0
+    ns_bark.inputs["Roughness"].default_value = 0.78
+    ns_bark.inputs["Distortion"].default_value = 1.45
+
+    ns_ridge = nt.nodes.new("ShaderNodeTexNoise")
+    ns_ridge.inputs["Scale"].default_value = 18.0
+    ns_ridge.inputs["Detail"].default_value = 8.0
+    ns_ridge.inputs["Roughness"].default_value = 0.72
 
     rmp_bark = nt.nodes.new("ShaderNodeValToRGB")
-    rmp_bark.color_ramp.elements[0].position = 0.22
-    rmp_bark.color_ramp.elements[0].color = (0.028, 0.017, 0.010, 1.0)  # Deep fissure crevice
+    rmp_bark.color_ramp.elements[0].position = 0.24
+    rmp_bark.color_ramp.elements[0].color = (0.014, 0.009, 0.006, 1.0)  # Deep espresso-umber bark fissures
     e_mid = rmp_bark.color_ramp.elements.new(0.56)
-    e_mid.color = (0.088, 0.056, 0.032, 1.0)  # Aged dark-oak orchard bark
-    rmp_bark.color_ramp.elements[-1].position = 0.85
-    rmp_bark.color_ramp.elements[-1].color = (0.148, 0.102, 0.062, 1.0)  # Sun-bleached bark ridge
+    e_mid.color = (0.058, 0.038, 0.022, 1.0)  # Aged dark English orchard bark
+    rmp_bark.color_ramp.elements[-1].position = 0.86
+    rmp_bark.color_ramp.elements[-1].color = (0.118, 0.082, 0.050, 1.0)  # Weathered dry-wood ridge highlights
 
-    # Organic orchard lichen & moss patches on gnarled trunk
+    # Subtle natural orchard lichen patches on gnarled trunk
     ns_lich = nt.nodes.new("ShaderNodeTexNoise")
-    ns_lich.inputs["Scale"].default_value = 4.6
+    ns_lich.inputs["Scale"].default_value = 4.2
     ns_lich.inputs["Detail"].default_value = 7.0
     lich_rmp = nt.nodes.new("ShaderNodeValToRGB")
-    lich_rmp.color_ramp.elements[0].position = 0.64
+    lich_rmp.color_ramp.elements[0].position = 0.68
     lich_rmp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
-    lich_rmp.color_ramp.elements[1].position = 0.82
-    lich_rmp.color_ramp.elements[1].color = (0.58, 0.58, 0.58, 1.0)
+    lich_rmp.color_ramp.elements[1].position = 0.86
+    lich_rmp.color_ramp.elements[1].color = (0.38, 0.38, 0.38, 1.0)
 
     mix_l = nt.nodes.new("ShaderNodeMix")
     mix_l.data_type = "RGBA"
     mix_l.blend_type = "MIX"
     ml_fac, ml_a, ml_b, ml_out = get_rgba_mix_sockets(mix_l)
-    ml_b.default_value = (0.12, 0.175, 0.085, 1.0)  # Pale English orchard lichen!
+    ml_b.default_value = (0.072, 0.098, 0.054, 1.0)  # Muted pale sage English orchard lichen
+
+    # Cycles Ambient Occlusion deepening root flares, trunk crevices & branch forks
+    ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
+    ao.samples = 8
+    ao.inputs["Distance"].default_value = 0.30
+    ao_rmp = nt.nodes.new("ShaderNodeValToRGB")
+    ao_rmp.color_ramp.elements[0].position = 0.14
+    ao_rmp.color_ramp.elements[0].color = (0.34, 0.30, 0.27, 1.0)
+    ao_rmp.color_ramp.elements[1].position = 0.92
+    ao_rmp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
+
+    mix_ao = nt.nodes.new("ShaderNodeMix")
+    mix_ao.data_type = "RGBA"
+    mix_ao.blend_type = "MULTIPLY"
+    mao_fac, mao_a, mao_b, mao_out = get_rgba_mix_sockets(mix_ao)
+    mao_fac.default_value = 1.0
+
+    bmp_fine = nt.nodes.new("ShaderNodeBump")
+    bmp_fine.inputs["Strength"].default_value = 0.22
+    bmp_fine.inputs["Distance"].default_value = 0.010
 
     bmp = nt.nodes.new("ShaderNodeBump")
-    bmp.inputs["Strength"].default_value = 0.48
-    bmp.inputs["Distance"].default_value = 0.022
+    bmp.inputs["Strength"].default_value = 0.62
+    bmp.inputs["Distance"].default_value = 0.028
 
-    set_bsdf(bsdf, "Roughness", 0.88)
+    set_bsdf(bsdf, "Roughness", 0.90)
+    set_bsdf(bsdf, "Specular IOR Level", 0.22)
 
     nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
     nt.links.new(mp.outputs["Vector"], ns_bark.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], ns_ridge.inputs["Vector"])
     nt.links.new(ns_bark.outputs["Fac"], rmp_bark.inputs["Fac"])
     nt.links.new(tc.outputs["Object"], ns_lich.inputs["Vector"])
     nt.links.new(ns_lich.outputs["Fac"], lich_rmp.inputs["Fac"])
     nt.links.new(lich_rmp.outputs["Color"], ml_fac)
     nt.links.new(rmp_bark.outputs["Color"], ml_a)
-    nt.links.new(ml_out, bsdf.inputs["Base Color"])
+    nt.links.new(ao.outputs["AO"], ao_rmp.inputs["Fac"])
+    nt.links.new(ml_out, mao_a)
+    nt.links.new(ao_rmp.outputs["Color"], mao_b)
+    nt.links.new(mao_out, bsdf.inputs["Base Color"])
+    nt.links.new(ns_ridge.outputs["Fac"], bmp_fine.inputs["Height"])
     nt.links.new(ns_bark.outputs["Fac"], bmp.inputs["Height"])
+    nt.links.new(bmp_fine.outputs["Normal"], bmp.inputs["Normal"])
     nt.links.new(bmp.outputs["Normal"], bsdf.inputs["Normal"])
     return mat
 
 
 def _make_translucent_leaf_mat(name: str = "WoolsthorpeSunlitCanopyLeaf"):
-    """Fast backlit sunlit emerald foliage (zero ray-splitting Translucent stall on T4 GPU!)."""
+    """Photoreal matte-botanical apple leaf shader (ZERO plastic shine, ZERO ray-splitting Translucent BSDF!)."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -529,27 +675,34 @@ def _make_translucent_leaf_mat(name: str = "WoolsthorpeSunlitCanopyLeaf"):
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
     ns = nt.nodes.new("ShaderNodeTexNoise")
-    ns.inputs["Scale"].default_value = 4.5
+    ns.inputs["Scale"].default_value = 3.2
     ns.inputs["Detail"].default_value = 6.0
-    ns.inputs["Roughness"].default_value = 0.60
+    ns.inputs["Roughness"].default_value = 0.58
+
+    ns_vein = nt.nodes.new("ShaderNodeTexNoise")
+    ns_vein.inputs["Scale"].default_value = 26.0
+    ns_vein.inputs["Detail"].default_value = 5.0
+    ns_vein.inputs["Roughness"].default_value = 0.65
 
     rmp = nt.nodes.new("ShaderNodeValToRGB")
-    rmp.color_ramp.elements[0].position = 0.20
-    rmp.color_ramp.elements[0].color = (0.032, 0.165, 0.022, 1.0)
-    e1 = rmp.color_ramp.elements.new(0.56)
-    e1.color = (0.088, 0.305, 0.036, 1.0)
+    rmp.color_ramp.elements[0].position = 0.18
+    rmp.color_ramp.elements[0].color = (0.018, 0.082, 0.014, 1.0)  # Deep forest shadow olive-emerald
+    e1 = rmp.color_ramp.elements.new(0.54)
+    e1.color = (0.055, 0.175, 0.024, 1.0)  # Rich natural botanical mid emerald
     rmp.color_ramp.elements[-1].position = 0.86
-    rmp.color_ramp.elements[-1].color = (0.215, 0.440, 0.055, 1.0)  # Warm golden sunlit leaf tips!
+    rmp.color_ramp.elements[-1].color = (0.155, 0.245, 0.036, 1.0)  # Sunlit warm golden-green autumn tips!
 
     bmp = nt.nodes.new("ShaderNodeBump")
-    bmp.inputs["Strength"].default_value = 0.12
+    bmp.inputs["Strength"].default_value = 0.15
+    bmp.inputs["Distance"].default_value = 0.004
 
-    set_bsdf(bsdf, "Roughness", 0.36)
-    set_bsdf(bsdf, "Coat Weight", 0.24)
-    set_bsdf(bsdf, "Coat Roughness", 0.18)
-    set_bsdf(bsdf, "Sheen Weight", 0.28)
-    set_bsdf(bsdf, "Subsurface Weight", 0.22)
-    set_bsdf(bsdf, "Subsurface Scale", 0.015)
+    set_bsdf(bsdf, "Roughness", 0.56)
+    set_bsdf(bsdf, "Specular IOR Level", 0.30)
+    set_bsdf(bsdf, "Coat Weight", 0.04)
+    set_bsdf(bsdf, "Coat Roughness", 0.42)
+    set_bsdf(bsdf, "Sheen Weight", 0.12)
+    set_bsdf(bsdf, "Subsurface Weight", 0.20)
+    set_bsdf(bsdf, "Subsurface Scale", 0.012)
     if hasattr(bsdf, "subsurface_method"):
         try:
             bsdf.subsurface_method = "BURLEY"
@@ -557,9 +710,10 @@ def _make_translucent_leaf_mat(name: str = "WoolsthorpeSunlitCanopyLeaf"):
             pass
 
     nt.links.new(tc.outputs["Object"], ns.inputs["Vector"])
+    nt.links.new(tc.outputs["Object"], ns_vein.inputs["Vector"])
     nt.links.new(ns.outputs["Fac"], rmp.inputs["Fac"])
     nt.links.new(rmp.outputs["Color"], bsdf.inputs["Base Color"])
-    nt.links.new(ns.outputs["Fac"], bmp.inputs["Height"])
+    nt.links.new(ns_vein.outputs["Fac"], bmp.inputs["Height"])
     nt.links.new(bmp.outputs["Normal"], bsdf.inputs["Normal"])
     return mat
 
@@ -988,30 +1142,25 @@ def _bmesh_add_leaf_card(
     bm: bmesh.types.BMesh,
     origin: Vector,
     rot_euler: Euler,
-    length: float = 0.10,
-    width: float = 0.048,
+    length: float = 0.085,
+    width: float = 0.046,
 ) -> None:
-    """Append a sculpted arched botanical diamond/almond leaf with subtle V-midrib crease."""
+    """Append a sculpted curved 6-vert diamond-ovate botanical apple leaf (3 faces / 4 tris)."""
     rmat = rot_euler.to_matrix()
 
     def xf(lx, ly, lz):
         return origin + (rmat @ Vector((lx, ly, lz)))
 
     v0 = bm.verts.new(xf(0.0, 0.0, 0.0))
-    v1l = bm.verts.new(xf(0.32 * length, 0.46 * width, 0.06 * length))
-    v1c = bm.verts.new(xf(0.32 * length, 0.0, 0.02 * length))
-    v1r = bm.verts.new(xf(0.32 * length, -0.46 * width, 0.06 * length))
-    v2l = bm.verts.new(xf(0.68 * length, 0.44 * width, 0.04 * length))
-    v2c = bm.verts.new(xf(0.68 * length, 0.0, -0.01 * length))
-    v2r = bm.verts.new(xf(0.68 * length, -0.44 * width, 0.04 * length))
-    v3 = bm.verts.new(xf(length, 0.0, -0.10 * length))
+    v1l = bm.verts.new(xf(0.35 * length, +0.48 * width, +0.055 * length))
+    v1r = bm.verts.new(xf(0.35 * length, -0.48 * width, +0.055 * length))
+    v2l = bm.verts.new(xf(0.72 * length, +0.34 * width, +0.015 * length))
+    v2r = bm.verts.new(xf(0.72 * length, -0.34 * width, +0.015 * length))
+    v3 = bm.verts.new(xf(length, 0.0, -0.095 * length))
 
-    bm.faces.new((v0, v1c, v1l))
-    bm.faces.new((v0, v1r, v1c))
-    bm.faces.new((v1l, v1c, v2c, v2l))
-    bm.faces.new((v1c, v1r, v2r, v2c))
-    bm.faces.new((v2l, v2c, v3))
-    bm.faces.new((v2c, v2r, v3))
+    bm.faces.new((v0, v1r, v1l))
+    bm.faces.new((v1l, v1r, v2r, v2l))
+    bm.faces.new((v2l, v2r, v3))
 
 
 def _bmesh_add_heirloom_apple(bm: bmesh.types.BMesh, center: Vector, radius: float = 0.044) -> None:
@@ -1045,7 +1194,7 @@ def _bmesh_add_heirloom_apple(bm: bmesh.types.BMesh, center: Vector, radius: flo
 # 5. SECTION BUILDERS (SKY, COSMOS, MEADOW, BALUSTRADE, TREE, LOGGIA, PLINTHS)
 # ============================================================================
 def _build_animated_physical_sky(scene):
-    """Build Cycles World blending NISHITA Golden-Hour Sky (Beats 1-4) -> Deep Starry Twilight (Beats 5-6)."""
+    """Build Cycles World blending NISHITA Golden-Hour Amber-to-Sapphire Sunset (Beats 1-4) -> Deep Starry Twilight (Beats 5-6)."""
     world = bpy.data.worlds.new("WoolsthorpeOrchardCosmosWorld")
     scene.world = world
     world.use_nodes = True
@@ -1054,20 +1203,20 @@ def _build_animated_physical_sky(scene):
 
     out = nt.nodes.new("ShaderNodeOutputWorld")
     mix_sh = nt.nodes.new("ShaderNodeMixShader")
-    mix_sh.inputs["Fac"].default_value = 0.0  # Daylight at frame 1!
+    mix_sh.inputs["Fac"].default_value = 0.0  # Golden-hour sunset at frame 1!
 
-    # Branch A: Real Physical NISHITA Golden-Hour Afternoon Sky (Beats 1-4)
+    # Branch A: Calibrated Physical NISHITA Golden-Hour Amber-to-Sapphire Sunset (Beats 1-4)
     sky_tex = nt.nodes.new("ShaderNodeTexSky")
     sky_tex.sky_type = "NISHITA"
     sky_tex.sun_disc = False
-    sky_tex.sun_elevation = math.radians(11.0)
-    sky_tex.sun_rotation = math.radians(38.0)
-    sky_tex.air_density = 1.4
-    sky_tex.dust_density = 1.8
-    sky_tex.ozone_density = 1.5
+    sky_tex.sun_elevation = math.radians(5.8)
+    sky_tex.sun_rotation = math.radians(48.0)
+    sky_tex.air_density = 1.9
+    sky_tex.dust_density = 1.15
+    sky_tex.ozone_density = 3.8
 
     bg_day = nt.nodes.new("ShaderNodeBackground")
-    bg_day.inputs["Strength"].default_value = 0.65
+    bg_day.inputs["Strength"].default_value = 0.24
 
     # Branch B: Deep Starry Celestial Midnight-Indigo Twilight Gradient (Beats 5-6)
     tc = nt.nodes.new("ShaderNodeTexCoord")
@@ -1339,7 +1488,7 @@ def _build_meadow_terrace_and_hills(
     )
     _finalize_bmesh(scene, "AppleTreeSoilMound", bm_soil, mats=soil_mat, smooth=True)
 
-    # 3. Distant Rolling English Countryside Hills (3 Layered Atmospheric Ridges at Y = +10..+23m — 100% OPEN HORIZON!)
+    # 3. Distant Rolling English Countryside Hills (3 Layered Atmospheric Ridges at Y = +11..+23m — 100% OPEN HORIZON!)
     ridge_specs = [
         ("DistantHillRidge_Near", 11.8, 16.2, 1.05, 0.72, 0.25, 0.5, meadow_mat),
         ("DistantHillRidge_Mid", 15.6, 19.6, 1.75, 0.92, 0.21, 1.8, hill_mid_mat),
@@ -1348,22 +1497,30 @@ def _build_meadow_terrace_and_hills(
     hill_objs = []
     for h_name, y_near, y_far, base_h, amp_h, freq_x, phase, h_mat in ridge_specs:
         bm_h = bmesh.new()
-        h_nx, h_ny = 44, 10
+        h_nx, h_ny = 68, 12
         h_grid = []
         for iy in range(h_ny + 1):
             uy = iy / float(h_ny)
             hy = lerp(y_near, y_far, uy)
             ridge_env = math.sin(uy * math.pi)
+            crest_focus = ridge_env * ridge_env
             row = []
             for ix in range(h_nx + 1):
                 ux = ix / float(h_nx)
                 hx = lerp(-18.5, 18.5, ux)
                 # Keep a graceful scenic low dip in the central sky corridor (X in [-1.5, +3.0]) so moon & stars shine!
                 center_saddle = 1.0 - 0.34 * math.exp(-((hx - 0.8) / 4.8) ** 2)
+                # Subtle multi-frequency tree-line silhouette noise breaking smooth humps into realistic wooded hills
+                treeline_rip = (
+                    0.16 * math.sin(hx * 0.95 + phase * 1.3)
+                    + 0.095 * math.cos(hx * 2.15 - phase * 0.9)
+                    + 0.055 * math.sin(hx * 4.35 + phase * 2.1)
+                ) * crest_focus
                 crest = (
                     base_h
                     + amp_h * math.sin(hx * freq_x + phase)
                     + 0.38 * amp_h * math.cos(hx * freq_x * 1.9 - phase * 0.7)
+                    + treeline_rip
                 ) * center_saddle
                 hz = -0.35 + ridge_env * max(0.35, crest)
                 row.append(bm_h.verts.new((hx, hy, hz)))
@@ -1373,7 +1530,7 @@ def _build_meadow_terrace_and_hills(
                 bm_h.faces.new((h_grid[iy][ix], h_grid[iy][ix + 1], h_grid[iy + 1][ix + 1], h_grid[iy + 1][ix]))
         hill_objs.append(_finalize_bmesh(scene, h_name, bm_h, mats=h_mat, smooth=True))
 
-    # Distant English Hedgerow & Copse Tree Clusters along the hills (merged single bmesh)
+    # Distant English Hedgerow & Copse Tree Clusters along the hills (merged single bmesh, zero shadow BVH overhead)
     bm_dt = bmesh.new()
     rng_dt = random.Random(1642)  # Newton's birth year at Woolsthorpe!
     copse_centers = [
@@ -1383,23 +1540,24 @@ def _build_meadow_terrace_and_hills(
         (5.0, 17.2, 2.05), (8.2, 16.8, 2.30), (11.0, 17.5, 2.40),
     ]
     for cx, cy, cz in copse_centers:
-        for _ in range(3):
-            ox = cx + rng_dt.uniform(-0.85, 0.85)
+        for _ in range(4):
+            ox = cx + rng_dt.uniform(-0.95, 0.95)
             oy = cy + rng_dt.uniform(-0.55, 0.55)
-            rad = rng_dt.uniform(0.42, 0.86)
-            oz = cz + rad * 0.55
+            rad = rng_dt.uniform(0.36, 0.78)
+            oz = cz + rad * 0.45
             _bmesh_add_uv_sphere(
                 bm_dt,
                 Vector((ox, oy, oz)),
-                rx=rad,
-                ry=rad * 0.88,
-                rz=rad * 1.15,
+                rx=rad * 1.12,
+                ry=rad * 0.85,
+                rz=rad * 0.96,
                 segs=10,
                 rings=7,
-                ruffle_amp=0.14,
-                ruffle_freq=3.1,
+                ruffle_amp=0.22,
+                ruffle_freq=4.2,
             )
-    _finalize_bmesh(scene, "DistantLincolnshireCopses", bm_dt, mats=distant_tree_mat, smooth=True)
+    distant_copses_obj = _finalize_bmesh(scene, "DistantLincolnshireCopses", bm_dt, mats=distant_tree_mat, smooth=True)
+    distant_copses_obj.visible_shadow = False
 
     # 4. 140 Scattered 3D Meadow Grass Clumps & Tiny Golden/White Wildflowers (2 Merged bmesh Meshes!)
     bm_gr = bmesh.new()
@@ -1587,209 +1745,346 @@ def _build_carved_stone_balustrade(scene, stone_mat):
 
 
 def _build_woolsthorpe_apple_tree(scene, bark_mat, leaf_mat, apple_mat):
-    """Build monumental 3.6m-tall sculpted Woolsthorpe Apple Tree rooted at (-0.18, +1.35, 0.0).
-    Hero overhanging apple bough terminates seamlessly at exact HERO_APPLE_ATTACH = (-0.52, 0.12, 1.94)!"""
+    """Build photoreal 3.5m-tall Woolsthorpe Apple Tree rooted at (-0.18, +1.35, 0.0).
+    ZERO Play-Doh blob spheres! Real gnarled branching woody twig lattice (50+ sub-branches & twigs)
+    populated with ~2,600 individual sculpted 6-vert matte botanical leaves, shaped cleanly left/low
+    of Beat 6's starry sky title zone (X > +0.15, Z > 2.25), with Hero Bough ending at HERO_APPLE_ATTACH!"""
     bm_wood = bmesh.new()
+    rng_t = random.Random(1666)
 
-    # 1. Thick Rooted Gnarled Trunk (r=0.28m at mossy flare -> 0.17m at crown fork Z=1.65m)
+    def _point_clear_of_title(pt: Vector, pad: float = 0.0) -> bool:
+        """Guarantee Beat 6 title zone (X > +0.15, Z > 2.25) & Beat 6 camera title corridor stay 100% unobstructed!"""
+        # 1. Hard world exclusion with safety pad for leaf blade length
+        if pt.x > (0.12 - pad) and pt.z > (2.22 - pad):
+            return False
+        # 2. Perspective sightline corridor from Beat 6 camera (start & end) through NewtonTitle3D at (0.55, 0.60, 2.52)
+        if pt.y > 0.50:
+            for cy_cam, cz_cam in ((-2.35, 1.52), (-2.68, 1.62)):
+                denom = pt.y - cy_cam
+                if denom > 0.2:
+                    t_proj = (0.60 - cy_cam) / denom
+                    px = 0.55 + (pt.x - 0.55) * t_proj
+                    pz = cz_cam + (pt.z - cz_cam) * t_proj
+                    if px > (-0.06 - pad) and pz > (2.24 - pad):
+                        return False
+        return True
+
+    def _point_clear_of_hero_apple(pt: Vector) -> bool:
+        """Keep immediate falling hero apple zone & Beat 1 Newton head clearance pristine."""
+        if (pt - HERO_APPLE_ATTACH).length < 0.095:
+            return False
+        dx_a = pt.x - HERO_APPLE_ATTACH.x
+        dy_a = pt.y - HERO_APPLE_ATTACH.y
+        if (dx_a * dx_a + dy_a * dy_a) < (0.095 * 0.095) and pt.z < (HERO_APPLE_ATTACH.z + 0.04):
+            return False
+        if pt.y < 0.72 and pt.z < 1.92:
+            return False
+        return True
+
+    # 1. Thick Ancient Gnarled Trunk (r=0.305m at mossy flare -> 0.172m at crown fork Z=1.66m)
     trunk_pts = [
-        (-0.18, 1.35, -0.06, 0.295),
-        (-0.18, 1.35, 0.12, 0.275),
-        (-0.20, 1.34, 0.55, 0.225),
-        (-0.21, 1.32, 1.05, 0.195),
-        (-0.18, 1.30, 1.45, 0.178),
-        (-0.16, 1.28, 1.66, 0.168),
+        (-0.18, 1.35, -0.06, 0.305),
+        (-0.18, 1.35, 0.12, 0.282),
+        (-0.20, 1.34, 0.56, 0.230),
+        (-0.22, 1.32, 1.06, 0.198),
+        (-0.20, 1.30, 1.44, 0.180),
+        (-0.19, 1.29, 1.66, 0.172),
     ]
-    _bmesh_add_tapered_tube(bm_wood, trunk_pts, radial_segs=14, subdivs=3, bark_ridge=0.055)
+    _bmesh_add_tapered_tube(bm_wood, trunk_pts, radial_segs=16, subdivs=3, bark_ridge=0.078)
 
-    # 5 Flaring Mossy Buttress Roots gripping into the soil well
-    root_angles = [0.2, 1.45, 2.75, 4.05, 5.25]
+    # 5 Flaring Mossy Buttress Roots + 3 surface spurs gripping into the soil well
+    root_angles = [0.22, 1.48, 2.74, 4.04, 5.26]
     for r_ang in root_angles:
         ca, sa = math.cos(r_ang), math.sin(r_ang)
         r_pts = [
-            (TREE_BASE.x + ca * 0.14, TREE_BASE.y + sa * 0.14, 0.34, 0.105),
-            (TREE_BASE.x + ca * 0.27, TREE_BASE.y + sa * 0.27, 0.14, 0.072),
-            (TREE_BASE.x + ca * 0.40, TREE_BASE.y + sa * 0.40, 0.02, 0.036),
-            (TREE_BASE.x + ca * 0.47, TREE_BASE.y + sa * 0.47, -0.07, 0.018),
+            (TREE_BASE.x + ca * 0.14, TREE_BASE.y + sa * 0.14, 0.36, 0.108),
+            (TREE_BASE.x + ca * 0.28, TREE_BASE.y + sa * 0.28, 0.14, 0.074),
+            (TREE_BASE.x + ca * 0.41, TREE_BASE.y + sa * 0.41, 0.02, 0.036),
+            (TREE_BASE.x + ca * 0.48, TREE_BASE.y + sa * 0.48, -0.07, 0.018),
         ]
-        _bmesh_add_tapered_tube(bm_wood, r_pts, radial_segs=8, subdivs=2, bark_ridge=0.04)
+        _bmesh_add_tapered_tube(bm_wood, r_pts, radial_segs=9, subdivs=2, bark_ridge=0.055)
 
-    # 2. Five Sweeping Organic Primary Boughs sprouting cleanly from crown fork (-0.16, 1.28, 1.65)
-    # BOUGH 1: HERO OVERHANGING APPLE BOUGH -> arches gracefully forward-left to exact HERO_APPLE_ATTACH!
+    # 2. Five Sweeping Organic Primary Boughs sprouting cleanly from crown fork (-0.19, 1.29, 1.66)
+    # BOUGH 1: HERO OVERHANGING APPLE BOUGH -> arches forward-left to exact HERO_APPLE_ATTACH!
     hero_bough = [
-        (-0.16, 1.28, 1.62, 0.108),
-        (-0.23, 1.04, 1.98, 0.084),
-        (-0.33, 0.72, 2.18, 0.062),
-        (-0.42, 0.42, 2.15, 0.044),
-        (-0.49, 0.22, 2.04, 0.026),
-        (HERO_APPLE_ATTACH.x, HERO_APPLE_ATTACH.y, HERO_APPLE_ATTACH.z, 0.010),
+        (-0.19, 1.29, 1.62, 0.112),
+        (-0.26, 1.02, 1.98, 0.086),
+        (-0.36, 0.70, 2.18, 0.064),
+        (-0.44, 0.42, 2.14, 0.044),
+        (-0.49, 0.22, 2.03, 0.025),
+        (HERO_APPLE_ATTACH.x, HERO_APPLE_ATTACH.y, HERO_APPLE_ATTACH.z, 0.008),
     ]
-    _bmesh_add_tapered_tube(bm_wood, hero_bough, radial_segs=11, subdivs=3, bark_ridge=0.035)
+    # BOUGH 2: Sweeping Upper-Left Orchard Arch (fills Beat 1 upper-left sky!)
+    bough_left = [
+        (-0.19, 1.29, 1.64, 0.118),
+        (-0.56, 1.24, 2.12, 0.090),
+        (-1.04, 1.16, 2.54, 0.064),
+        (-1.50, 1.06, 2.82, 0.036),
+        (-1.82, 0.96, 2.98, 0.013),
+    ]
+    # BOUGH 3: Tall Wind-Sculpted Central-Left Crown Leader (3.52m tall, clear of Beat 6 sky title!)
+    bough_crown = [
+        (-0.19, 1.29, 1.66, 0.124),
+        (-0.28, 1.34, 2.24, 0.092),
+        (-0.46, 1.42, 2.82, 0.058),
+        (-0.58, 1.46, 3.26, 0.028),
+        (-0.68, 1.48, 3.50, 0.011),
+    ]
+    # BOUGH 4: Rear-Left Balustrade Canopy Arch (lush depth behind trunk & over stone balustrade)
+    bough_rear = [
+        (-0.18, 1.32, 1.68, 0.108),
+        (-0.34, 1.68, 2.22, 0.080),
+        (-0.66, 2.06, 2.66, 0.052),
+        (-0.98, 2.34, 2.96, 0.026),
+        (-1.24, 2.48, 3.12, 0.011),
+    ]
+    # BOUGH 5: Lower-Right Balancing Orchard Bough (stays cleanly BELOW Z <= 2.02 so Beat 6 sky title stays 100% open!)
+    bough_low_right = [
+        (-0.17, 1.30, 1.62, 0.088),
+        (0.06, 1.38, 1.82, 0.062),
+        (0.30, 1.48, 1.93, 0.038),
+        (0.50, 1.56, 1.98, 0.015),
+    ]
+    primary_boughs = [hero_bough, bough_left, bough_crown, bough_rear, bough_low_right]
+    for b_idx, bough in enumerate(primary_boughs):
+        _bmesh_add_tapered_tube(
+            bm_wood,
+            bough,
+            radial_segs=11 if b_idx == 0 else 10,
+            subdivs=3,
+            bark_ridge=0.048,
+        )
 
-    # Companion fruiting twigs branching cleanly off the Hero Bough (staying above Z >= 2.0m!)
+    # 3. 12 Sculpted Secondary Structural Limbs + 40 Slender Tapered Gnarled Sub-Twigs (= 52 branching twigs!)
     hero_twig_a = [
-        (-0.33, 0.72, 2.16, 0.038),
-        (-0.56, 0.62, 2.26, 0.024),
-        (-0.78, 0.46, 2.18, 0.013),
-        (-0.88, 0.38, 2.09, 0.006),
+        (-0.36, 0.70, 2.16, 0.038),
+        (-0.58, 0.60, 2.26, 0.024),
+        (-0.80, 0.44, 2.18, 0.013),
+        (-0.92, 0.34, 2.10, 0.005),
     ]
     hero_twig_b = [
-        (-0.43, 0.40, 2.14, 0.026),
-        (-0.32, 0.28, 2.24, 0.016),
-        (-0.22, 0.22, 2.28, 0.008),
+        (-0.44, 0.42, 2.13, 0.026),
+        (-0.34, 0.30, 2.24, 0.016),
+        (-0.24, 0.24, 2.26, 0.007),
     ]
     hero_twig_c = [
-        (-0.48, 0.24, 2.05, 0.018),
-        (-0.62, 0.16, 2.08, 0.011),
-        (-0.72, 0.14, 2.12, 0.005),
+        (-0.48, 0.24, 2.04, 0.018),
+        (-0.64, 0.16, 2.08, 0.011),
+        (-0.76, 0.14, 2.12, 0.005),
     ]
-    for tw in (hero_twig_a, hero_twig_b, hero_twig_c):
-        _bmesh_add_tapered_tube(bm_wood, tw, radial_segs=8, subdivs=2, bark_ridge=0.02)
-
-    # BOUGH 2: Sweeping Upper-Left Canopy Arch
-    bough_left = [
-        (-0.17, 1.28, 1.64, 0.115),
-        (-0.52, 1.26, 2.14, 0.088),
-        (-0.98, 1.22, 2.58, 0.062),
-        (-1.46, 1.18, 2.86, 0.036),
-        (-1.76, 1.12, 3.04, 0.014),
+    hero_twig_d = [
+        (-0.28, 0.96, 2.02, 0.034),
+        (-0.54, 0.88, 2.24, 0.021),
+        (-0.78, 0.78, 2.38, 0.011),
+        (-0.96, 0.72, 2.44, 0.005),
     ]
-    _bmesh_add_tapered_tube(bm_wood, bough_left, radial_segs=10, subdivs=3, bark_ridge=0.04)
-
-    # BOUGH 3: Tall Monumental Central Crown Leader (reaches 3.6m tall!)
-    bough_crown = [
-        (-0.16, 1.29, 1.65, 0.125),
-        (-0.14, 1.34, 2.25, 0.092),
-        (-0.18, 1.40, 2.85, 0.060),
-        (-0.08, 1.44, 3.34, 0.030),
-        (-0.04, 1.46, 3.58, 0.012),
-    ]
-    _bmesh_add_tapered_tube(bm_wood, bough_crown, radial_segs=10, subdivs=3, bark_ridge=0.04)
-
-    # BOUGH 4: Sweeping Right Orchard Bough (high Z >= 2.35 so center sky stays open for Beats 2/5/6!)
-    bough_right = [
-        (-0.15, 1.29, 1.66, 0.115),
-        (0.26, 1.34, 2.18, 0.085),
-        (0.76, 1.42, 2.58, 0.058),
-        (1.24, 1.48, 2.84, 0.032),
-        (1.58, 1.52, 2.98, 0.012),
-    ]
-    _bmesh_add_tapered_tube(bm_wood, bough_right, radial_segs=10, subdivs=3, bark_ridge=0.04)
-
-    # BOUGH 5: Rear Courtyard Depth Bough reaching over the stone balustrade
-    bough_rear = [
-        (-0.15, 1.32, 1.68, 0.105),
-        (0.08, 1.68, 2.22, 0.078),
-        (0.38, 2.06, 2.66, 0.052),
-        (0.72, 2.38, 2.98, 0.026),
-        (0.95, 2.58, 3.16, 0.011),
-    ]
-    _bmesh_add_tapered_tube(bm_wood, bough_rear, radial_segs=9, subdivs=3, bark_ridge=0.035)
-
-    # Secondary fork limbs enriching the orchard crown silhouette
     secondary_limbs = [
-        [(-0.52, 1.26, 2.14, 0.056), (-0.82, 1.62, 2.58, 0.034), (-1.15, 1.88, 2.96, 0.014)],
-        [(-0.98, 1.22, 2.58, 0.042), (-1.12, 0.88, 2.92, 0.024), (-1.28, 0.68, 3.18, 0.010)],
-        [(-0.14, 1.34, 2.25, 0.058), (-0.52, 1.56, 2.84, 0.034), (-0.76, 1.72, 3.32, 0.013)],
-        [(-0.18, 1.40, 2.85, 0.045), (0.34, 1.52, 3.24, 0.026), (0.68, 1.64, 3.48, 0.011)],
-        [(0.26, 1.34, 2.18, 0.054), (0.52, 1.02, 2.56, 0.032), (0.76, 0.84, 2.82, 0.012)],
-        [(0.76, 1.42, 2.58, 0.042), (1.06, 1.84, 2.96, 0.024), (1.32, 2.12, 3.22, 0.010)],
-        [(0.08, 1.68, 2.22, 0.050), (-0.36, 2.08, 2.72, 0.028), (-0.64, 2.38, 3.08, 0.012)],
-        [(-0.18, 1.40, 2.85, 0.038), (-0.12, 0.94, 3.18, 0.022), (-0.06, 0.66, 3.38, 0.010)],
+        hero_twig_a,
+        hero_twig_b,
+        hero_twig_c,
+        hero_twig_d,
+        [(-0.56, 1.24, 2.12, 0.054), (-0.86, 1.56, 2.54, 0.032), (-1.20, 1.82, 2.92, 0.012)],
+        [(-1.04, 1.16, 2.54, 0.044), (-1.18, 0.82, 2.86, 0.024), (-1.34, 0.58, 3.08, 0.009)],
+        [(-1.04, 1.16, 2.54, 0.040), (-1.42, 1.44, 2.86, 0.022), (-1.72, 1.66, 3.06, 0.009)],
+        [(-0.28, 1.34, 2.24, 0.056), (-0.66, 1.52, 2.80, 0.032), (-0.98, 1.66, 3.24, 0.011)],
+        [(-0.46, 1.42, 2.82, 0.044), (-0.36, 1.02, 3.10, 0.024), (-0.32, 0.72, 3.28, 0.009)],
+        [(-0.34, 1.68, 2.22, 0.048), (-0.76, 1.92, 2.66, 0.026), (-1.12, 2.10, 2.96, 0.010)],
+        [(-0.34, 1.68, 2.22, 0.042), (-0.28, 2.04, 2.62, 0.022), (-0.34, 2.28, 2.86, 0.009)],
+        [(0.06, 1.38, 1.82, 0.036), (0.20, 1.12, 1.94, 0.020), (0.34, 0.96, 1.98, 0.008)],
     ]
     for limb in secondary_limbs:
-        _bmesh_add_tapered_tube(bm_wood, limb, radial_segs=7, subdivs=2, bark_ridge=0.025)
+        _bmesh_add_tapered_tube(bm_wood, limb, radial_segs=7, subdivs=2, bark_ridge=0.032)
 
-    tree_wood_obj = _finalize_bmesh(scene, "WoolsthorpeAppleTreeWood", bm_wood, mats=bark_mat, smooth=True)
+    # Procedurally sprout 40 slender gnarled tertiary sub-twigs branching organically from parent boughs & limbs
+    parent_pools = [
+        (hero_bough[1:-1], 4),
+        (bough_left[1:], 8),
+        (bough_crown[1:], 8),
+        (bough_rear[1:], 6),
+        (bough_low_right[1:], 3),
+    ]
+    for s_limb in secondary_limbs[:11]:
+        parent_pools.append((s_limb, 1))
 
-    # 3. Rich Layered Sunlit Foliage Canopy (14 Sculpted Organic Clusters + 280 Sculpted Botanical Leaf Cards!)
+    tertiary_twigs = []
+    twig_attempt_cap = 0
+    for p_spline, target_n in parent_pools:
+        sampled_parent = _catmull_rom_sample(p_spline, subdivs=3)
+        made_here = 0
+        tries = 0
+        while made_here < target_n and tries < target_n * 10:
+            tries += 1
+            twig_attempt_cap += 1
+            idx_p = rng_t.randint(1, max(1, len(sampled_parent) - 1))
+            px, py, pz, pr = sampled_parent[idx_p]
+            start_v = Vector((px, py, pz))
+            # Natural outward-and-upward branching direction biased away from Beat 6 right-sky title zone
+            az = rng_t.uniform(0.0, math.pi * 2.0)
+            elev = rng_t.uniform(0.08, 0.62)
+            t_dir = Vector((math.cos(az) * math.cos(elev), math.sin(az) * math.cos(elev), math.sin(elev)))
+            if start_v.x > -0.25 and start_v.z > 1.95:
+                t_dir.x = -abs(t_dir.x) - 0.25
+            if start_v.x > 0.0:
+                t_dir.z = min(t_dir.z, 0.10)  # Keep lower-right balancing branch twigs strictly below Z <= 2.08!
+            t_dir = t_dir.normalized()
+
+            t_len = rng_t.uniform(0.28, 0.56)
+            mid_v = start_v + t_dir * (t_len * 0.52) + Vector((rng_t.uniform(-0.07, 0.05), rng_t.uniform(-0.07, 0.07), rng_t.uniform(0.02, 0.09)))
+            tip_v = start_v + t_dir * t_len + Vector((rng_t.uniform(-0.08, 0.05), rng_t.uniform(-0.08, 0.08), rng_t.uniform(-0.03, 0.07)))
+
+            # Strictly respect Beat 6 sky title clearance, ground/head clearance & Hero Apple clearance
+            if not (_point_clear_of_title(mid_v, pad=0.14) and _point_clear_of_title(tip_v, pad=0.16)):
+                continue
+            if not (_point_clear_of_hero_apple(mid_v) and _point_clear_of_hero_apple(tip_v)):
+                continue
+            if tip_v.z < 1.90 or tip_v.z > 3.65 or tip_v.x < -2.25:
+                continue
+
+            r0 = min(max(0.009, pr * 0.55), 0.020)
+            twig_pts = [
+                (start_v.x, start_v.y, start_v.z, r0),
+                (mid_v.x, mid_v.y, mid_v.z, r0 * 0.56),
+                (tip_v.x, tip_v.y, tip_v.z, 0.0035),
+            ]
+            _bmesh_add_tapered_tube(bm_wood, twig_pts, radial_segs=5, subdivs=2, bark_ridge=0.02)
+            tertiary_twigs.append(twig_pts)
+            made_here += 1
+
+    # 4. 2,500 - 2,650 Individual Sculpted 6-Vert Matte Botanical Leaves (ZERO BLOB SPHERES!)
     bm_fol = bmesh.new()
     rng_f = random.Random(1666)
+    leaf_count = 0
+    TARGET_LEAVES = 2600
 
-    # 14 organic irregular foliage bough clusters
-    cluster_specs = [
-        # (cx, cy, cz, rx, ry, rz)
-        (-0.76, 0.48, 2.26, 0.42, 0.36, 0.28),
-        (-0.34, 0.72, 2.34, 0.46, 0.38, 0.30),
-        (-1.24, 0.84, 2.98, 0.56, 0.48, 0.38),
-        (-1.58, 1.18, 2.96, 0.58, 0.50, 0.40),
-        (-1.02, 1.68, 2.94, 0.62, 0.54, 0.44),
-        (-0.68, 1.68, 3.30, 0.64, 0.56, 0.46),
-        (-0.08, 1.44, 3.48, 0.72, 0.62, 0.48),  # Monumental 3.6m+ sunlit crown!
-        (-0.08, 0.78, 3.24, 0.54, 0.46, 0.36),
-        (0.58, 1.58, 3.36, 0.64, 0.54, 0.44),
-        (0.72, 0.94, 2.78, 0.50, 0.44, 0.34),
-        (1.34, 1.48, 2.94, 0.58, 0.50, 0.38),
-        (1.18, 2.04, 3.12, 0.58, 0.52, 0.40),
-        (0.76, 2.48, 3.06, 0.60, 0.54, 0.42),
-        (-0.52, 2.28, 3.02, 0.62, 0.54, 0.42),
-    ]
-    for cx, cy, cz, rx, ry, rz in cluster_specs:
-        _bmesh_add_uv_sphere(
-            bm_fol,
-            Vector((cx, cy, cz)),
-            rx=rx,
-            ry=ry,
-            rz=rz,
-            segs=14,
-            rings=9,
-            ruffle_amp=0.22,
-            ruffle_freq=5.6,
-        )
+    def _try_add_leaf(anchor: Vector, spray_dir: Vector, min_len: float = 0.062, max_len: float = 0.108) -> bool:
+        nonlocal leaf_count
+        l_len = rng_f.uniform(min_len, max_len)
+        l_wid = l_len * rng_f.uniform(0.48, 0.58)
+        yaw = math.atan2(spray_dir.y, spray_dir.x) + rng_f.uniform(-0.62, 0.62)
+        pitch = -math.asin(max(-0.85, min(0.85, spray_dir.z))) + rng_f.uniform(-0.45, 0.48)
+        roll = rng_f.uniform(-0.78, 0.78)
+        rot_e = Euler((roll, pitch, yaw), "XYZ")
+        tip_est = anchor + (rot_e.to_matrix() @ Vector((l_len, 0.0, -0.05 * l_len)))
 
-    # 56 Crisp Hero Close-Up Sculpted Leaves along the Hero Overhanging Apple Bough (framing Beat 1!)
-    hero_leaf_anchors = _catmull_rom_sample(hero_bough[1:], subdivs=5) + _catmull_rom_sample(hero_twig_a, subdivs=3) + _catmull_rom_sample(hero_twig_b, subdivs=3) + _catmull_rom_sample(hero_twig_c, subdivs=3)
-    for idx_h in range(56):
-        hx, hy, hz, hr = hero_leaf_anchors[idx_h % len(hero_leaf_anchors)]
-        # Keep immediate 0.07m stem area directly below HERO_APPLE_ATTACH clean for the hero falling apple!
-        if (Vector((hx, hy, hz)) - HERO_APPLE_ATTACH).length < 0.06:
-            hz += 0.045
-        ang_z = rng_f.uniform(0.0, math.pi * 2.0)
-        off = Vector((math.cos(ang_z) * (hr + 0.025), math.sin(ang_z) * (hr + 0.025), rng_f.uniform(-0.02, 0.06)))
-        _bmesh_add_leaf_card(
-            bm_fol,
-            origin=Vector((hx, hy, hz)) + off,
-            rot_euler=Euler((rng_f.uniform(-0.55, 0.55), rng_f.uniform(-0.55, 0.55), ang_z), "XYZ"),
-            length=rng_f.uniform(0.085, 0.135),
-            width=rng_f.uniform(0.042, 0.068),
-        )
+        if not (_point_clear_of_title(anchor, pad=0.03) and _point_clear_of_title(tip_est, pad=0.02)):
+            return False
+        if not (_point_clear_of_hero_apple(anchor) and _point_clear_of_hero_apple(tip_est)):
+            return False
+        if anchor.z < 1.88 or tip_est.z < 1.86:
+            return False
 
-    # 224 Sculpted Canopy Silhouette Leaf Cards bursting organically around all 14 canopy clusters (total = 280 leaves!)
-    for cx, cy, cz, rx, ry, rz in cluster_specs:
-        for _ in range(16):
+        _bmesh_add_leaf_card(bm_fol, origin=anchor, rot_euler=rot_e, length=l_len, width=l_wid)
+        leaf_count += 1
+        return True
+
+    # Collect all real woody leaf-bearing twig splines (hero bough outer + 12 secondary limbs + 40 tertiary twigs)
+    all_leaf_twigs = [hero_bough[1:]] + secondary_limbs + tertiary_twigs
+
+    # Pass A: Botanical phyllotaxis leaf sprays along every woody twig + rich terminal twig-tip rosettes!
+    twig_samples_cache = []
+    for t_idx, tw in enumerate(all_leaf_twigs):
+        samp = _catmull_rom_sample(tw, subdivs=4)
+        twig_samples_cache.append(samp)
+        n_s = len(samp)
+        is_hero = t_idx <= 4
+        # Lateral leaves along outer 75% of twig
+        n_lat = 28 if is_hero else 19
+        for k in range(n_lat):
+            if leaf_count >= TARGET_LEAVES:
+                break
+            u = rng_f.uniform(0.22, 0.96)
+            si = min(n_s - 1, max(0, int(u * (n_s - 1))))
+            sx, sy, sz, sr = samp[si]
+            # Compute local twig direction for realistic outward phyllotaxis fan
+            si_prev = max(0, si - 1)
+            si_next = min(n_s - 1, si + 1)
+            t_tan = Vector((samp[si_next][0] - samp[si_prev][0], samp[si_next][1] - samp[si_prev][1], samp[si_next][2] - samp[si_prev][2]))
+            if t_tan.length < 1e-5:
+                t_tan = Vector((-1.0, 0.0, 0.3))
+            t_tan = t_tan.normalized()
+
+            ang = rng_f.uniform(0.0, math.pi * 2.0)
+            rad_off = sr + rng_f.uniform(0.010, 0.085 if is_hero else 0.115)
+            out_dir = Vector((math.cos(ang), math.sin(ang), rng_f.uniform(-0.35, 0.72))).normalized()
+            spray_dir = (out_dir * 0.72 + t_tan * 0.28).normalized()
+            l_orig = Vector((sx, sy, sz)) + out_dir * rad_off
+            _try_add_leaf(l_orig, spray_dir, min_len=0.062, max_len=0.104 if is_hero else 0.110)
+
+        # Lush terminal rosette burst clustered around every twig tip (26-34 individual overlapping leaves!)
+        tx, ty, tz, _ = samp[-1]
+        tip_c = Vector((tx, ty, tz))
+        n_tip = 34 if is_hero else 26
+        for _ in range(n_tip):
+            if leaf_count >= TARGET_LEAVES:
+                break
             th = rng_f.uniform(0.0, math.pi * 2.0)
-            cp = rng_f.uniform(-0.75, 0.88)
-            sp = math.sqrt(max(0.0, 1.0 - cp * cp))
-            dir_v = Vector((sp * math.cos(th), sp * math.sin(th), cp))
-            l_pos = Vector((cx + dir_v.x * rx * 0.96, cy + dir_v.y * ry * 0.96, cz + dir_v.z * rz * 0.96))
-            _bmesh_add_leaf_card(
-                bm_fol,
-                origin=l_pos,
-                rot_euler=Euler((rng_f.uniform(-0.7, 0.7), rng_f.uniform(-0.7, 0.7), th), "XYZ"),
-                length=rng_f.uniform(0.11, 0.18),
-                width=rng_f.uniform(0.055, 0.092),
-            )
+            cz = rng_f.uniform(-0.55, 0.88)
+            sp = math.sqrt(max(0.0, 1.0 - cz * cz))
+            r_dir = Vector((sp * math.cos(th), sp * math.sin(th), cz))
+            dist = rng_f.uniform(0.015, 0.155 if is_hero else 0.195)
+            l_orig = tip_c + r_dir * dist
+            _try_add_leaf(l_orig, r_dir, min_len=0.064, max_len=0.108)
 
-    tree_canopy_obj = _finalize_bmesh(scene, "WoolsthorpeAppleCanopy", bm_fol, mats=leaf_mat, smooth=True)
+    # Pass B: Fill out lush upper-crown dappled sprays directly around outer primary boughs up to exact TARGET_LEAVES (2,600)
+    crown_spray_nodes = []
+    for b_spline in (bough_left[1:], bough_crown[1:], bough_rear[1:], bough_low_right[1:]):
+        crown_spray_nodes.extend(_catmull_rom_sample(b_spline, subdivs=4))
+    for samp in twig_samples_cache:
+        if len(samp) >= 2:
+            crown_spray_nodes.append(samp[-1])
+            crown_spray_nodes.append(samp[len(samp) // 2])
 
-    # 4. 12 Glossy Ruby-Gold Hanging Heirloom Apples tucked naturally among the canopy (clear of HERO_APPLE_ATTACH!)
+    safety_iters = 0
+    while leaf_count < TARGET_LEAVES and safety_iters < 4000 and crown_spray_nodes:
+        safety_iters += 1
+        nx_c, ny_c, nz_c, nr_c = crown_spray_nodes[rng_f.randrange(len(crown_spray_nodes))]
+        th = rng_f.uniform(0.0, math.pi * 2.0)
+        cz = rng_f.uniform(-0.45, 0.85)
+        sp = math.sqrt(max(0.0, 1.0 - cz * cz))
+        r_dir = Vector((sp * math.cos(th), sp * math.sin(th), cz))
+        dist = nr_c + rng_f.uniform(0.03, 0.24)
+        l_orig = Vector((nx_c, ny_c, nz_c)) + r_dir * dist
+        _try_add_leaf(l_orig, r_dir, min_len=0.062, max_len=0.108)
+
+    # 5. 10 Glossy Ruby-Gold Heirloom Apples tucked realistically on REAL woody twigs with stems!
     bm_app = bmesh.new()
-    canopy_apple_coords = [
-        (-0.84, 0.40, 2.05, 0.044),
-        (-0.34, 0.68, 2.11, 0.045),
-        (-0.72, 0.16, 2.06, 0.042),
-        (-1.32, 0.86, 2.66, 0.048),
-        (-1.54, 1.15, 2.64, 0.046),
-        (-0.92, 1.54, 2.58, 0.046),
-        (-0.16, 0.82, 2.94, 0.048),
-        (0.66, 0.92, 2.48, 0.046),
-        (1.26, 1.44, 2.62, 0.048),
-        (0.46, 1.52, 2.96, 0.046),
-        (0.78, 2.26, 2.74, 0.048),
-        (-0.48, 2.02, 2.68, 0.046),
-    ]
-    for ax, ay, az, ar in canopy_apple_coords:
-        _bmesh_add_heirloom_apple(bm_app, Vector((ax, ay, az)), radius=ar)
+    candidate_apple_anchors = []
+    # Prefer rich visible twigs framing Beat 1 & Beat 2 (clear of HERO_APPLE_ATTACH & Beat 6 sky title!)
+    apple_source_twigs = [hero_twig_a, hero_twig_c, hero_twig_d, bough_left[1:], bough_low_right[1:]] + secondary_limbs[4:11] + tertiary_twigs
+    for tw in apple_source_twigs:
+        samp = _catmull_rom_sample(tw, subdivs=3)
+        if len(samp) >= 2:
+            for idx_pick in (len(samp) - 1, max(1, (len(samp) * 2) // 3)):
+                ax, ay, az, ar = samp[idx_pick]
+                attach_pt = Vector((ax, ay, az - ar * 0.5))
+                apple_c = Vector((ax, ay, az - ar * 0.5 - 0.068))
+                if (apple_c - HERO_APPLE_ATTACH).length < 0.24:
+                    continue
+                if not (_point_clear_of_title(attach_pt, pad=0.08) and _point_clear_of_title(apple_c, pad=0.08)):
+                    continue
+                if apple_c.z < 1.88 or apple_c.z > 3.25:
+                    continue
+                candidate_apple_anchors.append((attach_pt, apple_c))
+
+    placed_apples = []
+    for attach_pt, apple_c in candidate_apple_anchors:
+        if len(placed_apples) >= 10:
+            break
+        if any((apple_c - prev_c).length < 0.26 for prev_c in placed_apples):
+            continue
+        a_rad = rng_t.uniform(0.042, 0.047)
+        # Real slender woody pedicel stem connecting the heirloom apple to its parent twig!
+        stem_pts = [
+            (attach_pt.x, attach_pt.y, attach_pt.z + 0.004, 0.0032),
+            (attach_pt.x + 0.003, attach_pt.y, 0.5 * (attach_pt.z + apple_c.z + a_rad * 0.8), 0.0024),
+            (apple_c.x, apple_c.y, apple_c.z + a_rad * 0.78, 0.0020),
+        ]
+        _bmesh_add_tapered_tube(bm_wood, stem_pts, radial_segs=5, subdivs=1, bark_ridge=0.0)
+        _bmesh_add_heirloom_apple(bm_app, apple_c, radius=a_rad)
+        placed_apples.append(apple_c)
+
+    tree_wood_obj = _finalize_bmesh(scene, "WoolsthorpeAppleTreeWood", bm_wood, mats=bark_mat, smooth=True)
+    tree_canopy_obj = _finalize_bmesh(scene, "WoolsthorpeAppleCanopy", bm_fol, mats=leaf_mat, smooth=True)
     canopy_apples_obj = _finalize_bmesh(scene, "WoolsthorpeCanopyApples", bm_app, mats=apple_mat, smooth=True)
 
     return tree_wood_obj, tree_canopy_obj, canopy_apples_obj
@@ -2277,22 +2572,22 @@ def _add_light_obj(scene, name: str, ltype: str, loc, rot, energy: float, color,
 
 
 def _build_outdoor_lighting_rig(scene):
-    """Build golden-hour outdoor SUN + Rembrandt AREA key + sapphire rim + bounce fill + eye catchlight."""
+    """Build Hollywood golden-hour chiaroscuro SUN + directional Rembrandt key + sapphire rim + reduced fill + catchlight."""
     stage_focus = Vector((0.0, 0.30, 1.30))
 
-    # 1. Warm Golden-Hour Outdoor Sun casting crisp dappled apple-leaf shadows across terrace & actors
+    # 1. Warm Low-Angle Golden-Hour Sun casting crisp dappled 2,600-leaf shadows across Newton & flagstones!
     sun_obj = _add_light_obj(
         scene,
         "WoolsthorpeGoldenSun",
         "SUN",
         loc=(4.5, 5.0, 5.5),
-        rot=(math.radians(66.0), math.radians(8.0), math.radians(142.0)),
-        energy=4.2,
-        color=(1.0, 0.74, 0.42),
-        angle_deg=1.6,
+        rot=(math.radians(65.0), math.radians(7.0), math.radians(146.0)),
+        energy=4.6,
+        color=(1.0, 0.72, 0.40),
+        angle_deg=1.8,
     )
 
-    # 2. Warm Golden-Hour Rembrandt Key Area Light (sculpts faces & stone relief cleanly without harsh shadows)
+    # 2. Warm Directional Golden-Hour Rembrandt Key Area Light (sculptural faces, coat folds & stone moldings!)
     key_loc = (-2.35, -2.55, 2.55)
     key_obj = _add_light_obj(
         scene,
@@ -2300,12 +2595,12 @@ def _build_outdoor_lighting_rig(scene):
         "AREA",
         loc=key_loc,
         rot=_aim_euler(key_loc, stage_focus),
-        energy=260.0,
-        color=(1.0, 0.80, 0.52),
-        size=1.65,
+        energy=270.0,
+        color=(1.0, 0.76, 0.46),
+        size=1.38,
     )
 
-    # 3. Cool Sky / Moon Sapphire Rim Light (separates hair strands, shoulders & tree silhouette!)
+    # 3. Cool Sapphire-Blue Sky / Moon Rim Light (crisply traces hair strands, shoulders & silhouettes!)
     rim_loc = (2.25, 3.15, 2.85)
     rim_obj = _add_light_obj(
         scene,
@@ -2313,12 +2608,12 @@ def _build_outdoor_lighting_rig(scene):
         "AREA",
         loc=rim_loc,
         rot=_aim_euler(rim_loc, stage_focus),
-        energy=220.0,
-        color=(0.52, 0.78, 1.0),
-        size=2.05,
+        energy=245.0,
+        color=(0.38, 0.70, 1.0),
+        size=1.95,
     )
 
-    # 4. Soft Outdoor Meadow & Limestone Bounce Fill
+    # 4. Restrained Outdoor Meadow Bounce Fill (40% lower energy -> dramatic chiaroscuro depth, ZERO flat wash!)
     fill_loc = (0.85, -2.50, 1.65)
     fill_obj = _add_light_obj(
         scene,
@@ -2326,8 +2621,8 @@ def _build_outdoor_lighting_rig(scene):
         "AREA",
         loc=fill_loc,
         rot=_aim_euler(fill_loc, stage_focus),
-        energy=68.0,
-        color=(0.94, 0.88, 0.78),
+        energy=40.0,
+        color=(0.90, 0.84, 0.74),
         size=2.40,
     )
 
@@ -2356,17 +2651,17 @@ def _build_outdoor_lighting_rig(scene):
 # 6. PUBLIC API: build_woolsthorpe_world(scene) & animate_world_frame(...)
 # ============================================================================
 def build_woolsthorpe_world(scene) -> dict:
-    """Build the complete V7 Outdoor Woolsthorpe Orchard & Cosmos Environment and return world_handles."""
-    # Instantiate rich shared V7 PBR material palette
+    """Build the complete V8 Photoreal Outdoor Woolsthorpe Orchard & Cosmos Environment and return world_handles."""
+    # Instantiate rich shared V8 photoreal Cycles AO & matte botanical PBR material palette
     stone_mat = _make_cotswold_stone_mat("CotswoldCarvedLimestone", dark=False)
     ashlar_mat = _make_cotswold_ashlar_mat("CotswoldManorAshlar", dark=False)
     alcove_dark_stone_mat = _make_cotswold_ashlar_mat("LoggiaChiaroscuroDarkStone", dark=True)
     flagstone_mat = _make_mossy_flagstone_mat("CotswoldMossyFlagstone")
     meadow_grass_mat = _make_meadow_grass_mat("WoolsthorpeMeadowGrass", distant=False, haze_mix=0.0)
-    hill_mid_mat = _make_meadow_grass_mat("LincolnshireMidHill", distant=True, haze_mix=0.34)
-    hill_far_mat = _make_meadow_grass_mat("LincolnshireFarHorizonHill", distant=True, haze_mix=0.62)
-    distant_tree_mat = _make_simple_pbr_mat("DistantEnglishHedgerow", (0.024, 0.072, 0.032), rough=0.92)
-    grass_blade_mat = _make_simple_pbr_mat("MeadowGrassBlade", (0.052, 0.175, 0.024), rough=0.72)
+    hill_mid_mat = _make_meadow_grass_mat("LincolnshireMidHill", distant=True, haze_mix=0.40)
+    hill_far_mat = _make_meadow_grass_mat("LincolnshireFarHorizonHill", distant=True, haze_mix=0.66)
+    distant_tree_mat = _make_meadow_grass_mat("DistantEnglishHedgerow", distant=True, haze_mix=0.48)
+    grass_blade_mat = _make_simple_pbr_mat("MeadowGrassBlade", (0.042, 0.135, 0.020), rough=0.78)
     wildflower_gold_mat = _make_simple_pbr_mat("MeadowButtercupGold", (0.86, 0.64, 0.05), rough=0.48)
     wildflower_white_mat = _make_simple_pbr_mat("MeadowEnglishDaisy", (0.92, 0.90, 0.82), rough=0.52)
     soil_mat = _make_simple_pbr_mat("OrchardMossySoil", (0.042, 0.030, 0.018), rough=0.95, bump_str=0.35)
@@ -2387,7 +2682,7 @@ def build_woolsthorpe_world(scene) -> dict:
     godray_mat, godray_opacity_sock = _make_godray_mat()
     pollen_mat, pollen_color_sock, pollen_strength_sock = _make_emissive_mat("GoldenOrchardPollen", (1.0, 0.80, 0.34), strength=2.6)
 
-    # 1. Animated Physical Sky (NISHITA Golden-Hour -> Starry Twilight)
+    # 1. Animated Physical Sky (NISHITA Golden-Hour Amber-to-Sapphire Sunset -> Starry Twilight)
     world, sky_night_fac = _build_animated_physical_sky(scene)
 
     # 2. 160 True Random Spherical Stars + Sculpted 3D Crescent Moon
@@ -2395,7 +2690,7 @@ def build_woolsthorpe_world(scene) -> dict:
         scene, star_gold_mat, star_sapphire_mat, crescent_moon_mat
     )
 
-    # 3. Rolling Meadow Terrain, Curved Mossy Flagstones, Distant Hills & 140 Grass/Wildflower Clumps
+    # 3. Rolling Meadow Terrain, Weathered Cotswold Flagstones, Atmospheric Hills & 140 Grass/Wildflower Clumps
     meadow_obj, terrace_obj, hill_objs, grass_clumps_obj, wildflowers_obj = _build_meadow_terrace_and_hills(
         scene,
         meadow_grass_mat,
@@ -2413,7 +2708,7 @@ def build_woolsthorpe_world(scene) -> dict:
     # 4. Carved Cotswold Stone Garden Balustrade (18 turned stone urns + 3 pier finials)
     balustrade_objs = _build_carved_stone_balustrade(scene, stone_mat)
 
-    # 5. Monumental 3.6m Sculpted Woolsthorpe Apple Tree rooted at (-0.18, +1.35, 0.0)
+    # 5. Monumental 3.5m Photoreal Woolsthorpe Apple Tree rooted at (-0.18, +1.35, 0.0)
     tree_wood_obj, tree_canopy_obj, canopy_apples_obj = _build_woolsthorpe_apple_tree(
         scene, bark_mat, leaf_mat, apple_mat
     )
@@ -2431,7 +2726,7 @@ def build_woolsthorpe_world(scene) -> dict:
     # 8. Volumetric Golden God-Rays + 45 Randomly Scattered Golden Pollen Motes
     godray_objs, pollen_entries = _build_godrays_and_pollen(scene, godray_mat, pollen_mat)
 
-    # 9. Outdoor Golden-Hour -> Moonlit Twilight Lighting Rig
+    # 9. Hollywood Golden-Hour Chiaroscuro -> Moonlit Twilight Lighting Rig
     lights = _build_outdoor_lighting_rig(scene)
 
     materials = {
@@ -2514,7 +2809,7 @@ def build_woolsthorpe_world(scene) -> dict:
 
 
 def animate_world_frame(world_handles: dict, frame: int, t: float) -> None:
-    """Keyframe Golden-Hour -> Starry Cosmic Twilight transition, stars, crescent moon, sunbeams, pollen & outdoor lighting."""
+    """Keyframe Golden-Hour -> Starry Cosmic Twilight transition, stars, crescent moon, sunbeams, pollen & chiaroscuro lighting."""
     # Smooth golden-hour -> deep starry twilight blend over t = 19.8..22.2s
     night_fac = smoothstep(19.8, 22.2, t)
 
@@ -2581,31 +2876,31 @@ def animate_world_frame(world_handles: dict, frame: int, t: float) -> None:
     pollen_str.default_value = lerp(2.6, 1.55, night_fac)
     pollen_str.keyframe_insert(data_path="default_value", frame=frame)
 
-    # 6. Outdoor Golden-Hour -> Moonlit Twilight Lighting Rig (with Beat 3 shaded chiaroscuro boost)
+    # 6. Hollywood Golden-Hour Chiaroscuro -> Moonlit Twilight Lighting Rig (with Beat 3 shaded alcove dip)
     sun_ld = world_handles["sun_light"].data
-    sun_ld.energy = lerp(4.2, 1.15, night_fac)
-    sun_ld.color = (lerp(1.00, 0.42, night_fac), lerp(0.74, 0.68, night_fac), lerp(0.42, 1.00, night_fac))
+    sun_ld.energy = lerp(4.6, 1.15, night_fac)
+    sun_ld.color = (lerp(1.00, 0.42, night_fac), lerp(0.72, 0.68, night_fac), lerp(0.40, 1.00, night_fac))
     sun_ld.keyframe_insert(data_path="energy", frame=frame)
     sun_ld.keyframe_insert(data_path="color", frame=frame)
 
     key_ld = world_handles["key_light"].data
-    day_key_e = 260.0 * (1.0 - 0.34 * beat3_shade)
-    key_ld.energy = lerp(day_key_e, 145.0, night_fac)
-    key_ld.color = (lerp(1.00, 0.58, night_fac), lerp(0.80, 0.78, night_fac), lerp(0.52, 1.00, night_fac))
+    day_key_e = 270.0 * (1.0 - 0.36 * beat3_shade)
+    key_ld.energy = lerp(day_key_e, 140.0, night_fac)
+    key_ld.color = (lerp(1.00, 0.58, night_fac), lerp(0.76, 0.78, night_fac), lerp(0.46, 1.00, night_fac))
     key_ld.keyframe_insert(data_path="energy", frame=frame)
     key_ld.keyframe_insert(data_path="color", frame=frame)
 
     rim_ld = world_handles["rim_light"].data
-    day_rim_e = 220.0 * (1.0 - 0.25 * beat3_shade)
-    rim_ld.energy = lerp(day_rim_e, 360.0, night_fac)
-    rim_ld.color = (lerp(0.52, 0.34, night_fac), lerp(0.78, 0.72, night_fac), 1.00)
+    day_rim_e = 245.0 * (1.0 - 0.25 * beat3_shade)
+    rim_ld.energy = lerp(day_rim_e, 370.0, night_fac)
+    rim_ld.color = (lerp(0.38, 0.28, night_fac), lerp(0.70, 0.64, night_fac), 1.00)
     rim_ld.keyframe_insert(data_path="energy", frame=frame)
     rim_ld.keyframe_insert(data_path="color", frame=frame)
 
     fill_ld = world_handles["fill_light"].data
-    day_fill_e = 68.0 * (1.0 - 0.45 * beat3_shade)
-    fill_ld.energy = lerp(day_fill_e, 38.0, night_fac)
-    fill_ld.color = (lerp(0.94, 0.45, night_fac), lerp(0.88, 0.62, night_fac), lerp(0.78, 0.92, night_fac))
+    day_fill_e = 40.0 * (1.0 - 0.48 * beat3_shade)
+    fill_ld.energy = lerp(day_fill_e, 22.0, night_fac)
+    fill_ld.color = (lerp(0.90, 0.42, night_fac), lerp(0.84, 0.58, night_fac), lerp(0.74, 0.90, night_fac))
     fill_ld.keyframe_insert(data_path="energy", frame=frame)
     fill_ld.keyframe_insert(data_path="color", frame=frame)
 

@@ -1,8 +1,8 @@
 """
-Headless MPFB2 V7 Official 4K Asset Pack Installer for Kaggle GPU T4 x2 (Blender 4.2.3 LTS).
-Extracts curated MakeHuman Community 4K cast ZIPs cleanly into MPFB2's exact
-LocationService.get_user_data() directory on Kaggle SSD disk (never /tmp tmpfs!),
-verifies ZIP CRC32 integrity before extraction, and refreshes MPFB2's asset library cache.
+Headless MPFB2 V8 Official 4K Asset Pack Installer for Kaggle GPU T4 x2 (Blender 4.2.3 LTS).
+Extracts curated MakeHuman Community 4K cast & real 3D historical wardrobe ZIPs cleanly into MPFB2's
+exact LocationService.get_user_data() directory on Kaggle SSD disk (never /tmp tmpfs!), verifies
+ZIP CRC32 integrity before extraction, and refreshes MPFB2's asset library cache.
 """
 from __future__ import annotations
 
