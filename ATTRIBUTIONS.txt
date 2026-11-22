@@ -1,0 +1,52 @@
+Curated V8 17th-Century Real 3D Wardrobe & 4K MakeHuman Community Asset Pack
+Project: Scientist #9 — Isaac Newton & Edmond Halley (isaac-newton-gravity-prism-3d)
+Delivered via GitHub Fastly CDN orphan branch: assets-v8
+
+All assets are sourced from official MakeHuman Community Asset Packs
+(https://files.makehumancommunity.org/asset_packs/) under CC0 / CC-BY 4.0 licenses
+(oversized 4096px cloth textures optimized cleanly for Cycles texture_limit_render=2048):
+
+- skins/middleage_caucasian_male/
+    Pack:    https://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Newton & Halley adult 4K masculine skin (ENHANCED_SSS / BURLEY)
+    License: CC0 (MakeHuman System Assets)
+- eyes/high-poly/, eyes/materials/, eyebrows/eyebrow001-003/, eyelashes/eyelashes01/, teeth/teeth_base/, tongue/tongue01/
+    Pack:    https://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Photoreal PROCEDURAL_EYES cornea dome, alpha brows/lashes, 3D teeth & tongue
+    License: CC0 (MakeHuman System Assets)
+- hair/culturalibre_hair_01/
+    Pack:    https://files.makehumancommunity.org/asset_packs/hair01/hair01_cc0.zip
+    Role:    Sir Isaac Newton primary: smooth parted shoulder-length hair + 2K normal map (silver-pewter graded)
+    License: CC0 (hair01_cc0.zip, Culturalibre)
+- hair/short04/
+    Pack:    https://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip
+    Role:    Edmond Halley primary: sleek swept-back adult masculine gentleman hair
+    License: CC0 (MakeHuman System Assets)
+- clothes/donitz_monk_robe/
+    Pack:    https://files.makehumancommunity.org/asset_packs/suits02/suits02_cc0.zip
+    Role:    Sir Isaac Newton V8 primary: 10,233-vert 100% male-sculpted Cambridge scholar academic gown
+             with draped shoulder mantle, vertical pleats, braided waist cord & baked normal map
+             (graded in Cambridge Royal Midnight-Navy Velvet; ZERO modern tie, ZERO procedural straps!)
+    License: CC0 (suits02_cc0.zip, Donitz)
+- clothes/mindfront_lusekofta/
+    Pack:    https://files.makehumancommunity.org/asset_packs/shirts02/shirts02_ccby.zip
+    Role:    Edmond Halley V8 primary: Baroque brocade gentleman's coat/doublet with 6 engraved metallic
+             filigree buttons (F_Lusekofta_METAL.png) + baked normal & specular maps
+             (graded in Warm Royal Burgundy / Claret-Mahogany; ZERO modern bowtie, ZERO procedural straps!)
+    License: CC-BY 4.0 (shirts02_ccby.zip, Mindfront Sweden)
+- clothes/elvs_male_boho_top1/
+    Pack:    https://files.makehumancommunity.org/asset_packs/shirts02/shirts02_ccby.zip
+    Role:    Optional 17th-c gold-embroidered V-neck scholar tunic backup
+    License: CC-BY (shirts02_ccby.zip, Elvaerwyn)
+- clothes/mindfront_male_trousers_2/
+    Pack:    https://files.makehumancommunity.org/asset_packs/pants02/pants02_ccby.zip
+    Role:    Edmond Halley primary: 7,391-vert tailored dark wool trousers + 2K normal & specular maps
+    License: CC-BY 4.0 (pants02_ccby.zip, Mindfront Sweden)
+- clothes/toigo_ankle_boots_male/
+    Pack:    https://files.makehumancommunity.org/asset_packs/shoes01/shoes01_cc0.zip
+    Role:    Sir Isaac Newton primary: 2K normal/spec dark historical leather boots
+    License: CC0 (shoes01_cc0.zip, MRT / Toigo)
+- clothes/punkduck_medieval_boots/
+    Pack:    https://files.makehumancommunity.org/asset_packs/shoes03/shoes03_ccby.zip
+    Role:    Edmond Halley primary: cuffed brown leather 17th-c boots + normal map
+    License: CC-BY 4.0 (shoes03_ccby.zip, Punkduck)
