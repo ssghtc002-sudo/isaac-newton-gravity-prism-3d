@@ -521,51 +521,46 @@ def _make_gnarled_bark_mat(name: str = "WoolsthorpeGnarledBark"):
 
 
 def _make_translucent_leaf_mat(name: str = "WoolsthorpeSunlitCanopyLeaf"):
-    """Backlit translucent emerald foliage: MixShader(Principled BSDF, Translucent BSDF, 0.35)."""
+    """Fast backlit sunlit emerald foliage (zero ray-splitting Translucent stall on T4 GPU!)."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
-    nt.nodes.clear()
-
-    out = nt.nodes.new("ShaderNodeOutputMaterial")
-    mix_sh = nt.nodes.new("ShaderNodeMixShader")
-    mix_sh.inputs["Fac"].default_value = 0.35  # 35% sunlit leaf translucency!
-
-    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    transl = nt.nodes.new("ShaderNodeBsdfTranslucent")
+    bsdf = nt.nodes["Principled BSDF"]
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
     ns = nt.nodes.new("ShaderNodeTexNoise")
     ns.inputs["Scale"].default_value = 4.5
-    ns.inputs["Detail"].default_value = 7.0
+    ns.inputs["Detail"].default_value = 6.0
     ns.inputs["Roughness"].default_value = 0.60
 
     rmp = nt.nodes.new("ShaderNodeValToRGB")
-    rmp.color_ramp.elements[0].position = 0.22
-    rmp.color_ramp.elements[0].color = (0.024, 0.135, 0.020, 1.0)
-    e1 = rmp.color_ramp.elements.new(0.58)
-    e1.color = (0.062, 0.245, 0.032, 1.0)
-    rmp.color_ramp.elements[-1].position = 0.88
-    rmp.color_ramp.elements[-1].color = (0.145, 0.340, 0.048, 1.0)  # Golden sunlit leaf tips!
+    rmp.color_ramp.elements[0].position = 0.20
+    rmp.color_ramp.elements[0].color = (0.032, 0.165, 0.022, 1.0)
+    e1 = rmp.color_ramp.elements.new(0.56)
+    e1.color = (0.088, 0.305, 0.036, 1.0)
+    rmp.color_ramp.elements[-1].position = 0.86
+    rmp.color_ramp.elements[-1].color = (0.215, 0.440, 0.055, 1.0)  # Warm golden sunlit leaf tips!
 
     bmp = nt.nodes.new("ShaderNodeBump")
     bmp.inputs["Strength"].default_value = 0.12
 
     set_bsdf(bsdf, "Roughness", 0.36)
-    set_bsdf(bsdf, "Coat Weight", 0.20)
+    set_bsdf(bsdf, "Coat Weight", 0.24)
     set_bsdf(bsdf, "Coat Roughness", 0.18)
-
-    transl.inputs["Color"].default_value = (0.28, 0.56, 0.065, 1.0)
+    set_bsdf(bsdf, "Sheen Weight", 0.28)
+    set_bsdf(bsdf, "Subsurface Weight", 0.22)
+    set_bsdf(bsdf, "Subsurface Scale", 0.015)
+    if hasattr(bsdf, "subsurface_method"):
+        try:
+            bsdf.subsurface_method = "BURLEY"
+        except Exception:
+            pass
 
     nt.links.new(tc.outputs["Object"], ns.inputs["Vector"])
     nt.links.new(ns.outputs["Fac"], rmp.inputs["Fac"])
     nt.links.new(rmp.outputs["Color"], bsdf.inputs["Base Color"])
     nt.links.new(ns.outputs["Fac"], bmp.inputs["Height"])
     nt.links.new(bmp.outputs["Normal"], bsdf.inputs["Normal"])
-    nt.links.new(bmp.outputs["Normal"], transl.inputs["Normal"])
-    nt.links.new(bsdf.outputs["BSDF"], mix_sh.inputs[1])
-    nt.links.new(transl.outputs["BSDF"], mix_sh.inputs[2])
-    nt.links.new(mix_sh.outputs["Shader"], out.inputs["Surface"])
     return mat
 
 
@@ -1495,6 +1490,11 @@ def _build_meadow_terrace_and_hills(
 
     grass_clumps_obj = _finalize_bmesh(scene, "MeadowGrassClumps", bm_gr, mats=grass_blade_mat, smooth=True)
     wildflowers_obj = _finalize_bmesh(scene, "MeadowWildflowers", bm_wf, mats=[wf_gold_mat, wf_white_mat], smooth=True)
+    # Tiny grass blades, flowers & distant hills don't cast visible shadows onto foreground actors — skip shadow BVH rays!
+    grass_clumps_obj.visible_shadow = False
+    wildflowers_obj.visible_shadow = False
+    for h_obj in hill_objs:
+        h_obj.visible_shadow = False
 
     return meadow_obj, terrace_obj, hill_objs, grass_clumps_obj, wildflowers_obj
 
