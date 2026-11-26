@@ -44,6 +44,12 @@ import time
 
 import bmesh
 import bpy
+
+try:
+    sys.stdout.reconfigure(line_buffering=True)
+    sys.stderr.reconfigure(line_buffering=True)
+except Exception:
+    pass
 from mathutils import Euler, Quaternion, Vector
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -335,6 +341,11 @@ scene.use_nodes = False
 
 gpu_enabled = False
 try:
+    if getattr(ARGS, "no_render", False):
+        # Bake-only: never touch the NVIDIA driver (render_worker.py sets up GPU later)
+        scene.cycles.device = "GPU"
+        gpu_enabled = True
+        raise StopIteration
     prefs = bpy.context.preferences.addons["cycles"].preferences
     for backend in (os.environ.get("CYCLES_BACKEND", "CUDA"), "OPTIX"):
         try:
@@ -354,6 +365,8 @@ try:
                 break
         except Exception:
             continue
+except StopIteration:
+    print("[Cycles] Bake-only mode: GPU probing skipped", flush=True)
 except Exception as e:
     print(f"[Cycles] GPU warning: {e}")
 
