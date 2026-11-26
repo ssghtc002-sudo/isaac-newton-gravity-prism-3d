@@ -1,0 +1,112 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,66,&H00FFFFFF,&H00FFE040,&H00120803,&H96000000,-1,0,0,0,100,100,0,0,1,8,3.0,2,80,80,260,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.15,0:00:00.37,Default,,0,0,0,,{\c&H00FFE040&}When{\c&H00FFFFFF&} you get\Na deep cut,
+Dialogue: 0,0:00:00.37,0:00:00.54,Default,,0,0,0,,When {\c&H00FFE040&}you{\c&H00FFFFFF&} get\Na deep cut,
+Dialogue: 0,0:00:00.54,0:00:00.70,Default,,0,0,0,,When you {\c&H00FFE040&}get{\c&H00FFFFFF&}\Na deep cut,
+Dialogue: 0,0:00:00.70,0:00:00.80,Default,,0,0,0,,When you get\N{\c&H00FFE040&}a{\c&H00FFFFFF&} deep cut,
+Dialogue: 0,0:00:00.80,0:00:01.02,Default,,0,0,0,,When you get\Na {\c&H00FFE040&}deep{\c&H00FFFFFF&} cut,
+Dialogue: 0,0:00:01.02,0:00:01.24,Default,,0,0,0,,When you get\Na deep {\c&H00FFE040&}cut,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:01.24,0:00:01.34,Default,,0,0,0,,{\c&H00FFE040&}a{\c&H00FFFFFF&} doctor weaves\Na curved surgical
+Dialogue: 0,0:00:01.34,0:00:01.67,Default,,0,0,0,,a {\c&H00FFE040&}doctor{\c&H00FFFFFF&} weaves\Na curved surgical
+Dialogue: 0,0:00:01.67,0:00:02.00,Default,,0,0,0,,a doctor {\c&H00FFE040&}weaves{\c&H00FFFFFF&}\Na curved surgical
+Dialogue: 0,0:00:02.00,0:00:02.10,Default,,0,0,0,,a doctor weaves\N{\c&H00FFE040&}a{\c&H00FFFFFF&} curved surgical
+Dialogue: 0,0:00:02.10,0:00:02.43,Default,,0,0,0,,a doctor weaves\Na {\c&H00FFE040&}curved{\c&H00FFFFFF&} surgical
+Dialogue: 0,0:00:02.43,0:00:02.88,Default,,0,0,0,,a doctor weaves\Na curved {\c&H00FFE040&}surgical{\c&H00FFFFFF&}
+Dialogue: 0,0:00:02.88,0:00:03.21,Default,,0,0,0,,{\c&H00FFE040&}needle{\c&H00FFFFFF&} through both\Nedges of your skin—
+Dialogue: 0,0:00:03.21,0:00:03.59,Default,,0,0,0,,needle {\c&H00FFE040&}through{\c&H00FFFFFF&} both\Nedges of your skin—
+Dialogue: 0,0:00:03.59,0:00:03.81,Default,,0,0,0,,needle through {\c&H00FFE040&}both{\c&H00FFFFFF&}\Nedges of your skin—
+Dialogue: 0,0:00:03.81,0:00:04.09,Default,,0,0,0,,needle through both\N{\c&H00FFE040&}edges{\c&H00FFFFFF&} of your skin—
+Dialogue: 0,0:00:04.09,0:00:04.20,Default,,0,0,0,,needle through both\Nedges {\c&H00FFE040&}of{\c&H00FFFFFF&} your skin—
+Dialogue: 0,0:00:04.20,0:00:04.42,Default,,0,0,0,,needle through both\Nedges of {\c&H00FFE040&}your{\c&H00FFFFFF&} skin—
+Dialogue: 0,0:00:04.42,0:00:04.70,Default,,0,0,0,,needle through both\Nedges of your {\c&H00FFE040&}skin—{\c&H00FFFFFF&}
+Dialogue: 0,0:00:05.25,0:00:05.63,Default,,0,0,0,,{\c&H00FFE040&}pulling{\c&H00FFFFFF&} the thread\Ntight like
+Dialogue: 0,0:00:05.63,0:00:05.79,Default,,0,0,0,,pulling {\c&H00FFE040&}the{\c&H00FFFFFF&} thread\Ntight like
+Dialogue: 0,0:00:05.79,0:00:06.11,Default,,0,0,0,,pulling the {\c&H00FFE040&}thread{\c&H00FFFFFF&}\Ntight like
+Dialogue: 0,0:00:06.11,0:00:06.38,Default,,0,0,0,,pulling the thread\N{\c&H00FFE040&}tight{\c&H00FFFFFF&} like
+Dialogue: 0,0:00:06.38,0:00:06.59,Default,,0,0,0,,pulling the thread\Ntight {\c&H00FFE040&}like{\c&H00FFFFFF&}
+Dialogue: 0,0:00:06.59,0:00:06.69,Default,,0,0,0,,{\c&H00FFE040&}a{\c&H00FFFFFF&} zipper to lock\Nthe wound shut,
+Dialogue: 0,0:00:06.69,0:00:07.01,Default,,0,0,0,,a {\c&H00FFE040&}zipper{\c&H00FFFFFF&} to lock\Nthe wound shut,
+Dialogue: 0,0:00:07.01,0:00:07.12,Default,,0,0,0,,a zipper {\c&H00FFE040&}to{\c&H00FFFFFF&} lock\Nthe wound shut,
+Dialogue: 0,0:00:07.12,0:00:07.33,Default,,0,0,0,,a zipper to {\c&H00FFE040&}lock{\c&H00FFFFFF&}\Nthe wound shut,
+Dialogue: 0,0:00:07.33,0:00:07.50,Default,,0,0,0,,a zipper to lock\N{\c&H00FFE040&}the{\c&H00FFFFFF&} wound shut,
+Dialogue: 0,0:00:07.50,0:00:07.76,Default,,0,0,0,,a zipper to lock\Nthe {\c&H00FFE040&}wound{\c&H00FFFFFF&} shut,
+Dialogue: 0,0:00:07.76,0:00:08.03,Default,,0,0,0,,a zipper to lock\Nthe wound {\c&H00FFE040&}shut,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:08.03,0:00:08.25,Default,,0,0,0,,{\c&H00FFE040&}then{\c&H00FFFFFF&} snipping\Nthe ends clean.
+Dialogue: 0,0:00:08.25,0:00:08.68,Default,,0,0,0,,then {\c&H00FFE040&}snipping{\c&H00FFFFFF&}\Nthe ends clean.
+Dialogue: 0,0:00:08.68,0:00:08.84,Default,,0,0,0,,then snipping\N{\c&H00FFE040&}the{\c&H00FFFFFF&} ends clean.
+Dialogue: 0,0:00:08.84,0:00:09.05,Default,,0,0,0,,then snipping\Nthe {\c&H00FFE040&}ends{\c&H00FFFFFF&} clean.
+Dialogue: 0,0:00:09.05,0:00:09.40,Default,,0,0,0,,then snipping\Nthe ends {\c&H00FFE040&}clean.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:10.25,0:00:10.65,Default,,0,0,0,,{\c&H00FFE040&}Inside,{\c&H00FFFFFF&} the skin\Nturns red and inflamed
+Dialogue: 0,0:00:10.65,0:00:10.82,Default,,0,0,0,,Inside, {\c&H00FFE040&}the{\c&H00FFFFFF&} skin\Nturns red and inflamed
+Dialogue: 0,0:00:10.82,0:00:11.04,Default,,0,0,0,,Inside, the {\c&H00FFE040&}skin{\c&H00FFFFFF&}\Nturns red and inflamed
+Dialogue: 0,0:00:11.04,0:00:11.33,Default,,0,0,0,,Inside, the skin\N{\c&H00FFE040&}turns{\c&H00FFFFFF&} red and inflamed
+Dialogue: 0,0:00:11.33,0:00:11.50,Default,,0,0,0,,Inside, the skin\Nturns {\c&H00FFE040&}red{\c&H00FFFFFF&} and inflamed
+Dialogue: 0,0:00:11.50,0:00:11.67,Default,,0,0,0,,Inside, the skin\Nturns red {\c&H00FFE040&}and{\c&H00FFFFFF&} inflamed
+Dialogue: 0,0:00:11.67,0:00:12.12,Default,,0,0,0,,Inside, the skin\Nturns red and {\c&H00FFE040&}inflamed{\c&H00FFFFFF&}
+Dialogue: 0,0:00:12.12,0:00:12.23,Default,,0,0,0,,{\c&H00FFE040&}as{\c&H00FFFFFF&} millions\Nof repair cells
+Dialogue: 0,0:00:12.23,0:00:12.69,Default,,0,0,0,,as {\c&H00FFE040&}millions{\c&H00FFFFFF&}\Nof repair cells
+Dialogue: 0,0:00:12.69,0:00:12.80,Default,,0,0,0,,as millions\N{\c&H00FFE040&}of{\c&H00FFFFFF&} repair cells
+Dialogue: 0,0:00:12.80,0:00:13.14,Default,,0,0,0,,as millions\Nof {\c&H00FFE040&}repair{\c&H00FFFFFF&} cells
+Dialogue: 0,0:00:13.14,0:00:13.42,Default,,0,0,0,,as millions\Nof repair {\c&H00FFE040&}cells{\c&H00FFFFFF&}
+Dialogue: 0,0:00:13.42,0:00:13.65,Default,,0,0,0,,{\c&H00FFE040&}rush{\c&H00FFFFFF&} in to rebuild\Nthe damage.
+Dialogue: 0,0:00:13.65,0:00:13.76,Default,,0,0,0,,rush {\c&H00FFE040&}in{\c&H00FFFFFF&} to rebuild\Nthe damage.
+Dialogue: 0,0:00:13.76,0:00:13.88,Default,,0,0,0,,rush in {\c&H00FFE040&}to{\c&H00FFFFFF&} rebuild\Nthe damage.
+Dialogue: 0,0:00:13.88,0:00:14.27,Default,,0,0,0,,rush in to {\c&H00FFE040&}rebuild{\c&H00FFFFFF&}\Nthe damage.
+Dialogue: 0,0:00:14.27,0:00:14.44,Default,,0,0,0,,rush in to rebuild\N{\c&H00FFE040&}the{\c&H00FFFFFF&} damage.
+Dialogue: 0,0:00:14.44,0:00:14.87,Default,,0,0,0,,rush in to rebuild\Nthe {\c&H00FFE040&}damage.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:15.30,0:00:15.57,Default,,0,0,0,,{\c&H00FFE040&}Next,{\c&H00FFFFFF&} golden\Ncollagen fibers weave
+Dialogue: 0,0:00:15.57,0:00:15.89,Default,,0,0,0,,Next, {\c&H00FFE040&}golden{\c&H00FFFFFF&}\Ncollagen fibers weave
+Dialogue: 0,0:00:15.89,0:00:16.32,Default,,0,0,0,,Next, golden\N{\c&H00FFE040&}collagen{\c&H00FFFFFF&} fibers weave
+Dialogue: 0,0:00:16.32,0:00:16.64,Default,,0,0,0,,Next, golden\Ncollagen {\c&H00FFE040&}fibers{\c&H00FFFFFF&} weave
+Dialogue: 0,0:00:16.64,0:00:16.90,Default,,0,0,0,,Next, golden\Ncollagen fibers {\c&H00FFE040&}weave{\c&H00FFFFFF&}
+Dialogue: 0,0:00:16.90,0:00:17.23,Default,,0,0,0,,{\c&H00FFE040&}across{\c&H00FFFFFF&} the gap like\Nliving scaffolding,
+Dialogue: 0,0:00:17.23,0:00:17.39,Default,,0,0,0,,across {\c&H00FFE040&}the{\c&H00FFFFFF&} gap like\Nliving scaffolding,
+Dialogue: 0,0:00:17.39,0:00:17.55,Default,,0,0,0,,across the {\c&H00FFE040&}gap{\c&H00FFFFFF&} like\Nliving scaffolding,
+Dialogue: 0,0:00:17.55,0:00:17.76,Default,,0,0,0,,across the gap {\c&H00FFE040&}like{\c&H00FFFFFF&}\Nliving scaffolding,
+Dialogue: 0,0:00:17.76,0:00:18.08,Default,,0,0,0,,across the gap like\N{\c&H00FFE040&}living{\c&H00FFFFFF&} scaffolding,
+Dialogue: 0,0:00:18.08,0:00:18.72,Default,,0,0,0,,across the gap like\Nliving {\c&H00FFE040&}scaffolding,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:18.72,0:00:19.15,Default,,0,0,0,,{\c&H00FFE040&}spinning{\c&H00FFFFFF&} brand\Nnew skin!
+Dialogue: 0,0:00:19.15,0:00:19.42,Default,,0,0,0,,spinning {\c&H00FFE040&}brand{\c&H00FFFFFF&}\Nnew skin!
+Dialogue: 0,0:00:19.42,0:00:19.58,Default,,0,0,0,,spinning brand\N{\c&H00FFE040&}new{\c&H00FFFFFF&} skin!
+Dialogue: 0,0:00:19.58,0:00:19.87,Default,,0,0,0,,spinning brand\Nnew {\c&H00FFE040&}skin!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:20.45,0:00:20.68,Default,,0,0,0,,{\c&H00FFE040&}Tiny{\c&H00FFFFFF&} new blood vessels
+Dialogue: 0,0:00:20.68,0:00:20.85,Default,,0,0,0,,Tiny {\c&H00FFE040&}new{\c&H00FFFFFF&} blood vessels
+Dialogue: 0,0:00:20.85,0:00:21.13,Default,,0,0,0,,Tiny new {\c&H00FFE040&}blood{\c&H00FFFFFF&} vessels
+Dialogue: 0,0:00:21.13,0:00:21.53,Default,,0,0,0,,Tiny new blood {\c&H00FFE040&}vessels{\c&H00FFFFFF&}
+Dialogue: 0,0:00:21.53,0:00:21.87,Default,,0,0,0,,{\c&H00FFE040&}branch{\c&H00FFFFFF&} through\Nthe seam,
+Dialogue: 0,0:00:21.87,0:00:22.27,Default,,0,0,0,,branch {\c&H00FFE040&}through{\c&H00FFFFFF&}\Nthe seam,
+Dialogue: 0,0:00:22.27,0:00:22.44,Default,,0,0,0,,branch through\N{\c&H00FFE040&}the{\c&H00FFFFFF&} seam,
+Dialogue: 0,0:00:22.44,0:00:22.72,Default,,0,0,0,,branch through\Nthe {\c&H00FFE040&}seam,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:22.72,0:00:23.12,Default,,0,0,0,,{\c&H00FFE040&}pumping{\c&H00FFFFFF&} oxygen to nourish\Nthe fresh tissue—
+Dialogue: 0,0:00:23.12,0:00:23.46,Default,,0,0,0,,pumping {\c&H00FFE040&}oxygen{\c&H00FFFFFF&} to nourish\Nthe fresh tissue—
+Dialogue: 0,0:00:23.46,0:00:23.58,Default,,0,0,0,,pumping oxygen {\c&H00FFE040&}to{\c&H00FFFFFF&} nourish\Nthe fresh tissue—
+Dialogue: 0,0:00:23.58,0:00:23.97,Default,,0,0,0,,pumping oxygen to {\c&H00FFE040&}nourish{\c&H00FFFFFF&}\Nthe fresh tissue—
+Dialogue: 0,0:00:23.97,0:00:24.14,Default,,0,0,0,,pumping oxygen to nourish\N{\c&H00FFE040&}the{\c&H00FFFFFF&} fresh tissue—
+Dialogue: 0,0:00:24.14,0:00:24.43,Default,,0,0,0,,pumping oxygen to nourish\Nthe {\c&H00FFE040&}fresh{\c&H00FFFFFF&} tissue—
+Dialogue: 0,0:00:24.43,0:00:24.83,Default,,0,0,0,,pumping oxygen to nourish\Nthe fresh {\c&H00FFE040&}tissue—{\c&H00FFFFFF&}
+Dialogue: 0,0:00:25.30,0:00:25.46,Default,,0,0,0,,{\c&H00FFE040&}and{\c&H00FFFFFF&} a few\Nweeks later,
+Dialogue: 0,0:00:25.46,0:00:25.55,Default,,0,0,0,,and {\c&H00FFE040&}a{\c&H00FFFFFF&} few\Nweeks later,
+Dialogue: 0,0:00:25.55,0:00:25.71,Default,,0,0,0,,and a {\c&H00FFE040&}few{\c&H00FFFFFF&}\Nweeks later,
+Dialogue: 0,0:00:25.71,0:00:25.97,Default,,0,0,0,,and a few\N{\c&H00FFE040&}weeks{\c&H00FFFFFF&} later,
+Dialogue: 0,0:00:25.97,0:00:26.29,Default,,0,0,0,,and a few\Nweeks {\c&H00FFE040&}later,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:26.29,0:00:26.45,Default,,0,0,0,,{\c&H00FFE040&}the{\c&H00FFFFFF&} stitches\Nslide right out—
+Dialogue: 0,0:00:26.45,0:00:26.87,Default,,0,0,0,,the {\c&H00FFE040&}stitches{\c&H00FFFFFF&}\Nslide right out—
+Dialogue: 0,0:00:26.87,0:00:27.13,Default,,0,0,0,,the stitches\N{\c&H00FFE040&}slide{\c&H00FFFFFF&} right out—
+Dialogue: 0,0:00:27.13,0:00:27.39,Default,,0,0,0,,the stitches\Nslide {\c&H00FFE040&}right{\c&H00FFFFFF&} out—
+Dialogue: 0,0:00:27.39,0:00:27.60,Default,,0,0,0,,the stitches\Nslide right {\c&H00FFE040&}out—{\c&H00FFFFFF&}
+Dialogue: 0,0:00:27.60,0:00:27.97,Default,,0,0,0,,{\c&H00FFE040&}leaving{\c&H00FFFFFF&} your skin\Nhealed back together!
+Dialogue: 0,0:00:27.97,0:00:28.18,Default,,0,0,0,,leaving {\c&H00FFE040&}your{\c&H00FFFFFF&} skin\Nhealed back together!
+Dialogue: 0,0:00:28.18,0:00:28.39,Default,,0,0,0,,leaving your {\c&H00FFE040&}skin{\c&H00FFFFFF&}\Nhealed back together!
+Dialogue: 0,0:00:28.39,0:00:28.71,Default,,0,0,0,,leaving your skin\N{\c&H00FFE040&}healed{\c&H00FFFFFF&} back together!
+Dialogue: 0,0:00:28.71,0:00:28.92,Default,,0,0,0,,leaving your skin\Nhealed {\c&H00FFE040&}back{\c&H00FFFFFF&} together!
+Dialogue: 0,0:00:28.92,0:00:29.42,Default,,0,0,0,,leaving your skin\Nhealed back {\c&H00FFE040&}together!{\c&H00FFFFFF&}

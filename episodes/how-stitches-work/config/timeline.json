@@ -1,0 +1,100 @@
+{
+  "title": "How Stitches Work — 4K Medical Macro Cinema (Wound Closure, Collagen Web & Angiogenesis)",
+  "duration": 30.0,
+  "fps": 24,
+  "totalFrames": 720,
+  "resolution": [1080, 1920],
+  "audio": {
+    "masterPath": "audio/output/master_audio.wav",
+    "manifestPath": "audio/output/voice_manifest.json",
+    "srtPath": "subtitles/subtitles.srt",
+    "assPath": "subtitles/subtitles.ass"
+  },
+  "speakers": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "lang": "en-us",
+      "speed": 1.0,
+      "pan": 0.0
+    }
+  },
+  "beats": [
+    { "id": "B1", "name": "Macro Hook: Curved Surgical Needle Weaving Blue Nylon Sutures", "start": 0.0, "end": 6.0 },
+    { "id": "B2", "name": "Zipper Closure: Thread Pulls Wound Shut + Steel Scissors SNIP", "start": 6.0, "end": 10.2 },
+    { "id": "B3", "name": "Inflammation Wave: Crimson Blush + Repair Cell Swarm", "start": 10.2, "end": 15.2 },
+    { "id": "B4", "name": "Collagen Scaffold: Golden 3D Fibers Weaving Into Living Pink Skin", "start": 15.2, "end": 20.4 },
+    { "id": "B5", "name": "Angiogenesis: Branching Ruby Blood Vessels Nourishing & Sinking In", "start": 20.4, "end": 25.3 },
+    { "id": "B6", "name": "Healed Reveal: Sutures Snipped & Pulled Out -> Seamless Skin Pullback", "start": 25.3, "end": 30.0 }
+  ],
+  "dialogue": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "start": 0.15,
+      "end": 5.15,
+      "text": "When you get a deep cut, a doctor weaves a curved surgical needle through both edges of your skin—"
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "narrator",
+      "start": 5.25,
+      "end": 10.05,
+      "text": "pulling the thread tight like a zipper to lock the wound shut, then snipping the ends clean."
+    },
+    {
+      "id": "L3",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "start": 10.25,
+      "end": 15.10,
+      "text": "Inside, the skin turns red and inflamed as millions of repair cells rush in to rebuild the damage."
+    },
+    {
+      "id": "L4",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "start": 15.30,
+      "end": 20.25,
+      "text": "Next, golden collagen fibers weave across the gap like living scaffolding, spinning brand new skin!"
+    },
+    {
+      "id": "L5",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "start": 20.45,
+      "end": 25.15,
+      "text": "Tiny new blood vessels branch through the seam, pumping oxygen to nourish the fresh tissue—"
+    },
+    {
+      "id": "L6",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "start": 25.30,
+      "end": 29.75,
+      "text": "and a few weeks later, the stitches slide right out—leaving your skin healed back together!"
+    }
+  ],
+  "sfx": [
+    { "t": 0.65, "type": "needle_pass", "pan": -0.22 },
+    { "t": 1.50, "type": "needle_pass", "pan": 0.22 },
+    { "t": 2.35, "type": "needle_pass", "pan": -0.20 },
+    { "t": 3.20, "type": "needle_pass", "pan": 0.20 },
+    { "t": 4.05, "type": "needle_pass", "pan": -0.18 },
+    { "t": 4.90, "type": "needle_pass", "pan": 0.18 },
+    { "t": 6.15, "type": "thread_zip_pull", "pan": 0.0 },
+    { "t": 8.65, "type": "scissors_snip", "pan": 0.12 },
+    { "t": 10.50, "type": "heartbeat_pulse", "pan": 0.0 },
+    { "t": 11.40, "type": "cell_swarm_shimmer", "pan": -0.15 },
+    { "t": 12.60, "type": "heartbeat_pulse", "pan": 0.0 },
+    { "t": 14.10, "type": "cell_swarm_shimmer", "pan": 0.15 },
+    { "t": 15.65, "type": "collagen_weave_chime", "pan": -0.18 },
+    { "t": 17.50, "type": "collagen_weave_chime", "pan": 0.18 },
+    { "t": 20.75, "type": "vessel_pulse", "pan": 0.0 },
+    { "t": 22.35, "type": "vessel_pulse", "pan": 0.0 },
+    { "t": 25.65, "type": "scissors_snip", "pan": -0.10 },
+    { "t": 26.25, "type": "suture_slide_out", "pan": 0.08 },
+    { "t": 27.60, "type": "healed_resolve", "pan": 0.0 }
+  ]
+}

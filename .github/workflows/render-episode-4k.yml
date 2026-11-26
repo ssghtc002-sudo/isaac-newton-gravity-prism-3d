@@ -1,0 +1,95 @@
+name: Render Studio Episode 4K on Modal (Mobile Download)
+
+on:
+  workflow_dispatch:
+    inputs:
+      episode:
+        description: "Episode folder name inside episodes/ (e.g. how-stitches-work)"
+        required: true
+        default: "how-stitches-work"
+        type: string
+      workers:
+        description: "Parallel Modal GPUs (default: 10)"
+        required: false
+        default: "10"
+        type: string
+      samples:
+        description: "Cycles samples per frame (default: 16)"
+        required: false
+        default: "16"
+        type: string
+      upscale_4k:
+        description: "Output True 4K 2160x3840 (true) or 1080p (false)"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  render-episode-4k:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Modal CLI
+        run: pip install --quiet --upgrade modal
+
+      - name: Render Episode 4K Short on Modal Cloud GPUs
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          EP="${{ inputs.episode }}"
+          SAFE_NAME="$(echo "$EP" | tr '-' '_')"
+          if [ "${{ inputs.upscale_4k }}" = "false" ]; then
+            OUT_FILE="${SAFE_NAME}_1080p.mp4"
+            modal run "episodes/${EP}/render_on_modal.py" \
+              --workers "${{ inputs.workers }}" \
+              --samples "${{ inputs.samples }}" \
+              --scale 100 \
+              --no-upscale-4k \
+              --out "$OUT_FILE"
+          else
+            OUT_FILE="${SAFE_NAME}_4k.mp4"
+            modal run "episodes/${EP}/render_on_modal.py" \
+              --workers "${{ inputs.workers }}" \
+              --samples "${{ inputs.samples }}" \
+              --scale 100 \
+              --out "$OUT_FILE"
+          fi
+          echo "OUT_FILE=$OUT_FILE" >> "$GITHUB_ENV"
+          echo "EP_TAG=${EP}-4k" >> "$GITHUB_ENV"
+          ls -lh "$OUT_FILE"
+
+      - name: Publish direct mobile download on GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES="Studio Episode '${{ inputs.episode }}' 4K render from commit $(git rev-parse --short HEAD). Tap the .mp4 file below on mobile to download directly."
+          if gh release view "$EP_TAG" >/dev/null 2>&1; then
+            gh release edit "$EP_TAG" --notes "$NOTES" --latest
+            gh release upload "$EP_TAG" "$OUT_FILE" --clobber
+          else
+            gh release create "$EP_TAG" "$OUT_FILE" \
+              --title "Episode: ${{ inputs.episode }} (4K Mobile Download)" \
+              --notes "$NOTES" \
+              --latest
+          fi
+          echo "### Mobile Direct Download" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Download ${OUT_FILE}](https://github.com/${{ github.repository }}/releases/download/${EP_TAG}/${OUT_FILE})" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload backup workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: episode-${{ inputs.episode }}-4k
+          path: ${{ env.OUT_FILE }}
+          retention-days: 14

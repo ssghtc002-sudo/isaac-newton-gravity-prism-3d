@@ -1,0 +1,568 @@
+{
+  "title": "How Stitches Work \u2014 4K Medical Macro Cinema (Wound Closure, Collagen Web & Angiogenesis)",
+  "duration": 30.0,
+  "integratedLufs": -14.021,
+  "truePeakDbfs": -1.62,
+  "lines": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "text": "When you get a deep cut, a doctor weaves a curved surgical needle through both edges of your skin\u2014",
+      "start": 0.15,
+      "end": 4.6963,
+      "words": [
+        {
+          "word": "When",
+          "start": 0.15,
+          "end": 0.3707
+        },
+        {
+          "word": "you",
+          "start": 0.3707,
+          "end": 0.5362
+        },
+        {
+          "word": "get",
+          "start": 0.5362,
+          "end": 0.7017
+        },
+        {
+          "word": "a",
+          "start": 0.7017,
+          "end": 0.801
+        },
+        {
+          "word": "deep",
+          "start": 0.801,
+          "end": 1.0217
+        },
+        {
+          "word": "cut,",
+          "start": 1.0217,
+          "end": 1.2424
+        },
+        {
+          "word": "a",
+          "start": 1.2424,
+          "end": 1.3417
+        },
+        {
+          "word": "doctor",
+          "start": 1.3417,
+          "end": 1.6728
+        },
+        {
+          "word": "weaves",
+          "start": 1.6728,
+          "end": 2.0038
+        },
+        {
+          "word": "a",
+          "start": 2.0038,
+          "end": 2.1031
+        },
+        {
+          "word": "curved",
+          "start": 2.1031,
+          "end": 2.4342
+        },
+        {
+          "word": "surgical",
+          "start": 2.4342,
+          "end": 2.8755
+        },
+        {
+          "word": "needle",
+          "start": 2.8755,
+          "end": 3.2066
+        },
+        {
+          "word": "through",
+          "start": 3.2066,
+          "end": 3.5928
+        },
+        {
+          "word": "both",
+          "start": 3.5928,
+          "end": 3.8135
+        },
+        {
+          "word": "edges",
+          "start": 3.8135,
+          "end": 4.0893
+        },
+        {
+          "word": "of",
+          "start": 4.0893,
+          "end": 4.1997
+        },
+        {
+          "word": "your",
+          "start": 4.1997,
+          "end": 4.4204
+        },
+        {
+          "word": "skin\u2014",
+          "start": 4.4204,
+          "end": 4.6963
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "narrator",
+      "text": "pulling the thread tight like a zipper to lock the wound shut, then snipping the ends clean.",
+      "start": 5.25,
+      "end": 9.4037,
+      "words": [
+        {
+          "word": "pulling",
+          "start": 5.25,
+          "end": 5.6261
+        },
+        {
+          "word": "the",
+          "start": 5.6261,
+          "end": 5.7874
+        },
+        {
+          "word": "thread",
+          "start": 5.7874,
+          "end": 6.1098
+        },
+        {
+          "word": "tight",
+          "start": 6.1098,
+          "end": 6.3784
+        },
+        {
+          "word": "like",
+          "start": 6.3784,
+          "end": 6.5934
+        },
+        {
+          "word": "a",
+          "start": 6.5934,
+          "end": 6.6901
+        },
+        {
+          "word": "zipper",
+          "start": 6.6901,
+          "end": 7.0125
+        },
+        {
+          "word": "to",
+          "start": 7.0125,
+          "end": 7.12
+        },
+        {
+          "word": "lock",
+          "start": 7.12,
+          "end": 7.3349
+        },
+        {
+          "word": "the",
+          "start": 7.3349,
+          "end": 7.4961
+        },
+        {
+          "word": "wound",
+          "start": 7.4961,
+          "end": 7.7648
+        },
+        {
+          "word": "shut,",
+          "start": 7.7648,
+          "end": 8.0335
+        },
+        {
+          "word": "then",
+          "start": 8.0335,
+          "end": 8.2484
+        },
+        {
+          "word": "snipping",
+          "start": 8.2484,
+          "end": 8.6783
+        },
+        {
+          "word": "the",
+          "start": 8.6783,
+          "end": 8.8395
+        },
+        {
+          "word": "ends",
+          "start": 8.8395,
+          "end": 9.0545
+        },
+        {
+          "word": "clean.",
+          "start": 9.0545,
+          "end": 9.4037
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "text": "Inside, the skin turns red and inflamed as millions of repair cells rush in to rebuild the damage.",
+      "start": 10.25,
+      "end": 14.8681,
+      "words": [
+        {
+          "word": "Inside,",
+          "start": 10.25,
+          "end": 10.6466
+        },
+        {
+          "word": "the",
+          "start": 10.6466,
+          "end": 10.8166
+        },
+        {
+          "word": "skin",
+          "start": 10.8166,
+          "end": 11.0433
+        },
+        {
+          "word": "turns",
+          "start": 11.0433,
+          "end": 11.3266
+        },
+        {
+          "word": "red",
+          "start": 11.3266,
+          "end": 11.4966
+        },
+        {
+          "word": "and",
+          "start": 11.4966,
+          "end": 11.6666
+        },
+        {
+          "word": "inflamed",
+          "start": 11.6666,
+          "end": 12.1199
+        },
+        {
+          "word": "as",
+          "start": 12.1199,
+          "end": 12.2332
+        },
+        {
+          "word": "millions",
+          "start": 12.2332,
+          "end": 12.6865
+        },
+        {
+          "word": "of",
+          "start": 12.6865,
+          "end": 12.7999
+        },
+        {
+          "word": "repair",
+          "start": 12.7999,
+          "end": 13.1398
+        },
+        {
+          "word": "cells",
+          "start": 13.1398,
+          "end": 13.4231
+        },
+        {
+          "word": "rush",
+          "start": 13.4231,
+          "end": 13.6498
+        },
+        {
+          "word": "in",
+          "start": 13.6498,
+          "end": 13.7631
+        },
+        {
+          "word": "to",
+          "start": 13.7631,
+          "end": 13.8765
+        },
+        {
+          "word": "rebuild",
+          "start": 13.8765,
+          "end": 14.2731
+        },
+        {
+          "word": "the",
+          "start": 14.2731,
+          "end": 14.4431
+        },
+        {
+          "word": "damage.",
+          "start": 14.4431,
+          "end": 14.8681
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "text": "Next, golden collagen fibers weave across the gap like living scaffolding, spinning brand new skin!",
+      "start": 15.3,
+      "end": 19.8741,
+      "words": [
+        {
+          "word": "Next,",
+          "start": 15.3,
+          "end": 15.5675
+        },
+        {
+          "word": "golden",
+          "start": 15.5675,
+          "end": 15.8885
+        },
+        {
+          "word": "collagen",
+          "start": 15.8885,
+          "end": 16.3165
+        },
+        {
+          "word": "fibers",
+          "start": 16.3165,
+          "end": 16.6375
+        },
+        {
+          "word": "weave",
+          "start": 16.6375,
+          "end": 16.905
+        },
+        {
+          "word": "across",
+          "start": 16.905,
+          "end": 17.226
+        },
+        {
+          "word": "the",
+          "start": 17.226,
+          "end": 17.3865
+        },
+        {
+          "word": "gap",
+          "start": 17.3865,
+          "end": 17.5469
+        },
+        {
+          "word": "like",
+          "start": 17.5469,
+          "end": 17.7609
+        },
+        {
+          "word": "living",
+          "start": 17.7609,
+          "end": 18.0819
+        },
+        {
+          "word": "scaffolding,",
+          "start": 18.0819,
+          "end": 18.7239
+        },
+        {
+          "word": "spinning",
+          "start": 18.7239,
+          "end": 19.1519
+        },
+        {
+          "word": "brand",
+          "start": 19.1519,
+          "end": 19.4194
+        },
+        {
+          "word": "new",
+          "start": 19.4194,
+          "end": 19.5799
+        },
+        {
+          "word": "skin!",
+          "start": 19.5799,
+          "end": 19.8741
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "text": "Tiny new blood vessels branch through the seam, pumping oxygen to nourish the fresh tissue\u2014",
+      "start": 20.45,
+      "end": 24.8268,
+      "words": [
+        {
+          "word": "Tiny",
+          "start": 20.45,
+          "end": 20.6774
+        },
+        {
+          "word": "new",
+          "start": 20.6774,
+          "end": 20.8479
+        },
+        {
+          "word": "blood",
+          "start": 20.8479,
+          "end": 21.1321
+        },
+        {
+          "word": "vessels",
+          "start": 21.1321,
+          "end": 21.53
+        },
+        {
+          "word": "branch",
+          "start": 21.53,
+          "end": 21.871
+        },
+        {
+          "word": "through",
+          "start": 21.871,
+          "end": 22.2689
+        },
+        {
+          "word": "the",
+          "start": 22.2689,
+          "end": 22.4394
+        },
+        {
+          "word": "seam,",
+          "start": 22.4394,
+          "end": 22.7236
+        },
+        {
+          "word": "pumping",
+          "start": 22.7236,
+          "end": 23.1215
+        },
+        {
+          "word": "oxygen",
+          "start": 23.1215,
+          "end": 23.4626
+        },
+        {
+          "word": "to",
+          "start": 23.4626,
+          "end": 23.5763
+        },
+        {
+          "word": "nourish",
+          "start": 23.5763,
+          "end": 23.9741
+        },
+        {
+          "word": "the",
+          "start": 23.9741,
+          "end": 24.1447
+        },
+        {
+          "word": "fresh",
+          "start": 24.1447,
+          "end": 24.4289
+        },
+        {
+          "word": "tissue\u2014",
+          "start": 24.4289,
+          "end": 24.8268
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "text": "and a few weeks later, the stitches slide right out\u2014leaving your skin healed back together!",
+      "start": 25.3,
+      "end": 29.4192,
+      "words": [
+        {
+          "word": "and",
+          "start": 25.3,
+          "end": 25.4578
+        },
+        {
+          "word": "a",
+          "start": 25.4578,
+          "end": 25.5525
+        },
+        {
+          "word": "few",
+          "start": 25.5525,
+          "end": 25.7103
+        },
+        {
+          "word": "weeks",
+          "start": 25.7103,
+          "end": 25.9734
+        },
+        {
+          "word": "later,",
+          "start": 25.9734,
+          "end": 26.289
+        },
+        {
+          "word": "the",
+          "start": 26.289,
+          "end": 26.4468
+        },
+        {
+          "word": "stitches",
+          "start": 26.4468,
+          "end": 26.8677
+        },
+        {
+          "word": "slide",
+          "start": 26.8677,
+          "end": 27.1307
+        },
+        {
+          "word": "right",
+          "start": 27.1307,
+          "end": 27.3938
+        },
+        {
+          "word": "out\u2014",
+          "start": 27.3938,
+          "end": 27.6042
+        },
+        {
+          "word": "leaving",
+          "start": 27.6042,
+          "end": 27.9725
+        },
+        {
+          "word": "your",
+          "start": 27.9725,
+          "end": 28.1829
+        },
+        {
+          "word": "skin",
+          "start": 28.1829,
+          "end": 28.3933
+        },
+        {
+          "word": "healed",
+          "start": 28.3933,
+          "end": 28.709
+        },
+        {
+          "word": "back",
+          "start": 28.709,
+          "end": 28.9194
+        },
+        {
+          "word": "together!",
+          "start": 28.9194,
+          "end": 29.4192
+        }
+      ]
+    }
+  ]
+}
