@@ -174,15 +174,16 @@ def render_chunk(
 @app.function(
     image=newton_image,
     cpu=8.0,
-    memory=8192,
+    memory=16384,
     timeout=2400,
 )
 def build_full_hd_short(
     workers: int = 10,
     samples: int = 12,
-    scale: int = 75,
+    scale: int = 100,
+    upscale_4k: bool = True,
 ) -> tuple[bytes, str]:
-    """Coordinates parallel GPU chunks inside Modal's cloud & encodes Full HD 1080x1920 MP4."""
+    """Coordinates parallel GPU chunks inside Modal's cloud & encodes Full HD -> 4K (2160x3840) MP4."""
     import os
     import shutil
     import subprocess
@@ -198,7 +199,12 @@ def build_full_hd_short(
         if s <= e:
             chunks.append((s, e, samples, scale))
 
-    print(f"[Modal Cloud Coordinator] Launching {len(chunks)} parallel GPU containers for {TOTAL_FRAMES} frames...")
+    out_label = "4K (2160x3840)" if upscale_4k else "Full HD (1080x1920)"
+    print(
+        f"[Modal Cloud Coordinator] Launching {len(chunks)} parallel GPU containers for {TOTAL_FRAMES} frames "
+        f"(render scale={scale}% -> {out_label})...",
+        flush=True,
+    )
     frames_dir = Path("/tmp/all_render_frames")
     shutil.rmtree(frames_dir, ignore_errors=True)
     frames_dir.mkdir(parents=True, exist_ok=True)
@@ -212,8 +218,9 @@ def build_full_hd_short(
         raise RuntimeError(f"Expected {TOTAL_FRAMES} frames, got {rendered_count}")
 
     print(
-        f"[Modal Cloud Coordinator] All {rendered_count}/{TOTAL_FRAMES} frames rendered in "
-        f"{(time.time() - t0) / 60:.2f} min! Running Full HD 1080x1920 ARRI-Alexa FFmpeg encode..."
+        f"[Modal Cloud Coordinator] All {rendered_count}/{TOTAL_FRAMES} native Full HD frames rendered in "
+        f"{(time.time() - t0) / 60:.2f} min! Running {out_label} ARRI-Alexa FFmpeg encode...",
+        flush=True,
     )
 
     repo_dir = "/opt/newton_repo"
@@ -225,16 +232,30 @@ def build_full_hd_short(
     )
     os.chdir(repo_dir)
 
-    final_mp4 = Path("/tmp/isaac_newton_gravity_prism_short.mp4")
-    vf_graph = (
-        "[0:v]scale=1080:1920:flags=lanczos,"
-        "unsharp=3:3:0.35:3:3:0.0,format=gbrp,split[base][hi];"
-        "[hi]eq=brightness=-0.42:contrast=2.4,gblur=sigma=16,format=gbrp[glow];"
-        "[base][glow]blend=all_mode=screen:all_opacity=0.28,"
-        "colorbalance=rs=-0.012:bs=0.020:rh=0.022:bh=-0.016,"
-        "vignette=PI/6.5:eval=init,format=yuv420p,noise=alls=3:allf=t,"
-        "ass=subtitles/subtitles.ass:fontsdir=subtitles/fonts[vout]"
-    )
+    final_mp4 = Path("/tmp/isaac_newton_gravity_prism_short_4k.mp4")
+    if upscale_4k:
+        vf_graph = (
+            "[0:v]scale=2160:3840:flags=lanczos,"
+            "unsharp=5:5:0.45:5:5:0.0,format=gbrp,split[base][hi];"
+            "[hi]eq=brightness=-0.42:contrast=2.4,gblur=sigma=28,format=gbrp[glow];"
+            "[base][glow]blend=all_mode=screen:all_opacity=0.26,"
+            "colorbalance=rs=-0.012:bs=0.020:rh=0.022:bh=-0.016,"
+            "vignette=PI/6.5:eval=init,format=yuv420p,noise=alls=2:allf=t,"
+            "ass=subtitles/subtitles.ass:fontsdir=subtitles/fonts[vout]"
+        )
+        level_args = ["-level:v", "5.1"]
+    else:
+        vf_graph = (
+            "[0:v]scale=1080:1920:flags=lanczos,"
+            "unsharp=3:3:0.35:3:3:0.0,format=gbrp,split[base][hi];"
+            "[hi]eq=brightness=-0.42:contrast=2.4,gblur=sigma=16,format=gbrp[glow];"
+            "[base][glow]blend=all_mode=screen:all_opacity=0.28,"
+            "colorbalance=rs=-0.012:bs=0.020:rh=0.022:bh=-0.016,"
+            "vignette=PI/6.5:eval=init,format=yuv420p,noise=alls=3:allf=t,"
+            "ass=subtitles/subtitles.ass:fontsdir=subtitles/fonts[vout]"
+        )
+        level_args = []
+
     subprocess.run(
         [
             "ffmpeg",
@@ -257,6 +278,7 @@ def build_full_hd_short(
             "medium",
             "-profile:v",
             "high",
+            *level_args,
             "-crf",
             "15",
             "-pix_fmt",
@@ -297,19 +319,23 @@ def build_full_hd_short(
 def main(
     workers: int = 10,
     samples: int = 12,
-    scale: int = 75,
-    out: str = "isaac_newton_gravity_prism_short.mp4",
+    scale: int = 100,
+    upscale_4k: bool = True,
+    out: str = "isaac_newton_gravity_prism_short_4k.mp4",
 ):
     import time
 
     t0 = time.time()
+    out_label = "4K 2160x3840" if upscale_4k else "Full HD 1080x1920"
     print(
-        f"Starting Modal Parallel Cloud Render ({workers} GPUs, {TOTAL_FRAMES} frames -> Full HD 1080x1920)..."
+        f"Starting Modal Parallel Cloud Render ({workers} GPUs, {TOTAL_FRAMES} frames @ {scale}% Full HD -> {out_label})..."
     )
-    mp4_bytes, probe = build_full_hd_short.remote(workers=workers, samples=samples, scale=scale)
+    mp4_bytes, probe = build_full_hd_short.remote(
+        workers=workers, samples=samples, scale=scale, upscale_4k=upscale_4k
+    )
     out_path = Path(out).resolve()
     out_path.write_bytes(mp4_bytes)
-    print("\n=== MODAL FULL HD (1080x1920) RENDER COMPLETE! ===")
+    print(f"\n=== MODAL {out_label} RENDER COMPLETE! ===")
     print(probe)
     print(
         f"Saved MP4 -> {out_path} ({len(mp4_bytes) / 1e6:.2f} MB) in {(time.time() - t0) / 60:.2f} min!"
