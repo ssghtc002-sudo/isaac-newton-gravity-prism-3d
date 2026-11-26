@@ -237,8 +237,8 @@ def build_full_hd_short(
         vf_graph = (
             "[0:v]scale=2160:3840:flags=lanczos,"
             "unsharp=5:5:0.45:5:5:0.0,format=gbrp,split[base][hi];"
-            "[hi]eq=brightness=-0.42:contrast=2.4,gblur=sigma=28,format=gbrp[glow];"
-            "[base][glow]blend=all_mode=screen:all_opacity=0.26,"
+            "[hi]eq=brightness=-0.52:contrast=2.8,gblur=sigma=22,format=gbrp[glow];"
+            "[base][glow]blend=all_mode=screen:all_opacity=0.20,"
             "colorbalance=rs=-0.012:bs=0.020:rh=0.022:bh=-0.016,"
             "vignette=PI/6.5:eval=init,format=yuv420p,noise=alls=2:allf=t,"
             "ass=subtitles/subtitles.ass:fontsdir=subtitles/fonts[vout]"
@@ -248,8 +248,8 @@ def build_full_hd_short(
         vf_graph = (
             "[0:v]scale=1080:1920:flags=lanczos,"
             "unsharp=3:3:0.35:3:3:0.0,format=gbrp,split[base][hi];"
-            "[hi]eq=brightness=-0.42:contrast=2.4,gblur=sigma=16,format=gbrp[glow];"
-            "[base][glow]blend=all_mode=screen:all_opacity=0.28,"
+            "[hi]eq=brightness=-0.52:contrast=2.8,gblur=sigma=12,format=gbrp[glow];"
+            "[base][glow]blend=all_mode=screen:all_opacity=0.22,"
             "colorbalance=rs=-0.012:bs=0.020:rh=0.022:bh=-0.016,"
             "vignette=PI/6.5:eval=init,format=yuv420p,noise=alls=3:allf=t,"
             "ass=subtitles/subtitles.ass:fontsdir=subtitles/fonts[vout]"

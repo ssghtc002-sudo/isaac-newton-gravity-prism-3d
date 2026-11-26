@@ -195,11 +195,20 @@ def _optimize_enhanced_skin_for_t4(basemesh):
         _tune_skin_group_roughness(mat.node_tree)
 
 
-def _tune_procedural_eyes(eye_obj, major_rgb=(0.14, 0.36, 0.20), minor_rgb=(0.06, 0.16, 0.10)):
-    """Dial vivid realistic iris colors & crisp wet-cornea catchlights directly on MPFB2's official
-    EnhancedEye refractive cornea node (Clearcoat=0.95, PupilSize=0.27, IOR=1.376)!"""
+def _tune_procedural_eyes(eye_obj, major_rgb=(0.26, 0.48, 0.68), minor_rgb=(0.12, 0.24, 0.38)):
+    """Fix Cycles double-shell refractive cornea shadow-blocking + dial bright ivory sclera, vivid
+    iris colors & crisp wet-cornea catchlights on MPFB2's EnhancedEye with ZERO Cycles slowdown!"""
     if eye_obj is None:
         return
+    # Eyeball sits inside an opaque skull; disabling shadow casting prevents the outer cornea shell
+    # from blocking direct Sun/Key/Fill/Catchlight shadow rays to the inner sclera & iris!
+    try:
+        eye_obj.visible_shadow = False
+    except Exception:
+        pass
+
+    limbal_rgb = (minor_rgb[0] * 0.42, minor_rgb[1] * 0.42, minor_rgb[2] * 0.42)
+
     for slot in eye_obj.material_slots:
         mat = slot.material
         if not mat or not mat.use_nodes or not mat.node_tree:
@@ -208,27 +217,109 @@ def _tune_procedural_eyes(eye_obj, major_rgb=(0.14, 0.36, 0.20), minor_rgb=(0.06
             mat = mat.copy()
             slot.material = mat
         for node in mat.node_tree.nodes:
-            if node.type == "GROUP" and "EnhancedEye" in (node.name + " " + node.label):
-                if node.node_tree and node.node_tree.users > 1:
-                    node.node_tree = node.node_tree.copy()
-                if "IrisMajorColor" in node.inputs:
-                    node.inputs["IrisMajorColor"].default_value = (*major_rgb, 1.0)
-                if "IrisMinorColor" in node.inputs:
-                    node.inputs["IrisMinorColor"].default_value = (*minor_rgb, 1.0)
-                if "PupilSize" in node.inputs:
-                    node.inputs["PupilSize"].default_value = 0.27
-                if "Clearcoat" in node.inputs:
-                    node.inputs["Clearcoat"].default_value = 0.95
-                if "Clearcoat Roughness" in node.inputs:
-                    node.inputs["Clearcoat Roughness"].default_value = 0.02
-                if "OuterLayerRoughness" in node.inputs:
-                    node.inputs["OuterLayerRoughness"].default_value = 0.0
-                if "OuterLayerIOR" in node.inputs:
-                    node.inputs["OuterLayerIOR"].default_value = 1.376
-                if "InnerLayerRoughness" in node.inputs:
-                    node.inputs["InnerLayerRoughness"].default_value = 0.04
-                if "IrisBumpStrength" in node.inputs:
-                    node.inputs["IrisBumpStrength"].default_value = 0.36
+            if node.type != "GROUP" or "EnhancedEye" not in (node.name + " " + node.label):
+                continue
+
+            # Unconditionally copy EnhancedEye node_tree so building Halley never overwrites Newton!
+            if node.node_tree is not None:
+                grp_nt = node.node_tree.copy()
+                grp_nt.name = f"{eye_obj.name}_EnhancedEye"
+                node.node_tree = grp_nt
+            else:
+                continue
+
+            if "EyeWhiteColor" in node.inputs:
+                node.inputs["EyeWhiteColor"].default_value = (0.95, 0.92, 0.89, 1.0)
+            if "IrisMajorColor" in node.inputs:
+                node.inputs["IrisMajorColor"].default_value = (*major_rgb, 1.0)
+            if "IrisMinorColor" in node.inputs:
+                node.inputs["IrisMinorColor"].default_value = (*minor_rgb, 1.0)
+            if "IrisSection4Color" in node.inputs:
+                node.inputs["IrisSection4Color"].default_value = (*limbal_rgb, 1.0)
+            if "IrisToEyeWhiteRelation" in node.inputs:
+                node.inputs["IrisToEyeWhiteRelation"].default_value = 0.36
+            if "PupilSize" in node.inputs:
+                node.inputs["PupilSize"].default_value = 0.24
+            if "InnerLayerRoughness" in node.inputs:
+                node.inputs["InnerLayerRoughness"].default_value = 0.22
+            if "Clearcoat" in node.inputs:
+                node.inputs["Clearcoat"].default_value = 0.15
+            if "Clearcoat Roughness" in node.inputs:
+                node.inputs["Clearcoat Roughness"].default_value = 0.06
+            if "IrisBumpStrength" in node.inputs:
+                node.inputs["IrisBumpStrength"].default_value = 0.28
+            if "OuterLayerTransmission" in node.inputs:
+                node.inputs["OuterLayerTransmission"].default_value = 0.0
+            if "OuterLayerRoughness" in node.inputs:
+                node.inputs["OuterLayerRoughness"].default_value = 0.014
+            if "OuterLayerIOR" in node.inputs:
+                node.inputs["OuterLayerIOR"].default_value = 1.376
+
+            # Patch internal EnhancedEye tree:
+            # 1) Inner shell (IsInRange == 1): satin sclera/iris with subtle shadow floor (pupil stays 0.0 black)
+            # 2) Outer shell (IsInRange == 0): pure Transparent BSDF for shadow/diffuse/backfacing rays +
+            #    crisp front-facing Camera-ray Fresnel Glossy wet cornea catchlights (zero TIR blackout!)
+            eye_info = grp_nt.nodes.get("EyeCoordinateInfo")
+            inner_bsdf = grp_nt.nodes.get("Principled BSDF")
+            grp_out = grp_nt.nodes.get("Group Output")
+            color_sw = grp_nt.nodes.get("InnerOuterLayerColorSwitch")
+            if eye_info is None or inner_bsdf is None or grp_out is None:
+                continue
+
+            if "Specular IOR Level" in inner_bsdf.inputs and not inner_bsdf.inputs["Specular IOR Level"].is_linked:
+                inner_bsdf.inputs["Specular IOR Level"].default_value = 0.25
+            if color_sw is not None and "Emission Color" in inner_bsdf.inputs and "Emission Strength" in inner_bsdf.inputs:
+                grp_nt.links.new(color_sw.outputs["Color"], inner_bsdf.inputs["Emission Color"])
+                inner_bsdf.inputs["Emission Strength"].default_value = 0.025
+
+            tr_bsdf = grp_nt.nodes.new("ShaderNodeBsdfTransparent")
+            tr_bsdf.inputs["Color"].default_value = (1.0, 1.0, 1.0, 1.0)
+
+            gl_bsdf = grp_nt.nodes.new("ShaderNodeBsdfGlossy")
+            gl_bsdf.inputs["Color"].default_value = (1.0, 1.0, 1.0, 1.0)
+            gl_bsdf.inputs["Roughness"].default_value = 0.014
+
+            lw = grp_nt.nodes.new("ShaderNodeLayerWeight")
+            lw.inputs["Blend"].default_value = 0.34
+
+            lp = grp_nt.nodes.new("ShaderNodeLightPath")
+            geom = grp_nt.nodes.new("ShaderNodeNewGeometry")
+
+            front_inv = grp_nt.nodes.new("ShaderNodeMath")
+            front_inv.operation = "SUBTRACT"
+            front_inv.inputs[0].default_value = 1.0
+            front_inv.use_clamp = True
+
+            cam_front = grp_nt.nodes.new("ShaderNodeMath")
+            cam_front.operation = "MULTIPLY"
+            cam_front.use_clamp = True
+
+            cornea_fac = grp_nt.nodes.new("ShaderNodeMath")
+            cornea_fac.operation = "MULTIPLY"
+            cornea_fac.use_clamp = True
+
+            outer_mix = grp_nt.nodes.new("ShaderNodeMixShader")
+            layer_mix = grp_nt.nodes.new("ShaderNodeMixShader")
+
+            grp_nt.links.new(geom.outputs["Backfacing"], front_inv.inputs[1])
+            grp_nt.links.new(lp.outputs["Is Camera Ray"], cam_front.inputs[0])
+            grp_nt.links.new(front_inv.outputs["Value"], cam_front.inputs[1])
+            grp_nt.links.new(lw.outputs["Fresnel"], cornea_fac.inputs[0])
+            grp_nt.links.new(cam_front.outputs["Value"], cornea_fac.inputs[1])
+
+            grp_nt.links.new(cornea_fac.outputs["Value"], outer_mix.inputs["Fac"])
+            grp_nt.links.new(tr_bsdf.outputs["BSDF"], outer_mix.inputs[1])
+            grp_nt.links.new(gl_bsdf.outputs["BSDF"], outer_mix.inputs[2])
+
+            grp_nt.links.new(eye_info.outputs["IsInRange"], layer_mix.inputs["Fac"])
+            grp_nt.links.new(outer_mix.outputs["Shader"], layer_mix.inputs[1])
+            grp_nt.links.new(inner_bsdf.outputs["BSDF"], layer_mix.inputs[2])
+
+            bsdf_out_in = grp_out.inputs.get("BSDF")
+            if bsdf_out_in is not None:
+                for lk in list(bsdf_out_in.links):
+                    grp_nt.links.remove(lk)
+                grp_nt.links.new(layer_mix.outputs["Shader"], bsdf_out_in)
 
 
 def _add_woven_fabric_bump(nt, bsdf, scale: float = 340.0, strength: float = 0.070):
@@ -461,8 +552,8 @@ def apply_facial_acting(
     - Asymmetric natural human eye blinks (0.015s L/R lag + upper-eyelid gaze follow-through on
       `orbicularis03.L/R` + subtle Duchenne lower-lid squint on `orbicularis04.L/R`).
     - Living brow micro-drift & glabella furrow (`oculi01.L/R`) + Duchenne cheek lift (`levator05.L/R`)!"""
-    # 1. Kokoro jaw opening (clamped safely so mandible never over-rotates)
-    jaw_deg = max(0.0, min(26.0, float(jaw_open_deg)))
+    # 1. Kokoro jaw opening (clamped safely to natural conversational range so mouth never gapes)
+    jaw_deg = max(0.0, min(14.0, float(jaw_open_deg)))
     set_bone_char_rot(rig, "jaw", jaw_deg, 0.0, 0.0, frame=frame)
 
     # 2. Eyeball gaze + organic stepped micro-saccades (~1.7s fixations, smooth 0.12s shifts)
@@ -486,20 +577,21 @@ def apply_facial_acting(
     set_bone_char_rot(rig, "eye.L", final_eye_pitch, 0.0, eye_yaw_l, frame=frame)
     set_bone_char_rot(rig, "eye.R", final_eye_pitch, 0.0, eye_yaw_r, frame=frame)
 
-    # 3. Asymmetric natural blink (0.015s L/R organic lag) + upper-eyelid gaze & smile follow-through
+    # 3. Asymmetric natural blink (0.015s L/R organic lag) + alert open baseline (-5.0 deg counters age hooding)
     blink_l = _blink_envelope(t, blink_period, blink_phase)
     blink_r = _blink_envelope(t - 0.015, blink_period, blink_phase)
-    gaze_lid = max(-4.0, min(6.0, final_eye_pitch * 0.28))
+    gaze_lid = max(-5.0, min(2.5, final_eye_pitch * 0.22))
     smile_pos = max(0.0, float(smile))
-    lid_l = min(30.0, blink_l * 28.5 + (1.0 - blink_l) * (gaze_lid + smile_pos * 1.4))
-    lid_r = min(30.0, blink_r * 28.5 + (1.0 - blink_r) * (gaze_lid + smile_pos * 1.4))
+    open_lid = -5.0 + gaze_lid
+    lid_l = min(30.0, blink_l * 28.5 + (1.0 - blink_l) * open_lid)
+    lid_r = min(30.0, blink_r * 28.5 + (1.0 - blink_r) * open_lid)
     set_bone_char_rot(rig, "orbicularis03.L", lid_l, 0.0, 0.0, frame=frame)
     set_bone_char_rot(rig, "orbicularis03.R", lid_r, 0.0, 0.0, frame=frame)
-    # Subtle lower-eyelid warm Duchenne lift on smiles
+    # Gentle lower-eyelid warm Duchenne lift on smiles (never crowds iris!)
     if "orbicularis04.L" in rig.pose.bones:
-        set_bone_char_loc(rig, "orbicularis04.L", 0.0, 0.0, smile_pos * 0.0014, frame=frame)
+        set_bone_char_loc(rig, "orbicularis04.L", 0.0, 0.0, smile_pos * 0.0005, frame=frame)
     if "orbicularis04.R" in rig.pose.bones:
-        set_bone_char_loc(rig, "orbicularis04.R", 0.0, 0.0, smile_pos * 0.0014, frame=frame)
+        set_bone_char_loc(rig, "orbicularis04.R", 0.0, 0.0, smile_pos * 0.0005, frame=frame)
 
     # 4. Expressive brow micro-life, subtle human asymmetry & inward glabella furrow
     brow_micro = math.sin(t * 1.15 + blink_phase) * 0.00065
@@ -509,26 +601,27 @@ def apply_facial_acting(
     set_bone_char_loc(rig, "oculi01.L", furrow_dx, 0.0, dz_brow_l, frame=frame)
     set_bone_char_loc(rig, "oculi01.R", -furrow_dx, 0.0, dz_brow_r, frame=frame)
 
-    # 5. Dual-axis Kokoro vowel lip-sync (`lip_narrow` 0..1) + smile corner pull & lip pucker protrusion
+    # 5. Dual-axis vowel lip-sync (`lip_narrow` 0..1) + attenuated smile stretch during open jaw
     narrow = max(0.0, min(1.0, float(lip_narrow)))
-    dz_sm = float(smile) * 0.0055
-    dx_sm = abs(float(smile)) * 0.0030
+    jaw_calm = max(0.35, 1.0 - jaw_deg / 12.0)
+    dz_sm = float(smile) * 0.0046 * jaw_calm
+    dx_sm = abs(float(smile)) * 0.0022 * jaw_calm
     narrow_in = narrow * 0.0022
     narrow_fwd = -narrow * 0.0014
-    set_bone_char_loc(rig, "risorius03.L", dx_sm - narrow_in, 0.0020 * float(smile) + narrow_fwd, dz_sm, frame=frame)
-    set_bone_char_loc(rig, "risorius03.R", -dx_sm + narrow_in, 0.0020 * float(smile) + narrow_fwd, dz_sm, frame=frame)
+    set_bone_char_loc(rig, "risorius03.L", dx_sm - narrow_in, 0.0020 * float(smile) * jaw_calm + narrow_fwd, dz_sm, frame=frame)
+    set_bone_char_loc(rig, "risorius03.R", -dx_sm + narrow_in, 0.0020 * float(smile) * jaw_calm + narrow_fwd, dz_sm, frame=frame)
 
     # Subtle forward lip rounding (-Y is forward in MPFB2!) for 'oo'/'oh' vowels
     if "oris02" in rig.pose.bones:
-        set_bone_char_loc(rig, "oris02", 0.0, -narrow * 0.0022, -narrow * 0.0005, frame=frame)
+        set_bone_char_loc(rig, "oris02", 0.0, -narrow * 0.0020, -narrow * 0.0004, frame=frame)
     if "oris06" in rig.pose.bones:
-        set_bone_char_loc(rig, "oris06", 0.0, -narrow * 0.0024, narrow * 0.0006, frame=frame)
+        set_bone_char_loc(rig, "oris06", 0.0, -narrow * 0.0022, narrow * 0.0005, frame=frame)
 
-    # Subtle Duchenne cheek lift on smiles (`levator05.L/R`)
+    # Gentle Duchenne cheek lift on smiles (keeps eye aperture relaxed and open!)
     if "levator05.L" in rig.pose.bones:
-        set_bone_char_loc(rig, "levator05.L", smile_pos * 0.0012, -smile_pos * 0.0014, smile_pos * 0.0038, frame=frame)
+        set_bone_char_loc(rig, "levator05.L", smile_pos * 0.0010, -smile_pos * 0.0012, smile_pos * 0.0020, frame=frame)
     if "levator05.R" in rig.pose.bones:
-        set_bone_char_loc(rig, "levator05.R", -smile_pos * 0.0012, -smile_pos * 0.0014, smile_pos * 0.0038, frame=frame)
+        set_bone_char_loc(rig, "levator05.R", -smile_pos * 0.0010, -smile_pos * 0.0012, smile_pos * 0.0020, frame=frame)
 
 
 def apply_arm_with_clavicle(
@@ -826,9 +919,14 @@ def create_realistic_scientist(
     if "Eyes" in equipped:
         _tune_procedural_eyes(
             equipped["Eyes"],
-            cfg.get("iris_major_rgb", (0.14, 0.36, 0.24)),
-            cfg.get("iris_minor_rgb", (0.06, 0.16, 0.12)),
+            cfg.get("iris_major_rgb", (0.26, 0.48, 0.68)),
+            cfg.get("iris_minor_rgb", (0.12, 0.24, 0.38)),
         )
+    if "Eyelashes" in equipped and equipped["Eyelashes"] is not None:
+        try:
+            equipped["Eyelashes"].visible_shadow = False
+        except Exception:
+            pass
 
     # Match eyebrow color cleanly to hair color!
     is_silver = bool(cfg.get("silver_hair", False))

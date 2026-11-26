@@ -3620,30 +3620,35 @@ def _build_outdoor_lighting_rig(scene):
         size=1.95,
     )
 
-    # 4. Restrained Outdoor Meadow Bounce Fill (40% lower energy -> dramatic chiaroscuro depth, ZERO flat wash!)
-    fill_loc = (0.85, -2.50, 1.65)
+    # 4. Outdoor Meadow Bounce Fill (eye-socket lift while keeping Rembrandt chiaroscuro depth!)
+    fill_loc = (0.85, -2.50, 1.48)
     fill_obj = _add_light_obj(
         scene,
         "WoolsthorpeMeadowBounce",
         "AREA",
         loc=fill_loc,
         rot=_aim_euler(fill_loc, stage_focus),
-        energy=40.0,
-        color=(0.90, 0.84, 0.74),
+        energy=56.0,
+        color=(0.92, 0.86, 0.76),
         size=2.40,
     )
 
-    # 5. Wet-Cornea Eye Catchlight & Brass / Prism Specular Sparkle Accent
+    # 5. Cinema Wet-Cornea Eye Catchlight (0.42m softbox -> crisp OIDN-surviving corneal sparkle!)
+    catch_loc = (0.18, -1.35, 1.72)
     catch_obj = _add_light_obj(
         scene,
         "WoolsthorpeEyeCatchlight",
-        "POINT",
-        loc=(0.0, -1.35, 1.55),
-        rot=(0.0, 0.0, 0.0),
-        energy=18.0,
-        color=(1.0, 0.95, 0.88),
-        size=0.08,
+        "AREA",
+        loc=catch_loc,
+        rot=_aim_euler(catch_loc, Vector((0.0, 0.30, 1.62))),
+        energy=52.0,
+        color=(1.0, 0.96, 0.90),
+        size=0.42,
     )
+    if hasattr(catch_obj.data, "diffuse_factor"):
+        catch_obj.data.diffuse_factor = 0.28
+    if hasattr(catch_obj.data, "specular_factor"):
+        catch_obj.data.specular_factor = 1.75
 
     return {
         "sun_light": sun_obj,
@@ -4044,15 +4049,15 @@ def animate_world_frame(world_handles: dict, frame: int, t: float) -> None:
     rim_ld.keyframe_insert(data_path="color", frame=frame)
 
     fill_ld = world_handles["fill_light"].data
-    day_fill_e = 40.0 * (1.0 - 0.48 * beat3_shade)
-    fill_ld.energy = lerp(day_fill_e, 22.0, night_fac)
-    fill_ld.color = (lerp(0.90, 0.42, night_fac), lerp(0.84, 0.58, night_fac), lerp(0.74, 0.90, night_fac))
+    day_fill_e = 56.0 * (1.0 - 0.42 * beat3_shade)
+    fill_ld.energy = lerp(day_fill_e, 34.0, night_fac)
+    fill_ld.color = (lerp(0.92, 0.46, night_fac), lerp(0.86, 0.62, night_fac), lerp(0.76, 0.92, night_fac))
     fill_ld.keyframe_insert(data_path="energy", frame=frame)
     fill_ld.keyframe_insert(data_path="color", frame=frame)
 
     catch_ld = world_handles["catch_light"].data
-    catch_ld.energy = lerp(18.0, 22.0, night_fac)
-    catch_ld.color = (lerp(1.00, 0.82, night_fac), lerp(0.95, 0.94, night_fac), lerp(0.88, 1.00, night_fac))
+    catch_ld.energy = lerp(52.0, 62.0, night_fac)
+    catch_ld.color = (lerp(1.00, 0.86, night_fac), lerp(0.96, 0.95, night_fac), lerp(0.90, 1.00, night_fac))
     catch_ld.keyframe_insert(data_path="energy", frame=frame)
     catch_ld.keyframe_insert(data_path="color", frame=frame)
 

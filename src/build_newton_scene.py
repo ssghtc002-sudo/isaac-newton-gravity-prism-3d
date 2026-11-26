@@ -315,7 +315,7 @@ scene.cycles.max_bounces = 4
 scene.cycles.transmission_bounces = 4
 scene.cycles.glossy_bounces = 2
 scene.cycles.diffuse_bounces = 1
-scene.cycles.transparent_max_bounces = 6
+scene.cycles.transparent_max_bounces = 10
 try:
     scene.cycles.texture_limit_render = "2048"
 except Exception:
@@ -482,26 +482,34 @@ def make_optical_prism_mat(name, ior=1.62, tint=(0.97, 0.995, 1.0), rough=0.003)
     set_bsdf(bsdf, "Coat Roughness", 0.008)
 
     lw = nt.nodes.new("ShaderNodeLayerWeight")
-    lw.inputs["Blend"].default_value = 0.22
+    lw.inputs["Blend"].default_value = 0.20
     pw = nt.nodes.new("ShaderNodeMath")
     pw.operation = "POWER"
-    pw.inputs[1].default_value = 2.8
+    pw.inputs[1].default_value = 3.0
     mr = nt.nodes.new("ShaderNodeMapRange")
     mr.clamp = True
-    mr.inputs["From Min"].default_value = 0.14
+    mr.inputs["From Min"].default_value = 0.16
     mr.inputs["From Max"].default_value = 1.0
     mr.inputs["To Min"].default_value = 0.0
-    mr.inputs["To Max"].default_value = 2.6
+    mr.inputs["To Max"].default_value = 1.85
     em = nt.nodes.new("ShaderNodeEmission")
-    em.inputs["Color"].default_value = (0.95, 0.99, 1.0, 1.0)
+    em.inputs["Color"].default_value = (0.92, 0.98, 1.0, 1.0)
     add_sh = nt.nodes.new("ShaderNodeAddShader")
+
+    lp = nt.nodes.new("ShaderNodeLightPath")
+    transp = nt.nodes.new("ShaderNodeBsdfTransparent")
+    transp.inputs["Color"].default_value = (0.96, 0.98, 1.0, 1.0)
+    shadow_mix = nt.nodes.new("ShaderNodeMixShader")
 
     nt.links.new(lw.outputs["Fresnel"], pw.inputs[0])
     nt.links.new(pw.outputs["Value"], mr.inputs["Value"])
     nt.links.new(mr.outputs["Result"], em.inputs["Strength"])
     nt.links.new(bsdf.outputs["BSDF"], add_sh.inputs[0])
     nt.links.new(em.outputs["Emission"], add_sh.inputs[1])
-    nt.links.new(add_sh.outputs["Shader"], out.inputs["Surface"])
+    nt.links.new(lp.outputs["Is Shadow Ray"], shadow_mix.inputs["Fac"])
+    nt.links.new(add_sh.outputs["Shader"], shadow_mix.inputs[1])
+    nt.links.new(transp.outputs["BSDF"], shadow_mix.inputs[2])
+    nt.links.new(shadow_mix.outputs["Shader"], out.inputs["Surface"])
     return mat
 
 
@@ -550,40 +558,85 @@ def make_molten_gold_arrow_mat(name="MoltenGoldGravityArrowV8"):
     return mat
 
 
-def make_crisp_formula_mat(name, glow_rgb, strength=5.5, rim_rgb=(0.024, 0.014, 0.006)):
-    """High-contrast daylight-proof 3D formula shader: radiant emissive face + dark obsidian-metallic beveled rim!"""
+def make_crisp_formula_mat(
+    name,
+    glow_rgb,
+    strength=1.60,
+    rim_rgb=(0.018, 0.011, 0.004),
+    face_base_rgb=None,
+    face_metallic=0.65,
+    face_roughness=0.20,
+    side_emission=0.0,
+):
+    """Blender 4.2 AgX + 4K-bloom-calibrated 2-zone 3D cinema typography shader:
+    splits flat front face (|N_obj.z| > 0.88) from dark metallic 3D extrusion walls (|N_obj.z| < 0.72)."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     mix = nt.nodes.new("ShaderNodeMixShader")
-    em = nt.nodes.new("ShaderNodeEmission")
-    em.inputs["Color"].default_value = (*glow_rgb, 1.0)
-    em.inputs["Strength"].default_value = strength
-    rim_bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    set_bsdf(rim_bsdf, "Base Color", (*rim_rgb, 1.0))
-    set_bsdf(rim_bsdf, "Metallic", 0.55)
-    set_bsdf(rim_bsdf, "Roughness", 0.28)
-    set_bsdf(rim_bsdf, "Emission Color", (*rim_rgb, 1.0))
-    set_bsdf(rim_bsdf, "Emission Strength", 0.12)
-    lw = nt.nodes.new("ShaderNodeLayerWeight")
-    lw.inputs["Blend"].default_value = 0.42
-    rmp = nt.nodes.new("ShaderNodeValToRGB")
-    rmp.color_ramp.elements[0].position = 0.30
-    rmp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
-    rmp.color_ramp.elements[1].position = 0.66
-    rmp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
-    nt.links.new(lw.outputs["Facing"], rmp.inputs["Fac"])
-    nt.links.new(rmp.outputs["Color"], mix.inputs["Fac"])
-    nt.links.new(em.outputs["Emission"], mix.inputs[1])
-    nt.links.new(rim_bsdf.outputs["BSDF"], mix.inputs[2])
+
+    face_bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    fb_rgb = face_base_rgb if face_base_rgb is not None else glow_rgb
+    set_bsdf(face_bsdf, "Base Color", (*fb_rgb, 1.0))
+    set_bsdf(face_bsdf, "Metallic", face_metallic)
+    set_bsdf(face_bsdf, "Roughness", face_roughness)
+    set_bsdf(face_bsdf, "Coat Weight", 0.35)
+    set_bsdf(face_bsdf, "Coat Roughness", 0.08)
+    set_bsdf(face_bsdf, "Emission Color", (*glow_rgb, 1.0))
+    set_bsdf(face_bsdf, "Emission Strength", strength)
+
+    side_bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    set_bsdf(side_bsdf, "Base Color", (*rim_rgb, 1.0))
+    set_bsdf(side_bsdf, "Metallic", 0.88)
+    set_bsdf(side_bsdf, "Roughness", 0.26)
+    set_bsdf(side_bsdf, "Emission Color", (*rim_rgb, 1.0))
+    set_bsdf(side_bsdf, "Emission Strength", side_emission)
+
+    geom = nt.nodes.new("ShaderNodeNewGeometry")
+    vxf = nt.nodes.new("ShaderNodeVectorTransform")
+    vxf.vector_type = "NORMAL"
+    vxf.convert_from = "WORLD"
+    vxf.convert_to = "OBJECT"
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    abs_z = nt.nodes.new("ShaderNodeMath")
+    abs_z.operation = "ABSOLUTE"
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.interpolation_type = "SMOOTHSTEP"
+    mr.clamp = True
+    mr.inputs["From Min"].default_value = 0.72
+    mr.inputs["From Max"].default_value = 0.94
+    mr.inputs["To Min"].default_value = 0.0
+    mr.inputs["To Max"].default_value = 1.0
+
+    nt.links.new(geom.outputs["Normal"], vxf.inputs["Vector"])
+    nt.links.new(vxf.outputs["Vector"], sep.inputs["Vector"])
+    nt.links.new(sep.outputs["Z"], abs_z.inputs[0])
+    nt.links.new(abs_z.outputs["Value"], mr.inputs["Value"])
+    nt.links.new(mr.outputs["Result"], mix.inputs["Fac"])
+    nt.links.new(side_bsdf.outputs["BSDF"], mix.inputs[1])
+    nt.links.new(face_bsdf.outputs["BSDF"], mix.inputs[2])
     nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
     return mat
 
 
-def make_formula_halo_mat(name="FormulaObsidianHaloV8", opacity=0.62):
-    """Sleek feathered elliptical dark-obsidian shadow halo backing strip (ZERO hard card border, ZERO sun glare!)."""
+def make_text_keyline_mat(name="TextObsidianKeylineV9"):
+    """Pure glare-free jet-obsidian silhouette stroke backing behind 3D glyphs (ZERO sun/specular reflections)."""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (0.002, 0.004, 0.009, 1.0)
+    em.inputs["Strength"].default_value = 0.008
+    nt.links.new(em.outputs["Emission"], out.inputs["Surface"])
+    return mat
+
+
+def make_formula_halo_mat(name="FormulaObsidianHaloV9", opacity=0.78):
+    """Feathered capsule-superellipse (x^4 + y^2) obsidian contrast veil: uniform opacity across full equation width, ZERO hard edge!"""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
@@ -592,8 +645,8 @@ def make_formula_halo_mat(name="FormulaObsidianHaloV8", opacity=0.62):
     mix = nt.nodes.new("ShaderNodeMixShader")
     tr = nt.nodes.new("ShaderNodeBsdfTransparent")
     dark_em = nt.nodes.new("ShaderNodeEmission")
-    dark_em.inputs["Color"].default_value = (0.004, 0.008, 0.018, 1.0)
-    dark_em.inputs["Strength"].default_value = 0.03
+    dark_em.inputs["Color"].default_value = (0.002, 0.004, 0.010, 1.0)
+    dark_em.inputs["Strength"].default_value = 0.006
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
@@ -610,17 +663,19 @@ def make_formula_halo_mat(name="FormulaObsidianHaloV8", opacity=0.62):
     my.inputs["To Min"].default_value = -1.0
     my.inputs["To Max"].default_value = 1.0
 
-    sx = nt.nodes.new("ShaderNodeMath")
-    sx.operation = "MULTIPLY"
-    sy = nt.nodes.new("ShaderNodeMath")
-    sy.operation = "MULTIPLY"
-    r2 = nt.nodes.new("ShaderNodeMath")
-    r2.operation = "ADD"
+    sx2 = nt.nodes.new("ShaderNodeMath")
+    sx2.operation = "MULTIPLY"
+    sx4 = nt.nodes.new("ShaderNodeMath")
+    sx4.operation = "MULTIPLY"
+    sy2 = nt.nodes.new("ShaderNodeMath")
+    sy2.operation = "MULTIPLY"
+    d_cap = nt.nodes.new("ShaderNodeMath")
+    d_cap.operation = "ADD"
 
     fall = nt.nodes.new("ShaderNodeMapRange")
     fall.interpolation_type = "SMOOTHSTEP"
     fall.clamp = True
-    fall.inputs["From Min"].default_value = 0.10
+    fall.inputs["From Min"].default_value = 0.18
     fall.inputs["From Max"].default_value = 0.96
     fall.inputs["To Min"].default_value = 0.0
     fall.inputs["To Max"].default_value = 1.0
@@ -635,13 +690,15 @@ def make_formula_halo_mat(name="FormulaObsidianHaloV8", opacity=0.62):
     nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
     nt.links.new(sep.outputs["X"], mx.inputs["Value"])
     nt.links.new(sep.outputs["Y"], my.inputs["Value"])
-    nt.links.new(mx.outputs["Result"], sx.inputs[0])
-    nt.links.new(mx.outputs["Result"], sx.inputs[1])
-    nt.links.new(my.outputs["Result"], sy.inputs[0])
-    nt.links.new(my.outputs["Result"], sy.inputs[1])
-    nt.links.new(sx.outputs["Value"], r2.inputs[0])
-    nt.links.new(sy.outputs["Value"], r2.inputs[1])
-    nt.links.new(r2.outputs["Value"], fall.inputs["Value"])
+    nt.links.new(mx.outputs["Result"], sx2.inputs[0])
+    nt.links.new(mx.outputs["Result"], sx2.inputs[1])
+    nt.links.new(sx2.outputs["Value"], sx4.inputs[0])
+    nt.links.new(sx2.outputs["Value"], sx4.inputs[1])
+    nt.links.new(my.outputs["Result"], sy2.inputs[0])
+    nt.links.new(my.outputs["Result"], sy2.inputs[1])
+    nt.links.new(sx4.outputs["Value"], d_cap.inputs[0])
+    nt.links.new(sy2.outputs["Value"], d_cap.inputs[1])
+    nt.links.new(d_cap.outputs["Value"], fall.inputs["Value"])
     nt.links.new(fall.outputs["Result"], inv.inputs[1])
     nt.links.new(inv.outputs["Value"], mul.inputs[0])
     nt.links.new(mul.outputs["Value"], mix.inputs["Fac"])
@@ -681,6 +738,351 @@ def make_feathered_beam_mat(name, rgb, strength=5.4, power=1.40, opacity=0.84):
     nt.links.new(tr.outputs["BSDF"], mix.inputs[1])
     nt.links.new(em.outputs["Emission"], mix.inputs[2])
     nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def make_optical_sunbeam_mat(name="PrismOpticalSunbeamV10", rgb=(1.0, 0.93, 0.74), core_str=3.8, halo_str=0.62):
+    """Sleek additive Tyndall sunbeam: razor-luminous core (|N·I|^5.5) + gossamer atmospheric halo (|N·I|^1.8), front-face only!"""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    add_sh = nt.nodes.new("ShaderNodeAddShader")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (*rgb, 1.0)
+
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.5
+    inv = nt.nodes.new("ShaderNodeMath")
+    inv.operation = "SUBTRACT"
+    inv.use_clamp = True
+    inv.inputs[0].default_value = 1.0
+
+    pw_core = nt.nodes.new("ShaderNodeMath")
+    pw_core.operation = "POWER"
+    pw_core.inputs[1].default_value = 5.5
+    mul_core = nt.nodes.new("ShaderNodeMath")
+    mul_core.operation = "MULTIPLY"
+    mul_core.inputs[1].default_value = core_str
+
+    pw_halo = nt.nodes.new("ShaderNodeMath")
+    pw_halo.operation = "POWER"
+    pw_halo.inputs[1].default_value = 1.8
+    mul_halo = nt.nodes.new("ShaderNodeMath")
+    mul_halo.operation = "MULTIPLY"
+    mul_halo.inputs[1].default_value = halo_str
+
+    sum_rad = nt.nodes.new("ShaderNodeMath")
+    sum_rad.operation = "ADD"
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    end_fade = nt.nodes.new("ShaderNodeMapRange")
+    end_fade.interpolation_type = "SMOOTHSTEP"
+    end_fade.clamp = True
+    end_fade.inputs["From Min"].default_value = 0.90
+    end_fade.inputs["From Max"].default_value = 1.00
+    end_fade.inputs["To Min"].default_value = 1.0
+    end_fade.inputs["To Max"].default_value = 0.38
+
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    front = nt.nodes.new("ShaderNodeMath")
+    front.operation = "SUBTRACT"
+    front.use_clamp = True
+    front.inputs[0].default_value = 1.0
+
+    m1 = nt.nodes.new("ShaderNodeMath")
+    m1.operation = "MULTIPLY"
+    m2 = nt.nodes.new("ShaderNodeMath")
+    m2.operation = "MULTIPLY"
+
+    nt.links.new(lw.outputs["Facing"], inv.inputs[1])
+    nt.links.new(inv.outputs["Value"], pw_core.inputs[0])
+    nt.links.new(pw_core.outputs["Value"], mul_core.inputs[0])
+    nt.links.new(inv.outputs["Value"], pw_halo.inputs[0])
+    nt.links.new(pw_halo.outputs["Value"], mul_halo.inputs[0])
+    nt.links.new(mul_core.outputs["Value"], sum_rad.inputs[0])
+    nt.links.new(mul_halo.outputs["Value"], sum_rad.inputs[1])
+    nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
+    nt.links.new(sep.outputs["Z"], end_fade.inputs["Value"])
+    nt.links.new(geo.outputs["Backfacing"], front.inputs[1])
+    nt.links.new(sum_rad.outputs["Value"], m1.inputs[0])
+    nt.links.new(end_fade.outputs["Result"], m1.inputs[1])
+    nt.links.new(m1.outputs["Value"], m2.inputs[0])
+    nt.links.new(front.outputs["Value"], m2.inputs[1])
+    nt.links.new(m2.outputs["Value"], em.inputs["Strength"])
+    nt.links.new(tr.outputs["BSDF"], add_sh.inputs[0])
+    nt.links.new(em.outputs["Emission"], add_sh.inputs[1])
+    nt.links.new(add_sh.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def make_optical_internal_refraction_mat(name="PrismInternalRefractionV10", strength=2.4):
+    """Delicate additive internal crystal refraction glow transitioning warm-gold -> cool prismatic dispersion."""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    add_sh = nt.nodes.new("ShaderNodeAddShader")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    em = nt.nodes.new("ShaderNodeEmission")
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    rmp = nt.nodes.new("ShaderNodeValToRGB")
+    rmp.color_ramp.elements[0].position = 0.08
+    rmp.color_ramp.elements[0].color = (1.00, 0.94, 0.78, 1.0)
+    e_mid = rmp.color_ramp.elements.new(0.55)
+    e_mid.color = (0.98, 0.99, 1.00, 1.0)
+    rmp.color_ramp.elements[-1].position = 0.95
+    rmp.color_ramp.elements[-1].color = (0.78, 0.94, 1.00, 1.0)
+
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.5
+    inv = nt.nodes.new("ShaderNodeMath")
+    inv.operation = "SUBTRACT"
+    inv.use_clamp = True
+    inv.inputs[0].default_value = 1.0
+    pw = nt.nodes.new("ShaderNodeMath")
+    pw.operation = "POWER"
+    pw.inputs[1].default_value = 2.6
+
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    front = nt.nodes.new("ShaderNodeMath")
+    front.operation = "SUBTRACT"
+    front.use_clamp = True
+    front.inputs[0].default_value = 1.0
+
+    m1 = nt.nodes.new("ShaderNodeMath")
+    m1.operation = "MULTIPLY"
+    m1.inputs[1].default_value = strength
+    m2 = nt.nodes.new("ShaderNodeMath")
+    m2.operation = "MULTIPLY"
+
+    nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
+    nt.links.new(sep.outputs["Z"], rmp.inputs["Fac"])
+    nt.links.new(rmp.outputs["Color"], em.inputs["Color"])
+    nt.links.new(lw.outputs["Facing"], inv.inputs[1])
+    nt.links.new(inv.outputs["Value"], pw.inputs[0])
+    nt.links.new(pw.outputs["Value"], m1.inputs[0])
+    nt.links.new(geo.outputs["Backfacing"], front.inputs[1])
+    nt.links.new(m1.outputs["Value"], m2.inputs[0])
+    nt.links.new(front.outputs["Value"], m2.inputs[1])
+    nt.links.new(m2.outputs["Value"], em.inputs["Strength"])
+    nt.links.new(tr.outputs["BSDF"], add_sh.inputs[0])
+    nt.links.new(em.outputs["Emission"], add_sh.inputs[1])
+    nt.links.new(add_sh.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def make_optical_rainbow_ribbon_mat(name, rgb, strength=2.3, power=2.4):
+    """AgX-calibrated additive optical dispersion ribbon: Fresnel radial feather + longitudinal end-fade, front-face only!"""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    add_sh = nt.nodes.new("ShaderNodeAddShader")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (*rgb, 1.0)
+
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.5
+    inv = nt.nodes.new("ShaderNodeMath")
+    inv.operation = "SUBTRACT"
+    inv.use_clamp = True
+    inv.inputs[0].default_value = 1.0
+    pw = nt.nodes.new("ShaderNodeMath")
+    pw.operation = "POWER"
+    pw.inputs[1].default_value = power
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    fade_in = nt.nodes.new("ShaderNodeMapRange")
+    fade_in.interpolation_type = "SMOOTHSTEP"
+    fade_in.clamp = True
+    fade_in.inputs["From Min"].default_value = 0.00
+    fade_in.inputs["From Max"].default_value = 0.08
+    fade_in.inputs["To Min"].default_value = 0.15
+    fade_in.inputs["To Max"].default_value = 1.00
+
+    fade_out = nt.nodes.new("ShaderNodeMapRange")
+    fade_out.interpolation_type = "SMOOTHSTEP"
+    fade_out.clamp = True
+    fade_out.inputs["From Min"].default_value = 0.84
+    fade_out.inputs["From Max"].default_value = 1.00
+    fade_out.inputs["To Min"].default_value = 1.00
+    fade_out.inputs["To Max"].default_value = 0.00
+
+    long_env = nt.nodes.new("ShaderNodeMath")
+    long_env.operation = "MULTIPLY"
+
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    front = nt.nodes.new("ShaderNodeMath")
+    front.operation = "SUBTRACT"
+    front.use_clamp = True
+    front.inputs[0].default_value = 1.0
+
+    m1 = nt.nodes.new("ShaderNodeMath")
+    m1.operation = "MULTIPLY"
+    m2 = nt.nodes.new("ShaderNodeMath")
+    m2.operation = "MULTIPLY"
+    m3 = nt.nodes.new("ShaderNodeMath")
+    m3.operation = "MULTIPLY"
+    m3.inputs[1].default_value = strength
+
+    nt.links.new(lw.outputs["Facing"], inv.inputs[1])
+    nt.links.new(inv.outputs["Value"], pw.inputs[0])
+    nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
+    nt.links.new(sep.outputs["Z"], fade_in.inputs["Value"])
+    nt.links.new(sep.outputs["Z"], fade_out.inputs["Value"])
+    nt.links.new(fade_in.outputs["Result"], long_env.inputs[0])
+    nt.links.new(fade_out.outputs["Result"], long_env.inputs[1])
+    nt.links.new(geo.outputs["Backfacing"], front.inputs[1])
+    nt.links.new(pw.outputs["Value"], m1.inputs[0])
+    nt.links.new(long_env.outputs["Value"], m1.inputs[1])
+    nt.links.new(m1.outputs["Value"], m2.inputs[0])
+    nt.links.new(front.outputs["Value"], m2.inputs[1])
+    nt.links.new(m2.outputs["Value"], m3.inputs[0])
+    nt.links.new(m3.outputs["Value"], em.inputs["Strength"])
+    nt.links.new(tr.outputs["BSDF"], add_sh.inputs[0])
+    nt.links.new(em.outputs["Emission"], add_sh.inputs[1])
+    nt.links.new(add_sh.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def make_projected_band_mat(name, rgb, strength=2.9):
+    """Softly feathered projected spectral light-bar on obsidian slate (zero Lego-brick hard edges, front-face additive!)."""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    add_sh = nt.nodes.new("ShaderNodeAddShader")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (*rgb, 1.0)
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+
+    my = nt.nodes.new("ShaderNodeMapRange")
+    my.clamp = False
+    my.inputs["To Min"].default_value = -1.0
+    my.inputs["To Max"].default_value = 1.0
+    mz = nt.nodes.new("ShaderNodeMapRange")
+    mz.clamp = False
+    mz.inputs["To Min"].default_value = -1.0
+    mz.inputs["To Max"].default_value = 1.0
+
+    y2 = nt.nodes.new("ShaderNodeMath")
+    y2.operation = "MULTIPLY"
+    z2 = nt.nodes.new("ShaderNodeMath")
+    z2.operation = "MULTIPLY"
+
+    oy = nt.nodes.new("ShaderNodeMath")
+    oy.operation = "SUBTRACT"
+    oy.use_clamp = True
+    oy.inputs[0].default_value = 1.0
+    oz = nt.nodes.new("ShaderNodeMath")
+    oz.operation = "SUBTRACT"
+    oz.use_clamp = True
+    oz.inputs[0].default_value = 1.0
+
+    py = nt.nodes.new("ShaderNodeMath")
+    py.operation = "POWER"
+    py.inputs[1].default_value = 1.4
+    pz = nt.nodes.new("ShaderNodeMath")
+    pz.operation = "POWER"
+    pz.inputs[1].default_value = 1.6
+
+    mask = nt.nodes.new("ShaderNodeMath")
+    mask.operation = "MULTIPLY"
+
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    front = nt.nodes.new("ShaderNodeMath")
+    front.operation = "SUBTRACT"
+    front.use_clamp = True
+    front.inputs[0].default_value = 1.0
+
+    m1 = nt.nodes.new("ShaderNodeMath")
+    m1.operation = "MULTIPLY"
+    m2 = nt.nodes.new("ShaderNodeMath")
+    m2.operation = "MULTIPLY"
+    m2.inputs[1].default_value = strength
+
+    nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
+    nt.links.new(sep.outputs["Y"], my.inputs["Value"])
+    nt.links.new(sep.outputs["Z"], mz.inputs["Value"])
+    nt.links.new(my.outputs["Result"], y2.inputs[0])
+    nt.links.new(my.outputs["Result"], y2.inputs[1])
+    nt.links.new(mz.outputs["Result"], z2.inputs[0])
+    nt.links.new(mz.outputs["Result"], z2.inputs[1])
+    nt.links.new(y2.outputs["Value"], oy.inputs[1])
+    nt.links.new(z2.outputs["Value"], oz.inputs[1])
+    nt.links.new(oy.outputs["Value"], py.inputs[0])
+    nt.links.new(oz.outputs["Value"], pz.inputs[0])
+    nt.links.new(py.outputs["Value"], mask.inputs[0])
+    nt.links.new(pz.outputs["Value"], mask.inputs[1])
+    nt.links.new(geo.outputs["Backfacing"], front.inputs[1])
+    nt.links.new(mask.outputs["Value"], m1.inputs[0])
+    nt.links.new(front.outputs["Value"], m1.inputs[1])
+    nt.links.new(m1.outputs["Value"], m2.inputs[0])
+    nt.links.new(m2.outputs["Value"], em.inputs["Strength"])
+    nt.links.new(tr.outputs["BSDF"], add_sh.inputs[0])
+    nt.links.new(em.outputs["Emission"], add_sh.inputs[1])
+    nt.links.new(add_sh.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def make_additive_halo_mat(name, rgb, strength=4.0, power=2.6):
+    """Feathered additive spherical glow for pinhole optical flare and caustic sparkle dust motes (front-face only!)."""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    add_sh = nt.nodes.new("ShaderNodeAddShader")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (*rgb, 1.0)
+
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.5
+    inv = nt.nodes.new("ShaderNodeMath")
+    inv.operation = "SUBTRACT"
+    inv.use_clamp = True
+    inv.inputs[0].default_value = 1.0
+    pw = nt.nodes.new("ShaderNodeMath")
+    pw.operation = "POWER"
+    pw.inputs[1].default_value = power
+
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    front = nt.nodes.new("ShaderNodeMath")
+    front.operation = "SUBTRACT"
+    front.use_clamp = True
+    front.inputs[0].default_value = 1.0
+
+    m1 = nt.nodes.new("ShaderNodeMath")
+    m1.operation = "MULTIPLY"
+    m2 = nt.nodes.new("ShaderNodeMath")
+    m2.operation = "MULTIPLY"
+    m2.inputs[1].default_value = strength
+
+    nt.links.new(lw.outputs["Facing"], inv.inputs[1])
+    nt.links.new(inv.outputs["Value"], pw.inputs[0])
+    nt.links.new(geo.outputs["Backfacing"], front.inputs[1])
+    nt.links.new(pw.outputs["Value"], m1.inputs[0])
+    nt.links.new(front.outputs["Value"], m1.inputs[1])
+    nt.links.new(m1.outputs["Value"], m2.inputs[0])
+    nt.links.new(m2.outputs["Value"], em.inputs["Strength"])
+    nt.links.new(tr.outputs["BSDF"], add_sh.inputs[0])
+    nt.links.new(em.outputs["Emission"], add_sh.inputs[1])
+    nt.links.new(add_sh.outputs["Shader"], out.inputs["Surface"])
     return mat
 
 
@@ -884,42 +1286,77 @@ gold_glow_mat = make_emissive_mat("NewtonGoldGlowV8", (1.0, 0.64, 0.08), strengt
 molten_gold_arrow_mat = make_molten_gold_arrow_mat("MoltenGoldGravityArrowV8")
 cyan_glow_mat = make_emissive_mat("GravitySapphireGlowV8", (0.06, 0.72, 1.0), strength=4.8)
 pinhole_flare_mat = make_emissive_mat("PrismPinholeFlareV8", (1.0, 0.92, 0.68), strength=8.5)
-sunbeam_goldwhite_mat = make_feathered_beam_mat("PrismGoldenSunbeamV8", (1.0, 0.94, 0.78), strength=6.2, power=1.30, opacity=0.90)
+prism_pinhole_halo_mat = make_additive_halo_mat("PrismPinholeOpticalHaloV10", (1.0, 0.93, 0.72), strength=6.5, power=3.0)
+sunbeam_goldwhite_mat = make_optical_sunbeam_mat("PrismGoldenSunbeamV10", (1.0, 0.94, 0.76), core_str=3.8, halo_str=0.62)
+internal_refraction_mat = make_optical_internal_refraction_mat("PrismInternalRefractionV10", strength=2.4)
 rocket_plume_mat = make_feathered_beam_mat("RocketPlasmaPlumeV8", (0.30, 0.78, 1.0), strength=8.0, power=1.35, opacity=0.92)
 rocket_core_mat = make_emissive_mat("RocketCoreFlameV8", (1.0, 0.64, 0.14), strength=8.5)
 
-# 7 Jewel-Saturated Spectral Dispersion Ribbon & Easel Band Materials (Deep Crimson -> Vivid Violet!)
-SPECTRAL_RGBS = [
-    ("Red", (1.00, 0.012, 0.010)),     # Deep crimson red
-    ("Orange", (1.00, 0.24, 0.006)),   # Vibrant tangerine
-    ("Yellow", (1.00, 0.72, 0.008)),   # Pure molten gold
-    ("Green", (0.012, 0.92, 0.095)),   # Lush emerald
-    ("Cyan", (0.008, 0.74, 1.00)),     # Electric cyan
-    ("Blue", (0.022, 0.16, 1.00)),     # Royal blue
-    ("Violet", (0.54, 0.025, 1.00)),   # Vivid violet
+# 7 AgX-Punchy Calibrated Jewel-Saturated Spectral Colors (near-zero off-channels + per-band luma balance -> ZERO pastel washout!)
+SPECTRAL_SPECS = [
+    ("Red",    (1.00,  0.004, 0.003), 2.6, 3.2),  # Deep ruby crimson
+    ("Orange", (1.00,  0.140, 0.002), 2.3, 2.8),  # Molten tangerine-amber
+    ("Yellow", (1.00,  0.560, 0.003), 1.9, 2.4),  # Pure solar gold (avoids AgX pale-lemon clip!)
+    ("Green",  (0.004, 0.900, 0.035), 2.0, 2.5),  # Jewel emerald
+    ("Cyan",   (0.003, 0.620, 1.000), 2.1, 2.6),  # Electric cerulean-aqua
+    ("Blue",   (0.008, 0.090, 1.000), 2.8, 3.5),  # Deep sapphire-cobalt
+    ("Violet", (0.420, 0.006, 1.000), 2.8, 3.5),  # Rich royal amethyst
 ]
+SPECTRAL_RGBS = [(cname, rgb) for cname, rgb, _, _ in SPECTRAL_SPECS]
 rainbow_ribbon_mats = [
-    make_feathered_beam_mat(f"PrismRibbonV8_{cname}", rgb, strength=5.6, power=1.15, opacity=0.90)
-    for cname, rgb in SPECTRAL_RGBS
+    make_optical_rainbow_ribbon_mat(f"PrismRibbonV10_{cname}", rgb, strength=r_str, power=2.4)
+    for cname, rgb, r_str, _ in SPECTRAL_SPECS
 ]
 rainbow_band_mats = [
-    make_emissive_mat(f"SpectralBandV8_{cname}", rgb, strength=4.6)
-    for cname, rgb in SPECTRAL_RGBS
+    make_projected_band_mat(f"SpectralBandV10_{cname}", rgb, strength=b_str)
+    for cname, rgb, _, b_str in SPECTRAL_SPECS
+]
+rainbow_mote_mats = [
+    make_additive_halo_mat(f"SpectralMoteV10_{cname}", rgb, strength=b_str * 1.15, power=2.2)
+    for cname, rgb, _, b_str in SPECTRAL_SPECS
 ]
 
-# Razor-sharp daylight-proof dark-rimmed 3D Formula, Obsidian Shadow Halo & Starry Sky Monument Gold materials
-text_gold_mat = make_crisp_formula_mat("TextGoldCrispV8", (1.0, 0.70, 0.08), strength=5.5, rim_rgb=(0.024, 0.014, 0.006))
-text_cyangold_mat = make_crisp_formula_mat("TextCyanCrispV8", (0.10, 0.86, 1.0), strength=5.2, rim_rgb=(0.006, 0.022, 0.044))
-formula_halo_mat = make_formula_halo_mat("FormulaObsidianHaloV8", opacity=0.62)
-
-title_gold_mat = bpy.data.materials.new("TitleCinemaGoldV8")
-title_gold_mat.use_nodes = True
-_tbsdf = title_gold_mat.node_tree.nodes["Principled BSDF"]
-set_bsdf(_tbsdf, "Base Color", (1.0, 0.82, 0.24, 1.0))
-set_bsdf(_tbsdf, "Metallic", 0.82)
-set_bsdf(_tbsdf, "Roughness", 0.16)
-set_bsdf(_tbsdf, "Emission Color", (1.0, 0.74, 0.16, 1.0))
-set_bsdf(_tbsdf, "Emission Strength", 3.60)
+# Razor-sharp AgX-calibrated cinema 3D Formula, Keyline Stroke, Capsule Shadow Veil & Sky Monument Gold materials
+text_gold_mat = make_crisp_formula_mat(
+    "TextGoldCrispV9",
+    glow_rgb=(1.00, 0.72, 0.12),
+    strength=1.65,
+    rim_rgb=(0.018, 0.011, 0.004),
+    face_base_rgb=(1.00, 0.78, 0.22),
+    face_metallic=0.65,
+    face_roughness=0.22,
+)
+text_cyangold_mat = make_crisp_formula_mat(
+    "TextCyanCrispV9",
+    glow_rgb=(0.06, 0.78, 1.00),
+    strength=1.55,
+    rim_rgb=(0.004, 0.016, 0.036),
+    face_base_rgb=(0.14, 0.90, 1.00),
+    face_metallic=0.45,
+    face_roughness=0.22,
+)
+title_gold_mat = make_crisp_formula_mat(
+    "TitleCinemaGoldV9",
+    glow_rgb=(1.00, 0.74, 0.16),
+    strength=1.50,
+    rim_rgb=(0.045, 0.024, 0.006),
+    face_base_rgb=(1.00, 0.80, 0.24),
+    face_metallic=0.88,
+    face_roughness=0.16,
+    side_emission=0.04,
+)
+title_sub_mat = make_crisp_formula_mat(
+    "TitleFormulaCyanV9",
+    glow_rgb=(0.24, 0.86, 1.00),
+    strength=1.45,
+    rim_rgb=(0.006, 0.020, 0.042),
+    face_base_rgb=(0.30, 0.92, 1.00),
+    face_metallic=0.52,
+    face_roughness=0.20,
+)
+text_keyline_mat = make_text_keyline_mat("TextObsidianKeylineV9")
+formula_halo_mat = make_formula_halo_mat("FormulaObsidianHaloV9", opacity=0.78)
+title_halo_mat = make_formula_halo_mat("TitleSkyObsidianHaloV9", opacity=0.48)
 
 # V9 Hero Physics Micro-Detail Materials (ZERO extra Cycles ray-bounce overhead!)
 principia_gold_ink_mat = bpy.data.materials.new("PrincipiaGoldInkV9")
@@ -987,8 +1424,10 @@ def add_box(name, loc, scale, mat, rot=(0.0, 0.0, 0.0), bevel_w=0.0):
     return o
 
 
-def add_cyl(name, loc, radius, depth, mat, rot=(0.0, 0.0, 0.0), verts=48, smooth=True, bevel_w=0.0):
-    bpy.ops.mesh.primitive_cylinder_add(vertices=verts, radius=radius, depth=depth, location=loc, rotation=rot)
+def add_cyl(name, loc, radius, depth, mat, rot=(0.0, 0.0, 0.0), verts=48, smooth=True, bevel_w=0.0, end_fill_type="NGON"):
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=verts, radius=radius, depth=depth, end_fill_type=end_fill_type, location=loc, rotation=rot
+    )
     o = bpy.context.active_object
     o.name = name
     if smooth:
@@ -1001,8 +1440,10 @@ def add_cyl(name, loc, radius, depth, mat, rot=(0.0, 0.0, 0.0), verts=48, smooth
     return o
 
 
-def add_cone(name, loc, r1, r2, depth, mat, rot=(0.0, 0.0, 0.0), verts=40):
-    bpy.ops.mesh.primitive_cone_add(vertices=verts, radius1=r1, radius2=r2, depth=depth, location=loc, rotation=rot)
+def add_cone(name, loc, r1, r2, depth, mat, rot=(0.0, 0.0, 0.0), verts=40, end_fill_type="NGON"):
+    bpy.ops.mesh.primitive_cone_add(
+        vertices=verts, radius1=r1, radius2=r2, depth=depth, end_fill_type=end_fill_type, location=loc, rotation=rot
+    )
     o = bpy.context.active_object
     o.name = name
     shade_smooth(o)
@@ -1057,11 +1498,13 @@ def build_curve_tube(name, points_with_radius, mat, bevel_res=5, loc=(0.0, 0.0, 
 
 
 def orient_beam(obj, p1: Vector, p2: Vector, radius_scale: float = 1.0, ribbon_y_mult: float = 1.0):
-    """Orient a unit-Z cylinder or tapered cone cleanly from p1 (-Z/2) to p2 (+Z/2)."""
+    """Orient a unit-Z cylinder or tapered cone cleanly from p1 (-Z/2) to p2 (+Z/2).
+    Note: to_track_quat('Z', 'Y') aligns local +Y with world +Z (vertical) and local +X with world +Y (depth),
+    so ribbon_y_mult scales local X (depth sheet width) while keeping vertical thickness crisp!"""
     diff = p2 - p1
     length = diff.length
     obj.location = (p1 + p2) * 0.5
-    obj.scale = (radius_scale, radius_scale * ribbon_y_mult, max(0.0005, length))
+    obj.scale = (radius_scale * ribbon_y_mult, radius_scale, max(0.0005, length))
     obj.rotation_mode = "QUATERNION"
     obj.rotation_quaternion = diff.normalized().to_track_quat("Z", "Y") if length > 1e-5 else Quaternion((1, 0, 0, 0))
 
@@ -1213,19 +1656,45 @@ def build_equilateral_prism(name, loc, side=0.148, depth_y=0.120, mat=None):
     return obj
 
 
-def add_formula_halo_strip(name: str, parent_txt, width: float, height: float, z_back: float = -0.018):
-    """Add a sleek feathered translucent dark-obsidian shadow halo strip behind a 3D formula for daylight pop."""
+def add_formula_halo_strip(name: str, parent_txt, width: float, height: float, z_back: float = -0.016, mat=None):
+    """Add a sleek feathered capsule-obsidian shadow veil behind a 3D formula/title for daylight & starlight pop."""
     bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0.0, 0.0, z_back))
     halo = bpy.context.active_object
     halo.name = name
     halo.scale = (width, height, 1.0)
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    halo.data.materials.append(formula_halo_mat)
+    halo.data.materials.append(mat if mat is not None else formula_halo_mat)
     halo.visible_shadow = False
     halo.visible_diffuse = False
     halo.visible_glossy = False
     halo.parent = parent_txt
     return halo
+
+
+def add_text_keyline_backing(name: str, parent_txt, offset: float = 0.0017, z_back: float = -0.0036):
+    """Add a razor-crisp jet-obsidian silhouette outline hugging every glyph contour strictly behind parent_txt."""
+    bpy.ops.object.text_add(location=(0.0, 0.0, z_back), rotation=(0.0, 0.0, 0.0))
+    kl = bpy.context.active_object
+    kl.name = name
+    src = parent_txt.data
+    if src.font is not None:
+        kl.data.font = src.font
+    kl.data.body = src.body
+    kl.data.align_x = src.align_x
+    kl.data.align_y = src.align_y
+    kl.data.size = src.size
+    kl.data.space_character = src.space_character
+    kl.data.space_line = src.space_line
+    kl.data.resolution_u = 14
+    kl.data.offset = offset
+    kl.data.extrude = 0.0010
+    kl.data.bevel_depth = 0.0
+    kl.data.materials.append(text_keyline_mat)
+    kl.visible_shadow = False
+    kl.visible_diffuse = False
+    kl.visible_glossy = False
+    kl.parent = parent_txt
+    return kl
 
 
 def build_tripod_legs(prefix: str, parent_obj, hub_z: float, foot_r: float, leg_r: float, leg_mat, collar_mat, az_offset_deg: float = 30.0):
@@ -1289,10 +1758,16 @@ g_label.data.body = "g"
 g_label.data.align_x = "CENTER"
 g_label.data.align_y = "CENTER"
 g_label.data.size = 0.102
-g_label.data.extrude = 0.0075
-g_label.data.bevel_depth = 0.0010
+g_label.data.resolution_u = 16
+g_label.data.extrude = 0.0028
+g_label.data.bevel_depth = 0.00035
+g_label.data.bevel_resolution = 3
 g_label.data.materials.append(text_gold_mat)
+g_label.visible_shadow = False
+g_label.visible_diffuse = False
+g_label.visible_glossy = False
 g_label.parent = gravity_arrow_root
+add_text_keyline_backing("GravityLabelG_Keyline", g_label, offset=0.0018, z_back=-0.0035)
 
 impact_ripple_1 = add_torus(
     "AppleImpactRipple1", (APPLE_PLINTH.x, APPLE_PLINTH.y, APPLE_PLINTH.z + 0.026), 0.062, 0.005, gold_glow_mat, maj_seg=56, min_seg=10
@@ -1459,36 +1934,48 @@ q_shaft.parent = principia_props_root
 q_plume = add_box("QuillPlume", (0.198, 0.142, 0.160), (0.024, 0.004, 0.105), quill_white_mat, rot=(0.10, math.radians(20.0), 0.0), bevel_w=0.002)
 q_plume.parent = principia_props_root
 
-# Bold Daylight-Proof 3D Formulas (`DejaVuSans-Bold.ttf`, dark-rimmed glow + feathered obsidian shadow halo!)
-bpy.ops.object.text_add(location=(PRINCIPIA_PLINTH.x, -0.02, 1.24), rotation=(math.pi * 0.5, 0.0, 0.0))
+# Razor-sharp AgX-calibrated 3D Formulas floating cleanly ABOVE both Newton & Halley's heads (Z = 2.02..2.04, Y = 0.20 = exact DOF plane!)
+bpy.ops.object.text_add(location=(PRINCIPIA_PLINTH.x, 0.20, 2.02), rotation=(math.pi * 0.5, 0.0, 0.0))
 formula_fma_txt = bpy.context.active_object
 formula_fma_txt.name = "NewtonFormula_Fma"
 if HERO_FONT is not None:
     formula_fma_txt.data.font = HERO_FONT
-formula_fma_txt.data.body = "F = m a"
+formula_fma_txt.data.body = "F = m · a"
 formula_fma_txt.data.align_x = "CENTER"
 formula_fma_txt.data.align_y = "CENTER"
-formula_fma_txt.data.size = 0.088
-formula_fma_txt.data.space_character = 1.15
-formula_fma_txt.data.extrude = 0.0080
-formula_fma_txt.data.bevel_depth = 0.0012
+formula_fma_txt.data.size = 0.104
+formula_fma_txt.data.space_character = 1.05
+formula_fma_txt.data.resolution_u = 16
+formula_fma_txt.data.extrude = 0.0028
+formula_fma_txt.data.bevel_depth = 0.00035
+formula_fma_txt.data.bevel_resolution = 3
 formula_fma_txt.data.materials.append(text_gold_mat)
-add_formula_halo_strip("FormulaHalo_Fma", formula_fma_txt, width=0.58, height=0.180, z_back=-0.018)
+formula_fma_txt.visible_shadow = False
+formula_fma_txt.visible_diffuse = False
+formula_fma_txt.visible_glossy = False
+add_text_keyline_backing("FormulaKeyline_Fma", formula_fma_txt, offset=0.0018, z_back=-0.0036)
+add_formula_halo_strip("FormulaHalo_Fma", formula_fma_txt, width=0.72, height=0.195, z_back=-0.016)
 
-bpy.ops.object.text_add(location=(PRINCIPIA_PLINTH.x, -0.02, 1.28), rotation=(math.pi * 0.5, 0.0, 0.0))
+bpy.ops.object.text_add(location=(PRINCIPIA_PLINTH.x, 0.20, 2.04), rotation=(math.pi * 0.5, 0.0, 0.0))
 formula_grav_txt = bpy.context.active_object
 formula_grav_txt.name = "NewtonFormula_Gravity"
 if HERO_FONT is not None:
     formula_grav_txt.data.font = HERO_FONT
-formula_grav_txt.data.body = "F = G m1 m2 / r²"
+formula_grav_txt.data.body = "F = G m₁ m₂ / r²"
 formula_grav_txt.data.align_x = "CENTER"
 formula_grav_txt.data.align_y = "CENTER"
-formula_grav_txt.data.size = 0.072
-formula_grav_txt.data.space_character = 1.13
-formula_grav_txt.data.extrude = 0.0080
-formula_grav_txt.data.bevel_depth = 0.0012
+formula_grav_txt.data.size = 0.084
+formula_grav_txt.data.space_character = 1.04
+formula_grav_txt.data.resolution_u = 16
+formula_grav_txt.data.extrude = 0.0025
+formula_grav_txt.data.bevel_depth = 0.00028
+formula_grav_txt.data.bevel_resolution = 3
 formula_grav_txt.data.materials.append(text_cyangold_mat)
-add_formula_halo_strip("FormulaHalo_Grav", formula_grav_txt, width=0.90, height=0.165, z_back=-0.018)
+formula_grav_txt.visible_shadow = False
+formula_grav_txt.visible_diffuse = False
+formula_grav_txt.visible_glossy = False
+add_text_keyline_backing("FormulaKeyline_Grav", formula_grav_txt, offset=0.0015, z_back=-0.0034)
+add_formula_halo_strip("FormulaHalo_Grav", formula_grav_txt, width=0.98, height=0.175, z_back=-0.016)
 
 
 # ============================================================================
@@ -1553,9 +2040,11 @@ pt_vknob.parent = prism_tripod_root
 PRISM_CENTER = Vector((PRISM_ANCHOR.x, PRISM_ANCHOR.y, 1.28))
 hero_prism = build_equilateral_prism("FlintGlassTriangularPrism", PRISM_CENTER, side=0.148, depth_y=0.120, mat=flint_glass_mat)
 
-# Dark Ebony / Obsidian Projection Easel at X = -2.54, Y = 0.06, Z = 1.24 (mounted on tall brass stand from Z = 0.0!)
+# Dark Ebony / Obsidian Projection Easel at X = -2.54, Y = 0.06, Z = 1.24 (rotated +38° so obsidian slate faces BOTH prism & camera!)
 EASEL_POS = Vector((-2.54, 0.06, 1.24))
-bpy.ops.object.empty_add(type="PLAIN_AXES", location=(EASEL_POS.x, EASEL_POS.y, FLOOR_Z), rotation=(0.0, 0.0, math.radians(-24.0)))
+EASEL_ROT_Z = math.radians(38.0)
+EASEL_BACK_AXIS = Vector((math.cos(EASEL_ROT_Z), math.sin(EASEL_ROT_Z), 0.0))  # Easel local +X (toward back of frame)
+bpy.ops.object.empty_add(type="PLAIN_AXES", location=(EASEL_POS.x, EASEL_POS.y, FLOOR_Z), rotation=(0.0, 0.0, EASEL_ROT_Z))
 easel_root = bpy.context.active_object
 easel_root.name = "OpticalEaselRoot"
 
@@ -1567,68 +2056,88 @@ es_pole = add_cyl("OptEaselBrassPole", (0.0, 0.0, 0.56), 0.014, 0.98, brass_mat,
 es_pole.parent = easel_root
 es_knop = add_torus("OptEaselPoleKnop", (0.0, 0.0, 0.88), 0.024, 0.009, brass_mat, maj_seg=28, min_seg=10)
 es_knop.parent = easel_root
-es_frame = add_box("OptEaselBrassFrame", (0.0, 0.0, EASEL_POS.z), (0.024, 0.148, 0.390), brass_mat, bevel_w=0.004)
+# Burnished brass frame (local X: [-0.011, +0.011]) framing proud dark obsidian slate (local X: [-0.015, -0.002])
+es_frame = add_box("OptEaselBrassFrame", (0.0, 0.0, EASEL_POS.z), (0.022, 0.160, 0.396), brass_mat, bevel_w=0.004)
 es_frame.parent = easel_root
-es_slate = add_box("OptEaselObsidian", (-0.007, 0.0, EASEL_POS.z), (0.015, 0.132, 0.368), ebony_mat, bevel_w=0.002)
+es_slate = add_box("OptEaselObsidian", (-0.0085, 0.0, EASEL_POS.z), (0.013, 0.142, 0.372), ebony_mat, bevel_w=0.002)
 es_slate.parent = easel_root
 
-# 7 Vivid Glowing Spectral Bands projected cleanly onto the dark obsidian easel (Red high -> Violet low!)
+# 7 Vivid Softly-Projected Spectral Bands glowing flush on the front of the dark obsidian slate (Red high -> Violet low!)
 spectral_bands = []
 for b_i in range(7):
     bz = lerp(1.385, 1.095, b_i / 6.0)
-    band = add_box(f"SpectralBand_{b_i}", (-0.016, 0.0, bz), (0.005, 0.120, 0.036), rainbow_band_mats[b_i], bevel_w=0.001)
+    band = add_box(f"SpectralBand_{b_i}", (-0.0165, 0.0, bz), (0.0020, 0.132, 0.042), rainbow_band_mats[b_i])
     band.parent = easel_root
     band.visible_shadow = False
+    band.visible_diffuse = False
+    band.visible_glossy = False
     spectral_bands.append(band)
 
-# Golden-White Sunbeam streaming diagonally straight from PRISM_PINHOLE = (-3.38, 0.06, 1.54) into prism left face!
-PRISM_ENTRY = Vector((PRISM_CENTER.x - 0.045, PRISM_CENTER.y, PRISM_CENTER.z + 0.022))
-PRISM_EXIT = Vector((PRISM_CENTER.x + 0.044, PRISM_CENTER.y, PRISM_CENTER.z - 0.004))
+# Exact on-face equilateral prism entry/exit points (0.0mm floating gap; side=0.148 -> z_top=0.08545):
+PRISM_ENTRY = Vector((PRISM_CENTER.x - 0.0366, PRISM_CENTER.y, PRISM_CENTER.z + 0.0220))
+PRISM_EXIT = Vector((PRISM_CENTER.x + 0.0516, PRISM_CENTER.y, PRISM_CENTER.z - 0.0040))
 
-pinhole_flare = add_sphere("PrismPinholeFlare", PRISM_PINHOLE, 0.022, pinhole_flare_mat, segs=18, rings=12)
+pinhole_flare = add_sphere("PrismPinholeFlare", PRISM_PINHOLE, 0.028, prism_pinhole_halo_mat, segs=18, rings=12)
 pinhole_flare.visible_shadow = False
+pinhole_flare.visible_diffuse = False
+pinhole_flare.visible_glossy = False
 
-white_sunbeam = add_cyl("GoldenWhiteSunbeamRay", (0, 0, 0), 0.017, 1.0, sunbeam_goldwhite_mat, verts=24)
+# Sleek open-ended tapered sunbeam (crisp luminous core + gossamer outer dust veil; ZERO flat caps!)
+white_sunbeam = add_cone(
+    "GoldenWhiteSunbeamRay", (0, 0, 0), 0.0105, 0.0155, 1.0, sunbeam_goldwhite_mat, verts=24, end_fill_type="NOTHING"
+)
 white_sunbeam.visible_shadow = False
 white_sunbeam.visible_diffuse = False
 white_sunbeam.visible_glossy = False
 
-internal_beam = add_cyl("PrismInternalRay", (0, 0, 0), 0.014, 1.0, sunbeam_goldwhite_mat, verts=20)
+# Delicate tapered internal refraction glow strictly inside the flint-glass prism (visible via glass transmission!)
+internal_beam = add_cone(
+    "PrismInternalRay", (0, 0, 0), 0.0050, 0.0125, 1.0, internal_refraction_mat, verts=20, end_fill_type="NOTHING"
+)
 internal_beam.visible_shadow = False
 internal_beam.visible_diffuse = False
 internal_beam.visible_glossy = False
 
-# 7 Wide Diverging Translucent Rainbow Dispersion Ribbons fanning from PRISM_EXIT onto the obsidian easel!
+# 7 Diverging Open-Ended Optical Rainbow Dispersion Ribbons fanning from prism right facet onto rotated obsidian easel!
+# Verified clearance: max easel_local_X <= +0.0041m vs frame back +0.0110m (6.9-8.8mm margin; ZERO back-frame bleed!)
+_easel_rot_mat = Euler((0.0, 0.0, EASEL_ROT_Z), "XYZ").to_matrix()
 rainbow_ribbons = []
+rainbow_starts = []
 rainbow_targets = []
 for b_i in range(7):
-    bz = lerp(1.385, 1.095, b_i / 6.0)
-    hit_pt = Vector((EASEL_POS.x - 0.015, EASEL_POS.y, bz))
+    u_b = b_i / 6.0
+    bz = lerp(1.385, 1.095, u_b)
+    # Slight physical dispersion spread along right prism facet tangent (+0.5, 0, -0.866)
+    off_f = lerp(-0.007, 0.007, u_b)
+    p_start = Vector((PRISM_EXIT.x + off_f * 0.5, PRISM_EXIT.y, PRISM_EXIT.z - off_f * 0.866025))
+    hit_pt = EASEL_POS + _easel_rot_mat @ Vector((-0.0185, 0.0, bz - EASEL_POS.z))
+    rainbow_starts.append(p_start)
     rainbow_targets.append(hit_pt)
-    # Tapered optical fan frustum: narrow at prism exit (r1=0.0085) flaring wide (r2=0.022) at obsidian easel!
-    rb = add_cone(f"RainbowRibbon_{b_i}", (0, 0, 0), 0.0085, 0.022, 1.0, rainbow_ribbon_mats[b_i], verts=22)
+    rb = add_cone(
+        f"RainbowRibbon_{b_i}", (0, 0, 0), 0.0048, 0.0195, 1.0, rainbow_ribbon_mats[b_i], verts=22, end_fill_type="NOTHING"
+    )
     rb.visible_shadow = False
     rb.visible_diffuse = False
     rb.visible_glossy = False
     rainbow_ribbons.append(rb)
 
-# V9 Beat 3 Rainbow Caustic Sparkles: 28 Tiny Shimmering Spectral Dust Motes Drifting Inside the 7 Prism Ribbons!
+# V10 Beat 3 Rainbow Caustic Sparkles: 28 Fine Feathered Spectral Dust Motes Strictly Clamped Inside Open-Air Dispersion Fan!
 _rng_prism = random.Random(1672)
 rainbow_sparkle_motes = []
 for b_i in range(7):
     for m_j in range(4):
-        frac = lerp(0.16, 0.90, (m_j + _rng_prism.uniform(0.12, 0.88)) / 4.0)
-        y_off = _rng_prism.uniform(-0.026, 0.026)
-        z_off = _rng_prism.uniform(-0.010, 0.010)
-        m_rad = _rng_prism.uniform(0.0038, 0.0056)
+        frac = lerp(0.14, 0.78, (m_j + _rng_prism.uniform(0.12, 0.88)) / 4.0)
+        y_off = _rng_prism.uniform(-0.016, 0.016)
+        z_off = _rng_prism.uniform(-0.007, 0.007)
+        m_rad = _rng_prism.uniform(0.0022, 0.0036)
         drift_f = _rng_prism.uniform(1.8, 3.4)
         twink_f = _rng_prism.uniform(5.2, 9.5)
         phase = _rng_prism.uniform(0.0, math.pi * 2.0)
         m_obj = add_sphere(
             f"RainbowSparkleMote_{b_i}_{m_j}",
-            vlerp(PRISM_EXIT, rainbow_targets[b_i], frac),
+            vlerp(rainbow_starts[b_i], rainbow_targets[b_i], frac),
             m_rad,
-            rainbow_band_mats[b_i],
+            rainbow_mote_mats[b_i],
             segs=8,
             rings=6,
         )
@@ -1939,21 +2448,67 @@ sat_beacon.visible_shadow = False
 sat_beacon.visible_diffuse = False
 sat_beacon.parent = sat_ship
 
-# Hero 2-Line Self-Luminous Cinema Gold 3D Sky Monument floating cleanly at (0.55, 0.56, 2.48) in open starry sky!
-bpy.ops.object.text_add(location=(0.55, 0.56, 2.48), rotation=(math.pi * 0.5, 0.0, 0.0))
+# Hero 2-Tier Cinema Sky Monument floating cleanly at (0.55, 0.24, 2.52) — exact Beat 6 DOF focal plane,
+# 60px+ above Rocket orbit & 50px+ left of Crescent Moon, w/ sculpted gold header + hairline rule + cyan formula!
+bpy.ops.object.empty_add(type="PLAIN_AXES", location=(0.55, 0.24, 2.52), rotation=(math.pi * 0.5, 0.0, 0.0))
 title_txt = bpy.context.active_object
-title_txt.name = "NewtonTitle3D"
+title_txt.name = "NewtonTitle3D_Root"
+
+bpy.ops.object.text_add(location=(0.0, 0.080, 0.0), rotation=(0.0, 0.0, 0.0))
+title_main_txt = bpy.context.active_object
+title_main_txt.name = "NewtonTitle3D"
 if HERO_FONT is not None:
-    title_txt.data.font = HERO_FONT
-title_txt.data.body = "ISAAC NEWTON\nF = G m1 m2 / r²"
-title_txt.data.align_x = "CENTER"
-title_txt.data.align_y = "CENTER"
-title_txt.data.size = 0.092
-title_txt.data.space_character = 1.12
-title_txt.data.space_line = 1.28
-title_txt.data.extrude = 0.0085
-title_txt.data.bevel_depth = 0.0010
-title_txt.data.materials.append(title_gold_mat)
+    title_main_txt.data.font = HERO_FONT
+title_main_txt.data.body = "ISAAC NEWTON"
+title_main_txt.data.align_x = "CENTER"
+title_main_txt.data.align_y = "CENTER"
+title_main_txt.data.size = 0.096
+title_main_txt.data.space_character = 1.08
+title_main_txt.data.resolution_u = 16
+title_main_txt.data.extrude = 0.0036
+title_main_txt.data.bevel_depth = 0.00040
+title_main_txt.data.bevel_resolution = 3
+title_main_txt.data.materials.append(title_gold_mat)
+title_main_txt.visible_shadow = False
+title_main_txt.visible_diffuse = False
+title_main_txt.visible_glossy = False
+title_main_txt.parent = title_txt
+add_text_keyline_backing("NewtonTitle3D_MainKeyline", title_main_txt, offset=0.0018, z_back=-0.0044)
+
+title_rule = add_box(
+    "NewtonTitle3D_Rule",
+    (0.0, -0.005, 0.0),
+    (0.44, 0.0040, 0.0022),
+    title_gold_mat,
+    bevel_w=0.0004,
+)
+title_rule.visible_shadow = False
+title_rule.visible_diffuse = False
+title_rule.visible_glossy = False
+title_rule.parent = title_txt
+
+bpy.ops.object.text_add(location=(0.0, -0.085, 0.0), rotation=(0.0, 0.0, 0.0))
+title_sub_txt = bpy.context.active_object
+title_sub_txt.name = "NewtonTitle3D_Formula"
+if HERO_FONT is not None:
+    title_sub_txt.data.font = HERO_FONT
+title_sub_txt.data.body = "F = G m₁ m₂ / r²"
+title_sub_txt.data.align_x = "CENTER"
+title_sub_txt.data.align_y = "CENTER"
+title_sub_txt.data.size = 0.070
+title_sub_txt.data.space_character = 1.04
+title_sub_txt.data.resolution_u = 16
+title_sub_txt.data.extrude = 0.0026
+title_sub_txt.data.bevel_depth = 0.00028
+title_sub_txt.data.bevel_resolution = 3
+title_sub_txt.data.materials.append(title_sub_mat)
+title_sub_txt.visible_shadow = False
+title_sub_txt.visible_diffuse = False
+title_sub_txt.visible_glossy = False
+title_sub_txt.parent = title_txt
+add_text_keyline_backing("NewtonTitle3D_SubKeyline", title_sub_txt, offset=0.0015, z_back=-0.0035)
+
+add_formula_halo_strip("TitleHalo_Sky", title_txt, width=1.16, height=0.34, z_back=-0.020, mat=title_halo_mat)
 
 
 # ============================================================================
@@ -1977,8 +2532,8 @@ try:
             "height": 0.58,
             "target_height_m": 1.78,
             "skin_assets": ["middleage_caucasian_male.mhmat"],
-            "iris_major_rgb": (0.14, 0.36, 0.56),
-            "iris_minor_rgb": (0.06, 0.14, 0.26),
+            "iris_major_rgb": (0.26, 0.48, 0.68),
+            "iris_minor_rgb": (0.12, 0.24, 0.38),
             "eyebrow_assets": ["eyebrow002.mhclo", "eyebrow001.mhclo"],
             "hair_assets": ["culturalibre_hair_01.mhclo"],
             # Preserves proven V7 silver-pewter 1689 Kneller portrait hair!
@@ -2018,8 +2573,8 @@ try:
             "height": 0.60,
             "target_height_m": 1.79,
             "skin_assets": ["middleage_caucasian_male.mhmat"],
-            "iris_major_rgb": (0.32, 0.21, 0.10),
-            "iris_minor_rgb": (0.12, 0.08, 0.04),
+            "iris_major_rgb": (0.58, 0.34, 0.14),
+            "iris_minor_rgb": (0.28, 0.16, 0.06),
             "eyebrow_assets": ["eyebrow003.mhclo", "eyebrow002.mhclo"],
             "hair_assets": ["short04.mhclo"],
             # Preserves proven V7 dark espresso-chestnut gentleman hair!
@@ -2064,7 +2619,7 @@ w_rim_light = world_handles.get("rim_light")
 w_fill_light = world_handles.get("fill_light")
 w_catch_light = world_handles.get("catch_light")
 w_principia_plinth = world_handles.get("principia_plinth")
-for _wl in (w_key_light, w_rim_light, w_fill_light):
+for _wl in (w_key_light, w_rim_light, w_fill_light, w_catch_light):
     if _wl is not None:
         _wl.rotation_mode = "QUATERNION"
 
@@ -2215,14 +2770,17 @@ for f in FRAMES_TO_KEY:
         w_rim_light.keyframe_insert("location", frame=f)
         w_rim_light.keyframe_insert("rotation_quaternion", frame=f)
     if w_fill_light is not None:
-        f_pos = Vector((c_tgt.x + 0.85, c_pos.y - 0.45, 1.65))
+        f_pos = Vector((c_tgt.x + 0.85, c_pos.y - 0.45, 1.48))
         w_fill_light.location = f_pos
-        w_fill_light.rotation_quaternion = look_at_quat(f_pos, Vector((c_tgt.x, c_tgt.y, 1.38)))
+        w_fill_light.rotation_quaternion = look_at_quat(f_pos, Vector((c_tgt.x, c_tgt.y, 1.50)))
         w_fill_light.keyframe_insert("location", frame=f)
         w_fill_light.keyframe_insert("rotation_quaternion", frame=f)
     if w_catch_light is not None:
-        w_catch_light.location = Vector((c_pos.x + 0.16, c_pos.y + 0.52, c_pos.z + 0.22))
+        catch_pos = Vector((c_pos.x + 0.22, c_pos.y + 0.46, c_pos.z + 0.30))
+        w_catch_light.location = catch_pos
+        w_catch_light.rotation_quaternion = look_at_quat(catch_pos, Vector((c_tgt.x, c_tgt.y + 0.12, 1.62)))
         w_catch_light.keyframe_insert("location", frame=f)
+        w_catch_light.keyframe_insert("rotation_quaternion", frame=f)
 
     # 3. BEAT 1: Hero Woolsthorpe Apple Gravity Fall (`HERO_APPLE_ATTACH` Z=1.94 -> `APPLE_PLINTH + 0.058` Z=0.938)!
     z_hang = HERO_APPLE_ATTACH.z  # 1.94m
@@ -2340,14 +2898,14 @@ for f in FRAMES_TO_KEY:
     fma_vis = smoothstep(4.55, 5.02, t) * (1.0 - smoothstep(6.82, 7.02, t))
     fma_sc = max(0.0001, fma_vis)
     formula_fma_txt.scale = Vector((fma_sc, fma_sc, fma_sc))
-    formula_fma_txt.location = Vector((PRINCIPIA_PLINTH.x, -0.02, 1.24 + math.sin(t * 2.5) * 0.010))
+    formula_fma_txt.location = Vector((PRINCIPIA_PLINTH.x, 0.20, 2.02 + math.sin(t * 2.5) * 0.007))
     formula_fma_txt.keyframe_insert("scale", frame=f)
     formula_fma_txt.keyframe_insert("location", frame=f)
 
-    fgrav_vis = smoothstep(6.95, 7.32, t) * (1.0 - smoothstep(9.80, 10.20, t))
+    fgrav_vis = smoothstep(6.95, 7.32, t) * (1.0 - smoothstep(9.35, 9.65, t))
     fgrav_sc = max(0.0001, fgrav_vis)
     formula_grav_txt.scale = Vector((fgrav_sc, fgrav_sc, fgrav_sc))
-    formula_grav_txt.location = Vector((PRINCIPIA_PLINTH.x, -0.02, 1.28 + math.sin(t * 2.3) * 0.010))
+    formula_grav_txt.location = Vector((PRINCIPIA_PLINTH.x, 0.20, 2.04 + math.sin(t * 2.3) * 0.007))
     formula_grav_txt.keyframe_insert("scale", frame=f)
     formula_grav_txt.keyframe_insert("location", frame=f)
 
@@ -2372,18 +2930,18 @@ for f in FRAMES_TO_KEY:
 
     band_ext_u = []
     prism_fade_out = 1.0 - smoothstep(15.35, 15.80, t)
-    for b_i, (rb, b_hit, sband) in enumerate(zip(rainbow_ribbons, rainbow_targets, spectral_bands)):
+    for b_i, (rb, b_start, b_hit, sband) in enumerate(zip(rainbow_ribbons, rainbow_starts, rainbow_targets, spectral_bands)):
         # Bloom smoothly & sequentially Red (10.60s) -> Violet (11.80s) synced to prism_rainbow_bloom SFX!
         t_start = 10.60 + b_i * 0.12
         t_end = t_start + 0.48
         ext_u = smoothstep(t_start, t_end, t)
         band_ext_u.append(ext_u)
         vis_b = ext_u * prism_fade_out
-        shimmer = 1.0 + 0.08 * math.sin(t * 7.5 + b_i * 0.9)
+        shimmer = 1.0 + 0.05 * math.sin(t * 7.5 + b_i * 0.9)
         if vis_b > 0.002:
-            cur_end = vlerp(PRISM_EXIT, b_hit, ext_u)
-            # Wide optical light ribbon (ribbon_y_mult = 2.1 along depth Y so it looks like a glowing dispersion sheet!)
-            orient_beam(rb, PRISM_EXIT, cur_end, radius_scale=max(0.001, vis_b * shimmer), ribbon_y_mult=2.1)
+            cur_end = vlerp(b_start, b_hit, ext_u)
+            # Optical dispersion sheet: ribbon_y_mult=1.55 stretches local X (world Y depth) while vertical stays crisp!
+            orient_beam(rb, b_start, cur_end, radius_scale=max(0.001, vis_b * shimmer), ribbon_y_mult=1.55)
         else:
             rb.scale = Vector((0.0001, 0.0001, 0.0001))
         rb.keyframe_insert("location", frame=f)
@@ -2394,18 +2952,22 @@ for f in FRAMES_TO_KEY:
         sband.scale = Vector((1.0, band_sc, band_sc))
         sband.keyframe_insert("scale", frame=f)
 
-    # V9 Beat 3 Rainbow Caustic Sparkles: 28 Spectral Dust Motes Drifting Lazily Inside the 7 Prism Ribbons!
+    # V10 Beat 3 Rainbow Caustic Sparkles: 28 Feathered Spectral Dust Motes Clamped Cleanly In Front of Rotated Easel!
     for m_obj, b_i, frac, y_off, z_off, drift_f, twink_f, phase in rainbow_sparkle_motes:
         m_vis = smoothstep(max(0.0, frac - 0.12), min(1.0, frac + 0.08), band_ext_u[b_i]) * prism_fade_out
         if m_vis > 0.002:
-            base_pt = vlerp(PRISM_EXIT, rainbow_targets[b_i], frac)
+            base_pt = vlerp(rainbow_starts[b_i], rainbow_targets[b_i], frac)
             m_pos = Vector(
                 (
-                    base_pt.x + math.sin(t * drift_f * 0.65 + phase * 1.3) * 0.010,
-                    base_pt.y + y_off + math.sin(t * drift_f + phase) * 0.011,
-                    base_pt.z + z_off + math.cos(t * drift_f * 0.82 + phase) * 0.008,
+                    base_pt.x + math.sin(t * drift_f * 0.65 + phase * 1.3) * 0.008,
+                    base_pt.y + y_off + math.sin(t * drift_f + phase) * 0.008,
+                    base_pt.z + z_off + math.cos(t * drift_f * 0.82 + phase) * 0.006,
                 )
             )
+            # Hard easel front-plane clamp: guarantees >=14mm clearance in front of obsidian slate on EVERY frame!
+            d_easel = (m_pos - EASEL_POS).dot(EASEL_BACK_AXIS)
+            if d_easel > -0.032:
+                m_pos -= EASEL_BACK_AXIS * (d_easel + 0.032)
             m_tw = 0.45 + 0.72 * (0.5 + 0.5 * math.sin(t * twink_f + phase))
             m_sc = max(0.0001, m_vis * m_tw)
             m_obj.location = m_pos
@@ -2694,7 +3256,7 @@ for f in FRAMES_TO_KEY:
             nrig,
             t,
             f,
-            jaw_open_deg=1.0 + n_lip * 16.5,
+            jaw_open_deg=n_lip * 8.8,
             brow_lift=n_brow,
             smile=n_smile,
             blink_period=3.1,
@@ -2780,7 +3342,7 @@ for f in FRAMES_TO_KEY:
             h_hand_l = "point" if t < 17.45 else "shock"
             h_hand_r = "relaxed" if t < 17.45 else "shock"
             h_weight_shift = lerp(0.28, -0.45, shock)
-            jaw_bias = 14.5 * shock * (1.0 - smoothstep(18.05, 18.45, t))
+            jaw_bias = 10.5 * shock * (1.0 - smoothstep(18.05, 18.45, t))
             h_brow = lerp(-0.20, 1.0, shock)
             h_smile = lerp(0.30, -0.48, shock)
         elif t < 25.5:
@@ -2828,7 +3390,7 @@ for f in FRAMES_TO_KEY:
             hrig,
             t,
             f,
-            jaw_open_deg=max(jaw_bias, 1.0 + h_lip * 17.0),
+            jaw_open_deg=max(jaw_bias, h_lip * 9.0),
             brow_lift=h_brow,
             smile=h_smile,
             blink_period=3.5,
