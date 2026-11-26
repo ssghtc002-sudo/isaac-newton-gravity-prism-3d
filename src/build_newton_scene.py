@@ -2175,6 +2175,8 @@ else:
     f_hi = min(TOTAL_FRAMES, scene.frame_end + 1)
     FRAMES_TO_KEY = list(range(f_lo, f_hi + 1))
 
+print(f"[Newton V9] Keyframing {len(FRAMES_TO_KEY)} active frame(s)...", flush=True)
+t_kf = time.time()
 for f in FRAMES_TO_KEY:
     t = (f - 1) / FPS
 
@@ -2851,7 +2853,7 @@ if ARGS.save_blend:
             img.filepath = bpy.path.abspath(img.filepath)
     scene.render.filepath = os.path.join(os.path.abspath(ARGS.out_dir), "frame_")
     t_save = time.time()
-    bpy.ops.wm.save_as_mainfile(filepath=blend_dst, compress=False, remap_relative=False)
+    bpy.ops.wm.save_as_mainfile(filepath=blend_dst, compress=False, relative_remap=False)
     print(f"[Newton V9 Bake-Once] Saved baked 720-frame .blend -> {blend_dst} ({os.path.getsize(blend_dst)/1e6:.1f} MB in {time.time()-t_save:.2f}s)")
 
 if ARGS.no_render:
