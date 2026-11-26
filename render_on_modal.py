@@ -217,7 +217,7 @@ def build_full_hd_short(
 
     final_mp4 = Path("/tmp/isaac_newton_gravity_prism_short.mp4")
     vf_graph = (
-        "[0:v]scale=1080:1920:flags=lanczos:accurate_rnd=1,"
+        "[0:v]scale=1080:1920:flags=lanczos,"
         "unsharp=3:3:0.35:3:3:0.0,format=gbrp,split[base][hi];"
         "[hi]eq=brightness=-0.42:contrast=2.4,gblur=sigma=16,format=gbrp[glow];"
         "[base][glow]blend=all_mode=screen:all_opacity=0.28,"
