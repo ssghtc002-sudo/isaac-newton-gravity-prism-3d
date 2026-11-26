@@ -1,0 +1,651 @@
+{
+  "title": "How a Grenade Actually Works \u2014 4K Hollywood Slow-Mo X-Ray Cutaway",
+  "duration": 30.0,
+  "integratedLufs": -14.009,
+  "truePeakDbfs": -1.62,
+  "subtitleEvents": 114,
+  "lines": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "text": "In movies, soldiers pull a grenade pin with their teeth\u2014that would rip your teeth out, and it doesn't even start the timer!",
+      "start": 0.1,
+      "end": 4.4565,
+      "ratePct": 18,
+      "atempo": 1.0428,
+      "words": [
+        {
+          "word": "In",
+          "start": 0.1,
+          "end": 0.1852
+        },
+        {
+          "word": "movies,",
+          "start": 0.1852,
+          "end": 0.4833
+        },
+        {
+          "word": "soldiers",
+          "start": 0.4833,
+          "end": 0.824
+        },
+        {
+          "word": "pull",
+          "start": 0.824,
+          "end": 0.9943
+        },
+        {
+          "word": "a",
+          "start": 0.9943,
+          "end": 1.071
+        },
+        {
+          "word": "grenade",
+          "start": 1.071,
+          "end": 1.369
+        },
+        {
+          "word": "pin",
+          "start": 1.369,
+          "end": 1.4968
+        },
+        {
+          "word": "with",
+          "start": 1.4968,
+          "end": 1.6671
+        },
+        {
+          "word": "their",
+          "start": 1.6671,
+          "end": 1.8801
+        },
+        {
+          "word": "teeth\u2014",
+          "start": 1.8801,
+          "end": 2.1356
+        },
+        {
+          "word": "that",
+          "start": 2.1356,
+          "end": 2.3059
+        },
+        {
+          "word": "would",
+          "start": 2.3059,
+          "end": 2.5189
+        },
+        {
+          "word": "rip",
+          "start": 2.5189,
+          "end": 2.6466
+        },
+        {
+          "word": "your",
+          "start": 2.6466,
+          "end": 2.817
+        },
+        {
+          "word": "teeth",
+          "start": 2.817,
+          "end": 3.0299
+        },
+        {
+          "word": "out,",
+          "start": 3.0299,
+          "end": 3.2002
+        },
+        {
+          "word": "and",
+          "start": 3.2002,
+          "end": 3.328
+        },
+        {
+          "word": "it",
+          "start": 3.328,
+          "end": 3.4132
+        },
+        {
+          "word": "doesn't",
+          "start": 3.4132,
+          "end": 3.6687
+        },
+        {
+          "word": "even",
+          "start": 3.6687,
+          "end": 3.839
+        },
+        {
+          "word": "start",
+          "start": 3.839,
+          "end": 4.0519
+        },
+        {
+          "word": "the",
+          "start": 4.0519,
+          "end": 4.1797
+        },
+        {
+          "word": "timer!",
+          "start": 4.1797,
+          "end": 4.4565
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "narrator",
+      "text": "Watch what happens the second he throws it\u2014inside, a coiled steel spring is locked down by this curved spoon.",
+      "start": 4.85,
+      "end": 9.4656,
+      "ratePct": 18,
+      "atempo": 1.0,
+      "words": [
+        {
+          "word": "Watch",
+          "start": 4.85,
+          "end": 5.1
+        },
+        {
+          "word": "what",
+          "start": 5.1,
+          "end": 5.3001
+        },
+        {
+          "word": "happens",
+          "start": 5.3001,
+          "end": 5.6501
+        },
+        {
+          "word": "the",
+          "start": 5.6501,
+          "end": 5.8001
+        },
+        {
+          "word": "second",
+          "start": 5.8001,
+          "end": 6.1002
+        },
+        {
+          "word": "he",
+          "start": 6.1002,
+          "end": 6.2002
+        },
+        {
+          "word": "throws",
+          "start": 6.2002,
+          "end": 6.5002
+        },
+        {
+          "word": "it\u2014",
+          "start": 6.5002,
+          "end": 6.6503
+        },
+        {
+          "word": "inside,",
+          "start": 6.6503,
+          "end": 7.0003
+        },
+        {
+          "word": "a",
+          "start": 7.0003,
+          "end": 7.0903
+        },
+        {
+          "word": "coiled",
+          "start": 7.0903,
+          "end": 7.3904
+        },
+        {
+          "word": "steel",
+          "start": 7.3904,
+          "end": 7.6404
+        },
+        {
+          "word": "spring",
+          "start": 7.6404,
+          "end": 7.9404
+        },
+        {
+          "word": "is",
+          "start": 7.9404,
+          "end": 8.0404
+        },
+        {
+          "word": "locked",
+          "start": 8.0404,
+          "end": 8.3405
+        },
+        {
+          "word": "down",
+          "start": 8.3405,
+          "end": 8.5405
+        },
+        {
+          "word": "by",
+          "start": 8.5405,
+          "end": 8.6405
+        },
+        {
+          "word": "this",
+          "start": 8.6405,
+          "end": 8.8406
+        },
+        {
+          "word": "curved",
+          "start": 8.8406,
+          "end": 9.1406
+        },
+        {
+          "word": "spoon.",
+          "start": 9.1406,
+          "end": 9.4656
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "text": "The instant it leaves his hand, the spoon flies off\u2014and a steel striker hammer slams into the brass primer!",
+      "start": 9.9,
+      "end": 14.4526,
+      "ratePct": 18,
+      "atempo": 1.0495,
+      "words": [
+        {
+          "word": "The",
+          "start": 9.9,
+          "end": 10.0512
+        },
+        {
+          "word": "instant",
+          "start": 10.0512,
+          "end": 10.4042
+        },
+        {
+          "word": "it",
+          "start": 10.4042,
+          "end": 10.505
+        },
+        {
+          "word": "leaves",
+          "start": 10.505,
+          "end": 10.8075
+        },
+        {
+          "word": "his",
+          "start": 10.8075,
+          "end": 10.9587
+        },
+        {
+          "word": "hand,",
+          "start": 10.9587,
+          "end": 11.2108
+        },
+        {
+          "word": "the",
+          "start": 11.2108,
+          "end": 11.3621
+        },
+        {
+          "word": "spoon",
+          "start": 11.3621,
+          "end": 11.6142
+        },
+        {
+          "word": "flies",
+          "start": 11.6142,
+          "end": 11.8662
+        },
+        {
+          "word": "off\u2014",
+          "start": 11.8662,
+          "end": 12.0679
+        },
+        {
+          "word": "and",
+          "start": 12.0679,
+          "end": 12.2192
+        },
+        {
+          "word": "a",
+          "start": 12.2192,
+          "end": 12.3099
+        },
+        {
+          "word": "steel",
+          "start": 12.3099,
+          "end": 12.562
+        },
+        {
+          "word": "striker",
+          "start": 12.562,
+          "end": 12.9149
+        },
+        {
+          "word": "hammer",
+          "start": 12.9149,
+          "end": 13.2174
+        },
+        {
+          "word": "slams",
+          "start": 13.2174,
+          "end": 13.4695
+        },
+        {
+          "word": "into",
+          "start": 13.4695,
+          "end": 13.6711
+        },
+        {
+          "word": "the",
+          "start": 13.6711,
+          "end": 13.8224
+        },
+        {
+          "word": "brass",
+          "start": 13.8224,
+          "end": 14.0745
+        },
+        {
+          "word": "primer!",
+          "start": 14.0745,
+          "end": 14.4526
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "text": "That spark lights a four-second delay fuse\u2014burning steadily down the center as it flies toward the enemy bunker!",
+      "start": 14.85,
+      "end": 20.0681,
+      "ratePct": 10,
+      "atempo": 1.0,
+      "words": [
+        {
+          "word": "That",
+          "start": 14.85,
+          "end": 15.069
+        },
+        {
+          "word": "spark",
+          "start": 15.069,
+          "end": 15.3428
+        },
+        {
+          "word": "lights",
+          "start": 15.3428,
+          "end": 15.6713
+        },
+        {
+          "word": "a",
+          "start": 15.6713,
+          "end": 15.7699
+        },
+        {
+          "word": "four-second",
+          "start": 15.7699,
+          "end": 16.3174
+        },
+        {
+          "word": "delay",
+          "start": 16.3174,
+          "end": 16.5912
+        },
+        {
+          "word": "fuse\u2014",
+          "start": 16.5912,
+          "end": 16.865
+        },
+        {
+          "word": "burning",
+          "start": 16.865,
+          "end": 17.2483
+        },
+        {
+          "word": "steadily",
+          "start": 17.2483,
+          "end": 17.6863
+        },
+        {
+          "word": "down",
+          "start": 17.6863,
+          "end": 17.9053
+        },
+        {
+          "word": "the",
+          "start": 17.9053,
+          "end": 18.0696
+        },
+        {
+          "word": "center",
+          "start": 18.0696,
+          "end": 18.3981
+        },
+        {
+          "word": "as",
+          "start": 18.3981,
+          "end": 18.5076
+        },
+        {
+          "word": "it",
+          "start": 18.5076,
+          "end": 18.6171
+        },
+        {
+          "word": "flies",
+          "start": 18.6171,
+          "end": 18.8909
+        },
+        {
+          "word": "toward",
+          "start": 18.8909,
+          "end": 19.2194
+        },
+        {
+          "word": "the",
+          "start": 19.2194,
+          "end": 19.3837
+        },
+        {
+          "word": "enemy",
+          "start": 19.3837,
+          "end": 19.6575
+        },
+        {
+          "word": "bunker!",
+          "start": 19.6575,
+          "end": 20.0681
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "text": "The moment it lands by the sandbags, the flame hits the core\u2014and superheated gas swells to extreme pressure!",
+      "start": 20.7,
+      "end": 25.1646,
+      "ratePct": 18,
+      "atempo": 1.0663,
+      "words": [
+        {
+          "word": "The",
+          "start": 20.7,
+          "end": 20.8464
+        },
+        {
+          "word": "moment",
+          "start": 20.8464,
+          "end": 21.1391
+        },
+        {
+          "word": "it",
+          "start": 21.1391,
+          "end": 21.2367
+        },
+        {
+          "word": "lands",
+          "start": 21.2367,
+          "end": 21.4807
+        },
+        {
+          "word": "by",
+          "start": 21.4807,
+          "end": 21.5783
+        },
+        {
+          "word": "the",
+          "start": 21.5783,
+          "end": 21.7247
+        },
+        {
+          "word": "sandbags,",
+          "start": 21.7247,
+          "end": 22.1638
+        },
+        {
+          "word": "the",
+          "start": 22.1638,
+          "end": 22.3102
+        },
+        {
+          "word": "flame",
+          "start": 22.3102,
+          "end": 22.5542
+        },
+        {
+          "word": "hits",
+          "start": 22.5542,
+          "end": 22.7493
+        },
+        {
+          "word": "the",
+          "start": 22.7493,
+          "end": 22.8957
+        },
+        {
+          "word": "core\u2014",
+          "start": 22.8957,
+          "end": 23.1397
+        },
+        {
+          "word": "and",
+          "start": 23.1397,
+          "end": 23.2861
+        },
+        {
+          "word": "superheated",
+          "start": 23.2861,
+          "end": 23.8228
+        },
+        {
+          "word": "gas",
+          "start": 23.8228,
+          "end": 23.9692
+        },
+        {
+          "word": "swells",
+          "start": 23.9692,
+          "end": 24.2619
+        },
+        {
+          "word": "to",
+          "start": 24.2619,
+          "end": 24.3595
+        },
+        {
+          "word": "extreme",
+          "start": 24.3595,
+          "end": 24.7011
+        },
+        {
+          "word": "pressure!",
+          "start": 24.7011,
+          "end": 25.1646
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "text": "In a millisecond, the pre-scored cast-iron shell shatters outward in a massive shockwave!",
+      "start": 25.55,
+      "end": 29.482,
+      "ratePct": 18,
+      "atempo": 1.0,
+      "words": [
+        {
+          "word": "In",
+          "start": 25.55,
+          "end": 25.652
+        },
+        {
+          "word": "a",
+          "start": 25.652,
+          "end": 25.7438
+        },
+        {
+          "word": "millisecond,",
+          "start": 25.7438,
+          "end": 26.3558
+        },
+        {
+          "word": "the",
+          "start": 26.3558,
+          "end": 26.5088
+        },
+        {
+          "word": "pre-scored",
+          "start": 26.5088,
+          "end": 26.9678
+        },
+        {
+          "word": "cast-iron",
+          "start": 26.9678,
+          "end": 27.3758
+        },
+        {
+          "word": "shell",
+          "start": 27.3758,
+          "end": 27.6308
+        },
+        {
+          "word": "shatters",
+          "start": 27.6308,
+          "end": 28.0387
+        },
+        {
+          "word": "outward",
+          "start": 28.0387,
+          "end": 28.3957
+        },
+        {
+          "word": "in",
+          "start": 28.3957,
+          "end": 28.4977
+        },
+        {
+          "word": "a",
+          "start": 28.4977,
+          "end": 28.5895
+        },
+        {
+          "word": "massive",
+          "start": 28.5895,
+          "end": 28.9465
+        },
+        {
+          "word": "shockwave!",
+          "start": 28.9465,
+          "end": 29.482
+        }
+      ]
+    }
+  ]
+}

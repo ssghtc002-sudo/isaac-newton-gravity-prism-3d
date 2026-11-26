@@ -1,0 +1,126 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,66,&H00FFFFFF,&H0038C8FF,&H00080A10,&H96000000,-1,0,0,0,100,100,0,0,1,8,3.0,2,80,80,260,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.10,0:00:00.19,Default,,0,0,0,,{\c&H0038C8FF&}In{\c&H00FFFFFF&} movies,\Nsoldiers pull
+Dialogue: 0,0:00:00.19,0:00:00.48,Default,,0,0,0,,In {\c&H0038C8FF&}movies,{\c&H00FFFFFF&}\Nsoldiers pull
+Dialogue: 0,0:00:00.48,0:00:00.82,Default,,0,0,0,,In movies,\N{\c&H0038C8FF&}soldiers{\c&H00FFFFFF&} pull
+Dialogue: 0,0:00:00.82,0:00:00.99,Default,,0,0,0,,In movies,\Nsoldiers {\c&H0038C8FF&}pull{\c&H00FFFFFF&}
+Dialogue: 0,0:00:00.99,0:00:01.07,Default,,0,0,0,,{\c&H0038C8FF&}a{\c&H00FFFFFF&} grenade pin\Nwith their teeth—
+Dialogue: 0,0:00:01.07,0:00:01.37,Default,,0,0,0,,a {\c&H0038C8FF&}grenade{\c&H00FFFFFF&} pin\Nwith their teeth—
+Dialogue: 0,0:00:01.37,0:00:01.50,Default,,0,0,0,,a grenade {\c&H0038C8FF&}pin{\c&H00FFFFFF&}\Nwith their teeth—
+Dialogue: 0,0:00:01.50,0:00:01.67,Default,,0,0,0,,a grenade pin\N{\c&H0038C8FF&}with{\c&H00FFFFFF&} their teeth—
+Dialogue: 0,0:00:01.67,0:00:01.88,Default,,0,0,0,,a grenade pin\Nwith {\c&H0038C8FF&}their{\c&H00FFFFFF&} teeth—
+Dialogue: 0,0:00:01.88,0:00:02.14,Default,,0,0,0,,a grenade pin\Nwith their {\c&H0038C8FF&}teeth—{\c&H00FFFFFF&}
+Dialogue: 0,0:00:02.14,0:00:02.31,Default,,0,0,0,,{\c&H0038C8FF&}that{\c&H00FFFFFF&} would rip\Nyour teeth out,
+Dialogue: 0,0:00:02.31,0:00:02.52,Default,,0,0,0,,that {\c&H0038C8FF&}would{\c&H00FFFFFF&} rip\Nyour teeth out,
+Dialogue: 0,0:00:02.52,0:00:02.65,Default,,0,0,0,,that would {\c&H0038C8FF&}rip{\c&H00FFFFFF&}\Nyour teeth out,
+Dialogue: 0,0:00:02.65,0:00:02.82,Default,,0,0,0,,that would rip\N{\c&H0038C8FF&}your{\c&H00FFFFFF&} teeth out,
+Dialogue: 0,0:00:02.82,0:00:03.03,Default,,0,0,0,,that would rip\Nyour {\c&H0038C8FF&}teeth{\c&H00FFFFFF&} out,
+Dialogue: 0,0:00:03.03,0:00:03.20,Default,,0,0,0,,that would rip\Nyour teeth {\c&H0038C8FF&}out,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:03.20,0:00:03.33,Default,,0,0,0,,{\c&H0038C8FF&}and{\c&H00FFFFFF&} it doesn't even\Nstart the timer!
+Dialogue: 0,0:00:03.33,0:00:03.41,Default,,0,0,0,,and {\c&H0038C8FF&}it{\c&H00FFFFFF&} doesn't even\Nstart the timer!
+Dialogue: 0,0:00:03.41,0:00:03.67,Default,,0,0,0,,and it {\c&H0038C8FF&}doesn't{\c&H00FFFFFF&} even\Nstart the timer!
+Dialogue: 0,0:00:03.67,0:00:03.84,Default,,0,0,0,,and it doesn't {\c&H0038C8FF&}even{\c&H00FFFFFF&}\Nstart the timer!
+Dialogue: 0,0:00:03.84,0:00:04.05,Default,,0,0,0,,and it doesn't even\N{\c&H0038C8FF&}start{\c&H00FFFFFF&} the timer!
+Dialogue: 0,0:00:04.05,0:00:04.18,Default,,0,0,0,,and it doesn't even\Nstart {\c&H0038C8FF&}the{\c&H00FFFFFF&} timer!
+Dialogue: 0,0:00:04.18,0:00:04.46,Default,,0,0,0,,and it doesn't even\Nstart the {\c&H0038C8FF&}timer!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:04.85,0:00:05.10,Default,,0,0,0,,{\c&H0038C8FF&}Watch{\c&H00FFFFFF&} what happens
+Dialogue: 0,0:00:05.10,0:00:05.30,Default,,0,0,0,,Watch {\c&H0038C8FF&}what{\c&H00FFFFFF&} happens
+Dialogue: 0,0:00:05.30,0:00:05.65,Default,,0,0,0,,Watch what {\c&H0038C8FF&}happens{\c&H00FFFFFF&}
+Dialogue: 0,0:00:05.65,0:00:05.80,Default,,0,0,0,,{\c&H0038C8FF&}the{\c&H00FFFFFF&} second\Nhe throws it—
+Dialogue: 0,0:00:05.80,0:00:06.10,Default,,0,0,0,,the {\c&H0038C8FF&}second{\c&H00FFFFFF&}\Nhe throws it—
+Dialogue: 0,0:00:06.10,0:00:06.20,Default,,0,0,0,,the second\N{\c&H0038C8FF&}he{\c&H00FFFFFF&} throws it—
+Dialogue: 0,0:00:06.20,0:00:06.50,Default,,0,0,0,,the second\Nhe {\c&H0038C8FF&}throws{\c&H00FFFFFF&} it—
+Dialogue: 0,0:00:06.50,0:00:06.65,Default,,0,0,0,,the second\Nhe throws {\c&H0038C8FF&}it—{\c&H00FFFFFF&}
+Dialogue: 0,0:00:06.65,0:00:07.00,Default,,0,0,0,,{\c&H0038C8FF&}inside,{\c&H00FFFFFF&} a coiled\Nsteel spring is
+Dialogue: 0,0:00:07.00,0:00:07.09,Default,,0,0,0,,inside, {\c&H0038C8FF&}a{\c&H00FFFFFF&} coiled\Nsteel spring is
+Dialogue: 0,0:00:07.09,0:00:07.39,Default,,0,0,0,,inside, a {\c&H0038C8FF&}coiled{\c&H00FFFFFF&}\Nsteel spring is
+Dialogue: 0,0:00:07.39,0:00:07.64,Default,,0,0,0,,inside, a coiled\N{\c&H0038C8FF&}steel{\c&H00FFFFFF&} spring is
+Dialogue: 0,0:00:07.64,0:00:07.94,Default,,0,0,0,,inside, a coiled\Nsteel {\c&H0038C8FF&}spring{\c&H00FFFFFF&} is
+Dialogue: 0,0:00:07.94,0:00:08.04,Default,,0,0,0,,inside, a coiled\Nsteel spring {\c&H0038C8FF&}is{\c&H00FFFFFF&}
+Dialogue: 0,0:00:08.04,0:00:08.34,Default,,0,0,0,,{\c&H0038C8FF&}locked{\c&H00FFFFFF&} down\Nby this curved spoon.
+Dialogue: 0,0:00:08.34,0:00:08.54,Default,,0,0,0,,locked {\c&H0038C8FF&}down{\c&H00FFFFFF&}\Nby this curved spoon.
+Dialogue: 0,0:00:08.54,0:00:08.64,Default,,0,0,0,,locked down\N{\c&H0038C8FF&}by{\c&H00FFFFFF&} this curved spoon.
+Dialogue: 0,0:00:08.64,0:00:08.84,Default,,0,0,0,,locked down\Nby {\c&H0038C8FF&}this{\c&H00FFFFFF&} curved spoon.
+Dialogue: 0,0:00:08.84,0:00:09.14,Default,,0,0,0,,locked down\Nby this {\c&H0038C8FF&}curved{\c&H00FFFFFF&} spoon.
+Dialogue: 0,0:00:09.14,0:00:09.47,Default,,0,0,0,,locked down\Nby this curved {\c&H0038C8FF&}spoon.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:09.90,0:00:10.05,Default,,0,0,0,,{\c&H0038C8FF&}The{\c&H00FFFFFF&} instant\Nit leaves his hand,
+Dialogue: 0,0:00:10.05,0:00:10.40,Default,,0,0,0,,The {\c&H0038C8FF&}instant{\c&H00FFFFFF&}\Nit leaves his hand,
+Dialogue: 0,0:00:10.40,0:00:10.50,Default,,0,0,0,,The instant\N{\c&H0038C8FF&}it{\c&H00FFFFFF&} leaves his hand,
+Dialogue: 0,0:00:10.50,0:00:10.81,Default,,0,0,0,,The instant\Nit {\c&H0038C8FF&}leaves{\c&H00FFFFFF&} his hand,
+Dialogue: 0,0:00:10.81,0:00:10.96,Default,,0,0,0,,The instant\Nit leaves {\c&H0038C8FF&}his{\c&H00FFFFFF&} hand,
+Dialogue: 0,0:00:10.96,0:00:11.21,Default,,0,0,0,,The instant\Nit leaves his {\c&H0038C8FF&}hand,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:11.21,0:00:11.36,Default,,0,0,0,,{\c&H0038C8FF&}the{\c&H00FFFFFF&} spoon flies off—
+Dialogue: 0,0:00:11.36,0:00:11.61,Default,,0,0,0,,the {\c&H0038C8FF&}spoon{\c&H00FFFFFF&} flies off—
+Dialogue: 0,0:00:11.61,0:00:11.87,Default,,0,0,0,,the spoon {\c&H0038C8FF&}flies{\c&H00FFFFFF&} off—
+Dialogue: 0,0:00:11.87,0:00:12.07,Default,,0,0,0,,the spoon flies {\c&H0038C8FF&}off—{\c&H00FFFFFF&}
+Dialogue: 0,0:00:12.07,0:00:12.22,Default,,0,0,0,,{\c&H0038C8FF&}and{\c&H00FFFFFF&} a steel\Nstriker hammer
+Dialogue: 0,0:00:12.22,0:00:12.31,Default,,0,0,0,,and {\c&H0038C8FF&}a{\c&H00FFFFFF&} steel\Nstriker hammer
+Dialogue: 0,0:00:12.31,0:00:12.56,Default,,0,0,0,,and a {\c&H0038C8FF&}steel{\c&H00FFFFFF&}\Nstriker hammer
+Dialogue: 0,0:00:12.56,0:00:12.91,Default,,0,0,0,,and a steel\N{\c&H0038C8FF&}striker{\c&H00FFFFFF&} hammer
+Dialogue: 0,0:00:12.91,0:00:13.22,Default,,0,0,0,,and a steel\Nstriker {\c&H0038C8FF&}hammer{\c&H00FFFFFF&}
+Dialogue: 0,0:00:13.22,0:00:13.47,Default,,0,0,0,,{\c&H0038C8FF&}slams{\c&H00FFFFFF&}\Ninto the brass primer!
+Dialogue: 0,0:00:13.47,0:00:13.67,Default,,0,0,0,,slams\N{\c&H0038C8FF&}into{\c&H00FFFFFF&} the brass primer!
+Dialogue: 0,0:00:13.67,0:00:13.82,Default,,0,0,0,,slams\Ninto {\c&H0038C8FF&}the{\c&H00FFFFFF&} brass primer!
+Dialogue: 0,0:00:13.82,0:00:14.07,Default,,0,0,0,,slams\Ninto the {\c&H0038C8FF&}brass{\c&H00FFFFFF&} primer!
+Dialogue: 0,0:00:14.07,0:00:14.45,Default,,0,0,0,,slams\Ninto the brass {\c&H0038C8FF&}primer!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:14.85,0:00:15.07,Default,,0,0,0,,{\c&H0038C8FF&}That{\c&H00FFFFFF&} spark lights a\Nfour-second delay fuse—
+Dialogue: 0,0:00:15.07,0:00:15.34,Default,,0,0,0,,That {\c&H0038C8FF&}spark{\c&H00FFFFFF&} lights a\Nfour-second delay fuse—
+Dialogue: 0,0:00:15.34,0:00:15.67,Default,,0,0,0,,That spark {\c&H0038C8FF&}lights{\c&H00FFFFFF&} a\Nfour-second delay fuse—
+Dialogue: 0,0:00:15.67,0:00:15.77,Default,,0,0,0,,That spark lights {\c&H0038C8FF&}a{\c&H00FFFFFF&}\Nfour-second delay fuse—
+Dialogue: 0,0:00:15.77,0:00:16.32,Default,,0,0,0,,That spark lights a\N{\c&H0038C8FF&}four-second{\c&H00FFFFFF&} delay fuse—
+Dialogue: 0,0:00:16.32,0:00:16.59,Default,,0,0,0,,That spark lights a\Nfour-second {\c&H0038C8FF&}delay{\c&H00FFFFFF&} fuse—
+Dialogue: 0,0:00:16.59,0:00:16.86,Default,,0,0,0,,That spark lights a\Nfour-second delay {\c&H0038C8FF&}fuse—{\c&H00FFFFFF&}
+Dialogue: 0,0:00:16.86,0:00:17.25,Default,,0,0,0,,{\c&H0038C8FF&}burning{\c&H00FFFFFF&} steadily\Ndown the center
+Dialogue: 0,0:00:17.25,0:00:17.69,Default,,0,0,0,,burning {\c&H0038C8FF&}steadily{\c&H00FFFFFF&}\Ndown the center
+Dialogue: 0,0:00:17.69,0:00:17.91,Default,,0,0,0,,burning steadily\N{\c&H0038C8FF&}down{\c&H00FFFFFF&} the center
+Dialogue: 0,0:00:17.91,0:00:18.07,Default,,0,0,0,,burning steadily\Ndown {\c&H0038C8FF&}the{\c&H00FFFFFF&} center
+Dialogue: 0,0:00:18.07,0:00:18.40,Default,,0,0,0,,burning steadily\Ndown the {\c&H0038C8FF&}center{\c&H00FFFFFF&}
+Dialogue: 0,0:00:18.40,0:00:18.51,Default,,0,0,0,,{\c&H0038C8FF&}as{\c&H00FFFFFF&} it flies toward\Nthe enemy bunker!
+Dialogue: 0,0:00:18.51,0:00:18.62,Default,,0,0,0,,as {\c&H0038C8FF&}it{\c&H00FFFFFF&} flies toward\Nthe enemy bunker!
+Dialogue: 0,0:00:18.62,0:00:18.89,Default,,0,0,0,,as it {\c&H0038C8FF&}flies{\c&H00FFFFFF&} toward\Nthe enemy bunker!
+Dialogue: 0,0:00:18.89,0:00:19.22,Default,,0,0,0,,as it flies {\c&H0038C8FF&}toward{\c&H00FFFFFF&}\Nthe enemy bunker!
+Dialogue: 0,0:00:19.22,0:00:19.38,Default,,0,0,0,,as it flies toward\N{\c&H0038C8FF&}the{\c&H00FFFFFF&} enemy bunker!
+Dialogue: 0,0:00:19.38,0:00:19.66,Default,,0,0,0,,as it flies toward\Nthe {\c&H0038C8FF&}enemy{\c&H00FFFFFF&} bunker!
+Dialogue: 0,0:00:19.66,0:00:20.07,Default,,0,0,0,,as it flies toward\Nthe enemy {\c&H0038C8FF&}bunker!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:20.70,0:00:20.85,Default,,0,0,0,,{\c&H0038C8FF&}The{\c&H00FFFFFF&} moment it lands\Nby the sandbags,
+Dialogue: 0,0:00:20.85,0:00:21.14,Default,,0,0,0,,The {\c&H0038C8FF&}moment{\c&H00FFFFFF&} it lands\Nby the sandbags,
+Dialogue: 0,0:00:21.14,0:00:21.24,Default,,0,0,0,,The moment {\c&H0038C8FF&}it{\c&H00FFFFFF&} lands\Nby the sandbags,
+Dialogue: 0,0:00:21.24,0:00:21.48,Default,,0,0,0,,The moment it {\c&H0038C8FF&}lands{\c&H00FFFFFF&}\Nby the sandbags,
+Dialogue: 0,0:00:21.48,0:00:21.58,Default,,0,0,0,,The moment it lands\N{\c&H0038C8FF&}by{\c&H00FFFFFF&} the sandbags,
+Dialogue: 0,0:00:21.58,0:00:21.72,Default,,0,0,0,,The moment it lands\Nby {\c&H0038C8FF&}the{\c&H00FFFFFF&} sandbags,
+Dialogue: 0,0:00:21.72,0:00:22.16,Default,,0,0,0,,The moment it lands\Nby the {\c&H0038C8FF&}sandbags,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:22.16,0:00:22.31,Default,,0,0,0,,{\c&H0038C8FF&}the{\c&H00FFFFFF&} flame\Nhits the core—
+Dialogue: 0,0:00:22.31,0:00:22.55,Default,,0,0,0,,the {\c&H0038C8FF&}flame{\c&H00FFFFFF&}\Nhits the core—
+Dialogue: 0,0:00:22.55,0:00:22.75,Default,,0,0,0,,the flame\N{\c&H0038C8FF&}hits{\c&H00FFFFFF&} the core—
+Dialogue: 0,0:00:22.75,0:00:22.90,Default,,0,0,0,,the flame\Nhits {\c&H0038C8FF&}the{\c&H00FFFFFF&} core—
+Dialogue: 0,0:00:22.90,0:00:23.14,Default,,0,0,0,,the flame\Nhits the {\c&H0038C8FF&}core—{\c&H00FFFFFF&}
+Dialogue: 0,0:00:23.14,0:00:23.29,Default,,0,0,0,,{\c&H0038C8FF&}and{\c&H00FFFFFF&} superheated\Ngas swells
+Dialogue: 0,0:00:23.29,0:00:23.82,Default,,0,0,0,,and {\c&H0038C8FF&}superheated{\c&H00FFFFFF&}\Ngas swells
+Dialogue: 0,0:00:23.82,0:00:23.97,Default,,0,0,0,,and superheated\N{\c&H0038C8FF&}gas{\c&H00FFFFFF&} swells
+Dialogue: 0,0:00:23.97,0:00:24.26,Default,,0,0,0,,and superheated\Ngas {\c&H0038C8FF&}swells{\c&H00FFFFFF&}
+Dialogue: 0,0:00:24.26,0:00:24.36,Default,,0,0,0,,{\c&H0038C8FF&}to{\c&H00FFFFFF&} extreme pressure!
+Dialogue: 0,0:00:24.36,0:00:24.70,Default,,0,0,0,,to {\c&H0038C8FF&}extreme{\c&H00FFFFFF&} pressure!
+Dialogue: 0,0:00:24.70,0:00:25.16,Default,,0,0,0,,to extreme {\c&H0038C8FF&}pressure!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:25.55,0:00:25.65,Default,,0,0,0,,{\c&H0038C8FF&}In{\c&H00FFFFFF&} a millisecond,\Nthe pre-scored cast-iron
+Dialogue: 0,0:00:25.65,0:00:25.74,Default,,0,0,0,,In {\c&H0038C8FF&}a{\c&H00FFFFFF&} millisecond,\Nthe pre-scored cast-iron
+Dialogue: 0,0:00:25.74,0:00:26.36,Default,,0,0,0,,In a {\c&H0038C8FF&}millisecond,{\c&H00FFFFFF&}\Nthe pre-scored cast-iron
+Dialogue: 0,0:00:26.36,0:00:26.51,Default,,0,0,0,,In a millisecond,\N{\c&H0038C8FF&}the{\c&H00FFFFFF&} pre-scored cast-iron
+Dialogue: 0,0:00:26.51,0:00:26.97,Default,,0,0,0,,In a millisecond,\Nthe {\c&H0038C8FF&}pre-scored{\c&H00FFFFFF&} cast-iron
+Dialogue: 0,0:00:26.97,0:00:27.38,Default,,0,0,0,,In a millisecond,\Nthe pre-scored {\c&H0038C8FF&}cast-iron{\c&H00FFFFFF&}
+Dialogue: 0,0:00:27.38,0:00:27.63,Default,,0,0,0,,{\c&H0038C8FF&}shell{\c&H00FFFFFF&} shatters outward
+Dialogue: 0,0:00:27.63,0:00:28.04,Default,,0,0,0,,shell {\c&H0038C8FF&}shatters{\c&H00FFFFFF&} outward
+Dialogue: 0,0:00:28.04,0:00:28.40,Default,,0,0,0,,shell shatters {\c&H0038C8FF&}outward{\c&H00FFFFFF&}
+Dialogue: 0,0:00:28.40,0:00:28.50,Default,,0,0,0,,{\c&H0038C8FF&}in{\c&H00FFFFFF&} a massive shockwave!
+Dialogue: 0,0:00:28.50,0:00:28.59,Default,,0,0,0,,in {\c&H0038C8FF&}a{\c&H00FFFFFF&} massive shockwave!
+Dialogue: 0,0:00:28.59,0:00:28.95,Default,,0,0,0,,in a {\c&H0038C8FF&}massive{\c&H00FFFFFF&} shockwave!
+Dialogue: 0,0:00:28.95,0:00:29.48,Default,,0,0,0,,in a massive {\c&H0038C8FF&}shockwave!{\c&H00FFFFFF&}

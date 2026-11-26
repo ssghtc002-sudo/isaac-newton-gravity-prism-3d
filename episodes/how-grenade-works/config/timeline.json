@@ -1,0 +1,100 @@
+{
+  "title": "How a Grenade Actually Works — 4K Hollywood Slow-Mo X-Ray Cutaway",
+  "duration": 30.0,
+  "fps": 24,
+  "totalFrames": 720,
+  "resolution": [1080, 1920],
+  "audio": {
+    "masterPath": "audio/output/master_audio.wav",
+    "manifestPath": "audio/output/voice_manifest.json",
+    "srtPath": "subtitles/subtitles.srt",
+    "assPath": "subtitles/subtitles.ass"
+  },
+  "speakers": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "lang": "en-us",
+      "speed": 1.0,
+      "pan": 0.0
+    }
+  },
+  "beats": [
+    { "id": "B1", "name": "Hero Pin-Pull Myth-Buster Hook", "start": 0.0, "end": 4.8 },
+    { "id": "B2", "name": "Hero Throw -> Matrix Bullet-Time Freeze -> X-Ray Reveal", "start": 4.8, "end": 9.8 },
+    { "id": "B3", "name": "Slow-Mo Spoon Release & Striker Slam", "start": 9.8, "end": 14.8 },
+    { "id": "B4", "name": "4-Second Delay Fuse Burning Mid-Flight", "start": 14.8, "end": 20.6 },
+    { "id": "B5", "name": "Lands at Enemy Sandbags & Extreme Internal Pressure", "start": 20.6, "end": 25.5 },
+    { "id": "B6", "name": "Massive Bullet-Time Bunker Shockwave Finale", "start": 25.5, "end": 30.0 }
+  ],
+  "dialogue": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "start": 0.10,
+      "end": 4.65,
+      "text": "In movies, soldiers pull a grenade pin with their teeth—that would rip your teeth out, and it doesn't even start the timer!"
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "narrator",
+      "start": 4.85,
+      "end": 9.65,
+      "text": "Watch what happens the second he throws it—inside, a coiled steel spring is locked down by this curved spoon."
+    },
+    {
+      "id": "L3",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "start": 9.90,
+      "end": 14.65,
+      "text": "The instant it leaves his hand, the spoon flies off—and a steel striker hammer slams into the brass primer!"
+    },
+    {
+      "id": "L4",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "start": 14.85,
+      "end": 20.45,
+      "text": "That spark lights a four-second delay fuse—burning steadily down the center as it flies toward the enemy bunker!"
+    },
+    {
+      "id": "L5",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "start": 20.70,
+      "end": 25.35,
+      "text": "The moment it lands by the sandbags, the flame hits the core—and superheated gas swells to extreme pressure!"
+    },
+    {
+      "id": "L6",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "start": 25.55,
+      "end": 29.70,
+      "text": "In a millisecond, the pre-scored cast-iron shell shatters outward in a massive shockwave!"
+    }
+  ],
+  "sfx": [
+    { "t": 0.95, "type": "pin_pull_click", "pan": -0.18 },
+    { "t": 1.60, "type": "pin_ring_jingle", "pan": -0.32 },
+    { "t": 5.30, "type": "hero_throw_whoosh", "pan": 0.0 },
+    { "t": 6.00, "type": "bullet_time_drop", "pan": 0.0 },
+    { "t": 6.45, "type": "xray_slice_whoosh", "pan": 0.0 },
+    { "t": 7.90, "type": "spring_tension_creak", "pan": 0.06 },
+    { "t": 10.35, "type": "spoon_ping_fly", "pan": 0.35 },
+    { "t": 12.15, "type": "striker_hammer_snap", "pan": 0.0 },
+    { "t": 12.32, "type": "primer_spark_pop", "pan": 0.0 },
+    { "t": 14.95, "type": "fuse_burn_sizzle", "pan": 0.0 },
+    { "t": 15.80, "type": "timer_tick", "pan": 0.18 },
+    { "t": 17.00, "type": "timer_tick", "pan": 0.18 },
+    { "t": 18.20, "type": "timer_tick", "pan": 0.18 },
+    { "t": 19.40, "type": "timer_tick", "pan": 0.18 },
+    { "t": 20.65, "type": "grenade_dirt_bounce", "pan": -0.12 },
+    { "t": 21.10, "type": "core_ignition_flash", "pan": 0.0 },
+    { "t": 21.75, "type": "pressure_swell_sub", "pan": 0.0 },
+    { "t": 25.52, "type": "shell_fracture_slowmo", "pan": 0.0 },
+    { "t": 28.30, "type": "cinema_outro_hit", "pan": 0.0 }
+  ]
+}

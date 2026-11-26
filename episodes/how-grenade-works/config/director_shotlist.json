@@ -1,0 +1,815 @@
+{
+  "schema_version": "1.0.0",
+  "project": {
+    "title": "How a Grenade Actually Works — Hollywood Action & X-Ray Engineering Short",
+    "episode_id": "how-grenade-works",
+    "runtime_sec": 30.0,
+    "fps": 24,
+    "total_frames": 720,
+    "native_render_resolution": [1080, 1920],
+    "final_export_resolution": [2160, 3840],
+    "aspect_ratio": "9:16",
+    "rating": "PG-13 Educational Action (zero gore, technical cutaway focus)",
+    "color_management": {
+      "view_transform": "AgX",
+      "look": "AgX - Punchy",
+      "exposure": 0.0,
+      "transparent_max_bounces": 12
+    },
+    "retention_strategy": {
+      "target_swipe_retention_pct": 92,
+      "hook_formula": "Instant visual myth-buster in first 1.5s (Hero pulls steel pin beside jaw while grenade stays inert) + seamless whip-throw into Matrix 0.06x X-ray bullet-time + live mechanical countdown + colossal bunker shockwave payoff",
+      "pacing_curve": "High-tension close-up (B1) -> kinetic launch + 0.06x time-freeze awe (B2) -> tactile mechanical snap (B3) -> ticking countdown suspense + speed-ramp dive (B4) -> ground-zero claustrophobic pressure dread (B5) -> widescreen bullet-time radial shockwave catharsis (B6)"
+    }
+  },
+  "world_coordinate_system": {
+    "units": "meters",
+    "axes": {
+      "X": "right (+X) / left (-X) relative to Hero facing enemy bunker",
+      "Y": "forward downrange from Hero (Y=0.0) toward Enemy Bunker (Y=7.8+)",
+      "Z": "vertical up (+Z), desert ground plane at Z=0.0"
+    },
+    "hero_soldier": {
+      "origin": [0.0, 0.0, 0.0],
+      "facing_direction": "+Y (angled 14 deg toward -X for dramatic 3/4 hero close-up in B1)",
+      "height_m": 1.80,
+      "eye_height_z": 1.64,
+      "mouth_height_z": 1.54,
+      "grenade_hold_pos": [0.08, 0.30, 1.50],
+      "throw_release_pos": [0.24, 0.42, 1.62],
+      "throw_release_frame": 134
+    },
+    "battlefield_landmarks": {
+      "hero_sandbag_parapet": {
+        "y": 0.72,
+        "height_z": 1.05,
+        "width_x_range": [-2.4, 2.4],
+        "notes": "Low tactical waist-high desert sandbag wall keeping Hero upper torso, hands, and grenade sightlines 100% unobstructed"
+      },
+      "desert_flight_corridor": {
+        "y_range": [0.72, 7.25],
+        "clear_corridor_x_range": [-2.2, 2.2],
+        "notes": "Sun-baked desert no-man's-land with shallow craters and barbed-wire stakes strictly outside |X| >= 2.2m to guarantee collision-free bullet-time camera orbits"
+      },
+      "ground_zero_impact": {
+        "pos": [0.0, 7.25, 0.045],
+        "bounce_frame": 495,
+        "micro_hop_apex_pos": [0.0, 7.25, 0.155],
+        "micro_hop_apex_frame": 502,
+        "settle_frame": 508,
+        "detonation_frame": 612
+      },
+      "enemy_sandbag_bunker": {
+        "y": 7.80,
+        "height_z": 1.18,
+        "width_x_range": [-2.2, 2.2],
+        "notes": "Curved horseshoe desert fortification rigged as separable sandbag clusters that blast radially outward at f=612"
+      },
+      "rival_armored_sentries": [
+        {
+          "id": "Sentry_Left",
+          "initial_pos": [-0.78, 8.55, 0.0],
+          "facing_direction": "-Y (toward Hero / incoming grenade)"
+        },
+        {
+          "id": "Sentry_Right",
+          "initial_pos": [0.82, 8.65, 0.0],
+          "facing_direction": "-Y (toward Hero / incoming grenade)"
+        }
+      ]
+    }
+  },
+  "key_frame_milestones": {
+    "pin_pull_start": 24,
+    "pin_pull_complete": 56,
+    "hero_hold_end": 108,
+    "throw_windup_start": 109,
+    "throw_windup_peak": 122,
+    "throw_release": 134,
+    "bullet_time_start": 152,
+    "xray_laser_start": 154,
+    "xray_laser_complete": 186,
+    "spoon_spring_labels_start": 186,
+    "spoon_spring_labels_end": 235,
+    "spoon_fling_start": 246,
+    "striker_primer_impact": 294,
+    "spoon_fling_end": 298,
+    "delay_fuse_ignition": 355,
+    "countdown_4_0s": 355,
+    "countdown_3_0s": 390,
+    "countdown_2_0s": 425,
+    "bullet_time_ramp_out_start": 440,
+    "countdown_1_0s": 460,
+    "countdown_0_0s": 495,
+    "bunker_ground_bounce": 495,
+    "booster_cup_ignition": 499,
+    "micro_hop_apex": 502,
+    "micro_hop_settle": 508,
+    "shell_fracture_detonation": 612,
+    "finale_end": 720
+  },
+  "v10_cinema_compliance": {
+    "eyes_and_faces": {
+      "disable_eye_and_lash_shadows": true,
+      "per_actor_unique_enhanced_eye_tree": true,
+      "sclera_rgb": [0.95, 0.92, 0.89],
+      "pupil_size": 0.24,
+      "front_facing_cornea_fresnel_blend": 0.34,
+      "cornea_glossy_roughness": 0.014,
+      "eye_catchlight_type": "AREA",
+      "eye_catchlight_size_m": 0.42,
+      "eye_catchlight_power_w": 56.0,
+      "eye_catchlight_diffuse_factor": 0.28,
+      "eye_catchlight_specular_factor": 1.75,
+      "upper_eyelid_open_baseline_deg": -5.0,
+      "max_jaw_rotation_deg": 14.0
+    },
+    "typography_3d": {
+      "font_file": "subtitles/fonts/DejaVuSans-Bold.ttf",
+      "shader": "2-zone Object-Space |N.z| > 0.85 brushed satin-gold/cyan face + dark obsidian-bronze metallic side bevel",
+      "extrusion_m": 0.0045,
+      "bevel_m": 0.0006,
+      "emission_strength_range": [1.45, 2.05],
+      "keyline_backing_offset_m": 0.006,
+      "capsule_veil_halo": true,
+      "focus_plane_lock": true
+    },
+    "optics_and_glass": {
+      "open_ended_volumetric_cones": true,
+      "additive_camera_front_beams": true,
+      "glass_shadow_ray_transparent_bypass": true,
+      "transparent_max_bounces": 12
+    },
+    "audio_master": {
+      "narrator_voice": "en-US-BrianNeural",
+      "integrated_lufs": -14.0,
+      "true_peak_max_dbfs": -1.5,
+      "bgm_sidechain_duck_db": -9.5
+    }
+  },
+  "beats": [
+    {
+      "id": "B1",
+      "name": "Myth-Buster Hook: Pin Pulled Beside Jaw — Spoon Still Locked",
+      "frames": [1, 108],
+      "time_sec": [0.0, 4.5],
+      "dialogue_sync": {
+        "line_id": "L1",
+        "start_sec": 0.12,
+        "end_sec": 4.5,
+        "text": "Pulling a grenade's pin does NOT start the timer—movies completely lied to you!"
+      },
+      "sfx_cues": [
+        { "frame": 16, "t_sec": 0.68, "type": "pin_pull_click", "pan": -0.2 },
+        { "frame": 32, "t_sec": 1.35, "type": "pin_ring_jingle", "pan": -0.35 },
+        { "frame": 56, "t_sec": 2.33, "type": "tactical_glove_grip_creak", "pan": 0.1 }
+      ],
+      "viral_retention_goal": "Stop the scroll in 0.5 seconds by recreating the iconic Hollywood grenade pin-pull close-up right next to the Hero Soldier's jaw, then visibly debunking the movie myth: the steel ring slides all the way out at f=24..56 while the curved safety spoon stays clamped flat with ZERO smoke, sparks, or detonation.",
+      "camera_shot_type": "Tight 3/4 Hollywood Hero Close-Up with subtle handheld adrenaline micro-sway (±0.005m) and crisp shallow-DOF push-in (0.08m forward drift from f=1 to f=108). Camera placed at [-0.34, 0.96, 1.58] aiming at [0.04, 0.24, 1.55] so Hero's photoreal eyes sit on the upper rule-of-thirds line and the grenade + glinting pin dominate dead-center frame.",
+      "lens_mm": 55,
+      "aperture_fstop": 2.8,
+      "dof_focus_target": "Grenade fuze & Hero eyes plane (distance ~0.78m)",
+      "time_scale": {
+        "mode": "real_time",
+        "factor": 1.0,
+        "profile": "Constant 1.0x cinematic real-time action"
+      },
+      "grenade_trajectory_waypoints": [
+        {
+          "frame": 1,
+          "pos": [0.08, 0.30, 1.50],
+          "rot_euler_deg": [8.0, -14.0, -28.0],
+          "state": "Gripped firmly in Hero right hand near mouth/chin; safety pin seated, safety spoon clamped flush under thumb"
+        },
+        {
+          "frame": 24,
+          "pos": [0.08, 0.30, 1.50],
+          "rot_euler_deg": [9.0, -13.0, -26.0],
+          "state": "Pin extraction begins; cotter prongs straighten and pull cleanly out along -X/+Y vector"
+        },
+        {
+          "frame": 56,
+          "pos": [0.08, 0.30, 1.50],
+          "rot_euler_deg": [6.0, -15.0, -30.0],
+          "state": "Steel pin completely extracted and glinting at [-0.08, 0.34, 1.52]; safety spoon visibly locked shut — grenade 100% inert"
+        },
+        {
+          "frame": 108,
+          "pos": [0.08, 0.30, 1.50],
+          "rot_euler_deg": [10.0, -12.0, -24.0],
+          "state": "Hero shifts weight to initiate overhand throw wind-up on next frame (f=109)"
+        }
+      ],
+      "active_3d_labels": [
+        {
+          "text": "SAFETY PIN REMOVED",
+          "frames": [54, 104],
+          "world_anchor": [-0.14, 0.32, 1.78],
+          "style": "Brushed warm satin-gold face (emission 1.65) + obsidian keyline backing, placed cleanly above left hand & clear of Hero's eyes",
+          "leader_target": [-0.08, 0.34, 1.52]
+        },
+        {
+          "text": "SPOON LOCKED = SAFE",
+          "frames": [68, 106],
+          "world_anchor": [0.16, 0.30, 1.33],
+          "style": "Brushed tactical cyan-gold face (emission 1.60) + obsidian keyline backing, positioned below grenade body clear of Hero chin and sandbag top",
+          "leader_target": [0.10, 0.31, 1.51]
+        }
+      ],
+      "lighting_accent": {
+        "sun_key": "Golden-hour desert raking sunlight (5200K, elevation 18 deg, azimuth +135 deg) carving rim light along Hero helmet, cheek, and cast-iron grenade ridges",
+        "eye_catchlight": "0.42m softbox AREA light (56W, 5600K, diffuse_factor=0.28, specular_factor=1.75) positioned at [-0.42, 0.85, 1.66] quaternion-tracked to Hero eye height Z=1.64m",
+        "metallic_pin_kicker": "Warm 4500K grazing rim accent catching brushed steel pull-ring glint as pin extracts at f=24..56",
+        "atmosphere": "Subtle sun-lit desert haze & drifting dust motes backlit behind Hero helmet"
+      },
+      "character_blocking": {
+        "hero_soldier": {
+          "root_pos": [0.0, 0.0, 0.0],
+          "stance": "Crouched-alert standing posture behind Hero sandbag parapet (Y=0.72), torso angled 14 deg left for 3/4 cinematic hero framing",
+          "head_and_gaze": "Head angled slightly toward camera-right, eyes focused intensely past grenade toward distant enemy bunker (+Y); upper eyelids open (-5.0 deg baseline), jaw firm and clamped <= 8.0 deg",
+          "hands": "Right gloved hand grips grenade securely at [0.08, 0.30, 1.50] pressing safety spoon firmly against body; left gloved fingers hook pull-ring near chin and extract pin cleanly to [-0.08, 0.34, 1.52] over f=24..56, holding ring aloft for visual proof through f=100 before dropping to balance stance",
+          "clearance_notes": "Keep grenade and left hand >= 0.14m forward of chin/helmet visor to prevent any face or rim clipping"
+        },
+        "rival_sentries": {
+          "status": "Out of frame in deep background behind Enemy Bunker (Y=8.55..8.65), standing watch on patrol idle loop"
+        }
+      },
+      "continuity_checks": [
+        "Hero eyes have visible_shadow=False, unique EnhancedEye tree, and crisp specular cornea highlight from 0.42m AREA softbox",
+        "Safety pin is seated at f=1..23, smoothly translates out during f=24..56, and stays detached for the rest of the film",
+        "Safety spoon stays 100% flush and locked against grenade body throughout f=1..108 with zero sparks or smoke",
+        "Grenade exact end pose at f=108 ([0.08, 0.30, 1.50]) matches B2 wind-up start at f=109 with zero positional pop"
+      ]
+    },
+    {
+      "id": "B2",
+      "name": "Hero Hurl into Matrix Bullet-Time X-Ray Cutaway Reveal",
+      "frames": [109, 235],
+      "time_sec": [4.54, 9.79],
+      "dialogue_sync": {
+        "line_id": "L2",
+        "start_sec": 4.7,
+        "end_sec": 9.65,
+        "text": "Inside, a coiled steel spring is locked down by this curved safety lever—called the spoon."
+      },
+      "sfx_cues": [
+        { "frame": 110, "t_sec": 4.55, "type": "xray_slice_whoosh", "pan": 0.0 },
+        { "frame": 132, "t_sec": 5.50, "type": "grenade_throw_whip_whoosh", "pan": 0.15 },
+        { "frame": 152, "t_sec": 6.33, "type": "bullet_time_bass_drop_warp", "pan": 0.0 },
+        { "frame": 154, "t_sec": 6.40, "type": "spring_tension_creak", "pan": 0.05 },
+        { "frame": 158, "t_sec": 6.58, "type": "cyan_laser_scan_hum", "pan": 0.0 }
+      ],
+      "viral_retention_goal": "Deliver the signature Hollywood 'WHOA' transition at 4.5s—the exact point mobile viewers decide to stay: explosive full-body overhand hurl over the sandbag parapet straight into a jaw-dropping 0.06x Matrix bullet-time freeze where a glowing cyan X-ray laser slices the airborne grenade transparent to expose its coiled spring and locked spoon.",
+      "camera_shot_type": "Continuous 1-take Action Whip-Pull into Matrix Bullet-Time Macro Orbit. Phase A (f=109..134): dynamic pull-back & low-right hero angle [0.78, 1.18, 1.48] tracking Hero's wind-up & release over sandbags. Phase B (f=134..152): aggressive high-speed chase whip-track following the climbing grenade over desert no-man's-land. Phase C (f=152..235): instant 0.06x Matrix bullet-time macro orbital glide at 0.56m radius sweeping 65 deg around the suspended grenade from front-left to front-right while Hero shrinks behind in golden bokeh.",
+      "lens_mm": 42,
+      "lens_mm_keyframes": [
+        { "frame": 109, "lens_mm": 35 },
+        { "frame": 134, "lens_mm": 35 },
+        { "frame": 152, "lens_mm": 62 },
+        { "frame": 235, "lens_mm": 68 }
+      ],
+      "aperture_fstop": 3.5,
+      "dof_focus_target": "Locked directly onto airborne grenade center (exact focus plane for 3D labels)",
+      "time_scale": {
+        "mode": "speed_ramp_to_bullet_time",
+        "factor": 0.06,
+        "profile": "1.0x real-time throw & launch (f=109..151) -> hard cinematic time-dilation slam to 0.06x Matrix bullet-time at f=152..235"
+      },
+      "grenade_trajectory_waypoints": [
+        {
+          "frame": 109,
+          "pos": [0.08, 0.30, 1.50],
+          "rot_euler_deg": [10.0, -12.0, -24.0],
+          "state": "Start of overhand throw wind-up in Hero right hand"
+        },
+        {
+          "frame": 122,
+          "pos": [0.34, -0.18, 1.58],
+          "rot_euler_deg": [-38.0, -25.0, -15.0],
+          "state": "Peak cockback behind Hero right shoulder; spoon still firmly gripped"
+        },
+        {
+          "frame": 134,
+          "pos": [0.24, 0.42, 1.62],
+          "rot_euler_deg": [22.0, -8.0, -6.0],
+          "state": "EXACT THROW RELEASE from Hero fingers; grenade launches forward along +Y ballistic arc; spoon tension now freed for B3 release"
+        },
+        {
+          "frame": 143,
+          "pos": [0.14, 1.38, 2.02],
+          "rot_euler_deg": [14.0, -4.0, 4.0],
+          "state": "High-speed mid-launch ascent clearing Hero sandbag parapet (Y=0.72)"
+        },
+        {
+          "frame": 152,
+          "pos": [0.05, 2.35, 2.25],
+          "rot_euler_deg": [6.0, 0.0, 12.0],
+          "state": "MATRIX BULLET-TIME ENTRY (0.06x); slow stately tumble begins; exterior shell solid olive-drab cast iron"
+        },
+        {
+          "frame": 186,
+          "pos": [0.044, 2.657, 2.312],
+          "rot_euler_deg": [5.0, 2.0, 16.0],
+          "state": "Cyan X-ray laser sweep (f=154..186) completes top-to-bottom scan; front shell hemisphere now crystal-clear refractive glass revealing helical torsion spring & fuze neck"
+        },
+        {
+          "frame": 235,
+          "pos": [0.036, 3.099, 2.377],
+          "rot_euler_deg": [4.0, 4.0, 22.0],
+          "state": "Gliding in ultra-slow 0.06x bullet-time; coiled steel torsion spring visibly compressed under curved safety spoon ready to release at f=246"
+        }
+      ],
+      "active_3d_labels": [
+        {
+          "text": "SAFETY LEVER (SPOON)",
+          "frames": [186, 235],
+          "world_anchor_offset_from_grenade": [0.16, 0.0, 0.14],
+          "style": "2-zone Object-Space brushed cyan-gold face (emission 1.75) + obsidian-bronze bevel + recessed keyline backing on exact camera DOF plane",
+          "leader_target_part": "curved_safety_spoon_handle"
+        },
+        {
+          "text": "TORSION SPRING",
+          "frames": [196, 235],
+          "world_anchor_offset_from_grenade": [-0.15, 0.0, 0.10],
+          "style": "2-zone Object-Space brushed satin-gold face (emission 1.75) + obsidian-bronze bevel + recessed keyline backing on exact camera DOF plane",
+          "leader_target_part": "coiled_helical_torsion_spring"
+        }
+      ],
+      "lighting_accent": {
+        "sun_key": "Golden-hour desert backlight rimming the flying grenade silhouette and backlit sand particles suspended in 0.06x bullet-time",
+        "xray_scan_beam": "Open-ended additive volumetric cyan laser plane/sheet (RGB [0.05, 0.92, 1.0], AgX-safe emission 2.0, end_fill_type=NOTHING) sweeping top-to-bottom across shell during f=154..186",
+        "internal_cavity_fill": "Cool surgical cyan micro-rim accent illuminating steel torsion spring coils inside glass cutaway (zero shadow-blocking on glass via LightPath.IsShadowRay -> Transparent)",
+        "desert_bokeh": "Warm amber sky gradient contrasting sharply against cool cyan X-ray cutaway for instantaneous color separation"
+      },
+      "character_blocking": {
+        "hero_soldier": {
+          "f_109_to_122": "Torso twists right, left arm points downrange toward Enemy Bunker (Y=7.8) for athletic counterbalance, right arm cocks grenade back to [0.34, -0.18, 1.58]",
+          "f_123_to_134": "Explosive forward step and overhand whip release at f=134 ([0.24, 0.42, 1.62]); jaw tense <= 11 deg, eyes locked onto target trajectory",
+          "f_135_to_235": "Hero follows through and ducks dynamically behind Hero sandbag parapet (Y=0.72), freezing into 0.06x ultra-slow-mo background silhouette after f=152"
+        },
+        "rival_sentries": {
+          "status": "Distant silhouettes behind Enemy Bunker (Y=8.55..8.65) in shallow bokeh; still alert on watch, not yet noticing incoming arc"
+        }
+      },
+      "continuity_checks": [
+        "Exact throw release occurs at f=134 at [0.24, 0.42, 1.62] with zero hand-to-sandbag clipping (>= 0.14m clearance above Y=0.72 parapet)",
+        "Fast launch reaches exact waypoint [0.05, 2.35, 2.25] at f=152 where 0.06x bullet-time engages",
+        "Cyan X-ray laser sweeps strictly f=154..186; front hemisphere glass uses LightPath.IsShadowRay -> Transparent BSDF so interior spring never goes black",
+        "Labels SAFETY LEVER (SPOON) and TORSION SPRING appear f=186..235 strictly on DOF focus plane without overlapping shell silhouette",
+        "Grenade pose at f=235 ([0.036, 3.099, 2.377]) matches B3 start at f=236 seamlessly"
+      ]
+    },
+    {
+      "id": "B3",
+      "name": "Spoon Release & Striker Hammer Slam — Ignition Spark Burst",
+      "frames": [236, 354],
+      "time_sec": [9.83, 14.75],
+      "dialogue_sync": {
+        "line_id": "L3",
+        "start_sec": 9.85,
+        "end_sec": 14.65,
+        "text": "The moment you let go, the spoon flies off—and a steel striker hammer slams into the primer!"
+      },
+      "sfx_cues": [
+        { "frame": 246, "t_sec": 10.25, "type": "spoon_ping_fly", "pan": 0.35 },
+        { "frame": 292, "t_sec": 12.15, "type": "striker_hammer_snap", "pan": 0.0 },
+        { "frame": 296, "t_sec": 12.35, "type": "primer_spark_pop", "pan": 0.0 }
+      ],
+      "viral_retention_goal": "Deliver visceral mechanical ASMR satisfaction at the 10–15s mid-video retention inflection point: the curved safety spoon pings free and spins behind in bullet-time, the helical torsion spring violently unwinds, and the forged steel striker hammer slams dead-center onto the brass percussion primer at exact frame f=294 with a golden additive spark burst.",
+      "camera_shot_type": "Tight 85mm Macro Telephoto Bullet-Time Hero Orbit (0.46m standoff from fuze head) continuing smooth orbital glide across the grenade's side-front cutaway. At f=246..280 camera frames both the tumbling spoon spinning away to the trailing right/rear and the unwinding spring; at f=294 camera executes a crisp 2-frame kinetic impact punch-in (85mm -> 94mm) + subtle 0.004m damped shutter shock synchronized to the striker hammer slam!",
+      "lens_mm": 85,
+      "lens_mm_keyframes": [
+        { "frame": 236, "lens_mm": 82 },
+        { "frame": 288, "lens_mm": 85 },
+        { "frame": 294, "lens_mm": 94 },
+        { "frame": 354, "lens_mm": 84 }
+      ],
+      "aperture_fstop": 4.5,
+      "dof_focus_target": "Locked tightly on striker hammer pivot & brass percussion primer cap",
+      "time_scale": {
+        "mode": "bullet_time",
+        "factor": 0.06,
+        "profile": "Sustained 0.06x Matrix bullet-time throughout f=236..354 with crisp micro-accent on striker impact at f=294"
+      },
+      "grenade_trajectory_waypoints": [
+        {
+          "frame": 236,
+          "pos": [0.036, 3.108, 2.378],
+          "rot_euler_deg": [4.0, 4.0, 22.0],
+          "state": "Continuation from B2; cutaway fully transparent; spoon poised at release threshold"
+        },
+        {
+          "frame": 246,
+          "pos": [0.034, 3.199, 2.388],
+          "rot_euler_deg": [3.5, 4.5, 24.0],
+          "state": "SPOON FLING START: Curved safety spoon unhooks from fuze lip and launches backward/right (-Y/+X/+Z) spinning end-over-end in slow-mo"
+        },
+        {
+          "frame": 272,
+          "pos": [0.029, 3.433, 2.411],
+          "rot_euler_deg": [3.0, 5.0, 27.0],
+          "state": "Torsion spring mid-unwind; striker hammer rotating rapidly down through 110 deg arc toward center brass primer; spoon trailing ~0.35m behind"
+        },
+        {
+          "frame": 294,
+          "pos": [0.025, 3.632, 2.419],
+          "rot_euler_deg": [2.5, 5.5, 30.0],
+          "state": "EXACT STRIKER IMPACT: Forged steel striker hammer slams dead-center onto brass percussion primer cap! Additive golden-white spark burst erupts downward into delay column top!"
+        },
+        {
+          "frame": 298,
+          "pos": [0.025, 3.668, 2.421],
+          "rot_euler_deg": [2.5, 5.5, 30.5],
+          "state": "Detached spoon exits macro frame tumbling into desert air; spark shower cascades down primer throat"
+        },
+        {
+          "frame": 354,
+          "pos": [0.015, 4.174, 2.420],
+          "rot_euler_deg": [2.0, 6.0, 36.0],
+          "state": "Primer flash hands off ignition cleanly to the top of the 4-second delay fuse column at f=355"
+        }
+      ],
+      "active_3d_labels": [
+        {
+          "text": "STRIKER HAMMER",
+          "frames": [258, 344],
+          "world_anchor_offset_from_grenade": [-0.14, 0.0, 0.14],
+          "style": "2-zone brushed satin-gold face (emission 1.80) + dark obsidian-bronze extrusion + keyline backing on exact DOF plane",
+          "leader_target_part": "forged_steel_striker_hammer"
+        },
+        {
+          "text": "BRASS PRIMER",
+          "frames": [278, 350],
+          "world_anchor_offset_from_grenade": [0.15, 0.0, 0.07],
+          "style": "2-zone brushed molten-amber gold face (emission 1.85) + obsidian-bronze extrusion + keyline backing on exact DOF plane",
+          "leader_target_part": "brass_percussion_primer_cap"
+        }
+      ],
+      "lighting_accent": {
+        "sun_key": "Golden-hour cross-rim lighting highlighting tumbling metallic spoon edge and machined brass fuze threads",
+        "spark_burst_flash": "Dynamic warm golden point/area flash (3200K) pulsing inside fuze throat at f=294..314 with 24+ additive micro-spark streaks (Camera-Ray AddShader, AgX-safe emission 2.1)",
+        "xray_accent": "Subtle cyan rim maintaining clear glass cutaway silhouette against warm desert sky"
+      },
+      "character_blocking": {
+        "hero_soldier": {
+          "status": "Far behind in shallow bokeh crouching behind Hero sandbag parapet (Y=0.72), frozen in 0.06x bullet-time"
+        },
+        "rival_sentries": {
+          "status": "Far downrange at Y=8.55..8.65; Sentry_Left begins glancing skyward toward the incoming glinting arc in ultra-slow-mo"
+        }
+      },
+      "continuity_checks": [
+        "Spoon unhooks cleanly at f=246 and flies clear by f=298 without intersecting the grenade shell or camera lens",
+        "Torsion spring unwinds in exact mechanical synchronization with striker hammer swing (zero spring-to-housing mesh clipping)",
+        "Striker hammer hits exact dead-center of brass primer at f=294 with immediate golden spark eruption",
+        "Grenade trajectory follows smooth ballistic curve from f=236 ([0.036, 3.108, 2.378]) to f=354 ([0.015, 4.174, 2.420]) matching B4 start at f=355"
+      ]
+    },
+    {
+      "id": "B4",
+      "name": "4-Second Molten Delay Fuse Burn & Speed-Ramp Dive to Enemy Bunker",
+      "frames": [355, 495],
+      "time_sec": [14.79, 20.63],
+      "dialogue_sync": {
+        "line_id": "L4",
+        "start_sec": 14.85,
+        "end_sec": 20.65,
+        "text": "That tiny spark ignites a precision four-second delay fuse—burning slowly straight down the center."
+      },
+      "sfx_cues": [
+        { "frame": 358, "t_sec": 14.90, "type": "fuse_burn_sizzle", "pan": 0.0 },
+        { "frame": 379, "t_sec": 15.80, "type": "timer_tick", "pan": 0.18 },
+        { "frame": 408, "t_sec": 17.00, "type": "timer_tick", "pan": 0.18 },
+        { "frame": 437, "t_sec": 18.20, "type": "timer_tick", "pan": 0.18 },
+        { "frame": 466, "t_sec": 19.40, "type": "timer_tick", "pan": 0.18 },
+        { "frame": 495, "t_sec": 20.63, "type": "bunker_sand_impact_thud_clink", "pan": 0.0 }
+      ],
+      "viral_retention_goal": "Weaponize ticking-clock suspense! A live glowing world-space 4.0 s -> 0.0 s countdown synced to the molten orange-white burn front traveling straight down the cutaway brass tube locks eyes onto the screen, then an exhilarating 0.06x -> 1.0x speed-ramp dive at f=440..495 rockets the grenade straight down to bounce right in front of the Enemy Sandbag Bunker!",
+      "camera_shot_type": "Lateral Cutaway Tracking Shot into Adrenaline Speed-Ramp Diving Chase. Phase A (f=355..440): smooth 60mm side-3/4 macro tracking (0.50m offset) gliding alongside the descending cutaway grenade as the desert floor and approaching Enemy Sandbag Bunker (Y=7.8) sweep into view behind it. Phase B (f=440..495): smooth speed-ramp acceleration back to normal time while lens widens 60mm -> 32mm and camera dives rapidly with the grenade into a dramatic ground-skimming angle right as it bounces at [0.0, 7.25, 0.045] at f=495!",
+      "lens_mm": 60,
+      "lens_mm_keyframes": [
+        { "frame": 355, "lens_mm": 60 },
+        { "frame": 440, "lens_mm": 58 },
+        { "frame": 475, "lens_mm": 38 },
+        { "frame": 495, "lens_mm": 32 }
+      ],
+      "aperture_fstop": 4.2,
+      "dof_focus_target": "Cutaway brass delay tube & molten burn front (widening DOF during f=440..495 dive so Enemy Bunker sharpens menacingly)",
+      "time_scale": {
+        "mode": "bullet_time_to_speed_ramp_normal",
+        "factor": "0.06 -> 1.0",
+        "profile": "0.06x Matrix bullet-time across f=355..440 -> smooth cubic ease-in acceleration from 0.06x up to 1.0x normal speed across f=440..495"
+      },
+      "grenade_trajectory_waypoints": [
+        {
+          "frame": 355,
+          "pos": [0.015, 4.183, 2.420],
+          "rot_euler_deg": [2.0, 6.0, 36.0],
+          "state": "Molten orange-white delay fuse ignites at top of brass column (burn progress 0%, timer 4.0 s)"
+        },
+        {
+          "frame": 390,
+          "pos": [0.009, 4.499, 2.404],
+          "rot_euler_deg": [4.0, 6.5, 40.0],
+          "state": "Delay burn at 25% down brass column with glowing embers drifting out vent port (timer 3.0 s)"
+        },
+        {
+          "frame": 425,
+          "pos": [0.003, 4.815, 2.369],
+          "rot_euler_deg": [6.0, 7.0, 44.0],
+          "state": "Delay burn at 50% down brass column; Enemy Bunker clearly visible ahead (timer 2.0 s)"
+        },
+        {
+          "frame": 440,
+          "pos": [0.000, 4.950, 2.350],
+          "rot_euler_deg": [8.0, 7.5, 46.0],
+          "state": "SPEED-RAMP EXIT FROM BULLET-TIME: Time accelerates smoothly toward 1.0x as grenade arcs steeply downward toward Enemy Bunker"
+        },
+        {
+          "frame": 460,
+          "pos": [0.000, 5.560, 1.840],
+          "rot_euler_deg": [22.0, 10.0, 58.0],
+          "state": "Accelerating ballistic descent; delay burn at 75% (timer 1.0 s)"
+        },
+        {
+          "frame": 478,
+          "pos": [0.000, 6.380, 1.020],
+          "rot_euler_deg": [48.0, 14.0, 76.0],
+          "state": "Final steep dive past foreground sand ripples; burn front 90% down tube"
+        },
+        {
+          "frame": 495,
+          "pos": [0.000, 7.250, 0.045],
+          "rot_euler_deg": [74.0, 18.0, 92.0],
+          "state": "EXACT GROUND-ZERO BOUNCE in front of Enemy Sandbag Bunker (Y=7.8)! Crisp sand puff kicks up; burn front hits bottom of delay tube (timer 0.0 s)"
+        }
+      ],
+      "active_3d_labels": [
+        {
+          "text": "4-SEC DELAY FUSE",
+          "frames": [355, 495],
+          "world_anchor_offset_from_grenade": [-0.15, 0.0, 0.13],
+          "style": "2-zone brushed molten-gold face (emission 1.80) + obsidian-bronze bevel + keyline backing on exact DOF plane",
+          "leader_target_part": "cutaway_brass_delay_column"
+        },
+        {
+          "text": "4.0 s -> 3.0 s -> 2.0 s -> 1.0 s -> 0.0 s",
+          "dynamic_countdown": true,
+          "countdown_keyframes": [
+            { "frame": 355, "display": "4.0 s" },
+            { "frame": 390, "display": "3.0 s" },
+            { "frame": 425, "display": "2.0 s" },
+            { "frame": 460, "display": "1.0 s" },
+            { "frame": 495, "display": "0.0 s" }
+          ],
+          "frames": [355, 495],
+          "world_anchor_offset_from_grenade": [0.16, 0.0, 0.13],
+          "style": "High-contrast glowing amber-white numeric counter (AgX-safe emission 1.95 -> shifts warm orange-red at 1.0 s..0.0 s) + recessed dark obsidian backing on exact DOF plane"
+        }
+      ],
+      "lighting_accent": {
+        "sun_key": "Golden-hour low-angle desert sun raking across bunker sandbags at Y=7.8",
+        "molten_fuse_glow": "Animated warm molten orange-white core light (2600K, emission 2.05) traveling downward along the brass delay axis, casting flickering warm light across interior cast-iron cavity walls + rising additive embers",
+        "impact_dust_rim": "Backlit sand spray plume catching golden rim light at f=495 bounce"
+      },
+      "character_blocking": {
+        "hero_soldier": {
+          "status": "Out of frame behind camera at Y=0.0 taking full cover behind Hero sandbag parapet"
+        },
+        "rival_sentries": {
+          "f_355_to_440": "Both armored sentries at (-0.78, 8.55, 0.0) and (+0.82, 8.65, 0.0) spot the arcing grenade overhead; Sentry_Left points upward shouting warning (jaw <= 12 deg)",
+          "f_441_to_495": "As speed ramps to 1.0x and grenade drops straight in front of their bunker wall, both sentries recoil and initiate urgent dive toward cover behind the sandbag parapet"
+        }
+      },
+      "continuity_checks": [
+        "Delay fuse burn starts cleanly at top of brass column at f=355 (0%) and reaches booster-cup threshold right at f=495 (100%)",
+        "World-space countdown steps smoothly 4.0 s -> 3.0 s -> 2.0 s -> 1.0 s -> 0.0 s aligned with delay burn and audio ticks",
+        "Grenade hits exact ground-zero coordinate [0.0, 7.25, 0.045] at exact frame f=495 with zero ground penetration (bottom tangent touches Z=0.0)",
+        "Speed ramp f=440..495 transitions smoothly from 0.06x to 1.0x with zero camera teleportation into B5"
+      ]
+    },
+    {
+      "id": "B5",
+      "name": "Ground-Zero Booster Ignition & Internal Pressure Expansion",
+      "frames": [496, 611],
+      "time_sec": [20.67, 25.46],
+      "dialogue_sync": {
+        "line_id": "L5",
+        "start_sec": 20.85,
+        "end_sec": 25.35,
+        "text": "When the flame hits the core, superheated gas expands violently—building massive pressure inside!"
+      },
+      "sfx_cues": [
+        { "frame": 499, "t_sec": 20.80, "type": "core_ignition_flash", "pan": 0.0 },
+        { "frame": 508, "t_sec": 21.17, "type": "sand_settle_grit", "pan": 0.0 },
+        { "frame": 518, "t_sec": 21.60, "type": "pressure_swell_sub", "pan": 0.0 },
+        { "frame": 565, "t_sec": 23.54, "type": "cast_iron_stress_groan", "pan": 0.0 }
+      ],
+      "viral_retention_goal": "Build unbearable pre-explosion tension right in front of the enemy bunker: the grenade micro-hops and settles on desert sand at [0.0, 7.25, 0.045] while Rival Sentries dive behind sandbags in the background, the flame punches the booster cup at exact frame f=499, and violent turbulent fiery gas expands against the pre-scored steel grid with escalating camera pressure tremor leading straight into f=612 detonation!",
+      "camera_shot_type": "Ground-Hugging Heroic Low-Angle X-Ray Macro Push-In with Escalating Pressure Tremor. Camera crouches on the desert floor at [0.16, 6.72, 0.22] looking slightly upward (+7 deg) past the grenade at [0.0, 7.25, 0.045] toward the Enemy Sandbag Fortification (Y=7.8) and diving Rival Sentries behind it. Slow predatory push-in (0.10m) from f=496 to f=611 while high-frequency pressure vibration ramps smoothly from 0.0005m at f=505 to 0.009m at f=611!",
+      "lens_mm": 75,
+      "aperture_fstop": 3.5,
+      "dof_focus_target": "Grenade cutaway core & diamond pre-scored inner shell wall at [0.0, 7.25, 0.045] (background sandbags & diving sentries cinematically readable in medium bokeh)",
+      "time_scale": {
+        "mode": "micro_slow_mo_pressure_build",
+        "factor": 0.25,
+        "profile": "1.0x bounce micro-hop settle (f=496..508) -> dramatic 0.25x hyper-detail slow-motion during booster flash & internal superheated gas expansion (f=509..611)"
+      },
+      "grenade_trajectory_waypoints": [
+        {
+          "frame": 496,
+          "pos": [0.0, 7.25, 0.068],
+          "rot_euler_deg": [78.0, 18.0, 94.0],
+          "state": "Rebounding into crisp tactical micro-hop immediately after f=495 sand impact"
+        },
+        {
+          "frame": 499,
+          "pos": [0.0, 7.25, 0.115],
+          "rot_euler_deg": [84.0, 16.0, 96.0],
+          "state": "EXACT BOOSTER CUP IGNITION: Molten flame punches into detonator booster cup; blinding white-gold flash fills core cavity!"
+        },
+        {
+          "frame": 502,
+          "pos": [0.0, 7.25, 0.155],
+          "rot_euler_deg": [88.0, 15.0, 98.0],
+          "state": "Micro-hop apex; 3-layer volumetric turbulent fiery gas begins roaring outward inside cutaway cavity"
+        },
+        {
+          "frame": 508,
+          "pos": [0.0, 7.25, 0.045],
+          "rot_euler_deg": [88.0, 12.0, 102.0],
+          "state": "MICRO-HOP SETTLE: Grenade rests firmly on desert floor at Ground Zero [0.0, 7.25, 0.045] with cutaway window angled camera-facing (+dot > 0.75)"
+        },
+        {
+          "frame": 560,
+          "pos": [0.0, 7.25, 0.045],
+          "rot_euler_deg": [88.0, 12.0, 102.0],
+          "state": "Violent turbulent orange-white gas & pulsing additive pressure wave rings slam against the internal diamond-scored grooves; hairline molten seams begin glowing along the 48 fracture lines"
+        },
+        {
+          "frame": 611,
+          "pos": [0.0, 7.25, 0.045],
+          "rot_euler_deg": [88.0, 12.0, 102.0],
+          "state": "PEAK CRITICAL PRESSURE: Cast-iron shell swells 3% with blazing orange-gold seams screaming at yield limit — 1 frame before radial fracture at f=612!"
+        }
+      ],
+      "active_3d_labels": [
+        {
+          "text": "PRE-SCORED SHELL",
+          "frames": [508, 606],
+          "world_anchor_offset_from_grenade": [-0.15, 0.0, 0.24],
+          "style": "2-zone brushed satin-gold face (emission 1.75) + obsidian-bronze bevel + keyline backing positioned cleanly above grenade, clear of sandbag crest",
+          "leader_target_part": "diamond_scored_inner_iron_grid"
+        },
+        {
+          "text": "PEAK PRESSURE",
+          "frames": [534, 610],
+          "world_anchor_offset_from_grenade": [0.15, 0.0, 0.24],
+          "style": "2-zone brushed incandescent amber-orange face (emission 1.95) + obsidian-bronze bevel + keyline backing pulsing subtly with internal pressure rings",
+          "leader_target_part": "expanding_fiery_gas_core"
+        }
+      ],
+      "lighting_accent": {
+        "sun_key": "Golden-hour desert light dimmed slightly relative to explosive core so internal ignition commands absolute focal dominance",
+        "booster_and_gas_core": "Violent animated turbulent orange-gold internal point light (2400K -> 3800K) ramping smoothly from f=499 to f=611, casting dramatic flickering orange under-lighting across the sand floor and enemy sandbag wall",
+        "fracture_seam_glow": "Molten amber emissive shader mask creeping along the 48 pre-scored cast-iron seams from f=555 to f=611 (AgX-safe emission 2.05)",
+        "pressure_rings": "Open-ended additive translucent pressure wave shells pulsing radially inside the cutaway cavity"
+      },
+      "character_blocking": {
+        "hero_soldier": {
+          "status": "Safe behind Hero sandbag parapet (Y=0.72), out of frame"
+        },
+        "rival_sentries": {
+          "Sentry_Left": "Dives urgently down and left behind Enemy Sandbag Bunker wall (-0.78, 8.55, 0.0 -> -1.05, 8.70, 0.0 crouched-dive) arms shielding helmet during f=496..611",
+          "Sentry_Right": "Drops and scrambles backward-right behind sandbag wall (+0.82, 8.65, 0.0 -> +1.08, 8.80, 0.0 crouched-dive) shielding face during f=496..611",
+          "framing_note": "Both sentries stay clearly readable in upper background above the Enemy Sandbag crest (Y=7.8) without ever overlapping the grenade or 3D labels"
+        }
+      },
+      "continuity_checks": [
+        "Grenade completes micro-hop cleanly from f=495 bounce to f=508 settle at exact Ground Zero [0.0, 7.25, 0.045]",
+        "Booster cup ignites at exact frame f=499; turbulent fiery gas fills interior cavity through f=611 with zero outer mesh explosion before f=612",
+        "Cutaway window orientation faces camera (dot(cutaway_normal, to_camera) > 0.70) so internal diamond scoring and expanding fiery gas are 100% legible",
+        "Labels PRE-SCORED SHELL and PEAK PRESSURE sit cleanly on DOF focus plane above ground-zero grenade with zero sandbag/sentry overlap",
+        "Camera pressure tremor peaks cleanly at f=611 handing off to explosive radial detonation at f=612"
+      ]
+    },
+    {
+      "id": "B6",
+      "name": "Colossal Bullet-Time Bunker Shockwave Finale",
+      "frames": [612, 720],
+      "time_sec": [25.5, 30.0],
+      "dialogue_sync": {
+        "line_id": "L6",
+        "start_sec": 25.55,
+        "end_sec": 29.75,
+        "text": "In a fraction of a millisecond, the pre-scored steel shell shatters outward in a radial shockwave!"
+      },
+      "sfx_cues": [
+        { "frame": 612, "t_sec": 25.50, "type": "bunker_detonation_sub_boom", "pan": 0.0 },
+        { "frame": 613, "t_sec": 25.55, "type": "shell_fracture_slowmo", "pan": 0.0 },
+        { "frame": 626, "t_sec": 26.08, "type": "mach_shockwave_whip_crack", "pan": 0.0 },
+        { "frame": 674, "t_sec": 28.10, "type": "cinema_outro_hit", "pan": 0.0 }
+      ],
+      "viral_retention_goal": "Deliver an unforgettable IMAX-scale 30-second payoff that compels instant replays and shares: at exact frame f=612, the 48 pre-scored cast-iron shards blast radially outward in crisp Matrix bullet-time alongside a turbulent fireball, translucent Mach shockwave ring, erupting desert dust plume, outward-blasting bunker sandbags, and PG-13 slow-mo rival sentry silhouettes!",
+      "camera_shot_type": "Epic Wide Sweeping Bullet-Time Orbit Crane Shot (28mm cinema wide-angle). At exact frame f=612 camera snaps dynamically outward to a dramatic hero wide arc starting at [-1.95, 4.95, 1.15] and sweeping smoothly 72 deg around the erupting detonation center [0.0, 7.25, 0.95] to [+2.45, 5.10, 1.65] by f=720! Subtle 4-frame blast shockwave camera jolt at f=612..615 settles into silky-smooth IMAX bullet-time orbit as individual cast-iron shards glide heroically past the foreground lens!",
+      "lens_mm": 28,
+      "aperture_fstop": 5.6,
+      "dof_focus_target": "Detonation core, Mach shockwave ring, and mid-ground radial cast-iron shards (deep heroic focus keeping bunker & sky title razor-sharp)",
+      "time_scale": {
+        "mode": "epic_bullet_time_finale",
+        "factor": "0.08 -> 0.22",
+        "profile": "Hyper-dramatic 0.08x bullet-time during initial shell fracture & Mach ring expansion (f=612..656), easing smoothly to 0.22x majestic slow-motion sweep across fireball plume & sky title resolve (f=657..720)"
+      },
+      "grenade_trajectory_waypoints": [
+        {
+          "frame": 612,
+          "pos": [0.0, 7.25, 0.045],
+          "rot_euler_deg": [88.0, 12.0, 102.0],
+          "state": "EXACT DETONATION: Solid shell swaps seamlessly to 48 individually animated pre-scored cast-iron diamond shards; radial blast vectors ignite simultaneously!"
+        },
+        {
+          "frame": 636,
+          "pos": [0.0, 7.25, 0.045],
+          "rot_euler_deg": [0.0, 0.0, 0.0],
+          "state": "48 iron shards expand radially to radius ~0.85m..1.45m trailing glowing spark wakes; incandescent turbulent fireball reaches radius 1.1m; translucent Mach shockwave ring expands outward to radius 1.9m; front bunker sandbags at Y=7.8 begin lifting & bursting outward"
+        },
+        {
+          "frame": 672,
+          "pos": [0.0, 7.25, 0.045],
+          "rot_euler_deg": [0.0, 0.0, 0.0],
+          "state": "48 shards fly dramatically past camera foreground (radius ~1.8m..3.1m, zero lens clipping); turbulent fireball + billowing golden-lit desert dust plume tower to Z=2.3m; Mach shockwave ring washes past Enemy Bunker at radius 3.4m; sandbags scatter cleanly outward"
+        },
+        {
+          "frame": 720,
+          "pos": [0.0, 7.25, 0.045],
+          "rot_euler_deg": [0.0, 0.0, 0.0],
+          "state": "Heroic final IMAX tableau: glowing embers, suspended cast-iron shards, towering desert plume backlit by golden sun, clean open sky title locked in upper third for crisp loop/end-card retention"
+        }
+      ],
+      "active_3d_labels": [
+        {
+          "text": "48 PRE-SCORED SHARDS",
+          "frames": [624, 686],
+          "world_anchor": [-0.95, 6.45, 1.85],
+          "style": "2-zone brushed satin-gold face (emission 1.75) + obsidian-bronze bevel + keyline backing positioned cleanly in left-mid air clear of fireball core",
+          "leader_target_part": "hero_foreground_cast_iron_shard"
+        },
+        {
+          "text": "RADIAL SHOCKWAVE",
+          "frames": [646, 718],
+          "world_anchor": [0.0, 7.25, 2.72],
+          "style": "Monumental open-sky finale title (2-zone brushed satin-gold face, AgX-safe emission 1.65, recessed obsidian keyline backing + subtle capsule sky veil halo) placed cleanly in open sky Z=2.72m above fireball plume",
+          "leader_target_part": "mach_shockwave_ring"
+        }
+      ],
+      "lighting_accent": {
+        "sun_key": "Dramatic golden-hour sunset rim light sculpting rising desert dust plume and backlit airborne sandbags",
+        "fireball_illumination": "Massive turbulent multi-layer fiery emission core (white-gold inner plasma -> deep molten orange -> dark rolling smoke curls, AgX-safe peak emission 2.20 so details never blow out to flat white) casting dynamic orange light across sandbags and diving sentry silhouettes",
+        "mach_shockwave_ring": "Open-ended additive translucent cyan-white vapor condensation torus (Camera-Ray AddShader, AgX-safe emission 1.55) expanding radially at Mach speed",
+        "shard_glint": "Glowing heated edges on all 48 cast-iron fragments catching specular rim highlights"
+      },
+      "character_blocking": {
+        "hero_soldier": {
+          "status": "Distant safe cover behind Hero sandbag parapet (Y=0.72), peeking helmet silhouette visible only if wide orbit pans far back"
+        },
+        "rival_sentries": {
+          "Sentry_Left": "PG-13 Hollywood action blast-wave dive/throwback in slow-mo silhouette from (-1.05, 8.70, 0.0) arcing smoothly backward-left to (-1.85, 9.65, 0.45) shielded by flying sandbag dust cloud — pure athletic stunt silhouette, zero gore",
+          "Sentry_Right": "PG-13 Hollywood action blast-wave dive/throwback in slow-mo silhouette from (+1.08, 8.80, 0.0) arcing smoothly backward-right to (+1.92, 9.75, 0.42) — pure athletic stunt silhouette, zero gore"
+        }
+      },
+      "continuity_checks": [
+        "Exact frame f=612 swaps intact X-ray grenade cleanly to 48 pre-scored cast-iron shards originating from [0.0, 7.25, 0.045] with zero single-frame disappearance",
+        "All 48 shard vectors avoid intersecting camera near-clip plane (minimum camera clearance >= 0.35m)",
+        "Enemy sandbags at Y=7.8 blast radially outward cleanly without intersecting camera orbit path",
+        "Rival Sentries perform dramatic PG-13 slow-mo backlit dive/tumble silhouettes behind Y=8.55+ (strictly PG-13 action standard, zero gore)",
+        "Monument sky title RADIAL SHOCKWAVE sits cleanly in open desert sky (Z=2.72m), 100% clear of fireball top and airborne debris, with AgX-safe emission <= 1.75"
+      ]
+    }
+  ],
+  "crew_handoff_contracts": {
+    "grenade_engineering_agent": [
+      "Exact grenade origin follows director_shotlist.json waypoints frame-for-frame across f=1..720",
+      "Pin pulls cleanly f=24..56; spoon stays locked f=1..245 and flings off spinning f=246..298; torsion spring unwinds f=246..294; striker hammer slams primer dead-center at f=294",
+      "Cyan X-ray laser slices front hemisphere transparent f=154..186 with LightPath.IsShadowRay -> Transparent BSDF bypass",
+      "Delay fuse burns molten orange-white top-to-bottom across f=355..495; booster cup flashes at f=499; internal fiery gas expands f=499..611; 48 pre-scored cast-iron shards blast radially at f=612"
+    ],
+    "characters_and_battlefield_agent": [
+      "Hero Soldier at (0.0, 0.0, 0.0), height 1.80m, eyes Z=1.64m, mouth Z=1.54m behind Hero sandbag parapet Y=0.72",
+      "Photoreal V10 eyes: visible_shadow=False on eyes/lashes, unique EnhancedEye per actor, front-facing specular cornea, 0.42m AREA catchlight aimed at Z=1.64m, upper lid -5.0 deg baseline, jaw <= 14.0 deg",
+      "Hero holds grenade at (0.08, 0.30, 1.50) f=1..108, winds up f=109..133, releases at (0.24, 0.42, 1.62) at exact frame f=134",
+      "Enemy Sandbag Fortification at Y=7.80 with separable blast clusters at f=612; 2 Rival Armored Sentries at (-0.78, 8.55, 0.0) and (+0.82, 8.65, 0.0) diving behind cover f=495..611 and performing PG-13 slow-mo blast-wave silhouettes f=612..720"
+    ],
+    "camera_and_cinematography_agent": [
+      "6-beat lens & rig progression matching B1 (55mm Hero CU) -> B2 (35mm->68mm Whip-Launch + 0.06x Macro Orbit) -> B3 (85mm->94mm Striker Impact Punch) -> B4 (60mm->32mm Tracking + Speed-Ramp Dive) -> B5 (75mm Low-Angle Pressure Tremor) -> B6 (28mm Wide Bullet-Time Shockwave Sweep)",
+      "Keep all 3D labels strictly on exact DOF focus plane with 100% NDC clearance in verify_framing.py",
+      "Maintain >= 0.35m clearance from all 48 flying cast-iron shards and exploding sandbags in B6"
+    ],
+    "audio_and_foley_agent": [
+      "Lock en-US-BrianNeural narration L1..L6 and SFX/Foley hits to exact frame milestones (pin pull f=16/32, throw f=132, bullet-time bass drop f=152, spoon ping f=246, striker snap f=292..296, fuse sizzle + 4 ticks f=358..466, bunker bounce f=495, booster flash f=499, pressure sub f=518, colossal detonation boom f=612)",
+      "Master to -14.0 LUFS integrated, <= -1.5 dBFS true peak, -9.5 dB BGM sidechain ducking, zero truncated syllables"
+    ],
+    "master_scene_assembly_agent": [
+      "Validate zero frame gaps across f=1..720, cycles.transparent_max_bounces >= 12, AgX - Punchy color management, and 100% PASSED verify_framing.py across all 6 beats prior to Modal 10-GPU Full HD -> True 4K export"
+    ]
+  }
+}
