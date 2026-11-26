@@ -1,21 +1,26 @@
 """
-1-Command Parallel 10-GPU Cloud 4K Renderer for Modal.com (Master Studio Episodes Edition)
-Episode: How Stitches Work — 4K Medical Macro Cinema (Native 1080x1920 Cycles OPTIX -> True 4K 2160x3840)
+1-Command Parallel 10-GPU Cloud 4K Renderer for Modal.com (Warm MPFB2 4K Image Cache Edition!)
+Episode: How Stitches Work V2 — 4K Medical Macro Cinema (Native 1080x1920 Cycles OPTIX -> True 4K 2160x3840)
 """
 from __future__ import annotations
 
 from pathlib import Path
 import modal
 
-APP_NAME = "how-stitches-work-4k-render"
+APP_NAME = "how-stitches-work-v2-4k-render"
 REPO_URL = "https://github.com/ssghtc002-sudo/isaac-newton-gravity-prism-3d.git"
+ASSET_URL = (
+    "https://raw.githubusercontent.com/ssghtc002-sudo/"
+    "isaac-newton-gravity-prism-3d/assets-v8/mpfb_newton_v8_4k_assets.zip"
+)
 EPISODE_SUBDIR = "episodes/how-stitches-work"
 TOTAL_FRAMES = 720
 FPS = 24
 
 app = modal.App(APP_NAME)
 
-stitches_image = (
+# Exact byte-for-byte match with cached studio image (Blender 4.2.3 LTS + MPFB2 + 4K Human Skin + FFmpeg)
+studio_image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install(
         "ca-certificates",
@@ -48,17 +53,31 @@ stitches_image = (
         }
     )
     .run_commands(
+        # 1. Install Blender 4.2.3 LTS
         "curl -fSL --retry 3 https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz -o /tmp/blender.tar.xz "
         "&& mkdir -p /opt/blender "
         "&& tar -xf /tmp/blender.tar.xz -C /opt/blender --strip-components=1 "
         "&& rm -f /tmp/blender.tar.xz",
-        f"git clone --depth 1 {REPO_URL} /opt/studio_repo",
+        # 2. Install MakeHuman MPFB2 extension into Blender 4.2 user_default
+        "git clone --depth 1 -q https://github.com/makehumancommunity/mpfb2.git /tmp/mpfb2 "
+        "&& (cd /tmp/mpfb2/src && zip -qr /tmp/mpfb.zip mpfb) "
+        "&& /opt/blender/blender -b --command extension install-file -r user_default -e /tmp/mpfb.zip "
+        "&& rm -rf /tmp/mpfb2 /tmp/mpfb.zip",
+    )
+    .run_commands(
+        # 3. Clone Newton V9 repository & install 4K 17th-century Newton + Halley MakeHuman assets
+        f"git clone --depth 1 {REPO_URL} /opt/newton_repo "
+        f"&& mkdir -p /tmp/mpfb_packs "
+        f"&& curl -fSL --retry 3 '{ASSET_URL}' -o /tmp/mpfb_packs/mpfb_newton_v8_4k_assets.zip "
+        "&& MPFB_PACKS_DIR=/tmp/mpfb_packs /opt/blender/blender --background --python-exit-code 1 "
+        "--python /opt/newton_repo/src/install_mpfb_packs.py "
+        "&& rm -rf /tmp/mpfb_packs",
     )
 )
 
 
 @app.function(
-    image=stitches_image,
+    image=studio_image,
     gpu=["L4", "A10G", "T4"],
     cpu=4.0,
     memory=8192,
@@ -78,7 +97,7 @@ def render_chunk(
     import time
 
     t0 = time.time()
-    repo_root = "/opt/studio_repo"
+    repo_root = "/opt/newton_repo"
     subprocess.run(
         "git fetch --depth 1 -q origin main && git reset --hard -q origin/main",
         cwd=repo_root,
@@ -127,7 +146,7 @@ def render_chunk(
 
 
 @app.function(
-    image=stitches_image,
+    image=studio_image,
     cpu=8.0,
     memory=16384,
     timeout=2400,
@@ -164,7 +183,7 @@ def build_full_hd_short(
 
     print(f"[Modal Cloud Coordinator] All {TOTAL_FRAMES} frames rendered in {(time.time() - t0) / 60:.2f} min! Encoding {out_label} MP4...", flush=True)
 
-    repo_root = "/opt/studio_repo"
+    repo_root = "/opt/newton_repo"
     subprocess.run("git fetch --depth 1 -q origin main && git reset --hard -q origin/main", cwd=repo_root, shell=True, check=True)
     ep_dir = f"{repo_root}/{EPISODE_SUBDIR}"
     os.chdir(ep_dir)
@@ -175,9 +194,9 @@ def build_full_hd_short(
             "[0:v]scale=2160:3840:flags=lanczos,"
             "unsharp=5:5:0.45:5:5:0.0,format=gbrp,split[base][hi];"
             "[hi]eq=brightness=-0.52:contrast=2.8,gblur=sigma=22,format=gbrp[glow];"
-            "[base][glow]blend=all_mode=screen:all_opacity=0.20,"
-            "colorbalance=rs=-0.008:bs=0.012:rh=0.014:bh=-0.008,"
-            "vignette=PI/7.2:eval=init,format=yuv420p,noise=alls=2:allf=t,"
+            "[base][glow]blend=all_mode=screen:all_opacity=0.18,"
+            "colorbalance=rs=0.008:bs=0.012:rh=0.016:bh=-0.010,"
+            "vignette=PI/7.0:eval=init,format=yuv420p,noise=alls=2:allf=t,"
             "ass=subtitles/subtitles.ass:fontsdir=subtitles/fonts[vout]"
         )
         level_args = ["-level:v", "5.1"]
@@ -186,9 +205,9 @@ def build_full_hd_short(
             "[0:v]scale=1080:1920:flags=lanczos,"
             "unsharp=3:3:0.35:3:3:0.0,format=gbrp,split[base][hi];"
             "[hi]eq=brightness=-0.52:contrast=2.8,gblur=sigma=12,format=gbrp[glow];"
-            "[base][glow]blend=all_mode=screen:all_opacity=0.22,"
-            "colorbalance=rs=-0.008:bs=0.012:rh=0.014:bh=-0.008,"
-            "vignette=PI/7.2:eval=init,format=yuv420p,noise=alls=3:allf=t,"
+            "[base][glow]blend=all_mode=screen:all_opacity=0.20,"
+            "colorbalance=rs=0.008:bs=0.012:rh=0.016:bh=-0.010,"
+            "vignette=PI/7.0:eval=init,format=yuv420p,noise=alls=3:allf=t,"
             "ass=subtitles/subtitles.ass:fontsdir=subtitles/fonts[vout]"
         )
         level_args = []

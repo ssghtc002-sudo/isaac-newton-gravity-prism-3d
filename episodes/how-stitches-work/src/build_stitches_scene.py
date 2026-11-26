@@ -1,17 +1,32 @@
 """
-How Stitches Work — 4K Medical Macro Cinema (Blender 4.2.3 LTS Cycles OPTIX + GPU OIDN)
-Photoreal Recreation & Upgrade of the 253M-View Viral Short (AGENTS.md V10 Standard):
-  - Beat 1 (0.0-6.0s): Curved 3D Stainless-Steel Surgical Needle weaving 6 continuous royal-blue nylon sutures across a living wound
-  - Beat 2 (6.0-10.2s): Ultra-satisfying Zipper Pull closing the deforming 3D subsurface skin + Articulated Surgical Scissors SNIP!
-  - Beat 3 (10.2-15.2s): Crimson inflammation blush wave + 140 glowing 3D repair cells swarming into the wound seam
-  - Beat 4 (15.2-20.4s): 36 interwoven 3D golden collagen fiber strands bridging the gap and morphing into living pink new skin
-  - Beat 5 (20.4-25.3s): 18 branching 3D ruby capillary blood vessels growing across the seam, pulsing, then sinking beneath the epidermis
-  - Beat 6 (25.3-30.0s): Scissors snip + blue sutures smoothly sliding out -> seamless healed skin camera pullback!
+How Stitches Work — V2.1 Photoreal 4K Medical Macro Cinema (Blender 4.2.3 LTS Cycles OPTIX + OIDN)
+
+Visually QA-verified across all 7 hero beats on real MakeHuman MPFB2 4K Photo-Scanned Human Anatomy:
+  1. Complete Bare Human Right Leg (Thigh + Knee + Shin + Calf + Ankle Malleoli + Heel + 5 Toes) resting
+     on an infinite sterile dark-teal surgical examination pad (ZERO cardboard knee tent, ZERO black void!).
+  2. Natural Warm Sun-Kissed 4K Photo-Scanned Human Skin (`middleage_lightskinned_male_diffuse.png`) with
+     true microscopic `0.5mm` (`Scale=1900`) skin grain, velvety `0.56..0.68` roughness & softbox dome lighting
+     (ZERO plastic glare stripe, ZERO reptile scales!) + ~380 curved 3D human leg hairs on outer flanks.
+  3. Surgically Bisected 3D Multi-Layer Shin Incision (`bisect_plane` + rich coral-crimson dermis walls +
+     deep vascular bed + tucked 0.85mm golden adipose lobules) with `Basis` (Open), `Closed` (Taut V-crease +
+     12 sunken needle-puncture dimples + quilted thread compression), and `Healed` (Seamless 4K skin) shape keys.
+  4. Authentic Surgical Instruments & 12-Puncture Suturing:
+       - Mayo-Hegar Needle-Holder Forceps + curved 3/8-circle steel needle + swaged Prolene thread weaving 12 passes
+       - 6 Twisted 3-Wrap Surgeon's Knots with twin `4.5mm` cut whisker tails (ZERO lollipop balls!)
+       - Sleek single-piece beveled Curved Iris Surgical Scissors straddling & snipping the tension tail at t=8.65s
+       - Fine Toothed Adson Forceps extracting each stitch sequentially in Beat 6!
+  5. Clean Sub-Epidermal Translucent X-Ray Dermal Window (Beats 3-5):
+       - Beat 3: Crimson arterial blush + sculpted biconcave RBCs, golden-pearl Macrophages & Fibroblasts inside cleft
+       - Beat 4: 60 sinuous curved golden collagen fibers strictly inside the dermal cleft knitting into pink dermis
+       - Beat 5: Tortuous crimson arterioles & deep-ruby venules branching & anastomosing across the healed cleft!
 """
 from __future__ import annotations
 
 import argparse
+import glob
+import importlib
 import math
+import os
 import random
 import sys
 from pathlib import Path
@@ -22,19 +37,16 @@ from mathutils import Euler, Matrix, Vector
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
-FONT_PATH = str(PROJECT_ROOT / "subtitles" / "fonts" / "DejaVuSans-Bold.ttf")
 
 RES_X, RES_Y = 1080, 1920
 FPS = 24
 DURATION = 30.0
 TOTAL_FRAMES = int(round(DURATION * FPS))  # 720 frames
 
-# Anatomical Limb Macro Dimensions (meters — scaled cleanly for crisp Cycles DOF & SSS!)
-LIMB_R = 0.22       # Macro hero scale (equivalent to hyper-macro 100mm lens!)
-LIMB_LEN = 0.92
-WOUND_HALF_LEN = 0.145
-WOUND_HALF_W = 0.036  # Open wound half-width at center (Y=0)
-NUM_LOOPS = 6         # 6 continuous criss-cross loops = 12 entry/exit skin passes!
+WOUND_HALF_LEN = 0.054   # 10.8 cm clean anterior shin incision
+WOUND_MAX_OPEN = 0.0125  # 12.5 mm half-gap (25 mm realistic gaping surgical incision)
+WOUND_DEPTH = 0.0068     # 6.8 mm deep 3D multi-layer dermal/subcutaneous cavity
+NUM_STITCHES = 6         # 6 horizontal rungs = 12 skin punctures!
 
 
 def parse_args():
@@ -98,850 +110,1234 @@ def add_mesh(scene, name: str, bm: bmesh.types.BMesh, mat, loc=(0, 0, 0), rot=(0
     return link_obj(scene, obj)
 
 
-def limb_surface_z(x: float) -> float:
-    """Top surface Z of anatomical forearm cylinder centered at Z = -LIMB_R so crown sits at Z = 0.0!"""
-    r2 = max(1e-4, LIMB_R * LIMB_R - x * x)
-    return math.sqrt(r2) - LIMB_R
-
-
-def wound_open_half_width(y: float) -> float:
-    """Smooth elliptical tapered wound opening profile along Y in [-WOUND_HALF_LEN, +WOUND_HALF_LEN]."""
+def wound_half_gap(y: float) -> float:
     u = abs(y) / WOUND_HALF_LEN
     if u >= 1.0:
         return 0.0
-    return WOUND_HALF_W * (math.cos(u * math.pi * 0.5) ** 1.35)
+    return WOUND_MAX_OPEN * (math.cos(u * math.pi * 0.5) ** 1.30)
 
 
 # ============================================================================
-# 1. PHOTOREAL MEDICAL MACRO MATERIALS (CYCLES SSS SKIN, STEEL, NYLON, BIO)
+# 1. MPFB2 LOADER & 4K PHOTO-SCANNED TEXTURE FINDER
 # ============================================================================
-def make_photoreal_skin_mat():
-    """Cycles Burley Subsurface Skin with multi-scale micro-pores + animated crimson inflammation mask around the wound!"""
-    mat = bpy.data.materials.new("PhotorealHumanSkin_SSS")
+def enable_mpfb2_services():
+    if not any(m.endswith("mpfb.services.humanservice") for m in sys.modules):
+        for mod_name in ("bl_ext.user_default.mpfb", "mpfb"):
+            try:
+                bpy.ops.preferences.addon_enable(module=mod_name)
+                if any(m.endswith("mpfb.services.humanservice") for m in sys.modules):
+                    break
+            except Exception:
+                continue
+
+    def dyn(pkg: str, key: str):
+        for amod in list(sys.modules.keys()):
+            if amod.endswith(pkg):
+                m = importlib.import_module(amod)
+                if hasattr(m, key):
+                    return getattr(m, key)
+        raise ImportError(f"MPFB2 '{pkg}.{key}' not found")
+
+    return (
+        dyn("mpfb.services.humanservice", "HumanService"),
+        dyn("mpfb.services.targetservice", "TargetService"),
+        dyn("mpfb.services.locationservice", "LocationService"),
+        dyn("mpfb.entities.objectproperties", "HumanObjectProperties"),
+    )
+
+
+def find_4k_skin_diffuse_path(LocationService) -> str | None:
+    search_roots = [
+        LocationService.get_user_data(),
+        "/tmp/mpfb_extracted",
+        os.path.expanduser("~/.config/blender/4.2/extensions/.user/user_default/mpfb/data"),
+    ]
+    for root in search_roots:
+        if root and os.path.isdir(root):
+            hits = glob.glob(os.path.join(root, "**", "*lightskinned_male_diffuse.png"), recursive=True)
+            if hits:
+                return hits[0]
+    return None
+
+
+# ============================================================================
+# 2. PHOTOREAL V2.1 SHADERS (VELVETY 4K SKIN + SUBDERMAL X-RAY + CORAL DERMIS)
+# ============================================================================
+def make_v2_4k_human_skin_mat(diffuse_img_path: str | None):
+    """Natural, warm, velvety 4K photo-scanned human skin shader:
+    - Uses real MakeHuman 4K photo-scanned diffuse map (`middleage_lightskinned_male_diffuse.png`)
+    - Microscopic 0.5mm (`Scale=1900`) Voronoi micro-grain & velvety `0.56..0.68` roughness (ZERO plastic glare, ZERO scales!)
+    - Animated radial crimson inflammation blush + crisp dark-rose apposition seam
+    - Animated Sub-Epidermal Translucent X-Ray Cutaway Window (`cutaway_val`) for Beats 3-5!
+    """
+    mat = bpy.data.materials.new("V21_Photoreal4KHumanSkin")
     mat.use_nodes = True
     nt = mat.node_tree
-    bsdf = nt.nodes["Principled BSDF"]
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
-    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    sep_obj = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Object"], sep_obj.inputs["Vector"])
 
-    # Multi-scale organic skin tone mottling
-    ns_macro = nt.nodes.new("ShaderNodeTexNoise")
-    ns_macro.inputs["Scale"].default_value = 18.0
-    ns_macro.inputs["Detail"].default_value = 6.0
-    ns_macro.inputs["Roughness"].default_value = 0.55
+    if diffuse_img_path and os.path.isfile(diffuse_img_path):
+        tex_img = nt.nodes.new("ShaderNodeTexImage")
+        tex_img.image = bpy.data.images.load(diffuse_img_path, check_existing=True)
+        nt.links.new(tc.outputs["UV"], tex_img.inputs["Vector"])
+        gamma = nt.nodes.new("ShaderNodeGamma")
+        gamma.inputs["Gamma"].default_value = 1.14
+        nt.links.new(tex_img.outputs["Color"], gamma.inputs["Color"])
+        warm_mul = nt.nodes.new("ShaderNodeMix")
+        warm_mul.data_type = "RGBA"
+        warm_mul.blend_type = "MULTIPLY"
+        wf, wa, wb, wout = get_rgba_mix_sockets(warm_mul)
+        wf.default_value = 0.70
+        wb.default_value = (0.94, 0.80, 0.70, 1.0)
+        nt.links.new(gamma.outputs["Color"], wa)
+        base_skin_socket = wout
+    else:
+        ns_fb = nt.nodes.new("ShaderNodeTexNoise")
+        ns_fb.inputs["Scale"].default_value = 18.0
+        rmp_fb = nt.nodes.new("ShaderNodeValToRGB")
+        rmp_fb.color_ramp.elements[0].color = (0.30, 0.16, 0.105, 1.0)
+        rmp_fb.color_ramp.elements[-1].color = (0.42, 0.24, 0.165, 1.0)
+        nt.links.new(tc.outputs["Object"], ns_fb.inputs["Vector"])
+        nt.links.new(ns_fb.outputs["Fac"], rmp_fb.inputs["Fac"])
+        base_skin_socket = rmp_fb.outputs["Color"]
 
-    rmp_skin = nt.nodes.new("ShaderNodeValToRGB")
-    rmp_skin.color_ramp.elements[0].position = 0.25
-    rmp_skin.color_ramp.elements[0].color = (0.52, 0.31, 0.22, 1.0)
-    e_mid = rmp_skin.color_ramp.elements.new(0.55)
-    e_mid.color = (0.64, 0.40, 0.29, 1.0)
-    rmp_skin.color_ramp.elements[-1].position = 0.85
-    rmp_skin.color_ramp.elements[-1].color = (0.72, 0.47, 0.35, 1.0)
-
-    # Radial elliptical wound inflammation mask (active ONLY near |X| < 0.065, |Y| < 0.165)
-    # dist^2 = (x/0.062)^2 + (y/0.168)^2
-    div_x = nt.nodes.new("ShaderNodeMath")
-    div_x.operation = "DIVIDE"
-    div_x.inputs[1].default_value = 0.062
-    sq_x = nt.nodes.new("ShaderNodeMath")
-    sq_x.operation = "POWER"
-    sq_x.inputs[1].default_value = 2.0
-
-    div_y = nt.nodes.new("ShaderNodeMath")
-    div_y.operation = "DIVIDE"
-    div_y.inputs[1].default_value = 0.168
-    sq_y = nt.nodes.new("ShaderNodeMath")
-    sq_y.operation = "POWER"
-    sq_y.inputs[1].default_value = 2.0
-
-    add_d = nt.nodes.new("ShaderNodeMath")
-    add_d.operation = "ADD"
+    # Radial elliptical wound-zone mask: r2 = (x / 0.021)^2 + (y / 0.060)^2
+    dx = nt.nodes.new("ShaderNodeMath"); dx.operation = "DIVIDE"; dx.inputs[1].default_value = 0.021
+    sx = nt.nodes.new("ShaderNodeMath"); sx.operation = "POWER"; sx.inputs[1].default_value = 2.0
+    dy = nt.nodes.new("ShaderNodeMath"); dy.operation = "DIVIDE"; dy.inputs[1].default_value = 0.060
+    sy = nt.nodes.new("ShaderNodeMath"); sy.operation = "POWER"; sy.inputs[1].default_value = 2.0
+    r2 = nt.nodes.new("ShaderNodeMath"); r2.operation = "ADD"
+    nt.links.new(sep_obj.outputs["X"], dx.inputs[0]); nt.links.new(dx.outputs["Value"], sx.inputs[0])
+    nt.links.new(sep_obj.outputs["Y"], dy.inputs[0]); nt.links.new(dy.outputs["Value"], sy.inputs[0])
+    nt.links.new(sx.outputs["Value"], r2.inputs[0]); nt.links.new(sy.outputs["Value"], r2.inputs[1])
 
     mr_inf = nt.nodes.new("ShaderNodeMapRange")
     mr_inf.clamp = True
     mr_inf.interpolation_type = "SMOOTHSTEP"
-    mr_inf.inputs["From Min"].default_value = 0.05
-    mr_inf.inputs["From Max"].default_value = 1.0
+    mr_inf.inputs["From Min"].default_value = 0.04
+    mr_inf.inputs["From Max"].default_value = 1.10
     mr_inf.inputs["To Min"].default_value = 1.0
     mr_inf.inputs["To Max"].default_value = 0.0
+    nt.links.new(r2.outputs["Value"], mr_inf.inputs["Value"])
 
-    # Animated inflammation intensity multiplier node (keyframed 0.0 -> 0.85 -> 0.08!)
     inf_drive = nt.nodes.new("ShaderNodeValue")
-    inf_drive.outputs[0].default_value = 0.12
-
-    inf_mul = nt.nodes.new("ShaderNodeMath")
-    inf_mul.operation = "MULTIPLY"
-    inf_mul.use_clamp = True
-
-    mix_inf = nt.nodes.new("ShaderNodeMix")
-    mix_inf.data_type = "RGBA"
-    mi_fac, mi_a, mi_b, mi_out = get_rgba_mix_sockets(mix_inf)
-    mi_b.default_value = (0.48, 0.065, 0.055, 1.0)  # Realistic warm inflamed crimson-rose skin!
-
-    # Faint healed scar line tint (along |X| < 0.008)
-    abs_x = nt.nodes.new("ShaderNodeMath")
-    abs_x.operation = "ABSOLUTE"
-    mr_scar = nt.nodes.new("ShaderNodeMapRange")
-    mr_scar.clamp = True
-    mr_scar.inputs["From Min"].default_value = 0.0
-    mr_scar.inputs["From Max"].default_value = 0.009
-    mr_scar.inputs["To Min"].default_value = 1.0
-    mr_scar.inputs["To Max"].default_value = 0.0
-
-    scar_drive = nt.nodes.new("ShaderNodeValue")
-    scar_drive.outputs[0].default_value = 0.0
-    scar_mul = nt.nodes.new("ShaderNodeMath")
-    scar_mul.operation = "MULTIPLY"
-    mix_scar = nt.nodes.new("ShaderNodeMix")
-    mix_scar.data_type = "RGBA"
-    ms_fac, ms_a, ms_b, ms_out = get_rgba_mix_sockets(mix_scar)
-    ms_b.default_value = (0.58, 0.34, 0.28, 1.0)
-
-    # Photoreal Micro-Pore Voronoi + Fine Epidermal Wrinkle Bump!
-    vor = nt.nodes.new("ShaderNodeTexVoronoi")
-    vor.inputs["Scale"].default_value = 260.0
-    ns_fine = nt.nodes.new("ShaderNodeTexNoise")
-    ns_fine.inputs["Scale"].default_value = 95.0
-    ns_fine.inputs["Detail"].default_value = 8.0
-
-    bmp_pores = nt.nodes.new("ShaderNodeBump")
-    bmp_pores.inputs["Strength"].default_value = 0.10
-    bmp_pores.inputs["Distance"].default_value = 0.0012
-    bmp_fine = nt.nodes.new("ShaderNodeBump")
-    bmp_fine.inputs["Strength"].default_value = 0.08
-    bmp_fine.inputs["Distance"].default_value = 0.0022
-
-    # Cycles Burley Subsurface Scattering + Natural Skin Sheen!
-    set_bsdf(bsdf, "Subsurface Weight", 0.45)
-    set_bsdf(bsdf, "Subsurface Scale", 0.012)
-    set_bsdf(bsdf, "Subsurface Radius", (1.0, 0.36, 0.18))
-    if hasattr(bsdf, "subsurface_method"):
-        bsdf.subsurface_method = "BURLEY"
-    set_bsdf(bsdf, "Roughness", 0.38)
-    set_bsdf(bsdf, "Specular IOR Level", 0.52)
-    set_bsdf(bsdf, "Coat Weight", 0.18)
-    set_bsdf(bsdf, "Coat Roughness", 0.28)
-
-    nt.links.new(tc.outputs["Object"], sep.inputs["Vector"])
-    nt.links.new(tc.outputs["Object"], ns_macro.inputs["Vector"])
-    nt.links.new(tc.outputs["Object"], vor.inputs["Vector"])
-    nt.links.new(tc.outputs["Object"], ns_fine.inputs["Vector"])
-    nt.links.new(ns_macro.outputs["Fac"], rmp_skin.inputs["Fac"])
-
-    nt.links.new(sep.outputs["X"], div_x.inputs[0])
-    nt.links.new(div_x.outputs["Value"], sq_x.inputs[0])
-    nt.links.new(sep.outputs["Y"], div_y.inputs[0])
-    nt.links.new(div_y.outputs["Value"], sq_y.inputs[0])
-    nt.links.new(sq_x.outputs["Value"], add_d.inputs[0])
-    nt.links.new(sq_y.outputs["Value"], add_d.inputs[1])
-    nt.links.new(add_d.outputs["Value"], mr_inf.inputs["Value"])
+    inf_drive.outputs[0].default_value = 0.18
+    inf_mul = nt.nodes.new("ShaderNodeMath"); inf_mul.operation = "MULTIPLY"; inf_mul.use_clamp = True
     nt.links.new(mr_inf.outputs["Result"], inf_mul.inputs[0])
     nt.links.new(inf_drive.outputs[0], inf_mul.inputs[1])
 
-    nt.links.new(inf_mul.outputs["Value"], mi_fac)
-    nt.links.new(rmp_skin.outputs["Color"], mi_a)
+    mix_inf = nt.nodes.new("ShaderNodeMix"); mix_inf.data_type = "RGBA"
+    if_fac, if_a, if_b, if_out = get_rgba_mix_sockets(mix_inf)
+    if_b.default_value = (0.36, 0.045, 0.042, 1.0)
+    nt.links.new(inf_mul.outputs["Value"], if_fac)
+    nt.links.new(base_skin_socket, if_a)
 
-    nt.links.new(sep.outputs["X"], abs_x.inputs[0])
-    nt.links.new(abs_x.outputs["Value"], mr_scar.inputs["Value"])
-    nt.links.new(mr_scar.outputs["Result"], scar_mul.inputs[0])
-    nt.links.new(scar_drive.outputs[0], scar_mul.inputs[1])
-    nt.links.new(scar_mul.outputs["Value"], ms_fac)
-    nt.links.new(mi_out, ms_a)
-    nt.links.new(ms_out, bsdf.inputs["Base Color"])
+    # Crisp dark-rose apposition seam shading along |X| < 0.0024
+    abs_x = nt.nodes.new("ShaderNodeMath"); abs_x.operation = "ABSOLUTE"
+    abs_y = nt.nodes.new("ShaderNodeMath"); abs_y.operation = "ABSOLUTE"
+    mr_seam_x = nt.nodes.new("ShaderNodeMapRange"); mr_seam_x.clamp = True
+    mr_seam_x.inputs["From Min"].default_value = 0.0; mr_seam_x.inputs["From Max"].default_value = 0.0024
+    mr_seam_x.inputs["To Min"].default_value = 1.0; mr_seam_x.inputs["To Max"].default_value = 0.0
+    mr_seam_y = nt.nodes.new("ShaderNodeMapRange"); mr_seam_y.clamp = True
+    mr_seam_y.inputs["From Min"].default_value = 0.046; mr_seam_y.inputs["From Max"].default_value = 0.055
+    mr_seam_y.inputs["To Min"].default_value = 1.0; mr_seam_y.inputs["To Max"].default_value = 0.0
+    seam_xy = nt.nodes.new("ShaderNodeMath"); seam_xy.operation = "MULTIPLY"
+    seam_drive = nt.nodes.new("ShaderNodeValue"); seam_drive.outputs[0].default_value = 0.85
+    seam_mul = nt.nodes.new("ShaderNodeMath"); seam_mul.operation = "MULTIPLY"; seam_mul.use_clamp = True
+    mix_seam = nt.nodes.new("ShaderNodeMix"); mix_seam.data_type = "RGBA"
+    sm_f, sm_a, sm_b, sm_out = get_rgba_mix_sockets(mix_seam)
+    sm_b.default_value = (0.15, 0.020, 0.020, 1.0)
 
-    nt.links.new(vor.outputs["Distance"], bmp_pores.inputs["Height"])
-    nt.links.new(ns_fine.outputs["Fac"], bmp_fine.inputs["Height"])
-    nt.links.new(bmp_pores.outputs["Normal"], bmp_fine.inputs["Normal"])
-    nt.links.new(bmp_fine.outputs["Normal"], bsdf.inputs["Normal"])
+    nt.links.new(sep_obj.outputs["X"], abs_x.inputs[0]); nt.links.new(abs_x.outputs["Value"], mr_seam_x.inputs["Value"])
+    nt.links.new(sep_obj.outputs["Y"], abs_y.inputs[0]); nt.links.new(abs_y.outputs["Value"], mr_seam_y.inputs["Value"])
+    nt.links.new(mr_seam_x.outputs["Result"], seam_xy.inputs[0]); nt.links.new(mr_seam_y.outputs["Result"], seam_xy.inputs[1])
+    nt.links.new(seam_xy.outputs["Value"], seam_mul.inputs[0]); nt.links.new(seam_drive.outputs[0], seam_mul.inputs[1])
+    nt.links.new(seam_mul.outputs["Value"], sm_f); nt.links.new(if_out, sm_a)
+    nt.links.new(sm_out, bsdf.inputs["Base Color"])
 
-    return mat, inf_drive.outputs[0], scar_drive.outputs[0]
+    # Microscopic 0.5mm Human Skin Grain (Scale=1900 -> fine velvety human pores, ZERO big scales or wet shine!)
+    vor_sulci = nt.nodes.new("ShaderNodeTexVoronoi")
+    vor_sulci.feature = "DISTANCE_TO_EDGE"
+    vor_sulci.inputs["Scale"].default_value = 1900.0
+    vor_sulci.inputs["Randomness"].default_value = 0.90
+
+    ns_micro = nt.nodes.new("ShaderNodeTexNoise")
+    ns_micro.inputs["Scale"].default_value = 650.0
+    ns_micro.inputs["Detail"].default_value = 5.0
+
+    mr_rough = nt.nodes.new("ShaderNodeMapRange"); mr_rough.clamp = True
+    mr_rough.inputs["From Min"].default_value = 0.0; mr_rough.inputs["From Max"].default_value = 0.25
+    mr_rough.inputs["To Min"].default_value = 0.68; mr_rough.inputs["To Max"].default_value = 0.54
+    nt.links.new(tc.outputs["Object"], vor_sulci.inputs["Vector"])
+    nt.links.new(tc.outputs["Object"], ns_micro.inputs["Vector"])
+    nt.links.new(vor_sulci.outputs["Distance"], mr_rough.inputs["Value"])
+    nt.links.new(mr_rough.outputs["Result"], bsdf.inputs["Roughness"])
+
+    bmp_sulci = nt.nodes.new("ShaderNodeBump")
+    bmp_sulci.inputs["Strength"].default_value = 0.075
+    bmp_sulci.inputs["Distance"].default_value = 0.00020
+    bmp_micro = nt.nodes.new("ShaderNodeBump")
+    bmp_micro.inputs["Strength"].default_value = 0.055
+    bmp_micro.inputs["Distance"].default_value = 0.00025
+    nt.links.new(vor_sulci.outputs["Distance"], bmp_sulci.inputs["Height"])
+    nt.links.new(ns_micro.outputs["Fac"], bmp_micro.inputs["Height"])
+    nt.links.new(bmp_sulci.outputs["Normal"], bmp_micro.inputs["Normal"])
+    nt.links.new(bmp_micro.outputs["Normal"], bsdf.inputs["Normal"])
+
+    set_bsdf(bsdf, "Subsurface Weight", 0.30)
+    set_bsdf(bsdf, "Subsurface Scale", 0.0018)
+    set_bsdf(bsdf, "Subsurface Radius", (1.0, 0.36, 0.18))
+    if hasattr(bsdf, "subsurface_method"):
+        bsdf.subsurface_method = "BURLEY"
+    set_bsdf(bsdf, "Specular IOR Level", 0.36)
+    set_bsdf(bsdf, "Sheen Weight", 0.18)
+    set_bsdf(bsdf, "Sheen Roughness", 0.55)
+
+    # Sub-Epidermal X-Ray Cutaway Window (strictly inside the stitched ellipse r2 < 0.72!)
+    mr_xray = nt.nodes.new("ShaderNodeMapRange"); mr_xray.clamp = True; mr_xray.interpolation_type = "SMOOTHSTEP"
+    mr_xray.inputs["From Min"].default_value = 0.22
+    mr_xray.inputs["From Max"].default_value = 0.72
+    mr_xray.inputs["To Min"].default_value = 1.0
+    mr_xray.inputs["To Max"].default_value = 0.0
+    nt.links.new(r2.outputs["Value"], mr_xray.inputs["Value"])
+
+    cutaway_drive = nt.nodes.new("ShaderNodeValue")
+    cutaway_drive.outputs[0].default_value = 0.0
+    cut_mul = nt.nodes.new("ShaderNodeMath"); cut_mul.operation = "MULTIPLY"; cut_mul.use_clamp = True
+    nt.links.new(mr_xray.outputs["Result"], cut_mul.inputs[0])
+    nt.links.new(cutaway_drive.outputs[0], cut_mul.inputs[1])
+
+    tr_bsdf = nt.nodes.new("ShaderNodeBsdfTransparent")
+    tr_bsdf.inputs["Color"].default_value = (0.98, 0.90, 0.86, 1.0)
+    mix_cut = nt.nodes.new("ShaderNodeMixShader")
+    nt.links.new(cut_mul.outputs["Value"], mix_cut.inputs["Fac"])
+    nt.links.new(bsdf.outputs["BSDF"], mix_cut.inputs[1])
+    nt.links.new(tr_bsdf.outputs["BSDF"], mix_cut.inputs[2])
+    nt.links.new(mix_cut.outputs["Shader"], out.inputs["Surface"])
+
+    return mat, inf_drive.outputs[0], seam_drive.outputs[0], cutaway_drive.outputs[0]
 
 
-def make_dermis_wound_bed_mat():
-    """Clean clinical deep crimson-rose moist subcutaneous dermis bed inside the open incision."""
-    mat = bpy.data.materials.new("ClinicalDermisBed")
+def make_multilayer_wound_wall_mat():
+    """Rich 3-Layer Anatomical Wound Cavity driven deterministically by Object Z depth below Z=0."""
+    mat = bpy.data.materials.new("V21_MultiLayerDermalWall")
     mat.use_nodes = True
     nt = mat.node_tree
     bsdf = nt.nodes["Principled BSDF"]
     tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    mr_z = nt.nodes.new("ShaderNodeMapRange")
+    mr_z.clamp = True
+    mr_z.inputs["From Min"].default_value = -0.0003
+    mr_z.inputs["From Max"].default_value = -0.0065
+    mr_z.inputs["To Min"].default_value = 0.0
+    mr_z.inputs["To Max"].default_value = 1.0
+
     ns = nt.nodes.new("ShaderNodeTexNoise")
-    ns.inputs["Scale"].default_value = 32.0
-    ns.inputs["Detail"].default_value = 7.0
+    ns.inputs["Scale"].default_value = 160.0
+    ns.inputs["Detail"].default_value = 8.0
+
     rmp = nt.nodes.new("ShaderNodeValToRGB")
-    rmp.color_ramp.elements[0].color = (0.20, 0.022, 0.024, 1.0)
-    rmp.color_ramp.elements[-1].color = (0.44, 0.068, 0.062, 1.0)
+    rmp.color_ramp.elements[0].position = 0.02
+    rmp.color_ramp.elements[0].color = (0.38, 0.14, 0.10, 1.0)    # Epidermal cut rim
+    e1 = rmp.color_ramp.elements.new(0.16)
+    e1.color = (0.34, 0.030, 0.028, 1.0)                          # Rich coral-crimson Dermis wall!
+    e2 = rmp.color_ramp.elements.new(0.60)
+    e2.color = (0.22, 0.014, 0.015, 1.0)                          # Deep vascular reticular dermis
+    rmp.color_ramp.elements[-1].position = 0.95
+    rmp.color_ramp.elements[-1].color = (0.12, 0.006, 0.008, 1.0) # Deep moist wound bed
+
     bmp = nt.nodes.new("ShaderNodeBump")
-    bmp.inputs["Strength"].default_value = 0.25
-    bmp.inputs["Distance"].default_value = 0.003
-    set_bsdf(bsdf, "Roughness", 0.22)
-    set_bsdf(bsdf, "Coat Weight", 0.75)
-    set_bsdf(bsdf, "Coat Roughness", 0.08)
-    set_bsdf(bsdf, "Subsurface Weight", 0.35)
-    set_bsdf(bsdf, "Subsurface Scale", 0.008)
-    nt.links.new(tc.outputs["Object"], ns.inputs["Vector"])
-    nt.links.new(ns.outputs["Fac"], rmp.inputs["Fac"])
+    bmp.inputs["Strength"].default_value = 0.28
+    bmp.inputs["Distance"].default_value = 0.0005
+
+    set_bsdf(bsdf, "Roughness", 0.20)
+    set_bsdf(bsdf, "Coat Weight", 0.78)
+    set_bsdf(bsdf, "Coat Roughness", 0.06)
+    set_bsdf(bsdf, "Subsurface Weight", 0.30)
+    set_bsdf(bsdf, "Subsurface Scale", 0.0016)
+
+    nt.links.new(tc.outputs["Object"], sep.inputs["Vector"])
+    nt.links.new(sep.outputs["Z"], mr_z.inputs["Value"])
+    nt.links.new(mr_z.outputs["Result"], rmp.inputs["Fac"])
     nt.links.new(rmp.outputs["Color"], bsdf.inputs["Base Color"])
+    nt.links.new(tc.outputs["Object"], ns.inputs["Vector"])
     nt.links.new(ns.outputs["Fac"], bmp.inputs["Height"])
     nt.links.new(bmp.outputs["Normal"], bsdf.inputs["Normal"])
     return mat
 
 
-def make_surgical_steel_mat(name: str = "SurgicalStainlessSteel"):
-    mat = bpy.data.materials.new(name)
+def make_adipose_fat_mat():
+    mat = bpy.data.materials.new("SubcutaneousAdiposeMat")
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes["Principled BSDF"]
-    set_bsdf(bsdf, "Base Color", (0.86, 0.89, 0.94, 1.0))
-    set_bsdf(bsdf, "Metallic", 1.0)
-    set_bsdf(bsdf, "Roughness", 0.12)
-    set_bsdf(bsdf, "Coat Weight", 0.40)
-    set_bsdf(bsdf, "Coat Roughness", 0.04)
+    set_bsdf(bsdf, "Base Color", (0.48, 0.24, 0.042, 1.0))
+    set_bsdf(bsdf, "Roughness", 0.24)
+    set_bsdf(bsdf, "Coat Weight", 0.65)
+    set_bsdf(bsdf, "Subsurface Weight", 0.45)
+    set_bsdf(bsdf, "Subsurface Scale", 0.0018)
     return mat
 
 
-def make_suture_nylon_mat():
-    """Vibrant Royal-Blue Braided Nylon Surgical Suture Thread (pops vividly against skin & steel!)."""
-    mat = bpy.data.materials.new("BraidedBlueNylonSuture")
+def make_leg_hair_mat():
+    mat = bpy.data.materials.new("FineHumanLegHairMat")
     mat.use_nodes = True
-    nt = mat.node_tree
-    bsdf = nt.nodes["Principled BSDF"]
-    tc = nt.nodes.new("ShaderNodeTexCoord")
-    wv = nt.nodes.new("ShaderNodeTexWave")
-    wv.wave_type = "BANDS"
-    wv.inputs["Scale"].default_value = 140.0
-    wv.inputs["Distortion"].default_value = 1.6
-    bmp = nt.nodes.new("ShaderNodeBump")
-    bmp.inputs["Strength"].default_value = 0.16
-    bmp.inputs["Distance"].default_value = 0.0005
-    set_bsdf(bsdf, "Base Color", (0.025, 0.16, 0.78, 1.0))
-    set_bsdf(bsdf, "Roughness", 0.28)
-    set_bsdf(bsdf, "Coat Weight", 0.55)
-    set_bsdf(bsdf, "Coat Roughness", 0.16)
-    nt.links.new(tc.outputs["Object"], wv.inputs["Vector"])
-    nt.links.new(wv.outputs["Fac"], bmp.inputs["Height"])
-    nt.links.new(bmp.outputs["Normal"], bsdf.inputs["Normal"])
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    set_bsdf(bsdf, "Base Color", (0.075, 0.045, 0.024, 1.0))
+    set_bsdf(bsdf, "Roughness", 0.42)
+    return mat
+
+
+def make_prolene_suture_mat():
+    mat = bpy.data.materials.new("Prolene3_0_SurgicalSuture")
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    set_bsdf(bsdf, "Base Color", (0.005, 0.028, 0.18, 1.0))
+    set_bsdf(bsdf, "Roughness", 0.18)
+    set_bsdf(bsdf, "Specular IOR Level", 0.72)
+    set_bsdf(bsdf, "Coat Weight", 0.85)
+    set_bsdf(bsdf, "Coat Roughness", 0.06)
+    return mat
+
+
+def make_puncture_pore_mat():
+    mat = bpy.data.materials.new("NeedlePuncturePoreMat")
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    set_bsdf(bsdf, "Base Color", (0.11, 0.015, 0.016, 1.0))
+    set_bsdf(bsdf, "Roughness", 0.30)
+    return mat
+
+
+def make_surgical_steel_mat(name: str = "SurgicalGradeSteel", gold_ring: bool = False):
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    if gold_ring:
+        set_bsdf(bsdf, "Base Color", (0.86, 0.65, 0.22, 1.0))
+        set_bsdf(bsdf, "Metallic", 1.0)
+        set_bsdf(bsdf, "Roughness", 0.16)
+    else:
+        set_bsdf(bsdf, "Base Color", (0.84, 0.87, 0.92, 1.0))
+        set_bsdf(bsdf, "Metallic", 1.0)
+        set_bsdf(bsdf, "Roughness", 0.12)
+        set_bsdf(bsdf, "Anisotropic", 0.50)
     return mat
 
 
 def make_sterile_drape_mat():
-    mat = bpy.data.materials.new("SterileORDrapeBlue")
+    mat = bpy.data.materials.new("SterileSurgicalTableMat")
     mat.use_nodes = True
     nt = mat.node_tree
     bsdf = nt.nodes["Principled BSDF"]
     tc = nt.nodes.new("ShaderNodeTexCoord")
     ns = nt.nodes.new("ShaderNodeTexNoise")
-    ns.inputs["Scale"].default_value = 140.0
-    ns.inputs["Detail"].default_value = 6.0
+    ns.inputs["Scale"].default_value = 220.0
+    ns.inputs["Detail"].default_value = 5.0
     bmp = nt.nodes.new("ShaderNodeBump")
-    bmp.inputs["Strength"].default_value = 0.14
-    bmp.inputs["Distance"].default_value = 0.002
-    set_bsdf(bsdf, "Base Color", (0.028, 0.105, 0.165, 1.0))
-    set_bsdf(bsdf, "Roughness", 0.82)
-    set_bsdf(bsdf, "Sheen Weight", 0.45)
+    bmp.inputs["Strength"].default_value = 0.12
+    bmp.inputs["Distance"].default_value = 0.0008
+    set_bsdf(bsdf, "Base Color", (0.014, 0.048, 0.068, 1.0))
+    set_bsdf(bsdf, "Roughness", 0.85)
+    set_bsdf(bsdf, "Sheen Weight", 0.35)
     nt.links.new(tc.outputs["Object"], ns.inputs["Vector"])
     nt.links.new(ns.outputs["Fac"], bmp.inputs["Height"])
     nt.links.new(bmp.outputs["Normal"], bsdf.inputs["Normal"])
     return mat
 
 
-def make_repair_cell_mat():
-    """Luminous pearl-gold translucent biological repair cell (macrophage/fibroblast)."""
-    mat = bpy.data.materials.new("BiologicalRepairCellMat")
-    mat.use_nodes = True
-    nt = mat.node_tree
-    bsdf = nt.nodes["Principled BSDF"]
-    lw = nt.nodes.new("ShaderNodeLayerWeight")
-    lw.inputs["Blend"].default_value = 0.35
-    em = nt.nodes.new("ShaderNodeEmission")
-    em.inputs["Color"].default_value = (1.0, 0.90, 0.58, 1.0)
-    em.inputs["Strength"].default_value = 2.2
-    mix = nt.nodes.new("ShaderNodeMixShader")
-    set_bsdf(bsdf, "Base Color", (0.98, 0.88, 0.66, 1.0))
-    set_bsdf(bsdf, "Roughness", 0.22)
-    set_bsdf(bsdf, "Subsurface Weight", 0.65)
-    nt.links.new(lw.outputs["Facing"], mix.inputs["Fac"])
-    nt.links.new(bsdf.outputs["BSDF"], mix.inputs[1])
-    nt.links.new(em.outputs["Emission"], mix.inputs[2])
-    nt.links.new(mix.outputs["Shader"], nt.nodes["Material Output"].inputs["Surface"])
-    return mat
+# ============================================================================
+# 3. COMPLETE BARE HUMAN RIGHT LEG (THIGH -> KNEE -> SHIN -> ANKLE -> 5 TOES)
+# ============================================================================
+def build_anatomical_human_leg_with_3d_wound(scene, skin_mat, wall_mat, fat_mat, hair_mat):
+    HumanService, TargetService, LocationService, HumanObjectProperties = enable_mpfb2_services()
 
+    h_obj = HumanService.create_human(feet_on_ground=True, scale=0.1)
+    HumanObjectProperties.set_value("gender", 1.0, entity_reference=h_obj)
+    HumanObjectProperties.set_value("age", 0.38, entity_reference=h_obj)
+    HumanObjectProperties.set_value("muscle", 0.56, entity_reference=h_obj)
+    HumanObjectProperties.set_value("weight", 0.48, entity_reference=h_obj)
+    HumanObjectProperties.set_value("height", 0.58, entity_reference=h_obj)
+    TargetService.reapply_macro_details(h_obj)
 
-def make_collagen_morph_mat():
-    """Animated Golden Collagen Fiber -> Living Pink New Tissue shader!"""
-    mat = bpy.data.materials.new("CollagenToNewSkinMat")
-    mat.use_nodes = True
-    nt = mat.node_tree
-    bsdf = nt.nodes["Principled BSDF"]
-    mix_c = nt.nodes.new("ShaderNodeMix")
-    mix_c.data_type = "RGBA"
-    fac, c_gold, c_pink, c_out = get_rgba_mix_sockets(mix_c)
-    fac.default_value = 0.0
-    c_gold.default_value = (1.0, 0.78, 0.20, 1.0)  # Luminous 24K golden collagen scaffold
-    c_pink.default_value = (0.76, 0.34, 0.30, 1.0)  # Living regenerated rose-pink skin!
+    rig = HumanService.add_builtin_rig(h_obj, "default")
+    bpy.context.view_layer.update()
+    if "foot.R" in rig.pose.bones:
+        pb = rig.pose.bones["foot.R"]
+        pb.rotation_mode = "XYZ"
+        pb.rotation_euler = Euler((math.radians(28.0), 0.0, math.radians(-4.0)), "XYZ")
+    bpy.context.view_layer.update()
 
-    em_val = nt.nodes.new("ShaderNodeValue")
-    em_val.outputs[0].default_value = 1.65
+    deps = bpy.context.evaluated_depsgraph_get()
+    baked_mesh = bpy.data.meshes.new_from_object(h_obj.evaluated_get(deps))
+    body_vg_idx = h_obj.vertex_groups["body"].index if "body" in h_obj.vertex_groups else None
 
-    set_bsdf(bsdf, "Roughness", 0.28)
-    set_bsdf(bsdf, "Subsurface Weight", 0.55)
-    set_bsdf(bsdf, "Subsurface Scale", 0.01)
-    nt.links.new(c_out, bsdf.inputs["Base Color"])
-    if "Emission Color" in bsdf.inputs:
-        nt.links.new(c_out, bsdf.inputs["Emission Color"])
-    if "Emission Strength" in bsdf.inputs:
-        nt.links.new(em_val.outputs[0], bsdf.inputs["Emission Strength"])
-    return mat, fac, em_val.outputs[0]
+    bpy.data.objects.remove(h_obj, do_unlink=True)
+    bpy.data.objects.remove(rig, do_unlink=True)
 
+    # Keep FULL Right Leg all the way up through Knee & Upper Thigh (v.co.z <= 0.84) so it extends naturally off top frame!
+    bm = bmesh.new()
+    bm.from_mesh(baked_mesh)
+    bpy.data.meshes.remove(baked_mesh)
 
-def make_capillary_vessel_mat():
-    """Rich oxygenated ruby-crimson branching blood vessel with subtle rhythmic life glow."""
-    mat = bpy.data.materials.new("RubyCapillaryVesselMat")
-    mat.use_nodes = True
-    nt = mat.node_tree
-    bsdf = nt.nodes["Principled BSDF"]
-    set_bsdf(bsdf, "Base Color", (0.72, 0.035, 0.045, 1.0))
-    set_bsdf(bsdf, "Roughness", 0.18)
-    set_bsdf(bsdf, "Coat Weight", 0.85)
-    set_bsdf(bsdf, "Coat Roughness", 0.06)
-    set_bsdf(bsdf, "Subsurface Weight", 0.40)
-    if "Emission Color" in bsdf.inputs:
-        bsdf.inputs["Emission Color"].default_value = (0.95, 0.10, 0.12, 1.0)
-    em_in = bsdf.inputs.get("Emission Strength")
-    if em_in is not None:
-        em_in.default_value = 0.85
-    return mat, em_in
+    dvert = bm.verts.layers.deform.active
+    to_del = []
+    for v in bm.verts:
+        in_body = True
+        if body_vg_idx is not None and dvert is not None:
+            in_body = (body_vg_idx in v[dvert]) and (v[dvert][body_vg_idx] > 0.5)
+        if (not in_body) or (v.co.x > -0.010) or (v.co.z > 0.92):
+            to_del.append(v)
+    bmesh.ops.delete(bm, geom=to_del, context="VERTS")
+    # Smoothly extend upper thigh above knee (z > 0.62) so it continues cleanly off the top-right edge of wide shots!
+    for v in bm.verts:
+        if v.co.z > 0.62:
+            v.co.z += (v.co.z - 0.62) * 0.85
 
+    bmesh.ops.transform(bm, matrix=Matrix.Rotation(-math.pi * 0.5, 4, "X"), verts=bm.verts)
 
-def make_crisp_badge_mat(name: str, rgb=(1.0, 0.96, 0.88), strength: float = 1.65):
-    """AGENTS.md Section 2: Object-space |N.z| crisp 2-zone brushed badge shader."""
-    mat = bpy.data.materials.new(name)
-    mat.use_nodes = True
-    nt = mat.node_tree
-    nt.nodes.clear()
-    out = nt.nodes.new("ShaderNodeOutputMaterial")
-    geom = nt.nodes.new("ShaderNodeNewGeometry")
-    vtr = nt.nodes.new("ShaderNodeVectorTransform")
-    vtr.vector_type = "NORMAL"
-    vtr.convert_from = "WORLD"
-    vtr.convert_to = "OBJECT"
-    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
-    abz = nt.nodes.new("ShaderNodeMath")
-    abz.operation = "ABSOLUTE"
-    mr = nt.nodes.new("ShaderNodeMapRange")
-    mr.clamp = True
-    mr.inputs["From Min"].default_value = 0.82
-    mr.inputs["From Max"].default_value = 0.94
+    def ridge_pt(y_target: float) -> Vector:
+        band = [v.co.copy() for v in bm.verts if abs(v.co.y - y_target) < 0.016]
+        band.sort(key=lambda p: p.z, reverse=True)
+        top_n = band[: max(1, min(4, len(band)))]
+        return sum(top_n, Vector((0, 0, 0))) / len(top_n)
 
-    face = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    set_bsdf(face, "Base Color", (*rgb, 1.0))
-    set_bsdf(face, "Emission Color", (*rgb, 1.0))
-    set_bsdf(face, "Emission Strength", strength)
-    side = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    set_bsdf(side, "Base Color", (0.03, 0.04, 0.06, 1.0))
-    set_bsdf(side, "Metallic", 0.9)
-    mix = nt.nodes.new("ShaderNodeMixShader")
+    p_lo = ridge_pt(0.22)
+    p_hi = ridge_pt(0.38)
+    p_mid = ridge_pt(0.30)
 
-    nt.links.new(geom.outputs["Normal"], vtr.inputs["Vector"])
-    nt.links.new(vtr.outputs["Vector"], sep.inputs["Vector"])
-    nt.links.new(sep.outputs["Z"], abz.inputs[0])
-    nt.links.new(abz.outputs["Value"], mr.inputs["Value"])
-    nt.links.new(mr.outputs["Result"], mix.inputs["Fac"])
-    nt.links.new(side.outputs["BSDF"], mix.inputs[1])
-    nt.links.new(face.outputs["BSDF"], mix.inputs[2])
-    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
-    return mat
+    d_vec = p_hi - p_lo
+    yaw_fix = math.atan2(d_vec.x, d_vec.y)
+    pitch_fix = -math.atan2(d_vec.z, math.hypot(d_vec.x, d_vec.y))
+    M_align = Matrix.Rotation(pitch_fix, 4, "X") @ Matrix.Rotation(yaw_fix, 4, "Z") @ Matrix.Translation(-p_mid)
+    bmesh.ops.transform(bm, matrix=M_align, verts=bm.verts)
 
+    top_band = [v.co.copy() for v in bm.verts if abs(v.co.y) < 0.025 and v.co.z > -0.015]
+    if top_band:
+        pk = max(top_band, key=lambda p: p.z)
+        bmesh.ops.translate(bm, vec=-Vector((pk.x, 0.0, pk.z)), verts=bm.verts)
 
-def make_pill_halo_mat():
-    mat = bpy.data.materials.new("StageBadgePillHalo")
-    mat.use_nodes = True
-    nt = mat.node_tree
-    nt.nodes.clear()
-    out = nt.nodes.new("ShaderNodeOutputMaterial")
-    tc = nt.nodes.new("ShaderNodeTexCoord")
-    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
-    sx = nt.nodes.new("ShaderNodeMath"); sx.operation = "SUBTRACT"; sx.inputs[1].default_value = 0.5
-    mx = nt.nodes.new("ShaderNodeMath"); mx.operation = "MULTIPLY"; mx.inputs[1].default_value = 2.0
-    px = nt.nodes.new("ShaderNodeMath"); px.operation = "POWER"; px.inputs[1].default_value = 4.0
-    sy = nt.nodes.new("ShaderNodeMath"); sy.operation = "SUBTRACT"; sy.inputs[1].default_value = 0.5
-    my = nt.nodes.new("ShaderNodeMath"); my.operation = "MULTIPLY"; my.inputs[1].default_value = 2.0
-    py = nt.nodes.new("ShaderNodeMath"); py.operation = "POWER"; py.inputs[1].default_value = 2.0
-    ad = nt.nodes.new("ShaderNodeMath"); ad.operation = "ADD"
-    mr = nt.nodes.new("ShaderNodeMapRange"); mr.clamp = True; mr.interpolation_type = "SMOOTHSTEP"
-    mr.inputs["From Min"].default_value = 0.28; mr.inputs["From Max"].default_value = 1.0
-    mr.inputs["To Min"].default_value = 0.78; mr.inputs["To Max"].default_value = 0.0
-    lp = nt.nodes.new("ShaderNodeLightPath")
-    cm = nt.nodes.new("ShaderNodeMath"); cm.operation = "MULTIPLY"
-    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
-    dk = nt.nodes.new("ShaderNodeEmission"); dk.inputs["Color"].default_value = (0.010, 0.022, 0.036, 1.0); dk.inputs["Strength"].default_value = 0.16
-    mix = nt.nodes.new("ShaderNodeMixShader")
-    nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
-    nt.links.new(sep.outputs["X"], sx.inputs[0]); nt.links.new(sx.outputs["Value"], mx.inputs[0]); nt.links.new(mx.outputs["Value"], px.inputs[0])
-    nt.links.new(sep.outputs["Y"], sy.inputs[0]); nt.links.new(sy.outputs["Value"], my.inputs[0]); nt.links.new(my.outputs["Value"], py.inputs[0])
-    nt.links.new(px.outputs["Value"], ad.inputs[0]); nt.links.new(py.outputs["Value"], ad.inputs[1])
-    nt.links.new(ad.outputs["Value"], mr.inputs["Value"])
-    nt.links.new(mr.outputs["Result"], cm.inputs[0]); nt.links.new(lp.outputs["Is Camera Ray"], cm.inputs[1])
-    nt.links.new(cm.outputs["Value"], mix.inputs["Fac"])
-    nt.links.new(tr.outputs["BSDF"], mix.inputs[1]); nt.links.new(dk.outputs["Emission"], mix.inputs[2])
-    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
-    return mat
+    leg_mesh = bpy.data.meshes.new("AnatomicalHumanLeg_Mesh")
+    bm.to_mesh(leg_mesh)
+    bm.free()
+    leg_obj = bpy.data.objects.new("AnatomicalHumanLeg", leg_mesh)
+    link_obj(scene, leg_obj)
+    sub = leg_obj.modifiers.new("SmoothAnatomicalSubd", "SUBSURF")
+    sub.levels = 2
+    sub.render_levels = 2
+    bpy.context.view_layer.update()
+    deps = bpy.context.evaluated_depsgraph_get()
+    sub_mesh = bpy.data.meshes.new_from_object(leg_obj.evaluated_get(deps))
+    leg_obj.modifiers.clear()
+    old_m = leg_obj.data
+    leg_obj.data = sub_mesh
+    bpy.data.meshes.remove(old_m)
+
+    bm = bmesh.new()
+    bm.from_mesh(leg_obj.data)
+    uv_lay = bm.loops.layers.uv.verify()
+
+    zone_edges = [
+        e for e in bm.edges
+        if all(abs(v.co.x) < 0.032 and abs(v.co.y) < 0.078 and v.co.z > -0.022 for v in e.verts)
+    ]
+    if zone_edges:
+        bmesh.ops.subdivide_edges(bm, edges=zone_edges, cuts=1, use_grid_fill=True)
+    bmesh.ops.triangulate(bm, faces=[f for f in bm.faces if len(f.verts) > 4])
+
+    top_pts = [(v.co.x, v.co.y, v.co.z) for v in bm.verts if abs(v.co.x) < 0.045 and abs(v.co.y) < 0.095 and v.co.z > -0.03]
+
+    def shin_z_at(x: float, y: float) -> float:
+        best_d2 = 1e9
+        best_z = 0.0
+        for px, py, pz in top_pts:
+            d2 = (px - x) ** 2 + (py - y) ** 2
+            if d2 < best_d2:
+                best_d2 = d2
+                best_z = pz
+        return best_z
+
+    cut_geom = [
+        g for g in (list(bm.verts) + list(bm.edges) + list(bm.faces))
+        if (
+            isinstance(g, bmesh.types.BMVert) and abs(g.co.x) < 0.025 and abs(g.co.y) < WOUND_HALF_LEN + 0.015 and g.co.z > -0.020
+        ) or (
+            not isinstance(g, bmesh.types.BMVert) and any(abs(v.co.x) < 0.025 and abs(v.co.y) < WOUND_HALF_LEN + 0.015 and v.co.z > -0.020 for v in g.verts)
+        )
+    ]
+    bmesh.ops.bisect_plane(bm, geom=cut_geom, dist=1e-5, plane_co=Vector((0, 0, 0)), plane_no=Vector((1, 0, 0)))
+
+    seam_verts = [v for v in bm.verts if abs(v.co.x) < 1.5e-4 and abs(v.co.y) <= WOUND_HALF_LEN and v.co.z > -0.012]
+    seam_verts.sort(key=lambda v: v.co.y)
+
+    left_chain = [seam_verts[0]]
+    right_chain = [seam_verts[0]]
+
+    for v_orig in seam_verts[1:-1]:
+        v_right = bm.verts.new(v_orig.co.copy())
+        right_faces = [f for f in list(v_orig.link_faces) if f.calc_center_median().x > 0.0]
+        for f in right_faces:
+            f_verts = [v_right if fv == v_orig else fv for fv in f.verts]
+            f_uvs = [lp[uv_lay].uv.copy() for lp in f.loops]
+            mat_idx = f.material_index
+            bm.faces.remove(f)
+            try:
+                nf = bm.faces.new(f_verts)
+                nf.material_index = mat_idx
+                for lp, uv_c in zip(nf.loops, f_uvs):
+                    lp[uv_lay].uv = uv_c
+            except ValueError:
+                pass
+        left_chain.append(v_orig)
+        right_chain.append(v_right)
+
+    left_chain.append(seam_verts[-1])
+    right_chain.append(seam_verts[-1])
+
+    prof = [(-0.88, 0.16), (-0.68, 0.65), (0.00, 1.00), (+0.68, 0.65), (+0.88, 0.16)]
+    uv_depths = [0.0, 0.16, 0.65, 1.00, 0.65, 0.16, 0.0]
+    cavity_rings = []
+    for k in range(1, len(left_chain) - 1):
+        base_co = left_chain[k].co.copy()
+        row = [left_chain[k]]
+        for _, depth_u in prof:
+            row.append(bm.verts.new((base_co.x, base_co.y, base_co.z - WOUND_DEPTH * depth_u)))
+        row.append(right_chain[k])
+        cavity_rings.append((k, base_co, row))
+
+    for idx_r in range(len(cavity_rings) - 1):
+        _, _, r_a = cavity_rings[idx_r]
+        _, _, r_b = cavity_rings[idx_r + 1]
+        for s in range(6):
+            try:
+                f = bm.faces.new((r_a[s], r_b[s], r_b[s + 1], r_a[s + 1]))
+                f.material_index = 1
+                for lp, d_u in zip(f.loops, (uv_depths[s], uv_depths[s], uv_depths[s + 1], uv_depths[s + 1])):
+                    lp[uv_lay].uv = (0.5, d_u)
+            except ValueError:
+                pass
+
+    if cavity_rings:
+        v_bot = seam_verts[0]
+        _, _, r_first = cavity_rings[0]
+        for s in range(6):
+            try:
+                f = bm.faces.new((v_bot, r_first[s], r_first[s + 1]))
+                f.material_index = 1
+                for lp, d_u in zip(f.loops, (0.0, uv_depths[s], uv_depths[s + 1])):
+                    lp[uv_lay].uv = (0.5, d_u)
+            except ValueError:
+                pass
+        v_top = seam_verts[-1]
+        _, _, r_last = cavity_rings[-1]
+        for s in range(6):
+            try:
+                f = bm.faces.new((r_last[s], v_top, r_last[s + 1]))
+                f.material_index = 1
+                for lp, d_u in zip(f.loops, (uv_depths[s], 0.0, uv_depths[s + 1])):
+                    lp[uv_lay].uv = (0.5, d_u)
+            except ValueError:
+                pass
+
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.verts.ensure_lookup_table()
+    n_verts = len(bm.verts)
+    co_healed = [v.co.copy() for v in bm.verts]
+    co_open = [v.co.copy() for v in bm.verts]
+    co_closed = [v.co.copy() for v in bm.verts]
+
+    cavity_vert_info = {}
+    for _, base_co, row in cavity_rings:
+        ux_list = [-1.0, -0.88, -0.68, 0.0, +0.68, +0.88, +1.0]
+        for s_i, vv in enumerate(row):
+            if 1 <= s_i <= 5:
+                cavity_vert_info[vv.index] = (ux_list[s_i], uv_depths[s_i], base_co)
+
+    left_lip_set = {v.index for v in left_chain[1:-1]}
+    right_lip_set = {v.index for v in right_chain[1:-1]}
+    stitch_ys = [lerp(-0.040, 0.040, i / float(NUM_STITCHES - 1)) for i in range(NUM_STITCHES)]
+    CLOSED_PUNCTURE_X = 0.0115
+
+    for vi in range(n_verts):
+        p = co_healed[vi]
+        if vi in cavity_vert_info:
+            ux, du, bco = cavity_vert_info[vi]
+            w_g = wound_half_gap(bco.y)
+            co_open[vi] = Vector((ux * w_g, bco.y, bco.z - WOUND_DEPTH * du))
+            co_closed[vi] = Vector((ux * 0.0004, bco.y, bco.z - 0.0022 - WOUND_DEPTH * du * 0.85))
+            continue
+
+        if abs(p.y) < WOUND_HALF_LEN + 0.025 and p.z > -0.025 and abs(p.x) < 0.048:
+            if vi in left_lip_set:
+                side, dist_x = -1.0, 0.0
+            elif vi in right_lip_set:
+                side, dist_x = +1.0, 0.0
+            else:
+                side = -1.0 if p.x < 0.0 else (+1.0 if p.x > 0.0 else 0.0)
+                dist_x = abs(p.x)
+
+            w_g = wound_half_gap(p.y)
+            falloff = math.exp(-dist_x / 0.016)
+            dx_open = side * w_g * falloff
+            lip_roll = -0.0010 * math.exp(-dist_x / 0.0024) * (w_g / WOUND_MAX_OPEN)
+            z_follow = shin_z_at(p.x + dx_open, p.y) - shin_z_at(p.x, p.y)
+            co_open[vi] = Vector((p.x + dx_open, p.y, p.z + z_follow * 0.65 + lip_roll))
+
+            in_len = math.cos(min(1.0, abs(p.y) / WOUND_HALF_LEN) * math.pi * 0.5) if abs(p.y) < WOUND_HALF_LEN else 0.0
+            v_groove = -0.0016 * math.exp(-dist_x / 0.0013) * in_len
+            eversion = +0.00080 * math.exp(-((dist_x - 0.0028) / 0.0022) ** 2) * in_len
+            dimple_dz = 0.0
+            groove_dz = 0.0
+            for sy in stitch_ys:
+                for sx_p in (-CLOSED_PUNCTURE_X, +CLOSED_PUNCTURE_X):
+                    r_p2 = (p.x - sx_p) ** 2 + (p.y - sy) ** 2
+                    dimple_dz -= 0.0014 * math.exp(-r_p2 / (0.0021 ** 2))
+                if abs(p.x) <= CLOSED_PUNCTURE_X + 0.002:
+                    groove_dz -= 0.00070 * math.exp(-((p.y - sy) / 0.0020) ** 2)
+            co_closed[vi] = Vector((p.x, p.y, p.z + v_groove + eversion + dimple_dz + groove_dz))
+
+    final_mesh = bpy.data.meshes.new("V21_SurgicalHumanLeg_Mesh")
+    final_mesh.materials.append(skin_mat)
+    final_mesh.materials.append(wall_mat)
+    bm.to_mesh(final_mesh)
+    bm.free()
+    final_mesh.update()
+    for poly in final_mesh.polygons:
+        poly.use_smooth = True
+
+    old_d = leg_obj.data
+    leg_obj.data = final_mesh
+    bpy.data.meshes.remove(old_d)
+
+    sk_basis = leg_obj.shape_key_add(name="Basis", from_mix=False)
+    for i, co in enumerate(co_open):
+        sk_basis.data[i].co = co
+    sk_closed = leg_obj.shape_key_add(name="Closed", from_mix=False)
+    for i, co in enumerate(co_closed):
+        sk_closed.data[i].co = co
+    sk_healed = leg_obj.shape_key_add(name="Healed", from_mix=False)
+    for i, co in enumerate(co_healed):
+        sk_healed.data[i].co = co
+
+    # Subtle 0.85mm deep-tucked adipose lobules along lower dermal margin
+    rng_f = random.Random(77)
+    fat_lobules = []
+    for i in range(32):
+        side = -1.0 if i % 2 == 0 else 1.0
+        fy = lerp(-WOUND_HALF_LEN * 0.78, WOUND_HALF_LEN * 0.78, i / 31.0)
+        w_g = wound_half_gap(fy)
+        fx_open = side * (w_g * 0.62 + rng_f.uniform(-0.0008, 0.0008))
+        fz = shin_z_at(0.0, fy) - WOUND_DEPTH * rng_f.uniform(0.72, 0.90)
+        bm_f = bmesh.new()
+        bmesh.ops.create_icosphere(bm_f, subdivisions=1, radius=rng_f.uniform(0.00075, 0.00115))
+        f_obj = add_mesh(scene, f"AdiposeLobule_{i:02d}", bm_f, fat_mat, loc=(fx_open, fy, fz), smooth=True, shadow=False)
+        fat_lobules.append((f_obj, fx_open, fy, fz))
+
+    # ~380 Fine Curved 3D Human Leg Hairs along outer shin & calf flanks (|X| > 0.022m)
+    bm_hair = bmesh.new()
+    rng_h = random.Random(101)
+    hair_candidates = [
+        (co_healed[i], final_mesh.vertices[i].normal.copy())
+        for i in range(0, n_verts, 3)
+        if abs(co_healed[i].x) > 0.022 and -0.18 < co_healed[i].y < 0.34 and co_healed[i].z > -0.045
+    ]
+    rng_h.shuffle(hair_candidates)
+    for root_p, nrm in hair_candidates[:380]:
+        if nrm.length < 1e-4:
+            continue
+        n_u = nrm.normalized()
+        grow_dir = (n_u * 0.35 + Vector((0.0, -0.92, 0.08))).normalized()
+        h_len = rng_h.uniform(0.0040, 0.0070)
+        p_mid_h = root_p + (n_u * 0.50 + grow_dir * 0.50).normalized() * (h_len * 0.5)
+        p_tip_h = root_p + grow_dir * h_len
+        for a, b, r1, r2 in [(root_p, p_mid_h, 0.00014, 0.00009), (p_mid_h, p_tip_h, 0.00009, 0.00003)]:
+            dv = b - a
+            q = dv.normalized().to_track_quat("Z", "Y")
+            m = Matrix.Translation((a + b) * 0.5) @ q.to_matrix().to_4x4()
+            bmesh.ops.create_cone(bm_hair, cap_ends=False, cap_tris=False, segments=4, radius1=r1, radius2=r2, depth=dv.length * 1.05, matrix=m)
+    add_mesh(scene, "HumanLegVellusHairs", bm_hair, hair_mat, smooth=True, shadow=False)
+
+    return leg_obj, sk_closed, sk_healed, fat_lobules, shin_z_at, stitch_ys
 
 
 # ============================================================================
-# 2. DEFORMING 3D HUMAN LIMB WITH LIVE WOUND SHAPE KEYS (OPEN -> CLOSED -> HEALED)
+# 4. SUTURES, TWISTED SURGEON'S KNOTS & SLEEK SURGICAL INSTRUMENTS
 # ============================================================================
-def build_living_wound_limb(scene, skin_mat, dermis_mat):
-    """Builds a high-resolution curved human limb skin shell split cleanly down the central incision,
-    with 2 physical shape keys:
-      - `Closed`: Left & Right wound edges smoothly glide shut like a zipper with surgical seam ridge!
-      - `Healed`: Smooth seamless healthy skin contour!
-    Plus a realistic glistening crimson subcutaneous dermis bed underneath!"""
-    mesh = bpy.data.meshes.new("LivingSkinLimb_Mesh")
-    obj = bpy.data.objects.new("LivingSkinLimb", mesh)
-    link_obj(scene, obj)
-    obj.data.materials.append(skin_mat)
+def build_tube_with_tight_shapekey(scene, name: str, pts_open: list[Vector], pts_closed: list[Vector], radius: float, mat, segs_r: int = 10):
+    def make_verts(pts):
+        out_v = []
+        for i, p in enumerate(pts):
+            t_dir = (pts[min(len(pts) - 1, i + 1)] - pts[max(0, i - 1)]).normalized()
+            ref = Vector((0.0, 1.0, 0.0)) if abs(t_dir.y) < 0.92 else Vector((1.0, 0.0, 0.0))
+            b1 = t_dir.cross(ref).normalized()
+            b2 = t_dir.cross(b1).normalized()
+            for j in range(segs_r):
+                a = 2.0 * math.pi * j / segs_r
+                out_v.append(p + b1 * (radius * math.cos(a)) + b2 * (radius * math.sin(a)))
+        return out_v
 
-    ny = 72
-    nx_half = 24
-    # Build Left half (side=-1) and Right half (side=+1) cleanly separated at the incision so the gap opens & zips shut!
-    verts_open = []
-    verts_closed = []
-    verts_healed = []
+    vo = make_verts(pts_open)
+    vc = make_verts(pts_closed)
     faces = []
+    for i in range(len(pts_open) - 1):
+        for j in range(segs_r):
+            jn = (j + 1) % segs_r
+            faces.append((i * segs_r + j, i * segs_r + jn, (i + 1) * segs_r + jn, (i + 1) * segs_r + j))
 
-    def build_half(side: float, base_idx: int):
-        for iy in range(ny + 1):
-            v_y = lerp(-LIMB_LEN * 0.5, LIMB_LEN * 0.5, iy / float(ny))
-            w_gap = wound_open_half_width(v_y)
-            for ix in range(nx_half + 1):
-                u = ix / float(nx_half)  # 0 at center seam, 1 at outer limb flank (angle ~72 deg)
-                ang_closed = side * (u * math.radians(74.0))
-                x_closed = LIMB_R * math.sin(ang_closed)
-                z_closed = LIMB_R * math.cos(ang_closed) - LIMB_R
-
-                # Open wound pulls the inner skin edge outward by w_gap with organic tissue falloff
-                pull = math.exp(-u * 5.2) * w_gap
-                x_open = x_closed + side * pull
-                z_open = limb_surface_z(min(LIMB_R * 0.96, abs(x_open)))
-                # Subtle natural curling lip depth right at the cut margin
-                lip_curl = -0.0055 * math.exp(-u * 16.0) * (w_gap / max(1e-5, WOUND_HALF_W))
-                z_open += lip_curl
-
-                # Closed sutured seam has a subtle realistic surgical eversion pucker ridge along the incision
-                in_wound = 1.0 if abs(v_y) < WOUND_HALF_LEN else 0.0
-                env_y = math.cos(min(1.0, abs(v_y) / WOUND_HALF_LEN) * math.pi * 0.5) if in_wound else 0.0
-                pucker = 0.0038 * math.exp(-u * 14.0) * env_y
-                verts_open.append((x_open, v_y, z_open))
-                verts_closed.append((x_closed, v_y, z_closed + pucker))
-                verts_healed.append((x_closed, v_y, z_closed))
-
-        stride = nx_half + 1
-        for iy in range(ny):
-            for ix in range(nx_half):
-                a = base_idx + iy * stride + ix
-                b = a + 1
-                c = a + stride + 1
-                d = a + stride
-                if side > 0:
-                    faces.append((a, b, c, d))
-                else:
-                    faces.append((a, d, c, b))
-
-    build_half(-1.0, 0)
-    build_half(+1.0, (ny + 1) * (nx_half + 1))
-
-    mesh.from_pydata(verts_open, [], faces)
+    mesh = bpy.data.meshes.new(f"{name}_Mesh")
+    mesh.from_pydata([tuple(v) for v in vo], [], faces)
     mesh.update()
     for p in mesh.polygons:
         p.use_smooth = True
+    obj = bpy.data.objects.new(name, mesh)
+    obj.data.materials.append(mat)
+    link_obj(scene, obj)
 
-    # Add Basis + Closed + Healed Shape Keys!
     obj.shape_key_add(name="Basis", from_mix=False)
-    sk_closed = obj.shape_key_add(name="Closed", from_mix=False)
-    for i, co in enumerate(verts_closed):
-        sk_closed.data[i].co = Vector(co)
-    sk_healed = obj.shape_key_add(name="Healed", from_mix=False)
-    for i, co in enumerate(verts_healed):
-        sk_healed.data[i].co = Vector(co)
-
-    # Underlying glistening crimson subcutaneous dermis cylinder (sits cleanly 5mm below skin crown!)
-    bm_d = bmesh.new()
-    bmesh.ops.create_cone(
-        bm_d, cap_ends=True, cap_tris=False, segments=48,
-        radius1=LIMB_R - 0.006, radius2=LIMB_R - 0.006, depth=LIMB_LEN * 0.98,
-        matrix=Matrix.Translation((0.0, 0.0, -LIMB_R)) @ Matrix.Rotation(math.radians(90.0), 4, "X"),
-    )
-    dermis_obj = add_mesh(scene, "SubcutaneousDermisBed", bm_d, dermis_mat, smooth=True, shadow=True)
-    return obj, sk_closed, sk_healed, dermis_obj
+    sk = obj.shape_key_add(name="Tight", from_mix=False)
+    for i, v in enumerate(vc):
+        sk.data[i].co = v
+    return obj, sk
 
 
-# ============================================================================
-# 3. CURVED SURGICAL NEEDLE, BLUE NYLON SUTURE LOOPS & ARTICULATED SCISSORS
-# ============================================================================
-def build_curved_surgical_needle(scene, steel_mat):
-    """Gleaming 3D 3/8-circle curved stainless-steel surgical suture needle."""
-    bm = bmesh.new()
-    segs = 22
-    r_arc = 0.042
-    ring_prev = None
-    for i in range(segs + 1):
-        u = i / float(segs)
-        ang = lerp(-math.pi * 0.42, math.pi * 0.42, u)
-        cx = r_arc * math.sin(ang)
-        cz = -r_arc * math.cos(ang) + r_arc
-        # Taper sharply at leading tip (u=1)
-        rad = 0.0022 * (1.0 - 0.88 * (u ** 2.6))
-        rad = max(0.00025, rad)
-        tx = math.cos(ang)
-        tz = math.sin(ang)
-        n_r = Vector((-tz, 0.0, tx)).normalized()
-        n_y = Vector((0.0, 1.0, 0.0))
-        ring = []
-        for j in range(10):
-            a = 2.0 * math.pi * j / 10
-            pt = Vector((cx, 0.0, cz)) + n_r * (rad * math.cos(a)) + n_y * (rad * math.sin(a))
-            ring.append(bm.verts.new(pt))
-        if ring_prev is not None:
-            for j in range(10):
-                jn = (j + 1) % 10
-                bm.faces.new((ring_prev[j], ring_prev[jn], ring[jn], ring[j]))
-        ring_prev = ring
-    return add_mesh(scene, "CurvedSurgicalNeedle", bm, steel_mat, smooth=True, shadow=True)
-
-
-def build_dynamic_suture_loops(scene, nylon_mat):
-    """6 independent royal-blue nylon suture loops (each with Open & Closed shape keys so they cinch smoothly with the skin!)
-    plus a continuous threading curve + loose tail that gets snipped by surgical scissors!"""
-    loop_ys = [lerp(-0.108, 0.108, i / float(NUM_LOOPS - 1)) for i in range(NUM_LOOPS)]
-    loops = []
-
-    for idx, ly in enumerate(loop_ys):
-        w_open = wound_open_half_width(ly) + 0.016
-        w_closed = 0.016
-        n_pts = 24
-
-        def make_arc_points(half_w: float, lift: float):
-            pts = []
-            for k in range(n_pts + 1):
-                u = k / float(n_pts)
-                # Loop arcs cleanly over the skin from Left entry (-half_w) -> arch top -> Right exit (+half_w)
-                x = lerp(-half_w, half_w, u)
-                z_skin = limb_surface_z(abs(x))
-                arch = math.sin(math.pi * u) * lift
-                pts.append(Vector((x, ly, z_skin + arch - 0.0015)))
-            return pts
-
-        pts_open = make_arc_points(w_open, 0.019)
-        pts_closed = make_arc_points(w_closed, 0.0095)
-
-        # Build smooth tubular mesh with Open (Basis) and Closed (Tight) shape keys!
-        r_thread = 0.0024
-        segs_r = 10
-
-        def tube_verts(pts):
-            out_v = []
-            for i, p in enumerate(pts):
-                t_dir = (pts[min(len(pts) - 1, i + 1)] - pts[max(0, i - 1)]).normalized()
-                up = Vector((0.0, 1.0, 0.0))
-                b1 = t_dir.cross(up).normalized()
-                b2 = t_dir.cross(b1).normalized()
-                for j in range(segs_r):
-                    a = 2.0 * math.pi * j / segs_r
-                    out_v.append(p + b1 * (r_thread * math.cos(a)) + b2 * (r_thread * math.sin(a)))
-            return out_v
-
-        v_open = tube_verts(pts_open)
-        v_closed = tube_verts(pts_closed)
-        faces = []
-        for i in range(len(pts_open) - 1):
-            for j in range(segs_r):
-                jn = (j + 1) % segs_r
-                a0 = i * segs_r + j
-                a1 = i * segs_r + jn
-                b0 = (i + 1) * segs_r + j
-                b1 = (i + 1) * segs_r + jn
-                faces.append((a0, a1, b1, b0))
-
-        mesh = bpy.data.meshes.new(f"SutureLoop_{idx:02d}_Mesh")
-        mesh.from_pydata([tuple(v) for v in v_open], [], faces)
-        mesh.update()
-        for p in mesh.polygons:
-            p.use_smooth = True
-        obj = bpy.data.objects.new(f"SutureLoop_{idx:02d}", mesh)
-        obj.data.materials.append(nylon_mat)
-        link_obj(scene, obj)
-
-        obj.shape_key_add(name="Basis", from_mix=False)
-        sk_tight = obj.shape_key_add(name="Tight", from_mix=False)
-        for i, v in enumerate(v_closed):
-            sk_tight.data[i].co = v
-
-        # Small surgical knot bead sitting cleanly on the right side of each stitch
-        bm_kn = bmesh.new()
-        bmesh.ops.create_icosphere(bm_kn, subdivisions=2, radius=0.0042)
-        knot = add_mesh(scene, f"SutureKnot_{idx:02d}", bm_kn, nylon_mat, loc=(w_closed + 0.002, ly, limb_surface_z(w_closed) + 0.004), smooth=True, shadow=True)
-        loops.append((obj, sk_tight, knot, ly, w_open, w_closed))
-
-    # Loose trailing blue thread pulled up at top stitch (Y = +0.108) for Beat 2 Zipper Pull & Scissors SNIP!
-    bm_tail = bmesh.new()
-    bmesh.ops.create_cone(bm_tail, cap_ends=True, cap_tris=False, segments=10, radius1=0.0023, radius2=0.0023, depth=0.14, matrix=Matrix.Translation((0, 0, 0.07)))
-    tail_obj = add_mesh(scene, "SuturePullTail", bm_tail, nylon_mat, loc=(0.018, 0.108, limb_surface_z(0.018) + 0.002), smooth=True, shadow=True)
-    return loops, tail_obj
-
-
-def build_surgical_scissors(scene, steel_mat):
-    """Articulated 3D Stainless-Steel Surgical Scissors (twin pivoting blades + rings!)."""
-    root = bpy.data.objects.new("SurgicalScissors_Root", None)
-    link_obj(scene, root)
-
-    def make_blade(name: str, sign: float):
-        bm = bmesh.new()
-        # Tapered sharp blade extending along -X (tip at X=-0.095, pivot at X=0)
-        bmesh.ops.create_cube(bm, size=1.0, matrix=Matrix.Translation((-0.048, sign * 0.002, 0.0)) @ Matrix.Diagonal((0.096, 0.0032, 0.011, 1.0)))
-        # Handle shaft extending along +X
-        bmesh.ops.create_cube(bm, size=1.0, matrix=Matrix.Translation((0.068, sign * 0.004, sign * 0.006)) @ Matrix.Diagonal((0.135, 0.0045, 0.0085, 1.0)))
-        # Finger ring at end of handle
-        segs = 20
-        r_ring = 0.022
-        for i in range(segs):
-            a0 = 2.0 * math.pi * i / segs
-            a1 = 2.0 * math.pi * (i + 1) / segs
-            p0 = Vector((0.152 + r_ring * math.cos(a0), sign * 0.004, sign * 0.022 + r_ring * math.sin(a0)))
-            p1 = Vector((0.152 + r_ring * math.cos(a1), sign * 0.004, sign * 0.022 + r_ring * math.sin(a1)))
-            mid = (p0 + p1) * 0.5
-            q = (p1 - p0).normalized().to_track_quat("Z", "Y")
-            bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=8, radius1=0.0035, radius2=0.0035, depth=(p1 - p0).length * 1.1, matrix=Matrix.Translation(mid) @ q.to_matrix().to_4x4())
-        b = add_mesh(scene, name, bm, steel_mat, smooth=True, shadow=True)
-        b.parent = root
-        return b
-
-    blade_a = make_blade("ScissorsBlade_A", +1.0)
-    blade_b = make_blade("ScissorsBlade_B", -1.0)
-    bm_p = bmesh.new()
-    bmesh.ops.create_cone(bm_p, cap_ends=True, cap_tris=False, segments=12, radius1=0.0055, radius2=0.0055, depth=0.012, matrix=Matrix.Rotation(math.radians(90.0), 4, "X"))
-    piv = add_mesh(scene, "ScissorsPivot", bm_p, steel_mat, smooth=True, shadow=False)
-    piv.parent = root
-    return root, blade_a, blade_b
-
-
-# ============================================================================
-# 4. BIOLOGICAL HEALING VFX: REPAIR CELLS, GOLDEN COLLAGEN WEB & CAPILLARY TREES
-# ============================================================================
-def build_repair_cells(scene, cell_mat):
-    """140 glowing biological repair cells (macrophages/fibroblasts) that swarm into the wound seam during Beat 3!"""
-    rng = random.Random(2026)
-    cells = []
-    for i in range(140):
-        side = -1.0 if i % 2 == 0 else 1.0
-        y_t = rng.uniform(-0.135, 0.135)
-        x_start = side * rng.uniform(0.048, 0.115)
-        x_end = side * rng.uniform(0.001, 0.022)
-        rad = rng.uniform(0.0024, 0.0048)
-        bm = bmesh.new()
-        bmesh.ops.create_icosphere(bm, subdivisions=1, radius=rad)
-        obj = add_mesh(scene, f"RepairCell_{i:03d}", bm, cell_mat, loc=(x_start, y_t, limb_surface_z(abs(x_start)) + 0.003), smooth=True, shadow=False)
-        cells.append((obj, x_start, x_end, y_t, rng.uniform(0.0, 1.0), rng.uniform(0.0, 6.28)))
-    return cells
-
-
-def build_collagen_scaffold(scene, collagen_mat):
-    """36 criss-crossing 3D golden collagen fiber bridges weaving across the closed seam in Beat 4!"""
-    rng = random.Random(4096)
-    strands = []
-    for i in range(36):
-        y0 = lerp(-0.132, 0.132, i / 35.0)
-        dy = (0.018 if i % 2 == 0 else -0.018) + rng.uniform(-0.005, 0.005)
-        x_span = rng.uniform(0.020, 0.034)
-        p0 = Vector((-x_span, y0 - dy, limb_surface_z(x_span) + 0.0032))
-        p1 = Vector((+x_span, y0 + dy, limb_surface_z(x_span) + 0.0032))
-        mid = (p0 + p1) * 0.5 + Vector((0.0, 0.0, 0.0042 + rng.uniform(-0.001, 0.0015)))
-
-        bm = bmesh.new()
-        n_seg = 10
-        pts = [p0 * ((1 - u) ** 2) + mid * (2 * (1 - u) * u) + p1 * (u * u) for u in [k / float(n_seg) for k in range(n_seg + 1)]]
-        for k in range(n_seg):
-            dv = pts[k + 1] - pts[k]
-            q = dv.normalized().to_track_quat("Z", "Y")
-            m = Matrix.Translation((pts[k] + pts[k + 1]) * 0.5) @ q.to_matrix().to_4x4()
-            bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=6, radius1=0.0017, radius2=0.0017, depth=dv.length * 1.12, matrix=m)
-        obj = add_mesh(scene, f"CollagenFiber_{i:02d}", bm, collagen_mat, smooth=True, shadow=False)
-        strands.append((obj, i / 36.0))
-    return strands
-
-
-def build_capillary_network(scene, vessel_mat):
-    """18 organic multi-branched 3D ruby-red capillary blood vessels growing across the seam in Beat 5,
-    then sinking cleanly beneath the skin surface!"""
-    root = bpy.data.objects.new("CapillaryNetwork_Root", None)
-    link_obj(scene, root)
-    rng = random.Random(8192)
-    trees = []
-
-    def add_seg(bm, a: Vector, b: Vector, r1: float, r2: float):
-        dv = b - a
-        ln = dv.length
-        if ln < 1e-5:
-            return
-        q = dv.normalized().to_track_quat("Z", "Y")
-        m = Matrix.Translation((a + b) * 0.5) @ q.to_matrix().to_4x4()
-        bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=8, radius1=r1, radius2=r2, depth=ln * 1.08, matrix=m)
-
-    for i in range(18):
-        side = -1.0 if i % 2 == 0 else 1.0
-        y_base = lerp(-0.130, 0.130, i / 17.0)
-        x0 = side * 0.068
-        p0 = Vector((x0, y_base, limb_surface_z(abs(x0)) + 0.0028))
-        p1 = Vector((side * 0.036, y_base + rng.uniform(-0.012, 0.012), limb_surface_z(0.036) + 0.0044))
-        p2 = Vector((side * 0.004, y_base + rng.uniform(-0.015, 0.015), limb_surface_z(0.004) + 0.0048))
-
-        bm = bmesh.new()
-        add_seg(bm, p0, p1, 0.0026, 0.0019)
-        add_seg(bm, p1, p2, 0.0019, 0.0011)
-        # Forked secondary & tertiary fine capillaries reaching across the seam!
-        for b_sgn in (-1.0, 1.0):
-            pb1 = p1 + Vector((-side * 0.022, b_sgn * rng.uniform(0.014, 0.024), 0.0))
-            pb1.z = limb_surface_z(abs(pb1.x)) + 0.0044
-            add_seg(bm, p1, pb1, 0.0016, 0.0009)
-            pb2 = pb1 + Vector((-side * 0.018, b_sgn * rng.uniform(0.008, 0.016), 0.0))
-            pb2.z = limb_surface_z(abs(pb2.x)) + 0.0042
-            add_seg(bm, pb1, pb2, 0.0009, 0.00045)
-
-        obj = add_mesh(scene, f"CapillaryTree_{i:02d}", bm, vessel_mat, smooth=True, shadow=False)
-        obj.parent = root
-        trees.append((obj, i / 18.0))
-    return root, trees
-
-
-def build_stage_badge(scene, name: str, label: str, loc: Vector, face_mat, halo_mat):
-    """Clean, subtle floating 3D Medical Stage Micro-Badge at top of frame (AGENTS.md Section 2)."""
-    root = bpy.data.objects.new(f"{name}_Root", None)
+def build_surgeons_square_knot(scene, name: str, loc: Vector, suture_mat):
+    root = bpy.data.objects.new(name, None)
     root.location = loc
     link_obj(scene, root)
 
-    font = bpy.data.fonts.load(FONT_PATH, check_existing=True)
-    cd = bpy.data.curves.new(f"{name}_Curve", type="FONT")
-    cd.body = label
-    cd.font = font
-    cd.size = 0.0125
-    cd.align_x = "CENTER"
-    cd.align_y = "CENTER"
-    cd.extrude = 0.0008
-    cd.bevel_depth = 0.00018
-    txt = bpy.data.objects.new(name, cd)
-    txt.data.materials.append(face_mat)
-    txt.visible_shadow = False
-    txt.parent = root
-    link_obj(scene, txt)
+    bm = bmesh.new()
+    for w_idx in range(3):
+        z0 = w_idx * 0.00062
+        segs = 16
+        r_maj = 0.00140 - w_idx * 0.00010
+        r_min = 0.00046
+        pts = [
+            Vector((r_maj * math.cos(2 * math.pi * i / segs), r_maj * 0.75 * math.sin(2 * math.pi * i / segs), z0 + 0.0002 * math.sin(4 * math.pi * i / segs)))
+            for i in range(segs + 1)
+        ]
+        for i in range(segs):
+            dv = pts[i + 1] - pts[i]
+            q = dv.normalized().to_track_quat("Z", "Y")
+            m = Matrix.Translation((pts[i] + pts[i + 1]) * 0.5) @ q.to_matrix().to_4x4()
+            bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=6, radius1=r_min, radius2=r_min, depth=dv.length * 1.15, matrix=m)
+
+    for sgn in (-1.0, +1.0):
+        p0 = Vector((0.0, 0.0, 0.0014))
+        dir_t = Vector((0.52, sgn * 0.52, 0.68)).normalized()
+        p1 = p0 + dir_t * 0.0046
+        dv = p1 - p0
+        q = dv.normalized().to_track_quat("Z", "Y")
+        m = Matrix.Translation((p0 + p1) * 0.5) @ q.to_matrix().to_4x4()
+        bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=8, radius1=0.00045, radius2=0.00040, depth=dv.length, matrix=m)
+
+    k_mesh = add_mesh(scene, f"{name}_Mesh", bm, suture_mat, smooth=True, shadow=True)
+    k_mesh.parent = root
+    return root
+
+
+def build_suture_system(scene, suture_mat, pore_mat, shin_z_at, stitch_ys):
+    CLOSED_X = 0.0115
+    THREAD_R = 0.00058
+    rungs, pores, knots = [], [], []
+
+    for idx, sy in enumerate(stitch_ys):
+        open_x = wound_half_gap(sy) + CLOSED_X
+        n_pts = 26
+        pts_o, pts_c = [], []
+        for k in range(n_pts + 1):
+            u = k / float(n_pts)
+            xo = lerp(-open_x, open_x, u)
+            xc = lerp(-CLOSED_X, CLOSED_X, u)
+            zo = shin_z_at(xo, sy) + math.sin(math.pi * u) * 0.0095 - 0.0011
+            zc = shin_z_at(xc, sy) + math.sin(math.pi * u) * 0.0022 - 0.0009
+            pts_o.append(Vector((xo, sy, zo)))
+            pts_c.append(Vector((xc, sy, zc)))
+
+        rung_obj, sk_tight = build_tube_with_tight_shapekey(scene, f"SutureRung_{idx:02d}", pts_o, pts_c, THREAD_R, suture_mat)
+        rungs.append((rung_obj, sk_tight, sy, open_x, CLOSED_X))
+
+        for s_lbl, sgn in [("L", -1.0), ("R", +1.0)]:
+            bm_p = bmesh.new()
+            bmesh.ops.create_cone(bm_p, cap_ends=True, cap_tris=False, segments=12, radius1=0.0012, radius2=0.0008, depth=0.0008)
+            p_obj = add_mesh(scene, f"PuncturePore_{idx:02d}_{s_lbl}", bm_p, pore_mat, smooth=True, shadow=False)
+            pores.append((p_obj, idx, sgn, sy, open_x, CLOSED_X))
+
+        kn = build_surgeons_square_knot(scene, f"SurgeonKnot_{idx:02d}", Vector((CLOSED_X, sy, shin_z_at(CLOSED_X, sy) + 0.0004)), suture_mat)
+        knots.append((kn, idx, sy, CLOSED_X))
+
+    diag_laces = []
+    for idx in range(NUM_STITCHES - 1):
+        y0, y1 = stitch_ys[idx], stitch_ys[idx + 1]
+        ox0 = wound_half_gap(y0) + CLOSED_X
+        ox1 = wound_half_gap(y1) + CLOSED_X
+        pts_o, pts_c = [], []
+        for k in range(21):
+            u = k / 20.0
+            yo = lerp(y0, y1, u)
+            xo = lerp(+ox0, -ox1, u)
+            xc = lerp(+CLOSED_X, -CLOSED_X, u)
+            zo = shin_z_at(0.0, yo) - 0.0020 + math.sin(math.pi * u) * 0.0014
+            zc = shin_z_at(0.0, yo) - 0.0024
+            pts_o.append(Vector((xo, yo, zo)))
+            pts_c.append(Vector((xc, yo, zc)))
+        d_obj, d_sk = build_tube_with_tight_shapekey(scene, f"SutureDiag_{idx:02d}", pts_o, pts_c, THREAD_R * 0.90, suture_mat)
+        diag_laces.append((d_obj, d_sk, idx))
+
+    bm_tail = bmesh.new()
+    bmesh.ops.create_cone(bm_tail, cap_ends=True, cap_tris=False, segments=10, radius1=THREAD_R, radius2=THREAD_R, depth=0.075, matrix=Matrix.Translation((0, 0, 0.0375)))
+    pull_tail = add_mesh(scene, "SutureTensionTail", bm_tail, suture_mat, smooth=True, shadow=True)
+
+    return rungs, diag_laces, pores, knots, pull_tail
+
+
+def build_needle_and_holder_rig(scene, steel_mat, gold_mat, suture_mat):
+    rig_root = bpy.data.objects.new("NeedleAndHolder_Root", None)
+    link_obj(scene, rig_root)
+
+    bm_n = bmesh.new()
+    r_arc = 0.0165
+    segs = 24
+    ring_prev = None
+    swage_pt = Vector((0, 0, 0))
+    for i in range(segs + 1):
+        u = i / float(segs)
+        ang = lerp(-math.pi * 0.44, math.pi * 0.44, u)
+        cx = r_arc * math.sin(ang)
+        cz = -r_arc * math.cos(ang) + r_arc * 0.85
+        if i == 0:
+            swage_pt = Vector((cx, 0.0, cz))
+        rad = max(0.00010, 0.00068 * (1.0 - 0.86 * (u ** 2.8)))
+        tx, tz = math.cos(ang), math.sin(ang)
+        nr = Vector((-tz, 0.0, tx)).normalized()
+        ny = Vector((0.0, 1.0, 0.0))
+        b_ring = [bm_n.verts.new(Vector((cx, 0.0, cz)) + nr * (rad * math.cos(2 * math.pi * j / 10)) + ny * (rad * math.sin(2 * math.pi * j / 10))) for j in range(10)]
+        if ring_prev is not None:
+            for j in range(10):
+                jn = (j + 1) % 10
+                bm_n.faces.new((ring_prev[j], ring_prev[jn], b_ring[jn], b_ring[j]))
+        ring_prev = b_ring
+    needle = add_mesh(scene, "CurvedSurgicalNeedle_V21", bm_n, steel_mat, smooth=True, shadow=True)
+    needle.parent = rig_root
+
+    bm_tr = bmesh.new()
+    tr_pts = [swage_pt + Vector((-0.028 * u, -0.012 * math.sin(u * 2.2), 0.032 * (u ** 1.25))) for u in [k / 16.0 for k in range(17)]]
+    for k in range(16):
+        dv = tr_pts[k + 1] - tr_pts[k]
+        q = dv.normalized().to_track_quat("Z", "Y")
+        m = Matrix.Translation((tr_pts[k] + tr_pts[k + 1]) * 0.5) @ q.to_matrix().to_4x4()
+        bmesh.ops.create_cone(bm_tr, cap_ends=True, cap_tris=False, segments=8, radius1=0.00056, radius2=0.00056, depth=dv.length * 1.1, matrix=m)
+    swaged_thread = add_mesh(scene, "NeedleSwagedThread", bm_tr, suture_mat, smooth=True, shadow=True)
+    swaged_thread.parent = rig_root
 
     bm_h = bmesh.new()
-    bmesh.ops.create_grid(bm_h, x_segments=1, y_segments=1, size=0.5, matrix=Matrix.Diagonal((0.165, 0.032, 1.0, 1.0)))
-    halo = add_mesh(scene, f"{name}_Halo", bm_h, halo_mat, loc=(0.0, 0.0, -0.003), smooth=False, shadow=False)
-    halo.parent = root
+    grip_dir = Vector((0.42, 0.45, 0.78)).normalized()
+    q_h = grip_dir.to_track_quat("Z", "Y")
+    for sgn in (-1.0, 1.0):
+        m_jaw = Matrix.Translation((0.0, 0.0, 0.001)) @ q_h.to_matrix().to_4x4() @ Matrix.Translation((sgn * 0.0011, 0.0, 0.011))
+        bmesh.ops.create_cone(bm_h, cap_ends=True, cap_tris=False, segments=10, radius1=0.0013, radius2=0.0024, depth=0.022, matrix=m_jaw)
+        m_sh = Matrix.Translation((0.0, 0.0, 0.001)) @ q_h.to_matrix().to_4x4() @ Matrix.Translation((sgn * 0.0032, 0.0, 0.058))
+        bmesh.ops.create_cone(bm_h, cap_ends=True, cap_tris=False, segments=10, radius1=0.0020, radius2=0.0022, depth=0.074, matrix=m_sh)
+    m_pv = Matrix.Translation((0.0, 0.0, 0.001)) @ q_h.to_matrix().to_4x4() @ Matrix.Translation((0.0, 0.0, 0.022)) @ Matrix.Rotation(math.radians(90.0), 4, "X")
+    bmesh.ops.create_cone(bm_h, cap_ends=True, cap_tris=False, segments=14, radius1=0.0034, radius2=0.0034, depth=0.0055, matrix=m_pv)
+    holder = add_mesh(scene, "MayoHegarNeedleHolder", bm_h, steel_mat, smooth=True, shadow=True)
+    holder.parent = rig_root
+
+    bm_g = bmesh.new()
+    for sgn in (-1.0, 1.0):
+        m_gr = Matrix.Translation((0.0, 0.0, 0.001)) @ q_h.to_matrix().to_4x4() @ Matrix.Translation((sgn * 0.0036, 0.0, 0.092))
+        bmesh.ops.create_cone(bm_g, cap_ends=True, cap_tris=False, segments=10, radius1=0.0025, radius2=0.0028, depth=0.012, matrix=m_gr)
+    gold_trim = add_mesh(scene, "NeedleHolderGoldRings", bm_g, gold_mat, smooth=True, shadow=False)
+    gold_trim.parent = rig_root
+    return rig_root
+
+
+def build_sleek_iris_scissors(scene, steel_mat, gold_mat):
+    """Single-piece sleek beveled surgical steel Iris Scissors (ZERO bead segments!) whose cutting point sits at X = -0.022m."""
+    root = bpy.data.objects.new("IrisSurgicalScissors_Root", None)
+    link_obj(scene, root)
+
+    def make_sleek_blade(name: str, sgn: float):
+        bm = bmesh.new()
+        # Continuous lofted beveled surgical steel blade from X = +0.006 (pivot) to X = -0.036 (sharp tip!)
+        # Cutting contact zone is right around X = -0.022!
+        n_s = 12
+        rings = []
+        for k in range(n_s + 1):
+            u = k / float(n_s)
+            x = lerp(0.006, -0.036, u)
+            w_z = lerp(0.0028, 0.00025, u ** 0.85)
+            th_y = lerp(0.0009, 0.00018, u)
+            y_inner = sgn * 0.00015
+            y_outer = sgn * (0.00015 + th_y)
+            # 4-corner beveled surgical blade cross-section
+            r_verts = [
+                bm.verts.new((x, y_inner, -w_z * 0.5)),  # Inner cutting edge
+                bm.verts.new((x, y_outer, -w_z * 0.3)),  # Outer bevel
+                bm.verts.new((x, y_outer, +w_z * 0.5)),  # Spine outer
+                bm.verts.new((x, y_inner, +w_z * 0.5)),  # Spine inner
+            ]
+            rings.append(r_verts)
+        for k in range(n_s):
+            ra, rb = rings[k], rings[k + 1]
+            for j in range(4):
+                jn = (j + 1) % 4
+                bm.faces.new((ra[j], ra[jn], rb[jn], rb[j]))
+        bm.faces.new(rings[0][::-1])
+        bm.faces.new(rings[-1])
+
+        # Smooth handle shank extending toward +X (+0.006 -> +0.082m)
+        m_sh = Matrix.Translation((0.044, sgn * 0.0012, sgn * 0.0032)) @ Matrix.Rotation(math.radians(90.0), 4, "Y")
+        bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=12, radius1=0.0020, radius2=0.0016, depth=0.076, matrix=m_sh)
+        obj = add_mesh(scene, name, bm, steel_mat, smooth=False, shadow=True)
+        es = obj.modifiers.new("CrispBevel", "EDGE_SPLIT")
+        es.split_angle = math.radians(35.0)
+        obj.parent = root
+        return obj
+
+    b_a = make_sleek_blade("IrisBlade_A", +1.0)
+    b_b = make_sleek_blade("IrisBlade_B", -1.0)
+    bm_p = bmesh.new()
+    bmesh.ops.create_cone(bm_p, cap_ends=True, cap_tris=False, segments=16, radius1=0.0024, radius2=0.0024, depth=0.0036, matrix=Matrix.Rotation(math.radians(90.0), 4, "X"))
+    pv = add_mesh(scene, "IrisPivotScrew", bm_p, gold_mat, smooth=True, shadow=False)
+    pv.parent = root
+    return root, b_a, b_b
+
+
+def build_adson_tweezers(scene, steel_mat):
+    root = bpy.data.objects.new("AdsonForceps_Root", None)
+    link_obj(scene, root)
+    bm = bmesh.new()
+    grip_dir = Vector((-0.35, 0.30, 0.88)).normalized()
+    q = grip_dir.to_track_quat("Z", "Y")
+    for sgn in (-1.0, 1.0):
+        m = q.to_matrix().to_4x4() @ Matrix.Translation((sgn * 0.0014, 0.0, 0.036)) @ Matrix.Diagonal((0.45, 1.5, 1.0, 1.0))
+        bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=10, radius1=0.00055, radius2=0.0022, depth=0.072, matrix=m)
+    tw = add_mesh(scene, "AdsonForceps_Mesh", bm, steel_mat, smooth=True, shadow=True)
+    tw.parent = root
     return root
 
 
 # ============================================================================
-# 5. OPERATING ROOM STUDIO LIGHTING & MACRO CINEMA CAMERA
+# 5. SUB-EPIDERMAL BIOLOGICAL HEALING VFX (STRICTLY INSIDE DERMAL CLEFT!)
 # ============================================================================
-def setup_or_studio(scene, drape_mat):
-    # Clean deep sterile operating-room slate-blue world (never muddy grey void!)
-    world = bpy.data.worlds.new("MedicalMacroStudioWorld")
+def build_subdermal_healing_systems(scene, shin_z_at):
+    # 1. Beat 3 Sculpted RBCs + Ruffled Golden-Pearl Macrophages + Spindle Fibroblasts
+    rbc_mat = bpy.data.materials.new("SculptedRBCMat")
+    rbc_mat.use_nodes = True
+    b_rbc = rbc_mat.node_tree.nodes["Principled BSDF"]
+    set_bsdf(b_rbc, "Base Color", (0.45, 0.014, 0.016, 1.0))
+    set_bsdf(b_rbc, "Roughness", 0.22)
+    set_bsdf(b_rbc, "Subsurface Weight", 0.45)
+    set_bsdf(b_rbc, "Emission Color", (0.62, 0.022, 0.025, 1.0))
+    set_bsdf(b_rbc, "Emission Strength", 0.50)
+
+    wbc_mat = bpy.data.materials.new("MacrophageGoldPearlMat")
+    wbc_mat.use_nodes = True
+    b_wbc = wbc_mat.node_tree.nodes["Principled BSDF"]
+    set_bsdf(b_wbc, "Base Color", (0.94, 0.76, 0.40, 1.0))
+    set_bsdf(b_wbc, "Roughness", 0.25)
+    set_bsdf(b_wbc, "Emission Color", (0.98, 0.78, 0.36, 1.0))
+    set_bsdf(b_wbc, "Emission Strength", 0.95)
+
+    fib_mat = bpy.data.materials.new("SpindleFibroblastMat")
+    fib_mat.use_nodes = True
+    b_fib = fib_mat.node_tree.nodes["Principled BSDF"]
+    set_bsdf(b_fib, "Base Color", (0.88, 0.42, 0.38, 1.0))
+    set_bsdf(b_fib, "Roughness", 0.25)
+    set_bsdf(b_fib, "Emission Color", (0.95, 0.50, 0.40, 1.0))
+    set_bsdf(b_fib, "Emission Strength", 0.85)
+
+    bm_rbc = bmesh.new()
+    bmesh.ops.create_uvsphere(bm_rbc, u_segments=14, v_segments=10, radius=0.00135)
+    for v in bm_rbc.verts:
+        r_xy = math.hypot(v.co.x, v.co.y) / 0.00135
+        v.co.z *= (0.28 + 0.52 * (r_xy ** 2))
+    bmesh.ops.recalc_face_normals(bm_rbc, faces=bm_rbc.faces)
+    rbc_mesh = bpy.data.meshes.new("BiconcaveRBC_SharedMesh")
+    bm_rbc.to_mesh(rbc_mesh)
+    bm_rbc.free()
+    for p in rbc_mesh.polygons:
+        p.use_smooth = True
+    rbc_mesh.materials.append(rbc_mat)
+
+    bm_wbc = bmesh.new()
+    bmesh.ops.create_icosphere(bm_wbc, subdivisions=2, radius=0.00165)
+    rng_m = random.Random(303)
+    for v in bm_wbc.verts:
+        v.co *= rng_m.uniform(0.84, 1.16)
+    bmesh.ops.recalc_face_normals(bm_wbc, faces=bm_wbc.faces)
+    wbc_mesh = bpy.data.meshes.new("RuffledMacrophage_SharedMesh")
+    bm_wbc.to_mesh(wbc_mesh)
+    bm_wbc.free()
+    for p in wbc_mesh.polygons:
+        p.use_smooth = True
+    wbc_mesh.materials.append(wbc_mat)
+
+    bm_fib = bmesh.new()
+    bmesh.ops.create_icosphere(bm_fib, subdivisions=1, radius=0.00115, matrix=Matrix.Diagonal((2.5, 0.65, 0.65, 1.0)))
+    bmesh.ops.recalc_face_normals(bm_fib, faces=bm_fib.faces)
+    fib_mesh = bpy.data.meshes.new("SpindleFibroblast_SharedMesh")
+    bm_fib.to_mesh(fib_mesh)
+    bm_fib.free()
+    for p in fib_mesh.polygons:
+        p.use_smooth = True
+    fib_mesh.materials.append(fib_mat)
+
+    rng = random.Random(2026)
+    cells = []
+    c_idx = 0
+    for shared_m, count in [(rbc_mesh, 65), (wbc_mesh, 42), (fib_mesh, 35)]:
+        for _ in range(count):
+            side = -1.0 if c_idx % 2 == 0 else 1.0
+            yt = rng.uniform(-0.042, 0.042)
+            # Strictly inside the dermal cutaway chamber (|X| <= 0.011m)!
+            xs = side * rng.uniform(0.0065, 0.0110)
+            xe = side * rng.uniform(0.0004, 0.0048)
+            z_sub = shin_z_at(0.0, yt) - rng.uniform(0.0024, 0.0048)
+            obj = bpy.data.objects.new(f"BioCell_{c_idx:03d}", shared_m)
+            obj.visible_shadow = False
+            link_obj(scene, obj)
+            cells.append((obj, xs, xe, yt, z_sub, rng.uniform(0.0, 1.0), rng.uniform(0.0, 6.28)))
+            c_idx += 1
+
+    # 2. Beat 4 Organic Sinuous Curved Golden 3D Collagen Fibers (STRICTLY inside |X| <= 0.0085m dermal cleft!)
+    col_mat = bpy.data.materials.new("V21_OrganicCollagenWebMat")
+    col_mat.use_nodes = True
+    nt_c = col_mat.node_tree
+    bsdf_c = nt_c.nodes["Principled BSDF"]
+    mix_c = nt_c.nodes.new("ShaderNodeMix"); mix_c.data_type = "RGBA"
+    col_fac, c_gold, c_pink, c_out = get_rgba_mix_sockets(mix_c)
+    col_fac.default_value = 0.0
+    c_gold.default_value = (0.96, 0.66, 0.14, 1.0)  # Rich warm 24K amber-gold collagen
+    c_pink.default_value = (0.48, 0.10, 0.09, 1.0)  # Regenerated rose-crimson dermal tissue!
+    col_em = nt_c.nodes.new("ShaderNodeValue"); col_em.outputs[0].default_value = 1.15
+    set_bsdf(bsdf_c, "Roughness", 0.28)
+    set_bsdf(bsdf_c, "Subsurface Weight", 0.45)
+    nt_c.links.new(c_out, bsdf_c.inputs["Base Color"])
+    nt_c.links.new(c_out, bsdf_c.inputs["Emission Color"])
+    nt_c.links.new(col_em.outputs[0], bsdf_c.inputs["Emission Strength"])
+
+    collagen_bundles = []
+    for i in range(60):
+        y0 = lerp(-0.043, 0.043, i / 59.0)
+        # Strictly inside the dermal chamber (|X| <= 0.0085m, well inside the ±0.0115m suture punctures!)
+        x_w = rng.uniform(0.0058, 0.0086) * (1.0 - 0.35 * (abs(y0) / 0.046) ** 2)
+        slant = rng.uniform(-0.0055, 0.0055)
+        z_b = shin_z_at(0.0, y0) - rng.uniform(0.0022, 0.0042)
+        wave_ph = rng.uniform(0.0, 6.28)
+
+        bm_c = bmesh.new()
+        n_s = 16
+        s_pts = []
+        for k in range(n_s + 1):
+            u = k / float(n_s)
+            x_u = lerp(-x_w, +x_w, u)
+            # Natural S-curve biological fibril wave (looks like real microscopy collagen, NEVER straight toothpicks!)
+            y_u = y0 + lerp(-slant, +slant, u) + 0.0018 * math.sin(u * math.pi * 2.5 + wave_ph)
+            z_u = z_b + 0.0006 * math.cos(u * math.pi * 2.0 + wave_ph)
+            s_pts.append(Vector((x_u, y_u, z_u)))
+        for k in range(n_s):
+            dv = s_pts[k + 1] - s_pts[k]
+            q = dv.normalized().to_track_quat("Z", "Y")
+            m = Matrix.Translation((s_pts[k] + s_pts[k + 1]) * 0.5) @ q.to_matrix().to_4x4()
+            bmesh.ops.create_cone(bm_c, cap_ends=True, cap_tris=False, segments=6, radius1=0.00024, radius2=0.00024, depth=dv.length * 1.12, matrix=m)
+        c_obj = add_mesh(scene, f"CollagenFiber_{i:02d}", bm_c, col_mat, smooth=True, shadow=False)
+        collagen_bundles.append((c_obj, i / 60.0))
+
+    # 3. Beat 5 Deep Ruby-Crimson Tortuous Arterioles & Venules (strictly inside |X| <= 0.0092m!)
+    ves_mat = bpy.data.materials.new("V21_RubyMicrovasculatureMat")
+    ves_mat.use_nodes = True
+    bsdf_v = ves_mat.node_tree.nodes["Principled BSDF"]
+    set_bsdf(bsdf_v, "Base Color", (0.36, 0.006, 0.008, 1.0))
+    set_bsdf(bsdf_v, "Roughness", 0.16)
+    set_bsdf(bsdf_v, "Coat Weight", 0.85)
+    set_bsdf(bsdf_v, "Emission Color", (0.68, 0.012, 0.016, 1.0))
+    ves_em = bsdf_v.inputs["Emission Strength"]
+    ves_em.default_value = 0.65
+
+    vessel_root = bpy.data.objects.new("SubdermalVessels_Root", None)
+    link_obj(scene, vessel_root)
+
+    def add_vseg(bm, a: Vector, b: Vector, r1: float, r2: float):
+        dv = b - a
+        if dv.length < 1e-5:
+            return
+        q = dv.normalized().to_track_quat("Z", "Y")
+        m = Matrix.Translation((a + b) * 0.5) @ q.to_matrix().to_4x4()
+        bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=8, radius1=r1, radius2=r2, depth=dv.length * 1.1, matrix=m)
+
+    bm_trunks = bmesh.new()
+    for side in (-1.0, 1.0):
+        t_pts = []
+        for k in range(29):
+            yv = lerp(-0.043, 0.043, k / 28.0)
+            taper = 1.0 - 0.30 * (abs(yv) / 0.046) ** 2
+            xv = side * (0.0088 * taper + 0.0009 * math.sin(k * 0.9))
+            zv = shin_z_at(0.0, yv) - 0.0030
+            t_pts.append(Vector((xv, yv, zv)))
+        for k in range(28):
+            add_vseg(bm_trunks, t_pts[k], t_pts[k + 1], 0.00062, 0.00062)
+    trunks_obj = add_mesh(scene, "ParentDermalArterioles", bm_trunks, ves_mat, smooth=True, shadow=False)
+    trunks_obj.parent = vessel_root
+
+    cap_sprouts = []
+    for i in range(26):
+        side = -1.0 if i % 2 == 0 else 1.0
+        yb = lerp(-0.040, 0.040, i / 25.0)
+        taper = 1.0 - 0.30 * (abs(yb) / 0.046) ** 2
+        zb = shin_z_at(0.0, yb) - 0.0026
+        # Tortuous curved capillary path snaking across X=0!
+        bm_v = bmesh.new()
+        n_v = 10
+        v_pts = []
+        x_start = side * 0.0088 * taper
+        x_end = -side * rng.uniform(0.0020, 0.0055)
+        ph_v = rng.uniform(0.0, 6.28)
+        for k in range(n_v + 1):
+            u = k / float(n_v)
+            vx = lerp(x_start, x_end, u)
+            vy = yb + 0.0024 * math.sin(u * math.pi * 2.0 + ph_v)
+            vz = zb + 0.0004 * math.sin(u * math.pi)
+            v_pts.append(Vector((vx, vy, vz)))
+        for k in range(n_v):
+            r0 = lerp(0.00052, 0.00020, k / float(n_v))
+            r1 = lerp(0.00052, 0.00020, (k + 1) / float(n_v))
+            add_vseg(bm_v, v_pts[k], v_pts[k + 1], r0, r1)
+        # Secondary fine fork
+        fork_p0 = v_pts[4]
+        fork_p1 = fork_p0 + Vector((-side * 0.0038, rng.choice([-1.0, 1.0]) * 0.0042, 0.0002))
+        add_vseg(bm_v, fork_p0, fork_p1, 0.00032, 0.00014)
+
+        v_obj = add_mesh(scene, f"CapillarySprout_{i:02d}", bm_v, ves_mat, smooth=True, shadow=False)
+        v_obj.parent = vessel_root
+        cap_sprouts.append((v_obj, i / 26.0))
+
+    return cells, collagen_bundles, col_fac, col_em.outputs[0], vessel_root, trunks_obj, cap_sprouts, ves_em
+
+
+# ============================================================================
+# 6. SOFTBOX SURGICAL SUITE LIGHTING & 6-BEAT MACRO CAMERA
+# ============================================================================
+def setup_surgical_environment_and_lights(scene):
+    world = bpy.data.worlds.new("SurgicalSuiteWorld_V21")
     scene.world = world
     world.use_nodes = True
-    nt = world.node_tree
-    bg = nt.nodes["Background"]
-    bg.inputs["Color"].default_value = (0.032, 0.068, 0.105, 1.0)
-    bg.inputs["Strength"].default_value = 0.65
+    bg = world.node_tree.nodes["Background"]
+    bg.inputs["Color"].default_value = (0.014, 0.042, 0.062, 1.0)
+    bg.inputs["Strength"].default_value = 0.55
 
-    # Sterile blue OR surgical drape surface underneath the forearm
-    bm_dr = bmesh.new()
-    bmesh.ops.create_grid(bm_dr, x_segments=16, y_segments=16, size=1.4, matrix=Matrix.Translation((0.0, 0.0, -LIMB_R * 1.12)))
-    add_mesh(scene, "SterileORDrape", bm_dr, drape_mat, smooth=True, shadow=True)
+    # Huge 4.5m x 4.5m sterile surgical examination pad (ZERO table edges or black void anywhere in frame!)
+    bm_pad = bmesh.new()
+    bmesh.ops.create_grid(bm_pad, x_segments=16, y_segments=16, size=2.4, matrix=Matrix.Translation((0.0, 0.10, -0.068)))
+    add_mesh(scene, "InfiniteSurgicalTablePad", bm_pad, make_sterile_drape_mat(), smooth=True, shadow=True)
 
-    # 1. Overhead Surgical Dome Key Light (crisp clinical top-left illumination + glossy steel reflections)
-    k_d = bpy.data.lights.new("OR_SurgicalDomeKey", type="AREA")
+    # Large diffused 0.85m Softbox Surgical Dome Key (velvety smooth skin gradients, zero harsh plastic stripe!)
+    k_d = bpy.data.lights.new("SurgicalSoftboxKey", type="AREA")
     k_d.shape = "DISK"
-    k_d.size = 0.55
-    k_d.energy = 42.0
+    k_d.size = 0.85
+    k_d.energy = 8.2
     k_d.color = (1.0, 0.96, 0.92)
-    k_o = bpy.data.objects.new("OR_SurgicalDomeKey", k_d)
-    k_o.location = Vector((-0.34, -0.26, 0.68))
+    k_o = bpy.data.objects.new("SurgicalSoftboxKey", k_d)
+    k_o.location = Vector((-0.42, -0.22, 0.62))
     k_o.rotation_euler = (Vector((0, 0, 0)) - k_o.location).to_track_quat("-Z", "Y").to_euler()
     link_obj(scene, k_o)
 
-    # 2. Cool Clinical Teal Rim Light (right-rear edge separation on steel scissors, blue nylon & skin pores!)
-    r_d = bpy.data.lights.new("OR_ClinicalRim", type="AREA")
+    # Cool Clinical Rim Light
+    r_d = bpy.data.lights.new("SurgicalCoolRim", type="AREA")
     r_d.shape = "RECTANGLE"
-    r_d.size = 0.65
-    r_d.size_y = 0.40
-    r_d.energy = 30.0
-    r_d.color = (0.62, 0.88, 1.0)
-    r_o = bpy.data.objects.new("OR_ClinicalRim", r_d)
-    r_o.location = Vector((0.46, 0.34, 0.48))
+    r_d.size = 0.70
+    r_d.size_y = 0.45
+    r_d.energy = 5.6
+    r_d.color = (0.72, 0.90, 1.0)
+    r_o = bpy.data.objects.new("SurgicalCoolRim", r_d)
+    r_o.location = Vector((0.46, 0.28, 0.46))
     r_o.rotation_euler = (Vector((0, 0, 0)) - r_o.location).to_track_quat("-Z", "Y").to_euler()
     link_obj(scene, r_o)
 
-    # 3. Soft Warm Fill (keeps skin SSS rich & lifelike)
-    f_d = bpy.data.lights.new("OR_WarmFill", type="AREA")
+    # Wide Warm Bounce Fill
+    f_d = bpy.data.lights.new("SurgicalWarmFill", type="AREA")
     f_d.shape = "RECTANGLE"
-    f_d.size = 0.70
-    f_d.size_y = 0.50
-    f_d.energy = 14.0
-    f_d.color = (1.0, 0.88, 0.80)
-    f_o = bpy.data.objects.new("OR_WarmFill", f_d)
-    f_o.location = Vector((0.36, -0.44, 0.38))
+    f_d.size = 0.90
+    f_d.size_y = 0.65
+    f_d.energy = 3.6
+    f_d.color = (1.0, 0.94, 0.88)
+    f_o = bpy.data.objects.new("SurgicalWarmFill", f_d)
+    f_o.location = Vector((0.34, -0.44, 0.44))
     f_o.rotation_euler = (Vector((0, 0, 0)) - f_o.location).to_track_quat("-Z", "Y").to_euler()
     link_obj(scene, f_o)
 
+    bio_d = bpy.data.lights.new("SubdermalBioGlow", type="POINT")
+    bio_d.energy = 0.0
+    bio_d.color = (1.0, 0.40, 0.22)
+    bio_d.shadow_soft_size = 0.022
+    bio_o = bpy.data.objects.new("SubdermalBioGlow", bio_d)
+    bio_o.location = Vector((0.0, 0.0, -0.003))
+    link_obj(scene, bio_o)
+    return bio_o
 
-def compute_macro_camera(t: float) -> tuple[Vector, Vector, float]:
-    """Smooth continuous viral macro camera choreography across all 6 beats (1:1 synchronized with verify_framing.py!)."""
+
+def compute_v2_camera(t: float) -> tuple[Vector, Vector, float, float]:
     if t < 6.0:
-        # Beat 1: Zoom smoothly from wide forearm hook down into surgical macro tracking the needle!
-        u = smoothstep(0.0, 5.8, t)
-        pos = Vector((lerp(0.14, 0.16, u), lerp(-0.34, -0.18, u), lerp(0.56, 0.34, u)))
-        tgt = Vector((0.0, lerp(-0.04, 0.04, u), 0.0))
-        return pos, tgt, lerp(46.0, 58.0, u)
+        u_zoom = smoothstep(0.15, 2.10, t)
+        u_pan = smoothstep(1.20, 5.70, t)
+        pos = Vector((
+            lerp(0.16, 0.095, u_zoom),
+            lerp(-0.44, -0.155, u_zoom) + lerp(-0.015, 0.025, u_pan),
+            lerp(0.42, 0.215, u_zoom),
+        ))
+        tgt = Vector((
+            lerp(-0.010, 0.0, u_zoom),
+            lerp(-0.065, 0.0, u_zoom) + lerp(-0.018, 0.018, u_pan),
+            lerp(0.005, 0.0, u_zoom),
+        ))
+        return pos, tgt, lerp(48.0, 62.0, u_zoom), lerp(7.0, 8.0, u_zoom)
     if t < 10.2:
-        # Beat 2: Hero overhead-angled macro on the Zipper Pull & Surgical Scissors SNIP!
         u = smoothstep(6.0, 10.0, t)
-        pos = Vector((lerp(0.16, 0.11, u), lerp(-0.18, -0.15, u), lerp(0.34, 0.36, u)))
-        tgt = Vector((0.0, lerp(0.04, 0.05, u), 0.0))
-        return pos, tgt, lerp(58.0, 54.0, u)
+        pos = Vector((lerp(0.095, 0.082, u), lerp(-0.130, -0.115, u), lerp(0.215, 0.205, u)))
+        tgt = Vector((0.0, lerp(0.018, 0.012, u), 0.0))
+        return pos, tgt, lerp(62.0, 64.0, u), 8.5
     if t < 15.2:
-        # Beat 3: Intimate cellular macro gliding along the inflamed seam & swarming repair cells!
         u = smoothstep(10.2, 15.0, t)
-        pos = Vector((lerp(0.11, -0.14, u), lerp(-0.15, -0.22, u), lerp(0.36, 0.35, u)))
-        tgt = Vector((0.0, lerp(0.02, 0.0, u), 0.0))
-        return pos, tgt, lerp(54.0, 54.0, u)
+        pos = Vector((lerp(0.082, -0.075, u), lerp(-0.115, -0.125, u), lerp(0.205, 0.178, u)))
+        tgt = Vector((0.0, lerp(0.012, -0.004, u), -0.002))
+        return pos, tgt, lerp(64.0, 68.0, u), 9.0
     if t < 20.4:
-        # Beat 4: Dramatic macro glide across the glowing golden collagen scaffold weaving into living skin!
         u = smoothstep(15.2, 20.2, t)
-        pos = Vector((lerp(-0.14, 0.14, u), lerp(-0.22, -0.19, u), lerp(0.35, 0.36, u)))
-        tgt = Vector((0.0, 0.0, 0.0))
-        return pos, tgt, lerp(54.0, 54.0, u)
+        pos = Vector((lerp(-0.075, 0.078, u), lerp(-0.125, -0.118, u), lerp(0.178, 0.185, u)))
+        tgt = Vector((0.0, 0.0, -0.002))
+        return pos, tgt, lerp(68.0, 66.0, u), 9.0
     if t < 25.3:
-        # Beat 5: Overhead macro revealing branching ruby blood vessels nourishing & sinking beneath the skin!
         u = smoothstep(20.4, 25.1, t)
-        pos = Vector((lerp(0.14, 0.04, u), lerp(-0.19, -0.14, u), lerp(0.36, 0.38, u)))
+        pos = Vector((lerp(0.078, 0.055, u), lerp(-0.118, -0.130, u), lerp(0.185, 0.215, u)))
         tgt = Vector((0.0, 0.0, 0.0))
-        return pos, tgt, lerp(54.0, 52.0, u)
-    # Beat 6: Smooth stitch slide-out & satisfying pullback reveal of seamless healed skin!
-    u = smoothstep(25.3, 29.8, t)
-    pos = Vector((lerp(0.04, 0.12, u), lerp(-0.14, -0.32, u), lerp(0.36, 0.56, u)))
-    tgt = Vector((0.0, 0.0, 0.0))
-    return pos, tgt, lerp(54.0, 46.0, u)
+        return pos, tgt, lerp(66.0, 60.0, u), 8.5
+    u_pull = smoothstep(27.0, 29.8, t)
+    pos = Vector((
+        lerp(0.055, 0.155, u_pull),
+        lerp(-0.130, -0.430, u_pull),
+        lerp(0.215, 0.415, u_pull),
+    ))
+    tgt = Vector((
+        lerp(0.0, -0.010, u_pull),
+        lerp(0.0, -0.060, u_pull),
+        lerp(0.0, 0.005, u_pull),
+    ))
+    return pos, tgt, lerp(60.0, 48.0, u_pull), lerp(8.5, 7.0, u_pull)
 
 
 # ============================================================================
-# 6. MAIN SCENE BUILD & CYCLES RENDER LOOP
+# 7. CYCLES RENDER & MASTER ANIMATION
 # ============================================================================
 def configure_cycles(scene, args):
     scene.render.engine = "CYCLES"
-    scene.cycles.device = "GPU"
     scene.cycles.samples = args.samples
     scene.cycles.use_adaptive_sampling = True
-    scene.cycles.adaptive_threshold = 0.030
+    scene.cycles.adaptive_threshold = 0.028
     scene.cycles.use_denoising = True
     scene.cycles.denoiser = "OPENIMAGEDENOISE"
     scene.cycles.denoising_input_passes = "RGB_ALBEDO"
@@ -953,8 +1349,11 @@ def configure_cycles(scene, args):
     scene.cycles.caustics_reflective = False
     scene.cycles.caustics_refractive = False
 
+    has_gpu = False
     prefs = bpy.context.preferences.addons["cycles"].preferences
     for backend in (args.device, "OPTIX", "CUDA"):
+        if backend == "CPU":
+            break
         try:
             prefs.compute_device_type = backend
             prefs.get_devices()
@@ -962,10 +1361,15 @@ def configure_cycles(scene, args):
             if gpus:
                 for d in prefs.devices:
                     d.use = (d.type != "CPU")
+                scene.cycles.device = "GPU"
+                has_gpu = True
                 print(f"[Cycles GPU] Active backend: {backend} ({len(gpus)} GPU(s))")
                 break
         except Exception:
             continue
+    if not has_gpu:
+        scene.cycles.device = "CPU"
+        print("[Cycles CPU] Rendering on local CPU for visual QA")
 
     scene.render.resolution_x = RES_X
     scene.render.resolution_y = RES_Y
@@ -977,10 +1381,10 @@ def configure_cycles(scene, args):
     scene.render.image_settings.quality = 95
     scene.view_settings.view_transform = "AgX"
     try:
-        scene.view_settings.look = "AgX - Punchy"
+        scene.view_settings.look = "AgX - Medium High Contrast"
     except Exception:
         pass
-    scene.view_settings.exposure = 0.12
+    scene.view_settings.exposure = 0.05
 
 
 def build_and_render(args):
@@ -988,225 +1392,254 @@ def build_and_render(args):
     scene = bpy.context.scene
     configure_cycles(scene, args)
 
-    # 1. Materials & OR Studio
-    skin_mat, inf_val, scar_val = make_photoreal_skin_mat()
-    dermis_mat = make_dermis_wound_bed_mat()
-    steel_mat = make_surgical_steel_mat()
-    nylon_mat = make_suture_nylon_mat()
-    drape_mat = make_sterile_drape_mat()
-    cell_mat = make_repair_cell_mat()
-    collagen_mat, col_mix_fac, col_em_val = make_collagen_morph_mat()
-    vessel_mat, vessel_em = make_capillary_vessel_mat()
-    badge_gold = make_crisp_badge_mat("StageBadgeGold", (1.0, 0.86, 0.36), 1.65)
-    badge_cyan = make_crisp_badge_mat("StageBadgeCyan", (0.52, 0.94, 1.0), 1.70)
-    halo_mat = make_pill_halo_mat()
+    _, _, LocationService, _ = enable_mpfb2_services()
+    diff_path = find_4k_skin_diffuse_path(LocationService)
 
-    setup_or_studio(scene, drape_mat)
+    skin_mat, inf_val, seam_val, cutaway_val = make_v2_4k_human_skin_mat(diff_path)
+    wall_mat = make_multilayer_wound_wall_mat()
+    fat_mat = make_adipose_fat_mat()
+    hair_mat = make_leg_hair_mat()
+    suture_mat = make_prolene_suture_mat()
+    pore_mat = make_puncture_pore_mat()
+    steel_mat = make_surgical_steel_mat("SurgicalSteel_V21", gold_ring=False)
+    gold_mat = make_surgical_steel_mat("SurgicalGoldTrim_V21", gold_ring=True)
 
-    # 2. Hero Deforming Wound Limb, Surgical Instruments & Biological Healing Systems
-    skin_obj, sk_closed, sk_healed, _ = build_living_wound_limb(scene, skin_mat, dermis_mat)
-    needle_obj = build_curved_surgical_needle(scene, steel_mat)
-    suture_loops, tail_obj = build_dynamic_suture_loops(scene, nylon_mat)
-    sciss_root, blade_a, blade_b = build_surgical_scissors(scene, steel_mat)
-    repair_cells = build_repair_cells(scene, cell_mat)
-    collagen_strands = build_collagen_scaffold(scene, collagen_mat)
-    cap_root, cap_trees = build_capillary_network(scene, vessel_mat)
+    bio_light = setup_surgical_environment_and_lights(scene)
 
-    # Clean, floating camera-tracked top micro-stage badges (placed cleanly in top safe zone!)
-    cam_data = bpy.data.cameras.new("MacroMedicalCam")
+    leg_obj, sk_closed, sk_healed, fat_lobules, shin_z_at, stitch_ys = build_anatomical_human_leg_with_3d_wound(
+        scene, skin_mat, wall_mat, fat_mat, hair_mat
+    )
+    rungs, diag_laces, pores, knots, pull_tail = build_suture_system(scene, suture_mat, pore_mat, shin_z_at, stitch_ys)
+    needle_rig = build_needle_and_holder_rig(scene, steel_mat, gold_mat, suture_mat)
+    sciss_root, blade_a, blade_b = build_sleek_iris_scissors(scene, steel_mat, gold_mat)
+    tweezers_root = build_adson_tweezers(scene, steel_mat)
+    cells, collagen_bundles, col_fac, col_em, vessel_root, trunks_obj, cap_sprouts, ves_em = build_subdermal_healing_systems(
+        scene, shin_z_at
+    )
+
+    cam_data = bpy.data.cameras.new("MacroSurgicalCam_V21")
     cam_data.sensor_fit = "HORIZONTAL"
     cam_data.sensor_width = 36.0
-    cam_data.clip_start = 0.01
-    cam_data.clip_end = 25.0
+    cam_data.clip_start = 0.008
+    cam_data.clip_end = 15.0
     cam_data.dof.use_dof = True
-    cam_data.dof.aperture_fstop = 4.5
-    cam_obj = bpy.data.objects.new("MacroMedicalCam", cam_data)
+    cam_obj = bpy.data.objects.new("MacroSurgicalCam_V21", cam_data)
     link_obj(scene, cam_obj)
     scene.camera = cam_obj
 
-    # Subtle HUD stage titles parented cleanly to camera upper safe zone (Z = -0.35m in cam local space, Y = +0.115m)
-    stage_badges = [
-        (0.3, 9.8, build_stage_badge(scene, "Badge_Suture", "STEP 1 · SUTURE CLOSURE", Vector((0, 0.118, -0.36)), badge_cyan, halo_mat)),
-        (10.3, 15.1, build_stage_badge(scene, "Badge_Repair", "STEP 2 · CELL REPAIR", Vector((0, 0.118, -0.36)), badge_gold, halo_mat)),
-        (15.3, 20.3, build_stage_badge(scene, "Badge_Collagen", "STEP 3 · COLLAGEN MATRIX", Vector((0, 0.118, -0.36)), badge_gold, halo_mat)),
-        (20.5, 25.2, build_stage_badge(scene, "Badge_Vessels", "STEP 4 · NEW BLOOD VESSELS", Vector((0, 0.118, -0.36)), badge_cyan, halo_mat)),
-        (25.5, 29.8, build_stage_badge(scene, "Badge_Healed", "STEP 5 · FULLY HEALED", Vector((0, 0.118, -0.36)), badge_cyan, halo_mat)),
-    ]
-    for _, _, b_root in stage_badges:
-        b_root.parent = cam_obj
-
-    # 3. Keyframe Smooth Animation Across All 720 Frames (step=2 for ultra-fast scene build!)
     key_frames = sorted(set(list(range(1, TOTAL_FRAMES + 1, 2)) + [1, TOTAL_FRAMES]))
 
     for f in key_frames:
         t = (f - 1) / float(FPS)
 
-        # --- Camera ---
-        cpos, ctgt, lens = compute_macro_camera(t)
+        cpos, ctgt, lens, fstop = compute_v2_camera(t)
         cam_obj.location = cpos
         cam_obj.rotation_mode = "QUATERNION"
         cam_obj.rotation_quaternion = (ctgt - cpos).normalized().to_track_quat("-Z", "Y")
         cam_data.lens = lens
         cam_data.dof.focus_distance = (ctgt - cpos).length
+        cam_data.dof.aperture_fstop = fstop
         cam_obj.keyframe_insert(data_path="location", frame=f)
         cam_obj.keyframe_insert(data_path="rotation_quaternion", frame=f)
         cam_data.keyframe_insert(data_path="lens", frame=f)
         cam_data.dof.keyframe_insert(data_path="focus_distance", frame=f)
+        cam_data.dof.keyframe_insert(data_path="aperture_fstop", frame=f)
 
-        # --- Stage Badges ---
-        for t0_b, t1_b, b_root in stage_badges:
-            vis = smoothstep(t0_b, t0_b + 0.35, t) * (1.0 - smoothstep(t1_b - 0.35, t1_b, t))
-            bs = max(0.0001, vis)
-            b_root.scale = (bs, bs, bs)
-            b_root.keyframe_insert(data_path="scale", frame=f)
-
-        # --- Deforming Skin Wound Closure (Beat 2 Zipper Pull t=6.0..8.1s) -> Healed (Beat 6 t=25.5..28.5s) ---
-        zip_u = smoothstep(6.0, 8.1, t)
-        heal_u = smoothstep(25.5, 28.4, t)
+        zip_u = smoothstep(6.0, 8.0, t)
+        heal_u = smoothstep(26.6, 28.6, t)
         sk_closed.value = zip_u * (1.0 - heal_u)
         sk_healed.value = heal_u
         sk_closed.keyframe_insert(data_path="value", frame=f)
         sk_healed.keyframe_insert(data_path="value", frame=f)
 
-        # --- Skin Inflammation Crimson Blush (Beat 3 peak -> fades to healthy skin in Beat 6) ---
-        inf_pulse = 0.08 * math.sin(t * 7.8) * smoothstep(10.0, 11.2, t) * (1.0 - smoothstep(15.5, 17.5, t))
-        inf_level = 0.14 + 0.72 * smoothstep(10.1, 12.2, t) * (1.0 - smoothstep(19.5, 27.2, t)) + inf_pulse
-        inf_level *= (1.0 - 0.90 * heal_u)
-        inf_val.default_value = clamp01(inf_level)
+        fat_vis = 1.0 - smoothstep(7.2, 7.9, t)
+        fs = max(0.0001, fat_vis)
+        for f_obj, fx_o, fy, fz in fat_lobules:
+            f_obj.location = Vector((lerp(fx_o, fx_o * 0.08, zip_u), fy, fz))
+            f_obj.scale = (fs, fs, fs)
+            f_obj.keyframe_insert(data_path="location", frame=f)
+            f_obj.keyframe_insert(data_path="scale", frame=f)
+
+        pulse_inf = 0.08 * math.sin(t * 7.6) * smoothstep(10.2, 11.2, t) * (1.0 - smoothstep(15.2, 16.5, t))
+        inf_lvl = (0.18 + 0.62 * smoothstep(10.2, 11.8, t) * (1.0 - smoothstep(20.5, 25.0, t)) + pulse_inf) * (1.0 - 0.92 * heal_u)
+        inf_val.default_value = clamp01(inf_lvl)
         inf_val.keyframe_insert(data_path="default_value", frame=f)
-        scar_val.default_value = 0.36 * heal_u
-        scar_val.keyframe_insert(data_path="default_value", frame=f)
 
-        # --- Beat 1: Curved Surgical Needle Weaving Through 6 Suture Loops (t=0.4..5.6s) ---
-        if t < 6.0:
-            pass_f = clamp01((t - 0.35) / 5.15) * NUM_LOOPS
-            idx_p = min(NUM_LOOPS - 1, int(pass_f))
-            frac = pass_f - idx_p
-            ly = lerp(-0.108, 0.108, idx_p / float(NUM_LOOPS - 1))
-            w_o = wound_open_half_width(ly) + 0.018
-            nx = lerp(-w_o, w_o, smoothstep(0.08, 0.92, frac))
-            nz = limb_surface_z(abs(nx)) + 0.022 * math.sin(math.pi * frac) - 0.004
-            needle_obj.location = Vector((nx, ly, nz))
-            needle_obj.rotation_euler = Euler((0.0, math.radians(lerp(-55.0, 55.0, frac)), 0.0), "XYZ")
-            ns = max(0.0001, smoothstep(0.15, 0.40, t) * (1.0 - smoothstep(5.55, 5.95, t)))
-            needle_obj.scale = (ns, ns, ns)
+        seam_val.default_value = 0.88 * (1.0 - heal_u)
+        seam_val.keyframe_insert(data_path="default_value", frame=f)
+
+        xray_open = smoothstep(10.25, 11.15, t) * (1.0 - smoothstep(24.20, 25.15, t))
+        cutaway_val.default_value = xray_open * 0.82
+        cutaway_val.keyframe_insert(data_path="default_value", frame=f)
+
+        bio_light.data.energy = xray_open * (0.16 + 0.04 * math.sin(t * 7.6))
+        bio_light.data.keyframe_insert(data_path="energy", frame=f)
+
+        if 0.65 <= t <= 5.95:
+            p_prog = clamp01((t - 0.85) / 4.80) * NUM_STITCHES
+            idx_n = min(NUM_STITCHES - 1, int(p_prog))
+            frac = p_prog - idx_n
+            sy = stitch_ys[idx_n]
+            ox = wound_half_gap(sy) + 0.0115
+            nx = lerp(-ox, +ox, smoothstep(0.06, 0.88, frac))
+            nz = shin_z_at(nx, sy) + 0.0075 * math.sin(math.pi * frac) + 0.002
+            needle_rig.location = Vector((nx, sy, nz))
+            needle_rig.rotation_euler = Euler((0.0, math.radians(lerp(-42.0, 42.0, frac)), 0.0), "XYZ")
+            ns = max(0.0001, smoothstep(0.65, 0.95, t) * (1.0 - smoothstep(5.65, 5.92, t)))
+            needle_rig.scale = (ns, ns, ns)
         else:
-            needle_obj.scale = (0.0001, 0.0001, 0.0001)
-        needle_obj.keyframe_insert(data_path="location", frame=f)
-        needle_obj.keyframe_insert(data_path="rotation_euler", frame=f)
-        needle_obj.keyframe_insert(data_path="scale", frame=f)
+            needle_rig.scale = (0.0001, 0.0001, 0.0001)
+        needle_rig.keyframe_insert(data_path="location", frame=f)
+        needle_rig.keyframe_insert(data_path="rotation_euler", frame=f)
+        needle_rig.keyframe_insert(data_path="scale", frame=f)
 
-        # --- 6 Blue Nylon Suture Loops: Appear sequentially in Beat 1, cinch shut in Beat 2, slide out in Beat 6! ---
-        slide_out = smoothstep(26.0, 27.8, t)
-        for idx, (l_obj, sk_tight, knot, ly, w_o, w_c) in enumerate(suture_loops):
-            t_appear = 0.55 + idx * 0.82
-            vis_in = smoothstep(t_appear, t_appear + 0.45, t)
-            # Progressive zipper cinch from bottom loop (idx=0) to top loop (idx=5)!
-            loop_zip = smoothstep(6.0 + idx * 0.24, 7.0 + idx * 0.24, t)
-            sk_tight.value = loop_zip
-            sk_tight.keyframe_insert(data_path="value", frame=f)
+        for idx, (r_obj, r_sk, sy, ox, cx) in enumerate(rungs):
+            t_in = 1.05 + idx * (4.80 / NUM_STITCHES)
+            vis_in = smoothstep(t_in - 0.25, t_in + 0.15, t)
+            r_zip = smoothstep(6.0 + idx * 0.22, 7.0 + idx * 0.22, t)
+            r_sk.value = r_zip
+            r_sk.keyframe_insert(data_path="value", frame=f)
 
-            # Slide smoothly up-and-out during Beat 6 stitch removal!
-            l_out = smoothstep(26.0 + idx * 0.18, 27.0 + idx * 0.18, t)
-            l_vis = vis_in * (1.0 - smoothstep(27.1 + idx * 0.15, 27.6 + idx * 0.15, t))
-            ls = max(0.0001, l_vis)
-            l_obj.location = Vector((0.025 * l_out, 0.0, 0.065 * l_out))
-            l_obj.scale = (ls, ls, ls)
-            l_obj.keyframe_insert(data_path="location", frame=f)
-            l_obj.keyframe_insert(data_path="scale", frame=f)
+            ext_u = smoothstep(25.55 + idx * 0.22, 26.25 + idx * 0.22, t)
+            vis_out = 1.0 - smoothstep(26.15 + idx * 0.22, 26.40 + idx * 0.22, t)
+            rs = max(0.0001, vis_in * vis_out)
+            r_obj.location = Vector((0.008 * ext_u, 0.0, 0.022 * ext_u))
+            r_obj.scale = (rs, rs, rs)
+            r_obj.keyframe_insert(data_path="location", frame=f)
+            r_obj.keyframe_insert(data_path="scale", frame=f)
 
-            ks = max(0.0001, smoothstep(7.4 + idx * 0.12, 7.8 + idx * 0.12, t) * (1.0 - l_out))
-            knot.location = Vector((w_c + 0.003 + 0.025 * l_out, ly, limb_surface_z(w_c) + 0.0045 + 0.065 * l_out))
-            knot.scale = (ks, ks, ks)
-            knot.keyframe_insert(data_path="location", frame=f)
-            knot.keyframe_insert(data_path="scale", frame=f)
+        for d_obj, d_sk, idx in diag_laces:
+            t_in = 1.55 + idx * (4.80 / NUM_STITCHES)
+            d_vis = smoothstep(t_in - 0.15, t_in + 0.20, t) * (1.0 - smoothstep(7.4, 7.9, t))
+            d_sk.value = smoothstep(6.0 + idx * 0.22, 7.0 + idx * 0.22, t)
+            d_sk.keyframe_insert(data_path="value", frame=f)
+            ds = max(0.0001, d_vis)
+            d_obj.scale = (ds, ds, ds)
+            d_obj.keyframe_insert(data_path="scale", frame=f)
 
-        # --- Trailing Pull Thread (Beat 2 Zipper Pull -> Snipped Away at t=8.65s!) ---
-        tail_in = smoothstep(5.4, 6.0, t)
-        tail_snip = smoothstep(8.65, 9.25, t)
-        ts = max(0.0001, tail_in * (1.0 - tail_snip))
-        tail_obj.location = Vector((0.018 + 0.05 * tail_snip, 0.108, limb_surface_z(0.018) + 0.002 + 0.045 * zip_u + 0.08 * tail_snip))
-        tail_obj.scale = (ts, ts, ts)
-        tail_obj.keyframe_insert(data_path="location", frame=f)
-        tail_obj.keyframe_insert(data_path="scale", frame=f)
+        for p_obj, idx, sgn, sy, ox, cx in pores:
+            t_in = (0.95 if sgn < 0 else 1.25) + idx * (4.80 / NUM_STITCHES)
+            p_vis = smoothstep(t_in - 0.1, t_in + 0.1, t) * (1.0 - heal_u)
+            px_cur = sgn * lerp(ox, cx, zip_u)
+            p_obj.location = Vector((px_cur, sy, shin_z_at(px_cur, sy) - 0.0002))
+            ps = max(0.0001, p_vis)
+            p_obj.scale = (ps, ps, ps)
+            p_obj.keyframe_insert(data_path="location", frame=f)
+            p_obj.keyframe_insert(data_path="scale", frame=f)
 
-        # --- Articulated 3D Surgical Scissors (Beat 2 Snip @ t=8.65s AND Beat 6 Removal Snip @ t=25.65s!) ---
-        sc2_vis = smoothstep(7.95, 8.35, t) * (1.0 - smoothstep(9.15, 9.65, t))
-        sc6_vis = smoothstep(25.15, 25.45, t) * (1.0 - smoothstep(26.15, 26.55, t))
-        if sc2_vis > 0.001:
-            sc_s = sc2_vis
-            sciss_root.location = Vector((lerp(0.16, 0.112, smoothstep(8.0, 8.55, t)), 0.108, 0.045))
-            sciss_root.rotation_euler = Euler((math.radians(15.0), math.radians(-12.0), math.radians(-18.0)), "XYZ")
-            open_ang = 22.0 * (1.0 - smoothstep(8.55, 8.68, t))
-        elif sc6_vis > 0.001:
-            sc_s = sc6_vis
-            sciss_root.location = Vector((lerp(0.16, 0.112, smoothstep(25.2, 25.55, t)), -0.02, 0.032))
-            sciss_root.rotation_euler = Euler((math.radians(12.0), math.radians(-14.0), math.radians(-12.0)), "XYZ")
-            open_ang = 22.0 * (1.0 - smoothstep(25.58, 25.70, t))
+        for kn, idx, sy, cx in knots:
+            kn_in = smoothstep(7.35 + idx * 0.12, 7.75 + idx * 0.12, t)
+            ext_u = smoothstep(25.55 + idx * 0.22, 26.25 + idx * 0.22, t)
+            kn_out = 1.0 - smoothstep(26.15 + idx * 0.22, 26.40 + idx * 0.22, t)
+            ks = max(0.0001, kn_in * kn_out)
+            kn.location = Vector((cx + 0.008 * ext_u, sy, shin_z_at(cx, sy) + 0.0005 + 0.022 * ext_u))
+            kn.scale = (ks, ks, ks)
+            kn.keyframe_insert(data_path="location", frame=f)
+            kn.keyframe_insert(data_path="scale", frame=f)
+
+        # --- Tension Pull Tail & Sleek Iris Scissors Straddling & Snipping the Thread at (0.0115, top_sy, 0.014)! ---
+        top_sy = stitch_ys[-1]
+        tail_vis = smoothstep(5.6, 6.0, t) * (1.0 - smoothstep(8.66, 9.15, t))
+        snip_fly = smoothstep(8.66, 9.15, t)
+        ts = max(0.0001, tail_vis)
+        pull_tail.location = Vector((0.0115 + 0.025 * snip_fly, top_sy, shin_z_at(0.0115, top_sy) + 0.003 + 0.006 * zip_u + 0.045 * snip_fly))
+        pull_tail.scale = (ts, ts, ts)
+        pull_tail.keyframe_insert(data_path="location", frame=f)
+        pull_tail.keyframe_insert(data_path="scale", frame=f)
+
+        sc2 = smoothstep(7.95, 8.35, t) * (1.0 - smoothstep(9.10, 9.55, t))
+        sc6 = smoothstep(25.15, 25.40, t) * (1.0 - smoothstep(26.35, 26.70, t))
+        if sc2 > 0.001:
+            sc_s = sc2
+            # Blade cutting contact zone is at local X = -0.022m -> placing pivot at X = 0.0335 puts blades RIGHT ON X = 0.0115!
+            sciss_root.location = Vector((lerp(0.058, 0.0335, smoothstep(8.0, 8.52, t)), top_sy, 0.014))
+            sciss_root.rotation_euler = Euler((math.radians(12.0), math.radians(-8.0), math.radians(-10.0)), "XYZ")
+            open_deg = 18.0 * (1.0 - smoothstep(8.48, 8.66, t))
+        elif sc6 > 0.001:
+            sc_s = sc6
+            y_sc6 = lerp(stitch_ys[0], stitch_ys[-1], clamp01((t - 25.35) / 1.10))
+            sciss_root.location = Vector((0.031, y_sc6, 0.009))
+            sciss_root.rotation_euler = Euler((math.radians(10.0), math.radians(-10.0), math.radians(-8.0)), "XYZ")
+            open_deg = 15.0 * abs(math.sin((t - 25.35) * 14.0))
         else:
             sc_s = 0.0001
-            open_ang = 0.0
+            open_deg = 0.0
         sciss_root.scale = (sc_s, sc_s, sc_s)
         sciss_root.keyframe_insert(data_path="location", frame=f)
         sciss_root.keyframe_insert(data_path="rotation_euler", frame=f)
         sciss_root.keyframe_insert(data_path="scale", frame=f)
-        blade_a.rotation_euler = Euler((0.0, math.radians(+open_ang), 0.0), "XYZ")
-        blade_b.rotation_euler = Euler((0.0, math.radians(-open_ang), 0.0), "XYZ")
+        blade_a.rotation_euler = Euler((0.0, math.radians(+open_deg), 0.0), "XYZ")
+        blade_b.rotation_euler = Euler((0.0, math.radians(-open_deg), 0.0), "XYZ")
         blade_a.keyframe_insert(data_path="rotation_euler", frame=f)
         blade_b.keyframe_insert(data_path="rotation_euler", frame=f)
 
-        # --- Beat 3: 140 Glowing Repair Cells Swarming Into Wound Seam (t=10.3..15.6s) ---
-        cell_vis = smoothstep(10.3, 11.2, t) * (1.0 - smoothstep(14.8, 15.8, t))
-        if cell_vis > 0.001 or abs(t - 10.2) < 0.25 or abs(t - 15.9) < 0.25 or f == 1:
-            for obj, xs, xe, yt, stg, ph in repair_cells:
-                cu = smoothstep(10.4 + stg * 1.4, 13.8 + stg * 1.0, t)
-                cx = lerp(xs, xe, cu) + 0.004 * math.sin(t * 4.5 + ph)
-                cy = yt + 0.005 * math.cos(t * 3.8 + ph)
-                cz = limb_surface_z(abs(cx)) + 0.0038 + 0.002 * math.sin(t * 6.0 + ph)
-                cs = max(0.0001, cell_vis * (0.75 + 0.25 * math.sin(t * 5.0 + ph)))
-                obj.location = Vector((cx, cy, cz))
+        tw_vis = smoothstep(25.35, 25.60, t) * (1.0 - smoothstep(26.85, 27.20, t))
+        if tw_vis > 0.001:
+            u_tw = clamp01((t - 25.55) / 1.25)
+            y_tw = lerp(stitch_ys[0], stitch_ys[-1], u_tw)
+            lift_tw = 0.016 * abs(math.sin(u_tw * math.pi * NUM_STITCHES))
+            tweezers_root.location = Vector((-0.006, y_tw, 0.006 + lift_tw))
+            tweezers_root.scale = (tw_vis, tw_vis, tw_vis)
+        else:
+            tweezers_root.scale = (0.0001, 0.0001, 0.0001)
+        tweezers_root.keyframe_insert(data_path="location", frame=f)
+        tweezers_root.keyframe_insert(data_path="scale", frame=f)
+
+        # --- Beat 3: Sculpted Cells Streaming Inside Dermal Cleft ---
+        cell_vis = smoothstep(10.4, 11.2, t) * (1.0 - smoothstep(14.9, 15.6, t))
+        if cell_vis > 0.001 or abs(t - 10.2) < 0.25 or abs(t - 15.8) < 0.25 or f == 1:
+            for obj, xs, xe, yt, z_sub, stg, ph in cells:
+                cu = smoothstep(10.5 + stg * 1.3, 13.6 + stg * 1.0, t)
+                cx = lerp(xs, xe, cu) + 0.0009 * math.sin(t * 4.2 + ph)
+                cy = yt + 0.0014 * math.cos(t * 3.6 + ph)
+                cs = max(0.0001, cell_vis)
+                obj.location = Vector((cx, cy, z_sub + 0.0004 * math.sin(t * 5.2 + ph)))
+                obj.rotation_euler = Euler((t * 1.4 + ph, t * 1.1, ph), "XYZ")
                 obj.scale = (cs, cs, cs)
                 obj.keyframe_insert(data_path="location", frame=f)
+                obj.keyframe_insert(data_path="rotation_euler", frame=f)
                 obj.keyframe_insert(data_path="scale", frame=f)
 
-        # --- Beat 4: 36 Golden Collagen Fibers Weaving Across Seam & Morphing Into Living Pink Skin! ---
-        col_morph = smoothstep(18.0, 20.1, t)
-        col_mix_fac.default_value = col_morph
-        col_mix_fac.keyframe_insert(data_path="default_value", frame=f)
-        col_em_val.default_value = lerp(1.75, 0.18, col_morph)
-        col_em_val.keyframe_insert(data_path="default_value", frame=f)
+        # --- Beat 4: 60 Sinuous Curved Golden Collagen Fibers (fades into solid dermis at t=19.8..20.5s so Beat 5 vessels shine solo!) ---
+        c_morph = smoothstep(18.2, 20.1, t)
+        col_fac.default_value = c_morph
+        col_fac.keyframe_insert(data_path="default_value", frame=f)
+        col_em.default_value = lerp(1.15, 0.15, c_morph)
+        col_em.keyframe_insert(data_path="default_value", frame=f)
+        col_out = 1.0 - smoothstep(19.9, 20.6, t)
+        for c_obj, stg in collagen_bundles:
+            cg = smoothstep(15.3 + stg * 1.8, 16.2 + stg * 1.8, t) * col_out
+            cs = max(0.0001, cg)
+            c_obj.scale = (cs, cs, cs)
+            c_obj.keyframe_insert(data_path="scale", frame=f)
 
-        col_fade_out = 1.0 - smoothstep(23.5, 25.4, t)
-        for obj, stg in collagen_strands:
-            c_grow = smoothstep(15.3 + stg * 2.0, 16.4 + stg * 2.0, t) * col_fade_out
-            cs = max(0.0001, c_grow)
-            obj.scale = (cs, cs, cs)
-            obj.keyframe_insert(data_path="scale", frame=f)
+        # --- Beat 5: Tortuous Ruby Arterioles & Capillary Sprouts Growing Solo Across Dermal Cleft! ---
+        tr_vis = smoothstep(20.3, 21.0, t) * (1.0 - smoothstep(24.3, 25.1, t))
+        trs = max(0.0001, tr_vis)
+        trunks_obj.scale = (trs, trs, trs)
+        trunks_obj.keyframe_insert(data_path="scale", frame=f)
 
-        # --- Beat 5: 18 Branching Ruby Capillary Blood Vessels Growing, Pulsing & Sinking Into Skin! ---
-        sink_u = smoothstep(23.3, 25.4, t)
-        cap_root.location = Vector((0.0, 0.0, lerp(0.0, -0.016, sink_u)))
-        cap_root.keyframe_insert(data_path="location", frame=f)
-        if vessel_em is not None:
-            vessel_em.default_value = (0.75 + 0.45 * (0.5 + 0.5 * math.sin(t * 8.2))) * (1.0 - sink_u)
-            vessel_em.keyframe_insert(data_path="default_value", frame=f)
-        for obj, stg in cap_trees:
-            v_grow = smoothstep(20.5 + stg * 1.8, 21.8 + stg * 1.8, t) * (1.0 - smoothstep(24.9, 25.5, t))
-            vs = max(0.0001, v_grow)
-            obj.scale = (vs, vs, vs)
-            obj.keyframe_insert(data_path="scale", frame=f)
+        sink_z = lerp(0.0, -0.0040, smoothstep(23.6, 25.1, t))
+        vessel_root.location = Vector((0.0, 0.0, sink_z))
+        vessel_root.keyframe_insert(data_path="location", frame=f)
+        ves_em.default_value = (0.55 + 0.45 * (0.5 + 0.5 * math.sin(t * 8.4))) * tr_vis
+        ves_em.keyframe_insert(data_path="default_value", frame=f)
+        for v_obj, stg in cap_sprouts:
+            vg = smoothstep(20.5 + stg * 1.6, 21.5 + stg * 1.6, t) * (1.0 - smoothstep(24.3, 25.1, t))
+            vs = max(0.0001, vg)
+            v_obj.scale = (vs, vs, vs)
+            v_obj.keyframe_insert(data_path="scale", frame=f)
 
-    # 4. Render Requested Frame Range
     out_dir = Path(args.frames_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    frames_to_render = [48, 168, 210, 312, 432, 540, 672] if args.preview else list(range(max(1, args.start_frame), min(TOTAL_FRAMES, args.end_frame) + 1))
+    frames_to_render = [8, 76, 206, 312, 428, 545, 705] if args.preview else list(range(max(1, args.start_frame), min(TOTAL_FRAMES, args.end_frame) + 1))
 
     for f in frames_to_render:
         scene.frame_set(f)
         scene.render.filepath = str(out_dir / f"frame_{f:04d}.jpg")
         bpy.ops.render.render(write_still=True)
 
-    print(f"[How Stitches Work 4K] Rendered {len(frames_to_render)} frame(s) into {out_dir}")
+    print(f"[How Stitches Work V2.1] Rendered {len(frames_to_render)} frame(s) into {out_dir}")
 
 
 if __name__ == "__main__":

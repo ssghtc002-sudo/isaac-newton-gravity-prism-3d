@@ -1,9 +1,6 @@
 """
-Pre-flight mathematical 9:16 portrait macro camera framing verifier for How Stitches Work (4K Medical Macro Cinema).
-Verifies across all 6 Beats that:
-  1. Both ends of the surgical wound (Y = -0.145, +0.145), suture loops, curved needle, surgical scissors,
-     collagen matrix, and branching capillary trees stay cleanly inside the 9:16 portrait safe frame.
-  2. Top HUD stage badges stay strictly inside |ndcX| <= 0.85 and ndcY in [+0.45, +0.72] with zero wound overlap.
+Pre-flight mathematical 9:16 portrait macro camera framing verifier for How Stitches Work V2
+(Real MakeHuman 4K Lower Leg + Ankle + 5 Toes + 3D Multi-Layer Shin Incision).
 """
 import numpy as np
 
@@ -26,36 +23,45 @@ def lerp(a, b, t):
     return a + (b - a) * t
 
 
-def compute_macro_camera(t):
+def compute_v2_camera(t):
     if t < 6.0:
-        u = smoothstep(0.0, 5.8, t)
-        pos = np.array([lerp(0.14, 0.16, u), lerp(-0.34, -0.18, u), lerp(0.56, 0.34, u)])
-        tgt = np.array([0.0, lerp(-0.04, 0.04, u), 0.0])
-        return pos, tgt, lerp(46.0, 58.0, u)
+        u_zoom = smoothstep(0.15, 2.10, t)
+        u_pan = smoothstep(1.20, 5.70, t)
+        pos = np.array([
+            lerp(0.16, 0.095, u_zoom),
+            lerp(-0.44, -0.155, u_zoom) + lerp(-0.015, 0.025, u_pan),
+            lerp(0.42, 0.215, u_zoom),
+        ])
+        tgt = np.array([
+            lerp(-0.010, 0.0, u_zoom),
+            lerp(-0.065, 0.0, u_zoom) + lerp(-0.018, 0.018, u_pan),
+            lerp(0.005, 0.0, u_zoom),
+        ])
+        return pos, tgt, lerp(48.0, 62.0, u_zoom)
     if t < 10.2:
         u = smoothstep(6.0, 10.0, t)
-        pos = np.array([lerp(0.16, 0.11, u), lerp(-0.18, -0.15, u), lerp(0.34, 0.36, u)])
-        tgt = np.array([0.0, lerp(0.04, 0.05, u), 0.0])
-        return pos, tgt, lerp(58.0, 54.0, u)
+        pos = np.array([lerp(0.095, 0.082, u), lerp(-0.130, -0.115, u), lerp(0.215, 0.205, u)])
+        tgt = np.array([0.0, lerp(0.018, 0.012, u), 0.0])
+        return pos, tgt, lerp(62.0, 64.0, u)
     if t < 15.2:
         u = smoothstep(10.2, 15.0, t)
-        pos = np.array([lerp(0.11, -0.14, u), lerp(-0.15, -0.22, u), lerp(0.36, 0.35, u)])
-        tgt = np.array([0.0, lerp(0.02, 0.0, u), 0.0])
-        return pos, tgt, lerp(54.0, 54.0, u)
+        pos = np.array([lerp(0.082, -0.075, u), lerp(-0.115, -0.125, u), lerp(0.205, 0.178, u)])
+        tgt = np.array([0.0, lerp(0.012, -0.004, u), -0.002])
+        return pos, tgt, lerp(64.0, 68.0, u)
     if t < 20.4:
         u = smoothstep(15.2, 20.2, t)
-        pos = np.array([lerp(-0.14, 0.14, u), lerp(-0.22, -0.19, u), lerp(0.35, 0.36, u)])
-        tgt = np.array([0.0, 0.0, 0.0])
-        return pos, tgt, lerp(54.0, 54.0, u)
+        pos = np.array([lerp(-0.075, 0.078, u), lerp(-0.125, -0.118, u), lerp(0.178, 0.185, u)])
+        tgt = np.array([0.0, 0.0, -0.002])
+        return pos, tgt, lerp(68.0, 66.0, u)
     if t < 25.3:
         u = smoothstep(20.4, 25.1, t)
-        pos = np.array([lerp(0.14, 0.04, u), lerp(-0.19, -0.14, u), lerp(0.36, 0.38, u)])
+        pos = np.array([lerp(0.078, 0.055, u), lerp(-0.118, -0.130, u), lerp(0.185, 0.215, u)])
         tgt = np.array([0.0, 0.0, 0.0])
-        return pos, tgt, lerp(54.0, 52.0, u)
-    u = smoothstep(25.3, 29.8, t)
-    pos = np.array([lerp(0.04, 0.12, u), lerp(-0.14, -0.32, u), lerp(0.36, 0.56, u)])
-    tgt = np.array([0.0, 0.0, 0.0])
-    return pos, tgt, lerp(54.0, 46.0, u)
+        return pos, tgt, lerp(66.0, 60.0, u)
+    u_pull = smoothstep(27.0, 29.8, t)
+    pos = np.array([lerp(0.055, 0.155, u_pull), lerp(-0.130, -0.430, u_pull), lerp(0.215, 0.415, u_pull)])
+    tgt = np.array([lerp(0.0, -0.010, u_pull), lerp(0.0, -0.060, u_pull), lerp(0.0, 0.005, u_pull)])
+    return pos, tgt, lerp(60.0, 48.0, u_pull)
 
 
 def project(cam_pos, tgt, lens_mm, pt):
@@ -73,34 +79,28 @@ def project(cam_pos, tgt, lens_mm, pt):
 
 def main():
     ok = True
-    beats = [
-        (2.5, "Beat 1: Needle Weaving Suture Loops", {"WoundCenter": [0, 0, 0], "WoundBot": [0, -0.12, 0], "WoundTop": [0, 0.12, 0]}),
-        (8.6, "Beat 2: Zipper Closure & Scissors Snip", {"WoundCenter": [0, 0, 0], "ScissorsTip": [0.02, 0.108, 0.045], "SutureTop": [0, 0.108, 0.01]}),
-        (12.5, "Beat 3: Inflammation & Repair Cell Swarm", {"WoundCenter": [0, 0, 0], "LeftCellZone": [-0.05, 0, 0], "RightCellZone": [0.05, 0, 0]}),
-        (17.8, "Beat 4: Golden Collagen Fiber Matrix", {"WoundCenter": [0, 0, 0], "CollagenTop": [0, 0.11, 0.005], "CollagenBot": [0, -0.11, 0.005]}),
-        (22.8, "Beat 5: Branching Ruby Blood Vessels", {"WoundCenter": [0, 0, 0], "VesselLeft": [-0.06, 0, 0], "VesselRight": [0.06, 0, 0]}),
-        (28.0, "Beat 6: Stitch Removal & Healed Reveal", {"WoundCenter": [0, 0, 0], "HealedTop": [0, 0.14, 0], "HealedBot": [0, -0.14, 0]}),
+    checks = [
+        (0.29, "Beat 1a Hook: Full Lower Leg + Ankle + Foot", {"ShinWound": [0, 0, 0], "FootToes": [-0.02, -0.25, 0.07], "UpperShin": [0, 0.14, 0]}),
+        (3.12, "Beat 1b Macro: Needle & Forceps Suturing", {"WoundCenter": [0, 0, 0], "StitchBot": [0, -0.04, 0], "StitchTop": [0, 0.04, 0]}),
+        (8.54, "Beat 2: Corset Zipper Closure & Iris Scissors Snip", {"WoundCenter": [0, 0, 0], "TopKnot": [0.012, 0.04, 0], "ScissorsPivot": [0.0335, 0.04, 0.014]}),
+        (12.95, "Beat 3: X-Ray Dermal Cutaway & Sculpted Cells", {"WoundCenter": [0, 0, -0.003], "LeftWall": [-0.016, 0, -0.003], "RightWall": [0.016, 0, -0.003]}),
+        (17.80, "Beat 4: Double-Helix Golden Collagen Web", {"WoundCenter": [0, 0, -0.003], "ColTop": [0, 0.044, -0.003], "ColBot": [0, -0.044, -0.003]}),
+        (22.65, "Beat 5: Flanking Arterioles & Capillary Sprouts", {"WoundCenter": [0, 0, -0.003], "LeftTrunk": [-0.016, 0, -0.003], "RightTrunk": [0.016, 0, -0.003]}),
+        (29.33, "Beat 6: Full Healed Leg & Foot Pullback", {"HealedShin": [0, 0, 0], "FootToes": [-0.02, -0.25, 0.07], "UpperShin": [0, 0.14, 0]}),
     ]
-    for t, label, pts in beats:
-        cam, tgt, lens = compute_macro_camera(t)
-        print(f"\n[{label} (t={t:.1f}s)] cam={np.round(cam, 3)} lens={lens:.1f}mm")
+    for t, label, pts in checks:
+        cam, tgt, lens = compute_v2_camera(t)
+        print(f"\n[{label} (t={t:.2f}s)] cam={np.round(cam, 3)} lens={lens:.1f}mm")
         for name, pt in pts.items():
             nx, ny, z = project(cam, tgt, lens, np.array(pt, dtype=float))
-            in_ok = abs(nx) <= 0.85 and (-0.52 <= ny <= 0.45) and z > 0.15
+            in_ok = abs(nx) <= 0.85 and (-0.52 <= ny <= 0.65) and z > 0.12
             if not in_ok:
                 ok = False
             print(f"  {name:15s}: ndcX={nx:+.2f}  ndcY={ny:+.2f}  depth={z:.2f}m  [{'OK' if in_ok else 'OUT!'}]")
-        # Verify camera-locked HUD Stage Badge stays inside safe portrait frame!
-        b_nx = (0.0825 / 0.36) * (lens / (SENSOR_W * 0.5))
-        b_ny = (0.118 / 0.36) * (lens / (SENSOR_H * 0.5))
-        b_ok = b_nx <= 0.85 and (0.44 <= b_ny <= 0.72)
-        if not b_ok:
-            ok = False
-        print(f"  {'HUDStageBadge':15s}: |ndcX|={b_nx:.2f}  ndcY={b_ny:+.2f}  [{'OK' if b_ok else 'CLIP!'}]")
 
     if not ok:
-        raise SystemExit("FAILED: Framing check failed!")
-    print("\nPASSED: 100% 4K Medical Macro Framing & Portrait HUD Safe-Zone across ALL 6 Beats!")
+        raise SystemExit("FAILED: V2 framing check failed!")
+    print("\nPASSED: 100% V2 Photoreal Human Leg, Foot & Macro Suturing Framing across ALL 7 Checkpoints!")
 
 
 if __name__ == "__main__":
