@@ -11,8 +11,8 @@ V9 Hollywood Mini-Film Polish built directly on V8's verified Outdoor Woolsthorp
     Acting Choreography: eye-lead-head gaze tracking, dual-axis `lipSync` + `lipNarrow` Kokoro speech,
     anatomical clavicle-driven arms, expressive hand gestures (`relaxed`/`present`/`point`/`shock`), and
     natural contrapposto stance + Beat 4 full-body knee-bend stagger recoil!
-  - Blender 4.2 Cycles Zero-Quality-Drop OPTIX Turbo (`12 spp` Adaptive + Hardware `OPTIX`
-    `RGB_ALBEDO_NORMAL` + `AgX - Punchy` + `texture_limit_render = "2048"` + Cell 5 ARRI-Alexa Filmic Finishing!).
+  - Blender 4.2 Cycles Zero-Quality-Drop OPTIX Turbo (`12 spp` Adaptive + `OPTIX` Raytracing + FAST GPU
+    `OPENIMAGEDENOISE` `RGB_ALBEDO_NORMAL` + `AgX - Punchy` + `texture_limit_render = "2048"` + Cell 5 ARRI-Alexa Filmic Finishing!).
   - Beat 1 (0.0-4.5s): Golden-Hour Woolsthorpe Orchard — Hero ruby-gold apple tumbles organically under
     `1/2 g t²` with 2 fluttering detached leaves onto crimson velvet pad, spawning molten-gold `g` arrow,
     ripple rings & glowing dotted golden apple-to-Moon orbital arc (`2.6-4.3s`)!
@@ -281,14 +281,16 @@ scene.render.use_placeholder = False
 scene.frame_start = max(1, ARGS.start_frame)
 scene.frame_end = min(TOTAL_FRAMES, ARGS.end_frame)
 
-# V8 Zero-Quality-Drop Cycles OPTIX Turbo (Full 75%->1080p, 2048px 4K Cast, ~6.5-8m on Dual-T4!)
+# V9 Zero-Quality-Drop Cycles OPTIX Turbo (OPTIX Raytracing + FAST GPU OIDN, Full 75%->1080p, 2048px 4K Cast)
 scene.cycles.samples = ARGS.samples
 scene.cycles.use_adaptive_sampling = True
 scene.cycles.adaptive_threshold = 0.055
 scene.cycles.use_denoising = True
-scene.cycles.denoiser = "OPENIMAGEDENOISE"  # Auto-upgraded to hardware OPTIX below when RTX/T4 GPU active!
+# Keep OPENIMAGEDENOISE (FAST GPU): headless Kaggle/Colab Tesla T4 supports OPTIX raytracing,
+# whereas OPTIX AI denoiser fails at render time on headless datacenter T4 drivers!
+scene.cycles.denoiser = "OPENIMAGEDENOISE"
 scene.cycles.denoising_input_passes = "RGB_ALBEDO_NORMAL"
-scene.cycles.denoising_prefilter = "NONE"
+scene.cycles.denoising_prefilter = "FAST"
 try:
     scene.cycles.denoising_use_gpu = True
 except Exception:
@@ -342,14 +344,9 @@ try:
                     d.use = d.type == backend
                 scene.cycles.device = "GPU"
                 gpu_enabled = True
-                if backend == "OPTIX":
-                    try:
-                        scene.cycles.denoiser = "OPTIX"
-                    except Exception:
-                        pass
                 print(
                     f"[Cycles V9 Zero-Loss OPTIX Turbo] {backend} GPU ({len(gpu_devices)} device(s)) | "
-                    f"Denoiser={scene.cycles.denoiser} (RGB_ALBEDO_NORMAL) | "
+                    f"Denoiser={scene.cycles.denoiser} (FAST GPU, RGB_ALBEDO_NORMAL) | "
                     f"Frames {scene.frame_start}..{scene.frame_end} ({FPS}fps, {ARGS.scale}% res, {ARGS.samples} spp)"
                 )
                 break
