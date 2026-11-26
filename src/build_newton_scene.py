@@ -294,7 +294,7 @@ scene.cycles.denoiser = "OPENIMAGEDENOISE"
 scene.cycles.denoising_input_passes = "RGB_ALBEDO"
 scene.cycles.denoising_prefilter = "NONE"
 try:
-    scene.cycles.denoising_use_gpu = True
+    scene.cycles.denoising_use_gpu = os.environ.get("OIDN_GPU", "0") == "1"
 except Exception:
     pass
 try:
@@ -336,7 +336,7 @@ scene.use_nodes = False
 gpu_enabled = False
 try:
     prefs = bpy.context.preferences.addons["cycles"].preferences
-    for backend in ("OPTIX", "CUDA"):
+    for backend in (os.environ.get("CYCLES_BACKEND", "CUDA"), "OPTIX"):
         try:
             prefs.compute_device_type = backend
             prefs.get_devices()
