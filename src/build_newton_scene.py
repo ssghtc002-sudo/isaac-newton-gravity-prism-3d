@@ -187,8 +187,6 @@ def parse_args():
     p.add_argument("--scale", type=int, default=int(os.environ.get("NEWTON_SCALE", "75")))
     p.add_argument("--out-dir", type=str, default=os.environ.get("NEWTON_FRAMES_DIR", "render_frames"))
     p.add_argument("--qa-only", action="store_true", help="Render 6 hero Beat keyframes to qa_frames/")
-    p.add_argument("--save-blend", type=str, default="", help="Optional path to bake full scene .blend once for instant Dual-GPU workers")
-    p.add_argument("--no-render", action="store_true", help="Build/bake scene without rendering frames")
     return p.parse_args(argv)
 
 
@@ -341,11 +339,6 @@ scene.use_nodes = False
 
 gpu_enabled = False
 try:
-    if getattr(ARGS, "no_render", False):
-        # Bake-only: never touch the NVIDIA driver (render_worker.py sets up GPU later)
-        scene.cycles.device = "GPU"
-        gpu_enabled = True
-        raise StopIteration
     prefs = bpy.context.preferences.addons["cycles"].preferences
     for backend in (os.environ.get("CYCLES_BACKEND", "CUDA"), "OPTIX"):
         try:
@@ -365,8 +358,6 @@ try:
                 break
         except Exception:
             continue
-except StopIteration:
-    print("[Cycles] Bake-only mode: GPU probing skipped", flush=True)
 except Exception as e:
     print(f"[Cycles] GPU warning: {e}")
 
@@ -2179,9 +2170,7 @@ def compute_camera_state(t: float):
 QA_PREVIEW_TIMES = [2.6, 8.5, 12.8, 17.8, 23.2, 28.2]
 QA_PREVIEW_FRAMES = [max(1, min(TOTAL_FRAMES, int(round(ts * FPS)) + 1)) for ts in QA_PREVIEW_TIMES]
 
-if ARGS.save_blend:
-    FRAMES_TO_KEY = list(range(1, TOTAL_FRAMES + 1))
-elif ARGS.qa_only:
+if ARGS.qa_only:
     FRAMES_TO_KEY = QA_PREVIEW_FRAMES
 else:
     f_lo = max(1, scene.frame_start - 1)
@@ -2855,23 +2844,9 @@ for f in FRAMES_TO_KEY:
 
 
 # ============================================================================
-# 16. OPTIONAL BAKE-ONCE .BLEND + EXECUTE RENDER (QA OR PRODUCTION RANGE!)
+# 16. EXECUTE RENDER (QA OR PRODUCTION RANGE!)
 # ============================================================================
-if ARGS.save_blend:
-    blend_dst = os.path.abspath(ARGS.save_blend)
-    os.makedirs(os.path.dirname(blend_dst), exist_ok=True)
-    # Pin all disk image paths to absolute paths so Dual-GPU workers resolve 100% of 4K MPFB2 textures!
-    for img in bpy.data.images:
-        if img.filepath:
-            img.filepath = bpy.path.abspath(img.filepath)
-    scene.render.filepath = os.path.join(os.path.abspath(ARGS.out_dir), "frame_")
-    t_save = time.time()
-    bpy.ops.wm.save_as_mainfile(filepath=blend_dst, compress=False, relative_remap=False)
-    print(f"[Newton V9 Bake-Once] Saved baked 720-frame .blend -> {blend_dst} ({os.path.getsize(blend_dst)/1e6:.1f} MB in {time.time()-t_save:.2f}s)")
-
-if ARGS.no_render:
-    print("[Newton V9] --no-render complete (scene baked ready for Dual-T4 GPU workers).")
-elif ARGS.qa_only:
+if ARGS.qa_only:
     # Preview all 6 V9 Hollywood Mini-Film Polish Beats (Orchard Apple+g, Courtyard Debate, Shaded Prism, Cradle Shock, Twilight Well, Moonlit Rocket+Satellite Finale!)
     qa_frames = QA_PREVIEW_FRAMES
     print(f"[Newton V9 Hollywood Polish QA] Rendering 6 Beat keyframes {qa_frames} ({FPS}fps, {ARGS.samples}spp, {ARGS.scale}% res) -> {OUT_DIR} ...")

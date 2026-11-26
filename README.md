@@ -18,7 +18,6 @@ Complete **30-second (`1080×1920` Lanczos, `24 fps`, `720` frames) Blender 4.2.
   - **Sir Isaac Newton (`1.78m`, `age=0.58`)**: 4K `middleage_caucasian_male.mhmat`, `culturalibre_hair_01.mhclo` (1689 Kneller silver-pewter parted shoulder-length locks), **`donitz_monk_robe.mhclo`** (10,233-vert Cambridge Lucasian Scholar Gown in Royal Midnight-Navy Velvet), and `toigo_ankle_boots_male.mhclo` leather boots.
   - **Edmond Halley (`1.79m`, `age=0.60`, eye-to-eye equal adult height!)**: 4K `middleage_caucasian_male.mhmat`, `short04.mhclo` espresso-chestnut hair, **`mindfront_lusekofta.mhclo`** (Royal Burgundy Baroque coat w/ 6 sculpted metallic filigree buttons auto-wired to `F_Lusekofta_METAL.png`), `mindfront_male_trousers_2.mhclo` wool trousers, and `punkduck_medieval_boots.mhclo` boots.
 - **Zero-Quality-Drop Cycles `OPTIX` Ultra-Turbo (`~4–5.5 min` on Kaggle Dual-T4 -> `1080×1920` Full HD Export!)**:
-  - **Bake-Once-Render-Twice `.blend` Architecture** (`src/build_newton_scene.py --save-blend` + `src/render_worker.py`): Builds & keyframes the 720-frame scene **once** on SSD, then launches both T4 GPUs in `<1s` with zero duplicate CPU build or RAM spike!
   - **4× Faster Local `AmbientOcclusion` (`ao.samples = 2`)**, **Trimmed Hair/Diffuse Bounces (`6` / `1`)**, and **Hardware `OPTIX` Raytracing + Fast GPU `OpenImageDenoise` (`RGB_ALBEDO`)** (100% headless Tesla T4 compatible).
   - **1-Click Cell 4 Full HD `1080×1920` (`24 fps`, `CRF 15`) Render + Export**: Renders all 720 frames on Dual-T4 and immediately runs Lanczos `1080×1920` Full HD + ARRI-Alexa filmic FFmpeg finishing into `/kaggle/working/isaac_newton_gravity_prism_short.mp4` + 1-Click `FileLink`!
 - **Asset Attribution**: Official MakeHuman Community Asset Packs (`makehuman_system_assets` CC0, `hair01` CC0 by culturalibre, `suits02` CC0 by donitz, `shirts02` CC-BY 4.0 by mindfront & elvs, `pants02` CC-BY 4.0 by mindfront, `shoes01` CC0 by Margaret Toigo, `shoes03` CC-BY 4.0 by punkduck). Full credits in `assets-v8/mpfb_newton_v8_4k_assets.zip` (`ATTRIBUTIONS.txt`).
@@ -29,4 +28,4 @@ Complete **30-second (`1080×1920` Lanczos, `24 fps`, `720` frames) Blender 4.2.
    - Branch: `main`
    - File: `render_on_kaggle.ipynb`
 2. In **Session options**: **Accelerator: `GPU T4 x2`** & **Internet: `ON`**.
-3. Run **Cell 1 -> Cell 2 (~18s, `0.97s` CDN cast!) -> Cell 3 (~18s 6-Beat V9 Preview + Scene Bake) -> Cell 4 (~4–5.5 min 1-Click Render + Full HD `1080×1920` MP4 + `FileLink`)**!
+3. Run **Cell 1 (~28s GPU/Internet Check + SSD Setup) -> Cell 2 (~45s 6-Beat V9 Visual QA Preview) -> Cell 3 (1-Click Dual-T4 Render + Full HD `1080×1920` MP4 + `FileLink`)**!
