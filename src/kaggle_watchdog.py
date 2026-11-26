@@ -47,7 +47,7 @@ def _avail_gb():
     return 99.0
 
 
-def run(cmd, log_path, tag="Blender", interval=5, progress=None):
+def run(cmd, log_path, tag="Blender", interval=2, progress=None):
     """Run shell `cmd` with stdout/stderr -> log_path. Returns exit code."""
     log = open(log_path, "w")
     p = subprocess.Popen(cmd, shell=True, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
@@ -56,6 +56,15 @@ def run(cmd, log_path, tag="Blender", interval=5, progress=None):
         rss, avail = _tree_rss_gb(p.pid), _avail_gb()
         peak = max(peak, rss)
         extra = f" | {progress()}" if progress else ""
+        try:
+            with open(log_path, "rb") as lf:
+                lf.seek(max(0, os.path.getsize(log_path) - 400))
+                last = [l for l in lf.read().decode("utf-8", "replace").splitlines() if l.strip()]
+            if last and last[-1] != getattr(run, "_last", None):
+                run._last = last[-1]
+                print(f"\n    log> {last[-1][:150]}", flush=True)
+        except Exception:
+            pass
         print(f"\r[{tag}] {time.time()-t0:5.0f}s | RAM used {rss:5.2f} GB (peak {peak:5.2f}) | free {avail:5.1f} GB{extra}   ",
               end="", flush=True)
         if rss > LIMIT_GB or avail < MIN_FREE_GB:
