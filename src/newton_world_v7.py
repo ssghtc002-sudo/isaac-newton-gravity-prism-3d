@@ -191,7 +191,8 @@ def _make_cotswold_stone_mat(name: str = "CotswoldCarvedLimestone", dark: bool =
 
     # Photorealistic Cycles Ambient Occlusion darkening flutes, plinth moldings & urn crevices
     ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
-    ao.samples = 8
+    ao.samples = 2
+    ao.only_local = True
     ao.inputs["Distance"].default_value = 0.45
     ao_rmp = nt.nodes.new("ShaderNodeValToRGB")
     ao_rmp.color_ramp.elements[0].position = 0.12
@@ -285,7 +286,8 @@ def _make_cotswold_ashlar_mat(name: str = "CotswoldManorAshlar", dark: bool = Fa
     mw_fac.default_value = 0.42
 
     ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
-    ao.samples = 8
+    ao.samples = 2
+    ao.only_local = True
     ao.inputs["Distance"].default_value = 0.45
     ao_rmp = nt.nodes.new("ShaderNodeValToRGB")
     ao_rmp.color_ramp.elements[0].position = 0.10
@@ -406,7 +408,7 @@ def _make_mossy_flagstone_mat(name: str = "CotswoldMossyFlagstone"):
 
     # Cycles Ambient Occlusion grounding plinths, balustrade base & boots into the flagstones
     ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
-    ao.samples = 8
+    ao.samples = 2
     ao.inputs["Distance"].default_value = 0.35
     ao_rmp = nt.nodes.new("ShaderNodeValToRGB")
     ao_rmp.color_ramp.elements[0].position = 0.14
@@ -679,7 +681,8 @@ def _make_gnarled_bark_mat(name: str = "WoolsthorpeGnarledBark"):
 
     # Cycles Ambient Occlusion deepening root flares, trunk crevices & branch forks
     ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
-    ao.samples = 8
+    ao.samples = 2
+    ao.only_local = True
     ao.inputs["Distance"].default_value = 0.30
     ao_rmp = nt.nodes.new("ShaderNodeValToRGB")
     ao_rmp.color_ramp.elements[0].position = 0.14
@@ -986,7 +989,8 @@ def _make_antique_bronze_mat(name: str = "AgedGardenBronze"):
     ns.inputs["Roughness"].default_value = 0.65
 
     ao = nt.nodes.new("ShaderNodeAmbientOcclusion")
-    ao.samples = 8
+    ao.samples = 2
+    ao.only_local = True
     ao.inputs["Distance"].default_value = 0.14
 
     rmp_pat = nt.nodes.new("ShaderNodeValToRGB")

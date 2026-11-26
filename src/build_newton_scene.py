@@ -181,6 +181,8 @@ def parse_args():
     p.add_argument("--scale", type=int, default=int(os.environ.get("NEWTON_SCALE", "75")))
     p.add_argument("--out-dir", type=str, default=os.environ.get("NEWTON_FRAMES_DIR", "render_frames"))
     p.add_argument("--qa-only", action="store_true", help="Render 6 hero Beat keyframes to qa_frames/")
+    p.add_argument("--save-blend", type=str, default="", help="Optional path to bake full scene .blend once for instant Dual-GPU workers")
+    p.add_argument("--no-render", action="store_true", help="Build/bake scene without rendering frames")
     return p.parse_args(argv)
 
 
@@ -289,8 +291,8 @@ scene.cycles.use_denoising = True
 # Keep OPENIMAGEDENOISE (FAST GPU): headless Kaggle/Colab Tesla T4 supports OPTIX raytracing,
 # whereas OPTIX AI denoiser fails at render time on headless datacenter T4 drivers!
 scene.cycles.denoiser = "OPENIMAGEDENOISE"
-scene.cycles.denoising_input_passes = "RGB_ALBEDO_NORMAL"
-scene.cycles.denoising_prefilter = "FAST"
+scene.cycles.denoising_input_passes = "RGB_ALBEDO"
+scene.cycles.denoising_prefilter = "NONE"
 try:
     scene.cycles.denoising_use_gpu = True
 except Exception:
@@ -308,8 +310,8 @@ scene.cycles.blur_glossy = 0.90
 scene.cycles.max_bounces = 4
 scene.cycles.transmission_bounces = 4
 scene.cycles.glossy_bounces = 2
-scene.cycles.diffuse_bounces = 2
-scene.cycles.transparent_max_bounces = 12
+scene.cycles.diffuse_bounces = 1
+scene.cycles.transparent_max_bounces = 6
 try:
     scene.cycles.texture_limit_render = "2048"
 except Exception:
@@ -346,7 +348,7 @@ try:
                 gpu_enabled = True
                 print(
                     f"[Cycles V9 Zero-Loss OPTIX Turbo] {backend} GPU ({len(gpu_devices)} device(s)) | "
-                    f"Denoiser={scene.cycles.denoiser} (FAST GPU, RGB_ALBEDO_NORMAL) | "
+                    f"Denoiser={scene.cycles.denoiser} (GPU RGB_ALBEDO) | "
                     f"Frames {scene.frame_start}..{scene.frame_end} ({FPS}fps, {ARGS.scale}% res, {ARGS.samples} spp)"
                 )
                 break
@@ -2159,9 +2161,21 @@ def compute_camera_state(t: float):
 
 
 # ============================================================================
-# 15. KEYFRAME ALL 720 FRAMES DETERMINISTICALLY (EXACT 30.000s AUDIO SYNC!)
+# 15. KEYFRAME ACTIVE FRAMES DETERMINISTICALLY (EXACT 30.000s AUDIO SYNC!)
 # ============================================================================
-for f in range(1, TOTAL_FRAMES + 1):
+QA_PREVIEW_TIMES = [2.6, 8.5, 12.8, 17.8, 23.2, 28.2]
+QA_PREVIEW_FRAMES = [max(1, min(TOTAL_FRAMES, int(round(ts * FPS)) + 1)) for ts in QA_PREVIEW_TIMES]
+
+if ARGS.save_blend:
+    FRAMES_TO_KEY = list(range(1, TOTAL_FRAMES + 1))
+elif ARGS.qa_only:
+    FRAMES_TO_KEY = QA_PREVIEW_FRAMES
+else:
+    f_lo = max(1, scene.frame_start - 1)
+    f_hi = min(TOTAL_FRAMES, scene.frame_end + 1)
+    FRAMES_TO_KEY = list(range(f_lo, f_hi + 1))
+
+for f in FRAMES_TO_KEY:
     t = (f - 1) / FPS
 
     # 0. Animate Woolsthorpe Orchard -> Starry Twilight Cosmos world (sky, sun, moon, stars, breeze, plinths!)
@@ -2826,12 +2840,25 @@ for f in range(1, TOTAL_FRAMES + 1):
 
 
 # ============================================================================
-# 16. EXECUTE RENDER (QA 6-BEAT PREVIEW OR PRODUCTION FRAME RANGE!)
+# 16. OPTIONAL BAKE-ONCE .BLEND + EXECUTE RENDER (QA OR PRODUCTION RANGE!)
 # ============================================================================
-if ARGS.qa_only:
+if ARGS.save_blend:
+    blend_dst = os.path.abspath(ARGS.save_blend)
+    os.makedirs(os.path.dirname(blend_dst), exist_ok=True)
+    # Pin all disk image paths to absolute paths so Dual-GPU workers resolve 100% of 4K MPFB2 textures!
+    for img in bpy.data.images:
+        if img.filepath:
+            img.filepath = bpy.path.abspath(img.filepath)
+    scene.render.filepath = os.path.join(os.path.abspath(ARGS.out_dir), "frame_")
+    t_save = time.time()
+    bpy.ops.wm.save_as_mainfile(filepath=blend_dst, compress=False, remap_relative=False)
+    print(f"[Newton V9 Bake-Once] Saved baked 720-frame .blend -> {blend_dst} ({os.path.getsize(blend_dst)/1e6:.1f} MB in {time.time()-t_save:.2f}s)")
+
+if ARGS.no_render:
+    print("[Newton V9] --no-render complete (scene baked ready for Dual-T4 GPU workers).")
+elif ARGS.qa_only:
     # Preview all 6 V9 Hollywood Mini-Film Polish Beats (Orchard Apple+g, Courtyard Debate, Shaded Prism, Cradle Shock, Twilight Well, Moonlit Rocket+Satellite Finale!)
-    qa_times = [2.6, 8.5, 12.8, 17.8, 23.2, 28.2]
-    qa_frames = [max(1, min(TOTAL_FRAMES, int(round(ts * FPS)) + 1)) for ts in qa_times]
+    qa_frames = QA_PREVIEW_FRAMES
     print(f"[Newton V9 Hollywood Polish QA] Rendering 6 Beat keyframes {qa_frames} ({FPS}fps, {ARGS.samples}spp, {ARGS.scale}% res) -> {OUT_DIR} ...")
     t_render_start = time.time()
     for idx, qf in enumerate(qa_frames, 1):

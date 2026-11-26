@@ -17,14 +17,16 @@ Complete **30-second (`1080×1920` Lanczos, `24 fps`, `720` frames) Blender 4.2.
 - **100% Real 3D MakeHuman 17th-Century Wardrobe (`assets-v8` CDN — `41.57 MB` in `0.97s` @ `42.9 MB/s`)**:
   - **Sir Isaac Newton (`1.78m`, `age=0.58`)**: 4K `middleage_caucasian_male.mhmat`, `culturalibre_hair_01.mhclo` (1689 Kneller silver-pewter parted shoulder-length locks), **`donitz_monk_robe.mhclo`** (10,233-vert Cambridge Lucasian Scholar Gown in Royal Midnight-Navy Velvet), and `toigo_ankle_boots_male.mhclo` leather boots.
   - **Edmond Halley (`1.79m`, `age=0.60`, eye-to-eye equal adult height!)**: 4K `middleage_caucasian_male.mhmat`, `short04.mhclo` espresso-chestnut hair, **`mindfront_lusekofta.mhclo`** (Royal Burgundy Baroque coat w/ 6 sculpted metallic filigree buttons auto-wired to `F_Lusekofta_METAL.png`), `mindfront_male_trousers_2.mhclo` wool trousers, and `punkduck_medieval_boots.mhclo` boots.
-- **Zero-Quality-Drop Cycles `OPTIX` Turbo (`~6.5–8 min` on Kaggle Dual-T4)**:
-  - Hardware **`OPTIX` Raytracing + FAST GPU `OpenImageDenoise` (`RGB_ALBEDO_NORMAL`)** (100% headless Tesla T4 compatible), full `75% → 1080×1920` Lanczos, full `2048px` textures, `12 spp` adaptive, `/kaggle/working/.cache` SSD (`0 MB /tmp` RAM!), `10s` staggered Dual-T4 launch, and direct `/kaggle/working/isaac_newton_gravity_prism_short.mp4` + `FileLink`.
+- **Zero-Quality-Drop Cycles `OPTIX` Ultra-Turbo (`~4–5.5 min` on Kaggle Dual-T4 -> `1080×1920` Full HD Export!)**:
+  - **Bake-Once-Render-Twice `.blend` Architecture** (`src/build_newton_scene.py --save-blend` + `src/render_worker.py`): Builds & keyframes the 720-frame scene **once** on SSD, then launches both T4 GPUs in `<1s` with zero duplicate CPU build or RAM spike!
+  - **4× Faster Local `AmbientOcclusion` (`ao.samples = 2`)**, **Trimmed Hair/Diffuse Bounces (`6` / `1`)**, and **Hardware `OPTIX` Raytracing + Fast GPU `OpenImageDenoise` (`RGB_ALBEDO`)** (100% headless Tesla T4 compatible).
+  - **True Full HD `1080×1920` (`24 fps`, `CRF 15`) Export**: Full `75%` (`810×1440`) render → Lanczos `1080×1920` Full HD + ARRI-Alexa filmic finishing in `/kaggle/working/isaac_newton_gravity_prism_short.mp4` + 1-Click `FileLink`.
 - **Asset Attribution**: Official MakeHuman Community Asset Packs (`makehuman_system_assets` CC0, `hair01` CC0 by culturalibre, `suits02` CC0 by donitz, `shirts02` CC-BY 4.0 by mindfront & elvs, `pants02` CC-BY 4.0 by mindfront, `shoes01` CC0 by Margaret Toigo, `shoes03` CC-BY 4.0 by punkduck). Full credits in `assets-v8/mpfb_newton_v8_4k_assets.zip` (`ATTRIBUTIONS.txt`).
 
-## 1-Click Kaggle `GPU T4 x2` Workflow
+## 1-Click Kaggle `GPU T4 x2` Workflow (Full HD `1080×1920`)
 1. Go to **Kaggle -> New Notebook -> File -> Import Notebook -> GitHub**:
    - Repo: `ssghtc002-sudo/isaac-newton-gravity-prism-3d`
    - Branch: `main`
    - File: `render_on_kaggle.ipynb`
 2. In **Session options**: **Accelerator: `GPU T4 x2`** & **Internet: `ON`**.
-3. Run **Cell 1 -> Cell 2 (~18s, `0.97s` CDN cast!) -> Cell 3 (~12s 6-Beat V9 Preview Grid)**, then **Cell 4 (~6.5–8 min!) -> Cell 5** -> tap **`FileLink('isaac_newton_gravity_prism_short.mp4')`**!
+3. Run **Cell 1 -> Cell 2 (~18s, `0.97s` CDN cast!) -> Cell 3 (~18s 6-Beat V9 Preview + Scene Bake)**, then **Cell 4 (~4–5.5 min!) -> Cell 5 (Full HD `1080×1920` MP4)** -> tap **`FileLink('isaac_newton_gravity_prism_short.mp4')`**!
