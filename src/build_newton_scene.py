@@ -306,7 +306,7 @@ try:
 except Exception:
     pass
 scene.render.threads_mode = "FIXED"
-scene.render.threads = 2
+scene.render.threads = int(os.environ.get("BLENDER_THREADS", "2"))
 scene.cycles.caustics_reflective = False
 scene.cycles.caustics_refractive = False
 scene.cycles.sample_clamp_indirect = 4.5
