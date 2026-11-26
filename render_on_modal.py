@@ -120,7 +120,12 @@ def render_chunk(
     print(f"[Modal Worker] Rendering frames {start_frame}..{end_frame} on {gpu_name} ...", flush=True)
 
     repo_dir = "/opt/newton_repo"
-    subprocess.run(["git", "-C", repo_dir, "pull", "--ff-only", "-q"], check=False)
+    subprocess.run(
+        "git fetch --depth 1 -q origin main && git reset --hard -q origin/main",
+        cwd=repo_dir,
+        shell=True,
+        check=True,
+    )
 
     out_dir = f"/tmp/frames_{start_frame}_{end_frame}"
     shutil.rmtree(out_dir, ignore_errors=True)
@@ -212,7 +217,12 @@ def build_full_hd_short(
     )
 
     repo_dir = "/opt/newton_repo"
-    subprocess.run(["git", "-C", repo_dir, "pull", "--ff-only", "-q"], check=False)
+    subprocess.run(
+        "git fetch --depth 1 -q origin main && git reset --hard -q origin/main",
+        cwd=repo_dir,
+        shell=True,
+        check=True,
+    )
     os.chdir(repo_dir)
 
     final_mp4 = Path("/tmp/isaac_newton_gravity_prism_short.mp4")

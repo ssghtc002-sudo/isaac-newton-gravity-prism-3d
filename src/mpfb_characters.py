@@ -579,8 +579,8 @@ def apply_hand_gesture(rig, side: str, pose: str = "relaxed", frame: int | None 
 
     # Anatomical presets: (index, middle, ring, pinky, thumb, splays=(idx, mid, rng, pnk))
     presets = {
-        "relaxed": (16.0, 22.0, 28.0, 34.0, 12.0, (1.5, 0.4, -0.6, -1.6)),
-        "present": (8.0, 11.0, 14.5, 18.0, 6.0, (3.8, 1.2, -1.2, -3.5)),
+        "relaxed": (24.0, 30.0, 36.0, 42.0, 16.0, (0.8, 0.2, -0.4, -0.8)),
+        "present": (12.0, 15.0, 19.0, 23.0, 8.0, (2.2, 0.7, -0.7, -2.0)),
         "point": (4.0, 50.0, 57.0, 64.0, 20.0, (1.5, -1.5, -2.5, -3.5)),
         "shock": (2.0, 4.0, 6.0, 8.0, 3.0, (7.5, 2.5, -2.5, -7.5)),
     }

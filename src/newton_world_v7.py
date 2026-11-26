@@ -60,7 +60,7 @@ ORBIT_ANCHOR = Vector((0.64, 0.14, 0.0))
 PRISM_FLOOR = PRISM_ANCHOR
 ORBIT_FLOOR = ORBIT_ANCHOR
 TREE_BASE = Vector((-0.18, 1.35, 0.0))
-CRESCENT_MOON_POS = Vector((1.80, 19.50, 7.80))
+CRESCENT_MOON_POS = Vector((5.20, 19.50, 8.90))
 
 
 # ============================================================================

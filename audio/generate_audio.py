@@ -17,13 +17,19 @@ Run with:
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import math
 import re
+import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
-import kokoro_onnx
+try:
+    import kokoro_onnx
+except ImportError:
+    kokoro_onnx = None
 import numpy as np
 import soundfile as sf
 from scipy import signal
@@ -47,24 +53,31 @@ LIP_TOTAL_FRAMES = int(round(DURATION * LIP_FPS))  # 900 exact samples @ 30 Hz
 TARGET_LUFS = -14.0
 TRUE_PEAK_CEILING_DBFS = -1.62  # Strictly keeps FFmpeg ebur128 true peak <= -1.55 dBFS & max_volume <= -1.5 dB
 TRUE_PEAK_CEILING_LIN = 10.0 ** (TRUE_PEAK_CEILING_DBFS / 20.0)
-AMBIENCE_TARGET_DBFS = -34.0  # Subtle living outdoor bed (-34 dB RMS in mastered mix)
+AMBIENCE_TARGET_DBFS = -38.0  # Whisper-subtle outdoor air bed so vocals stay ultra-clean
 
-ATEMPO_MIN = 0.88
-ATEMPO_MAX = 1.24
+ATEMPO_MIN = 0.94
+ATEMPO_MAX = 1.12  # Never chipmunk-compress speech!
 
 BPM = 112.0
 BEAT = 60.0 / BPM
 EIGHTH = BEAT * 0.5
 SIXTEENTH = BEAT * 0.25
 
+# Studio-grade Microsoft Neural Voices (warm documentary narrator + distinct British Newton & Halley)
+EDGE_NEURAL_VOICES: dict[str, dict[str, Any]] = {
+    "narrator": {"voice": "en-US-BrianNeural", "pitch": "-1Hz", "pan": 0.0},
+    "newton": {"voice": "en-GB-ThomasNeural", "pitch": "-2Hz", "pan": -0.16},
+    "halley": {"voice": "en-GB-RyanNeural", "pitch": "+1Hz", "pan": 0.18},
+}
+
 # Natural spoken phrasing overrides (display text stays verbatim from timeline.json)
 TTS_OVERRIDES: dict[str, str] = {
     "L1": "One falling apple sparked the wildest question: does the Moon fall too?",
-    "L2": "Impossible, Newton! What holds the Moon up?",
-    "L3": "Invisible gravity! Every mass pulls every other mass!",
+    "L2": "Impossible, Newton, what holds the Moon up?",
+    "L3": "Invisible gravity, every mass pulls every other mass!",
     "L4": "Next, Newton shot sunlight through a glass prism, splitting white light into seven rainbow colors!",
     "L5": "Every action triggers an equal, opposite reaction.",
-    "L6": "Whoa! That steel ball nearly knocked me over!",
+    "L6": "Whoa, that steel ball nearly knocked me over!",
     "L7": "Gravity bends a fall into orbit, uniting falling apples and moons under one law!",
     "L8": "Rockets, satellites, Moon landings today, every launch flies on Isaac Newton's laws.",
 }
@@ -326,19 +339,124 @@ def resample_to_48k(mono: np.ndarray, sr_in: int) -> np.ndarray:
     return signal.resample_poly(mono, SR // g, sr_in // g).astype(np.float32)
 
 
-def trim_silence(wav: np.ndarray, sr: int, thresh: float = 0.008) -> np.ndarray:
+def trim_silence(wav: np.ndarray, sr: int, thresh: float = 0.0035) -> tuple[np.ndarray, float]:
+    """Trim leading/trailing dead air while preserving generous 45ms pre-pad & 65ms post-pad (zero clipped consonants!)."""
     wav = np.asarray(wav, dtype=np.float32)
     idx = np.where(np.abs(wav) > thresh)[0]
     if len(idx) == 0:
-        return wav
-    pad = int(0.015 * sr)
-    lo = max(0, int(idx[0]) - pad)
-    hi = min(len(wav), int(idx[-1]) + pad)
-    return wav[lo:hi].astype(np.float32)
+        return wav, 0.0
+    pre_pad = int(0.045 * sr)
+    post_pad = int(0.065 * sr)
+    lo = max(0, int(idx[0]) - pre_pad)
+    hi = min(len(wav), int(idx[-1]) + post_pad)
+    return wav[lo:hi].astype(np.float32), lo / float(sr)
+
+
+def ffmpeg_atempo_48k(mono: np.ndarray, rate: float) -> np.ndarray:
+    """Broadcast-grade phase-locked FFmpeg atempo time scaling at 48 kHz (zero WSOLA buzz!)."""
+    if abs(rate - 1.0) < 0.01:
+        return mono.astype(np.float32)
+    with tempfile.TemporaryDirectory() as td:
+        in_wav = Path(td) / "in.wav"
+        out_wav = Path(td) / "out.wav"
+        sf.write(str(in_wav), mono, SR, subtype="FLOAT")
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-i", str(in_wav),
+                "-filter:a", f"atempo={rate:.4f}",
+                "-ar", str(SR), "-ac", "1", "-c:a", "pcm_f32le",
+                str(out_wav), "-loglevel", "error",
+            ],
+            check=True,
+        )
+        y, _ = sf.read(str(out_wav), dtype="float32")
+        return np.asarray(y, dtype=np.float32)
+
+
+async def _edge_tts_synth_async(
+    text: str, voice: str, rate_pct: int, pitch: str
+) -> tuple[np.ndarray, list[dict[str, Any]]]:
+    import edge_tts
+
+    rate_str = f"{rate_pct:+d}%"
+    comm = edge_tts.Communicate(text, voice=voice, rate=rate_str, pitch=pitch, boundary="WordBoundary")
+    audio_chunks: list[bytes] = []
+    word_bounds: list[dict[str, Any]] = []
+    async for chunk in comm.stream():
+        ctype = chunk.get("type")
+        if ctype == "audio":
+            audio_chunks.append(chunk["data"])
+        elif ctype == "WordBoundary":
+            t0 = chunk["offset"] / 1e7
+            dur = chunk["duration"] / 1e7
+            word_bounds.append({"word": chunk["text"], "start": t0, "end": t0 + dur})
+
+    with tempfile.TemporaryDirectory() as td:
+        mp3_path = Path(td) / "line.mp3"
+        wav_path = Path(td) / "line.wav"
+        mp3_path.write_bytes(b"".join(audio_chunks))
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-i", str(mp3_path),
+                "-ar", str(SR), "-ac", "1", "-c:a", "pcm_f32le",
+                str(wav_path), "-loglevel", "error",
+            ],
+            check=True,
+        )
+        wav, _ = sf.read(str(wav_path), dtype="float32")
+    return np.asarray(wav, dtype=np.float32), word_bounds
+
+
+def _align_display_to_edge_words(
+    display_words: list[str],
+    edge_words: list[dict[str, Any]],
+    trim_offset: float,
+    atempo: float,
+    actual_start: float,
+    actual_end: float,
+    polished: np.ndarray,
+) -> list[dict[str, Any]]:
+    """Map exact neural WordBoundary timestamps onto verbatim display tokens."""
+    if not edge_words or len(edge_words) != len(display_words):
+        # Fallback if punctuation splits differ (e.g., hyphenated words)
+        if edge_words and len(display_words) > 0:
+            # Interpolate monotonically across normalized neural word spans
+            scaled = [
+                (
+                    actual_start + max(0.0, (ew["start"] - trim_offset) / atempo),
+                    actual_start + max(0.0, (ew["end"] - trim_offset) / atempo),
+                )
+                for ew in edge_words
+            ]
+            out = []
+            n_d = len(display_words)
+            n_e = len(scaled)
+            for i, w in enumerate(display_words):
+                e0 = min(n_e - 1, int(math.floor(i * n_e / n_d)))
+                e1 = min(n_e - 1, max(e0, int(math.ceil((i + 1) * n_e / n_d)) - 1))
+                s_t = max(actual_start, min(actual_end - 0.04, scaled[e0][0]))
+                e_t = max(s_t + 0.04, min(actual_end, scaled[e1][1]))
+                out.append({"word": w, "start": round(s_t, 4), "end": round(e_t, 4)})
+            out[0]["start"] = round(actual_start, 4)
+            out[-1]["end"] = round(actual_end, 4)
+            return out
+        return align_words_to_audio(display_words, polished, actual_start, actual_end)
+
+    out = []
+    for i, (w, ew) in enumerate(zip(display_words, edge_words)):
+        s_t = actual_start + max(0.0, (ew["start"] - trim_offset) / atempo)
+        e_t = actual_start + max(0.0, (ew["end"] - trim_offset) / atempo)
+        if i > 0 and s_t < out[-1]["end"]:
+            s_t = out[-1]["end"]
+        e_t = max(s_t + 0.04, min(actual_end, e_t))
+        out.append({"word": w, "start": round(s_t, 4), "end": round(e_t, 4)})
+    out[0]["start"] = round(min(out[0]["start"], actual_start + 0.05), 4)
+    out[-1]["end"] = round(actual_end, 4)
+    return out
 
 
 # ============================================================================
-# KOKORO MULTI-VOICE SYNTHESIS, COURTYARD ACOUSTICS & 30 Hz DUAL-AXIS LIP-SYNC
+# STUDIO NEURAL MULTI-VOICE SYNTHESIS, BROADCAST CHAIN & 30 Hz DUAL-AXIS LIP-SYNC
 # ============================================================================
 def resolve_voice(available: set[str], desired: str) -> str:
     if desired in available:
@@ -351,41 +469,41 @@ def resolve_voice(available: set[str], desired: str) -> str:
 
 
 def polish_voice(mono: np.ndarray, speaker: str) -> np.ndarray:
-    """V9 Broadcast Vocal Chain: 85Hz HPF + De-Mud + +2.2dB Air/Clarity Shelf (3.5-5.5kHz) + Optical Compressor."""
-    # 1. Clean 85 Hz high-pass rumble removal (preserves warm British baritone chest resonance)
+    """Broadcast Studio Vocal Chain: 85Hz HPF + Warmth + Presence + Silky De-Esser + Smooth Optical Comp."""
     y = butter_filter(mono, "high", 85.0, order=3)
-    # 2. Gentle anti-mud dip so vocals never mask cello/strings
-    y = peaking_eq(y, 310.0, 1.25, -1.3)
+    # Gentle low-mid de-mud so dialogue sits cleanly above orchestra
+    y = peaking_eq(y, 280.0, 1.2, -1.6)
+    # Silky de-esser taming harsh 6.8 kHz sibilance on phone speakers
+    y = peaking_eq(y, 6800.0, 1.8, -2.0)
 
     if speaker == "narrator":
-        # Authoritative documentary narrator (bm_george): rich chest + crisp articulation + +2.2 dB clarity shelf
-        y = peaking_eq(y, 180.0, 1.0, 1.5)
-        y = peaking_eq(y, 3100.0, 1.15, 1.6)
-        y = high_shelf_eq(y, 4100.0, 2.2, slope=0.72)
+        # Rich, warm, ultra-clear documentary narrator
+        y = peaking_eq(y, 165.0, 0.9, 1.6)
+        y = peaking_eq(y, 3100.0, 1.1, 1.7)
+        y = high_shelf_eq(y, 4800.0, 1.2, slope=0.72)
     elif speaker == "newton":
-        # Articulated dignified Cambridge scholar (bm_daniel): focused presence + +2.2 dB air/clarity shelf
-        y = peaking_eq(y, 215.0, 1.0, 1.2)
-        y = peaking_eq(y, 3400.0, 1.15, 1.8)
-        y = high_shelf_eq(y, 4350.0, 2.2, slope=0.72)
+        # Dignified Cambridge scholar: crisp articulation & warm chest
+        y = peaking_eq(y, 195.0, 0.95, 1.4)
+        y = peaking_eq(y, 3300.0, 1.1, 1.8)
+        y = high_shelf_eq(y, 5000.0, 1.1, slope=0.72)
     else:
-        # Spirited Royal Society interlocutor Halley (bm_lewis): agile crispness + +2.2 dB air/clarity shelf
-        y = peaking_eq(y, 175.0, 1.0, 1.0)
-        y = peaking_eq(y, 3650.0, 1.15, 1.9)
-        y = high_shelf_eq(y, 4600.0, 2.2, slope=0.72)
+        # Spirited Royal Society colleague Halley: agile clear presence
+        y = peaking_eq(y, 180.0, 1.0, 1.1)
+        y = peaking_eq(y, 3500.0, 1.1, 1.8)
+        y = high_shelf_eq(y, 5200.0, 1.1, slope=0.72)
 
-    # 3. Pre-calibrate into smooth optical vocal compressor so every syllable cuts through BGM on phone speakers
+    # Gentle optical broadcast leveling (2.5:1 ratio — keeps natural human dynamics!)
     rms_pre = float(np.sqrt(np.mean(y ** 2) + 1e-10))
     if rms_pre > 1e-4:
-        y = y * (0.185 / rms_pre)
-    y = optical_vocal_compressor(y, thresh_db=-19.0, ratio=3.2, attack_ms=8.5, release_ms=92.0, knee_db=6.0)
+        y = y * (0.195 / rms_pre)
+    y = optical_vocal_compressor(y, thresh_db=-18.5, ratio=2.5, attack_ms=10.0, release_ms=110.0, knee_db=6.0)
 
-    # 4. Makeup gain & warm transparent peak polish
     rms_post = float(np.sqrt(np.mean(y ** 2) + 1e-10))
     if rms_post > 1e-4:
-        y = y * (0.215 / rms_post)
-    y = (np.tanh(y * 1.05) * 0.86).astype(np.float32)
+        y = y * (0.240 / rms_post)
+    y = (np.tanh(y * 0.96) * 0.92).astype(np.float32)
 
-    fade = min(len(y), int(0.008 * SR))
+    fade = min(len(y), int(0.006 * SR))
     if fade > 2:
         y[:fade] *= np.linspace(0.0, 1.0, fade, dtype=np.float32)
         y[-fade:] *= np.linspace(1.0, 0.0, fade, dtype=np.float32)
@@ -528,10 +646,7 @@ def compute_lip_sync(
 def synthesize_dialogue(
     timeline: dict[str, Any],
 ) -> tuple[np.ndarray, dict[str, np.ndarray], list[dict[str, Any]]]:
-    kokoro = kokoro_onnx.Kokoro(str(KOKORO_MODEL_PATH), str(KOKORO_VOICES_PATH))
-    available_voices = set(kokoro.get_voices())
     speakers_cfg = timeline["speakers"]
-
     narrator_bus = np.zeros((TOTAL_SAMPLES, CHANNELS), dtype=np.float32)
     courtyard_voice_bus = np.zeros((TOTAL_SAMPLES, CHANNELS), dtype=np.float32)
     speaker_mono_buses = {spk: np.zeros(TOTAL_SAMPLES, dtype=np.float32) for spk in speakers_cfg}
@@ -540,58 +655,54 @@ def synthesize_dialogue(
     for item in timeline["dialogue"]:
         lid = item["id"]
         spk = item["speaker"]
-        cfg = speakers_cfg[spk]
-        voice_id = resolve_voice(available_voices, cfg["voice"])
-        lang = cfg.get("lang", "en-gb")
-        base_speed = float(cfg.get("speed", 1.10))
-        pan = float(cfg.get("pan", 0.0))
+        edge_cfg = EDGE_NEURAL_VOICES.get(spk, EDGE_NEURAL_VOICES["narrator"])
+        voice_id = edge_cfg["voice"]
+        pitch = edge_cfg["pitch"]
+        pan = float(edge_cfg["pan"])
 
         slot_start = float(item["start"])
         slot_end = float(item["end"])
         slot_dur = slot_end - slot_start
         tts_text = TTS_OVERRIDES.get(lid, item["text"].replace("—", ", "))
 
-        raw_wav, k_sr = kokoro.create(tts_text, voice=voice_id, speed=base_speed, lang=lang, trim=True)
-        comp = trim_silence(raw_wav, k_sr)
-        comp_dur = len(comp) / k_sr
-        target_fit = slot_dur * 0.94
-        used_speed = base_speed
+        # Pass 1: Natural 1.00x human cadence (zero artificial rushing!)
+        rate_pct = 0
+        raw_wav, edge_words = asyncio.run(_edge_tts_synth_async(tts_text, voice_id, rate_pct, pitch))
+        comp, trim_off = trim_silence(raw_wav, SR)
+        comp_dur = len(comp) / float(SR)
+        target_fit = slot_dur * 0.96
 
-        # Adaptive native speed pass if natural take runs longer than slot
-        if comp_dur / target_fit > 1.14:
-            desired_speed = float(np.clip(used_speed * (comp_dur / target_fit) * 0.96, used_speed + 0.05, 1.44))
-            raw2, k_sr = kokoro.create(tts_text, voice=voice_id, speed=desired_speed, lang=lang, trim=True)
-            comp2 = trim_silence(raw2, k_sr)
-            if len(comp2) < len(comp):
-                comp = comp2
-                comp_dur = len(comp) / k_sr
-                used_speed = desired_speed
-
-        raw_atempo = 1.0
+        # Pass 2: Only if naturally longer than Beat slot, gently step up neural rate so 100% of words fit cleanly!
         if comp_dur > target_fit:
-            raw_atempo = comp_dur / target_fit
-        elif comp_dur < slot_dur * 0.78:
-            raw_atempo = comp_dur / (slot_dur * 0.82)
-        atempo = float(np.clip(raw_atempo, ATEMPO_MIN, ATEMPO_MAX))
+            needed_pct = int(math.ceil((comp_dur / (slot_dur * 0.93) - 1.0) * 100.0))
+            rate_pct = max(4, min(22, needed_pct))
+            raw2, words2 = asyncio.run(_edge_tts_synth_async(tts_text, voice_id, rate_pct, pitch))
+            comp2, trim_off2 = trim_silence(raw2, SR)
+            if len(comp2) < len(comp):
+                comp, trim_off, edge_words = comp2, trim_off2, words2
+                comp_dur = len(comp) / float(SR)
 
-        stretched_24k = wsola_time_stretch(comp, atempo)
-        fitted_48k = resample_to_48k(stretched_24k, k_sr)
+        # Pass 3: Clean phase-locked FFmpeg atempo if still over slot (never truncate spoken words!)
+        atempo = 1.0
+        if comp_dur > slot_dur * 0.97:
+            atempo = float(np.clip(comp_dur / (slot_dur * 0.95), 1.0, 1.18))
+        fitted_48k = ffmpeg_atempo_48k(comp, atempo)
 
-        max_samples = int(math.floor(slot_dur * 0.985 * SR))
+        max_samples = int(math.floor(slot_dur * 0.99 * SR))
         if len(fitted_48k) > max_samples:
+            extra_rate = len(fitted_48k) / float(max_samples)
+            fitted_48k = ffmpeg_atempo_48k(fitted_48k, extra_rate)
+            atempo *= extra_rate
             fitted_48k = fitted_48k[:max_samples]
-            fade_tail = min(len(fitted_48k), int(0.012 * SR))
-            fitted_48k[-fade_tail:] *= np.linspace(1.0, 0.0, fade_tail, dtype=np.float32)
 
         polished = polish_voice(fitted_48k, spk)
-        actual_dur = len(polished) / SR
+        actual_dur = len(polished) / float(SR)
         slack = max(0.0, slot_dur - actual_dur)
-        actual_start = slot_start + min(0.025, slack * 0.25)
+        actual_start = slot_start + min(0.03, slack * 0.25)
         actual_end = min(slot_end - 0.01, actual_start + actual_dur)
         start_idx = int(round(actual_start * SR))
 
         copy_len = min(len(polished), TOTAL_SAMPLES - start_idx)
-        # Keep speaker_mono_buses dry for razor-sharp 30Hz dual-axis lip-sync!
         speaker_mono_buses[spk][start_idx : start_idx + copy_len] += polished[:copy_len]
 
         panned = pan_stereo(polished[:copy_len], pan)
@@ -601,33 +712,33 @@ def synthesize_dialogue(
             add_stereo_event(courtyard_voice_bus, panned, actual_start)
 
         display_words = tokenize_display_words(item["text"])
-        aligned_words = align_words_to_audio(display_words, polished[:copy_len], actual_start, actual_end)
+        aligned_words = _align_display_to_edge_words(
+            display_words, edge_words, trim_off, atempo, actual_start, actual_end, polished[:copy_len]
+        )
         manifest_lines.append({
             "id": lid,
             "beatId": item["beatId"],
             "speaker": spk,
             "voice": voice_id,
-            "lang": lang,
+            "lang": "en-US" if spk == "narrator" else "en-GB",
             "pan": pan,
             "text": item["text"],
             "start": round(actual_start, 4),
             "end": round(actual_end, 4),
             "duration": round(actual_dur, 4),
-            "kokoroSpeed": round(used_speed, 3),
+            "neuralRatePct": rate_pct,
             "atempo": round(atempo, 4),
             "words": aligned_words,
         })
         print(
-            f"  {lid} [{spk:8s} | {voice_id:9s} | pan={pan:+.2f}] "
+            f"  {lid} [{spk:8s} | {voice_id:18s} | pan={pan:+.2f}] "
             f"slot=[{slot_start:5.2f}..{slot_end:5.2f}] act=[{actual_start:5.2f}..{actual_end:5.2f}] "
-            f"sp={used_speed:.2f} atempo={atempo:.2f} w={len(aligned_words)}"
+            f"rate={rate_pct:+d}% atempo={atempo:.2f} w={len(aligned_words)}"
         )
 
-    # Apply subtle natural outdoor-courtyard stone early reflections on Newton (-0.22) & Halley (+0.24),
-    # plus whisper-subtle air on Narrator (0.0) so voices feel grounded in Woolsthorpe/Cambridge open air!
-    courtyard_wet = add_outdoor_courtyard_reverb(courtyard_voice_bus, mix=0.115)
-    narrator_air = add_outdoor_courtyard_reverb(narrator_bus, mix=0.03)
-    dialogue_bus = (narrator_air + courtyard_wet).astype(np.float32)
+    # Narrator 100% dry studio presence; whisper-subtle outdoor air (0.045) on Newton & Halley
+    courtyard_wet = add_outdoor_courtyard_reverb(courtyard_voice_bus, mix=0.045)
+    dialogue_bus = (narrator_bus + courtyard_wet).astype(np.float32)
     return dialogue_bus, speaker_mono_buses, manifest_lines
 
 
@@ -1624,14 +1735,25 @@ def master_and_export(
     speaker_mono_buses: dict[str, np.ndarray],
     manifest_lines: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    # 1. Smooth -5.5 dB sidechain BGM ducking + gentle -2.5 dB ambience ducking under dialogue
-    duck_bgm = sidechain_duck_envelope(dialogue_bus, duck_db=-5.5)
-    duck_amb = sidechain_duck_envelope(dialogue_bus, duck_db=-2.5)
-    bgm_ducked = bgm_bus * duck_bgm[:, None]
+    # 1. Warm orchestral vocal-pocket EQ on BGM (-5 dB @ 2.2 kHz + silky 6.8 kHz roll-off) so voices breathe effortlessly
+    bgm_warm = butter_filter(bgm_bus, "low", 6800.0, order=2)
+    bgm_warm = np.stack(
+        [peaking_eq(bgm_warm[:, ch], 2200.0, 0.75, -5.0) for ch in range(CHANNELS)],
+        axis=-1,
+    ).astype(np.float32)
+
+    # Warm-polish SFX highs (7.5 kHz LPF kills harsh digital synth fizz) + gentle speech-aware ducking
+    sfx_warm = butter_filter(sfx_bus, "low", 7500.0, order=2)
+    duck_bgm = sidechain_duck_envelope(dialogue_bus, duck_db=-9.5)
+    duck_sfx = sidechain_duck_envelope(dialogue_bus, duck_db=-5.5)
+    duck_amb = sidechain_duck_envelope(dialogue_bus, duck_db=-4.0)
+
+    bgm_ducked = bgm_warm * duck_bgm[:, None]
+    sfx_ducked = sfx_warm * duck_sfx[:, None]
     amb_ducked = ambience_bus * duck_amb[:, None]
 
-    # 2. Balanced studio stem summing (crystal-clear British dialogue + lush orchestral bed + punchy IMAX Foley)
-    core_mix = dialogue_bus * 1.10 + bgm_ducked * 0.62 + sfx_bus * 0.90
+    # 2. Voice-First Broadcast Documentary Stem Summing (crystal-clear neural VO + warm orchestral support + tastefully balanced foley)
+    core_mix = dialogue_bus * 1.38 + bgm_ducked * 0.34 + sfx_ducked * 0.44
     core_lufs = measure_lufs_48k(core_mix)
     est_master_gain = 10.0 ** ((TARGET_LUFS - core_lufs) / 20.0)
 

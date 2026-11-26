@@ -69,54 +69,54 @@ def compute_beat(b_idx, t):
         tgt = lerp(np.array([-0.79, 0.24, 1.32]), np.array([-0.78, 0.22, 1.24]), u)
         return pos, tgt, lerp(38.0, 40.0, u)
     if b_idx == 1:
-        # Beat 2: Sunlit Stone Courtyard Face-to-Face Debate — BOTH Newton(0.05) & Halley(1.05) eye-to-eye!
+        # Beat 2: Sunlit Stone Courtyard Face-to-Face Debate — BOTH Newton(-0.02) & Halley(1.12) eye-to-eye!
         pan_u = ease_out_quint(clamp01((t - 6.95) / 1.1))
-        pos = lerp(np.array([0.62, -2.02, 1.42]), np.array([0.52, -1.94, 1.42]), pan_u)
-        tgt = lerp(np.array([0.58, 0.28, 1.32]), np.array([0.54, 0.30, 1.32]), pan_u)
-        return pos, tgt, lerp(36.0, 35.5, pan_u)
+        pos = lerp(np.array([0.60, -2.18, 1.42]), np.array([0.52, -2.10, 1.42]), pan_u)
+        tgt = lerp(np.array([0.57, 0.28, 1.32]), np.array([0.54, 0.30, 1.32]), pan_u)
+        return pos, tgt, lerp(34.5, 34.0, pan_u)
     if b_idx == 2:
-        # Beat 3: Shaded Stone Arch Optical Alcove — Crystal Prism(-2.85) + Rainbow Easel(-2.54) + Newton(-2.12)
+        # Beat 3: Shaded Stone Arch Optical Alcove — Crystal Prism(-2.85) + Rainbow Easel(-2.54) + Newton(-2.04)
         u = clamp01((t - 9.5) / 6.0)
         pos = bezier_quad(
-            np.array([-2.54, -1.68, 1.40]),
-            np.array([-2.51, -1.58, 1.41]),
-            np.array([-2.48, -1.52, 1.42]),
+            np.array([-2.52, -1.78, 1.40]),
+            np.array([-2.49, -1.68, 1.41]),
+            np.array([-2.46, -1.62, 1.42]),
             u,
         )
-        tgt = lerp(np.array([-2.52, 0.18, 1.32]), np.array([-2.50, 0.20, 1.36]), smoothstep(10.6, 13.0, t))
-        return pos, tgt, lerp(38.5, 40.5, u)
+        tgt = lerp(np.array([-2.50, 0.18, 1.32]), np.array([-2.48, 0.20, 1.36]), smoothstep(10.6, 13.0, t))
+        return pos, tgt, lerp(37.5, 39.0, u)
     if b_idx == 3:
-        # Beat 4: 3.8° Dutch-Tilt Garden Balustrade Comedy — Halley(2.34) + Brass Newton's Cradle(2.88, peak +3.25)
+        # Beat 4: 3.8° Dutch-Tilt Garden Balustrade Comedy — Halley(2.30) + Brass Newton's Cradle(2.88)
         u = clamp01((t - 15.5) / 5.0)
         pos = bezier_quad(
-            np.array([2.62, -1.78, 1.38]),
-            np.array([2.66, -1.72, 1.39]),
-            np.array([2.70, -1.70, 1.40]),
+            np.array([2.60, -1.90, 1.38]),
+            np.array([2.64, -1.84, 1.39]),
+            np.array([2.68, -1.80, 1.40]),
             u,
         )
-        tgt = np.array([2.62, 0.22, 1.32])
-        return pos, tgt, lerp(36.0, 38.0, u)
+        tgt = np.array([2.60, 0.22, 1.32])
+        return pos, tgt, lerp(34.5, 36.0, u)
     if b_idx == 4:
-        # Beat 5: Starry Twilight Cosmos — Newton(0.02) + Outdoor Tripod Telescope & Giant Gravity Well(0.64)
+        # Beat 5: Starry Twilight Cosmos — Newton(-0.10) + Outdoor Tripod Telescope & Gravity Well(0.64)
         u = clamp01((t - 20.5) / 5.0)
         pos = bezier_quad(
-            np.array([0.30, -1.74, 1.34]),
-            np.array([0.34, -1.68, 1.42]),
-            np.array([0.38, -1.66, 1.50]),
+            np.array([0.26, -1.94, 1.36]),
+            np.array([0.30, -1.88, 1.44]),
+            np.array([0.34, -1.84, 1.50]),
             u,
         )
-        tgt = lerp(np.array([0.34, 0.24, 1.44]), np.array([0.36, 0.26, 1.52]), u)
-        return pos, tgt, lerp(37.0, 38.5, u)
-    # Beat 6: Moonlit Orchard-to-Cosmos Rocket & Satellite Slingshot Finale — Newton(-0.05), Halley(+1.15), Centered Well(0.55), Rocket, Satellite & Title!
+        tgt = lerp(np.array([0.30, 0.24, 1.44]), np.array([0.32, 0.26, 1.52]), u)
+        return pos, tgt, lerp(35.0, 36.0, u)
+    # Beat 6: Moonlit Orchard-to-Cosmos Rocket & Satellite Slingshot Finale — Newton(-0.14), Halley(+1.24), Centered Well(0.55)
     u = clamp01((t - 25.5) / 4.5)
     pos = bezier_quad(
-        np.array([0.55, -2.35, 1.52]),
-        np.array([0.55, -2.52, 1.58]),
-        np.array([0.55, -2.68, 1.62]),
+        np.array([0.55, -2.55, 1.52]),
+        np.array([0.55, -2.72, 1.58]),
+        np.array([0.55, -2.88, 1.62]),
         u,
     )
     tgt = lerp(np.array([0.55, 0.30, 1.54]), np.array([0.55, 0.28, 1.52]), u)
-    return pos, tgt, lerp(34.0, 32.0, u)
+    return pos, tgt, lerp(32.0, 30.5, u)
 
 
 def project(cam_pos, tgt, lens_mm, pt):

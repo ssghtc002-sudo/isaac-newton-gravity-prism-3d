@@ -1794,8 +1794,8 @@ t_lens.parent = tel_tube_piv
 t_finder = add_cyl("TelescopeFinderScope", (0.02, 0.0, 0.072), 0.011, 0.20, bronze_mat, rot=(0.0, math.pi * 0.5, 0.0), verts=20)
 t_finder.parent = tel_tube_piv
 
-# GIGANTIC Luminous Sapphire-Gold 3D Curved Space-Time Gravity Well floating overhead (Z = 1.56 -> 1.50 in Beat 6)!
-bpy.ops.object.empty_add(type="PLAIN_AXES", location=(0.0, 0.0, 1.56), rotation=(math.radians(16.0), math.radians(-6.0), 0.0))
+# GIGANTIC Luminous Sapphire-Gold 3D Curved Space-Time Gravity Well floating overhead (Z = 1.60 -> 1.56 in Beat 6)!
+bpy.ops.object.empty_add(type="PLAIN_AXES", location=(0.0, 0.0, 1.60), rotation=(math.radians(16.0), math.radians(-6.0), 0.0))
 gravity_well_group = bpy.context.active_object
 gravity_well_group.name = "CurvedSpacetimeGravityWell"
 gravity_well_group.parent = orbit_station_root
@@ -1806,8 +1806,8 @@ def gravity_funnel_z(r: float) -> float:
     return 0.042 - 0.028 / (r + 0.072)
 
 
-# 7 Concentric Warped Glowing Funnel Rings (electric sapphire & molten gold -> 0.59m diameter!)
-well_radii = [0.080, 0.116, 0.152, 0.188, 0.224, 0.260, 0.296]
+# 7 Concentric Warped Glowing Funnel Rings (electric sapphire & molten gold -> 0.49m diameter, zero hand collision!)
+well_radii = [0.068, 0.098, 0.128, 0.158, 0.188, 0.218, 0.246]
 for wi, wr in enumerate(well_radii):
     wz = gravity_funnel_z(wr)
     wmat = gold_glow_mat if wi in (0, 1, 6) else cyan_glow_mat
@@ -1821,32 +1821,32 @@ for mi in range(12):
     ca, sa = math.cos(ang), math.sin(ang)
     pts = []
     for si in range(11):
-        rr = lerp(0.068, 0.296, si / 10.0)
+        rr = lerp(0.062, 0.246, si / 10.0)
         pts.append((ca * rr, sa * rr, gravity_funnel_z(rr), 0.0024))
     rib = build_curve_tube(f"GravityWellMeridian_{mi:02d}", pts, cyan_glow_mat if mi % 2 == 0 else gold_glow_mat, bevel_res=3)
     rib.visible_shadow = False
     rib.parent = gravity_well_group
 
 # High-Detail Procedural 3D Earth + Glowing Blue Fresnel Atmosphere Halo!
-earth_obj = add_sphere("ProceduralEarth", (0.0, 0.0, 0.016), 0.102, earth_planet_mat, segs=48, rings=32)
+earth_obj = add_sphere("ProceduralEarth", (0.0, 0.0, 0.016), 0.096, earth_planet_mat, segs=48, rings=32)
 earth_obj.parent = gravity_well_group
-earth_halo = add_sphere("EarthAtmoHalo", (0.0, 0.0, 0.016), 0.111, earth_atmo_mat, segs=36, rings=24)
+earth_halo = add_sphere("EarthAtmoHalo", (0.0, 0.0, 0.016), 0.105, earth_atmo_mat, segs=36, rings=24)
 earth_halo.visible_shadow = False
 earth_halo.parent = gravity_well_group
 
 # Cratered 3D Moon Orbiting Rapidly Along Outer Golden Rim + Pulsing Golden Gravity Force Vector!
-MOON_ORBIT_R = 0.288
+MOON_ORBIT_R = 0.240
 MOON_ORBIT_Z = gravity_funnel_z(MOON_ORBIT_R) + 0.022
-moon_obj = add_sphere("OrbitingMoon3D", (MOON_ORBIT_R, 0.0, MOON_ORBIT_Z), 0.032, cratered_moon_mat, segs=32, rings=20)
+moon_obj = add_sphere("OrbitingMoon3D", (MOON_ORBIT_R, 0.0, MOON_ORBIT_Z), 0.030, cratered_moon_mat, segs=32, rings=20)
 moon_obj.parent = gravity_well_group
 
 gravity_tether = add_cyl("EarthMoonGravityBeam", (0, 0, 0), 0.0052, 1.0, gold_glow_mat, verts=16)
 gravity_tether.visible_shadow = False
 gravity_tether.parent = gravity_well_group
 
-# BEAT 6 MODERN LEGACY: Sleek Metallic 3D Orbital Rocket Flying Along Tilted Golden Orbit Halo (Z = 2.04)!
-ROCKET_ORBIT_R = 0.290
-bpy.ops.object.empty_add(type="PLAIN_AXES", location=(0.55, 0.14, 2.04), rotation=(math.radians(16.0), math.radians(-10.0), 0.0))
+# BEAT 6 MODERN LEGACY: Sleek Metallic 3D Orbital Rocket Flying Along Tilted Golden Orbit Halo (Z = 2.06)!
+ROCKET_ORBIT_R = 0.260
+bpy.ops.object.empty_add(type="PLAIN_AXES", location=(0.55, 0.14, 2.06), rotation=(math.radians(16.0), math.radians(-10.0), 0.0))
 rocket_orbit_group = bpy.context.active_object
 rocket_orbit_group.name = "ModernRocketOrbitGroup"
 
@@ -2099,37 +2099,37 @@ def compute_beat_raw(beat_idx: int, t: float):
         pos.z += thud
         return pos, tgt, lerp(38.0, 40.0, u), 2.8, 0.0
     if beat_idx == 1:
-        # BEAT 2 (4.5..9.5s): Sunlit Stone Courtyard Face-to-Face Debate (BOTH Newton 0.05 & Halley 1.05 eye-to-eye!)
+        # BEAT 2 (4.5..9.5s): Sunlit Stone Courtyard Face-to-Face Debate (BOTH Newton & Halley eye-to-eye w/ wide hand margin!)
         pan_u = ease_out_quint(clamp01((t - 6.95) / 1.1))
-        pos = vlerp(Vector((0.62, -2.02, 1.42)), Vector((0.52, -1.94, 1.42)), pan_u)
-        tgt = vlerp(Vector((0.58, 0.28, 1.32)), Vector((0.54, 0.30, 1.32)), pan_u)
-        return pos, tgt, lerp(36.0, 35.5, pan_u), 2.8, 0.0
+        pos = vlerp(Vector((0.60, -2.18, 1.42)), Vector((0.52, -2.10, 1.42)), pan_u)
+        tgt = vlerp(Vector((0.57, 0.28, 1.32)), Vector((0.54, 0.30, 1.32)), pan_u)
+        return pos, tgt, lerp(34.5, 34.0, pan_u), 2.8, 0.0
     if beat_idx == 2:
         # BEAT 3 (9.5..15.5s): Shaded Stone Arch Optical Alcove — Crystal Prism & 7-Spectral Rainbow!
         u = clamp01((t - 9.5) / 6.0)
-        pos = bezier_quad(Vector((-2.54, -1.68, 1.40)), Vector((-2.51, -1.58, 1.41)), Vector((-2.48, -1.52, 1.42)), u)
-        tgt = vlerp(Vector((-2.52, 0.18, 1.32)), Vector((-2.50, 0.20, 1.36)), smoothstep(10.6, 13.0, t))
-        return pos, tgt, lerp(38.5, 40.5, u), 2.8, 0.0
+        pos = bezier_quad(Vector((-2.52, -1.78, 1.40)), Vector((-2.49, -1.68, 1.41)), Vector((-2.46, -1.62, 1.42)), u)
+        tgt = vlerp(Vector((-2.50, 0.18, 1.32)), Vector((-2.48, 0.20, 1.36)), smoothstep(10.6, 13.0, t))
+        return pos, tgt, lerp(37.5, 39.0, u), 2.8, 0.0
     if beat_idx == 3:
         # BEAT 4 (15.5..20.5s): 3.8° Dutch-Tilt Comedy — Brass Newton's Cradle on Right Garden Balustrade!
         u = clamp01((t - 15.5) / 5.0)
-        pos = bezier_quad(Vector((2.62, -1.78, 1.38)), Vector((2.66, -1.72, 1.39)), Vector((2.70, -1.70, 1.40)), u)
-        tgt = Vector((2.62, 0.22, 1.32))
+        pos = bezier_quad(Vector((2.60, -1.90, 1.38)), Vector((2.64, -1.84, 1.39)), Vector((2.68, -1.80, 1.40)), u)
+        tgt = Vector((2.60, 0.22, 1.32))
         shake = math.sin((t - 17.45) * 54.0) * math.exp(-(t - 17.45) * 6.5) * 0.025 if t >= 17.45 else 0.0
         pos.x += shake
         pos.z += shake * 0.45
-        return pos, tgt, lerp(36.0, 38.0, u), 2.8, 3.8 * math.sin(u * math.pi)
+        return pos, tgt, lerp(34.5, 36.0, u), 2.8, 3.8 * math.sin(u * math.pi)
     if beat_idx == 4:
         # BEAT 5 (20.5..25.5s): Starry Twilight Transformation — Rising Crane on Telescope & Giant Gravity Well!
         u = clamp01((t - 20.5) / 5.0)
-        pos = bezier_quad(Vector((0.30, -1.74, 1.34)), Vector((0.34, -1.68, 1.42)), Vector((0.38, -1.66, 1.50)), u)
-        tgt = vlerp(Vector((0.34, 0.24, 1.44)), Vector((0.36, 0.26, 1.52)), u)
-        return pos, tgt, lerp(37.0, 38.5, u), 3.0, 0.0
+        pos = bezier_quad(Vector((0.26, -1.94, 1.36)), Vector((0.30, -1.88, 1.44)), Vector((0.34, -1.84, 1.50)), u)
+        tgt = vlerp(Vector((0.30, 0.24, 1.44)), Vector((0.32, 0.26, 1.52)), u)
+        return pos, tgt, lerp(35.0, 36.0, u), 3.0, 0.0
     # BEAT 6 (25.5..30.0s): Epic Moonlit Orchard-to-Cosmos Rocket Slingshot Grand Finale Wide Pull-Back!
     u = clamp01((t - 25.5) / 4.5)
-    pos = bezier_quad(Vector((0.55, -2.35, 1.52)), Vector((0.55, -2.52, 1.58)), Vector((0.55, -2.68, 1.62)), u)
+    pos = bezier_quad(Vector((0.55, -2.55, 1.52)), Vector((0.55, -2.72, 1.58)), Vector((0.55, -2.88, 1.62)), u)
     tgt = vlerp(Vector((0.55, 0.30, 1.54)), Vector((0.55, 0.28, 1.52)), u)
-    return pos, tgt, lerp(34.0, 32.0, u), 3.6, 0.0
+    return pos, tgt, lerp(32.0, 30.5, u), 3.6, 0.0
 
 
 BEAT_BOUNDS = [0.0, 4.5, 9.5, 15.5, 20.5, 25.5, 30.0]
@@ -2506,7 +2506,7 @@ for f in FRAMES_TO_KEY:
     orbit_station_root.keyframe_insert("scale", frame=f)
     orbit_station_root.keyframe_insert("location", frame=f)
 
-    gravity_well_group.location = Vector((0.0, 0.0, lerp(1.56, 1.50, orb_center_u)))
+    gravity_well_group.location = Vector((0.0, 0.0, lerp(1.60, 1.56, orb_center_u)))
     gravity_well_group.keyframe_insert("location", frame=f)
 
     earth_obj.rotation_euler = Euler((0.0, math.radians(23.5), t * 0.72))
@@ -2586,28 +2586,28 @@ for f in FRAMES_TO_KEY:
             head_rz = 14.0 + math.sin(t * 1.6) * 2.8
             n_eye_pitch = lerp(-14.0, 10.0, eye_fall_track) - eye_wonder_up * 18.0
             n_eye_yaw = lerp(12.0, 14.0, eye_fall_track) + math.sin(t * 1.9) * 1.6
-            ua_l = (lerp(-20.0, -16.0, fall_track), 16.0, lerp(-22.0, -18.0, fall_track))
-            la_l = (lerp(-30.0, -24.0, fall_track) + math.sin(t * 2.5) * 2.5, 0.0, -14.0)
-            ua_r = (6.0 + math.sin(t * 1.3) * 1.0, -12.0, 8.0)
-            la_r = (-14.0, 0.0, 10.0)
+            ua_l = (lerp(-16.0, -13.0, fall_track), 12.0, lerp(-16.0, -14.0, fall_track))
+            la_l = (lerp(-24.0, -20.0, fall_track) + math.sin(t * 2.5) * 2.2, 0.0, -10.0)
+            ua_r = (4.0 + math.sin(t * 1.3) * 0.8, -6.0, 5.0)
+            la_r = (-10.0, 0.0, 6.0)
             n_hand_l = "relaxed" if t < 1.55 else "present"
             n_hand_r = "relaxed"
             n_weight_shift = 0.35
             n_brow = lerp(0.25, 0.85, smoothstep(1.45, 2.20, t))
             n_smile = lerp(0.08, 0.48, wonder_up)
         elif t < 9.5:
-            # Beat 2: Courtyard Debate — Newton (0.05, 0.45), yaw=+28° — eye-to-eye (+12°), listens calmly then "point" -> "present" speaking 6.95-9.35s!
-            nx, ny, nyaw = 0.05, 0.45, 28.0
+            # Beat 2: Courtyard Debate — Newton (-0.02, 0.46), yaw=+26° — eye-to-eye (+12°), listens calmly then "point" -> "present" speaking 6.95-9.35s!
+            nx, ny, nyaw = -0.02, 0.46, 26.0
             sp_u = smoothstep(6.90, 7.35, t)
-            lean_x = 2.5 + sp_u * 3.2 + breath * 0.4
+            lean_x = 2.5 + sp_u * 3.0 + breath * 0.4
             head_rx = 3.0 - sp_u * 3.5
-            head_rz = 14.0 + math.sin(t * 3.4) * 3.2 * sp_u
+            head_rz = 14.0 + math.sin(t * 3.4) * 3.0 * sp_u
             n_eye_yaw = 12.0 + math.sin(t * 2.4) * 1.4 * sp_u
             n_eye_pitch = lerp(1.0, -2.5, sp_u)
-            ua_l = (lerp(-8.0, -28.0, sp_u), lerp(14.0, 16.0, sp_u), lerp(-14.0, -28.0, sp_u))
-            la_l = (lerp(-20.0, -38.0, sp_u) + math.sin(t * 4.4) * 4.0 * sp_u, 0.0, lerp(-12.0, -14.0, sp_u))
-            ua_r = (lerp(6.0, 3.0, sp_u) + math.sin(t * 1.4) * 0.8, lerp(-12.0, -14.0, sp_u), lerp(8.0, 10.0, sp_u))
-            la_r = (lerp(-14.0, -18.0, sp_u), 0.0, 10.0)
+            ua_l = (lerp(-6.0, -18.0, sp_u), lerp(10.0, 12.0, sp_u), lerp(-10.0, -18.0, sp_u))
+            la_l = (lerp(-16.0, -28.0, sp_u) + math.sin(t * 4.4) * 3.5 * sp_u, 0.0, lerp(-8.0, -10.0, sp_u))
+            ua_r = (lerp(4.0, 3.0, sp_u) + math.sin(t * 1.4) * 0.8, -6.0, 5.0)
+            la_r = (lerp(-10.0, -12.0, sp_u), 0.0, 6.0)
             if t < 6.85:
                 n_hand_l = "relaxed"
             elif t < 8.05:
@@ -2619,18 +2619,18 @@ for f in FRAMES_TO_KEY:
             n_brow = lerp(-0.15, 0.58, sp_u)
             n_smile = lerp(0.05, 0.55, sp_u)
         elif t < 15.5:
-            # Beat 3: Shaded Stone Arch Alcove — Newton (-2.12, 0.42), yaw=-28° — gazes LEFT (-14°, wide wonder brows 0.90), right hand open "present"!
-            nx, ny, nyaw = -2.12, 0.42, -28.0
+            # Beat 3: Shaded Stone Arch Alcove — Newton (-2.04, 0.44), yaw=-26° — gazes LEFT (-14°, wide wonder brows 0.90), right hand open "present" clear of easel!
+            nx, ny, nyaw = -2.04, 0.44, -26.0
             bloom_u = smoothstep(10.60, 12.20, t)
-            lean_x = 4.5 - bloom_u * 2.5 + breath * 0.4
+            lean_x = 4.0 - bloom_u * 2.2 + breath * 0.4
             head_rx = 5.5 - bloom_u * 8.5
             head_rz = -16.0 + math.sin(t * 1.6) * 3.0
             n_eye_yaw = -14.0 + math.sin(t * 1.5) * 1.6
             n_eye_pitch = lerp(4.0, -3.0, smoothstep(10.50, 12.10, t))
-            ua_r = (lerp(-18.0, -28.0, bloom_u), lerp(-18.0, -14.0, bloom_u), lerp(20.0, 28.0, bloom_u))
-            la_r = (lerp(-28.0, -34.0, bloom_u) + math.sin(t * 2.4) * 2.8, 0.0, lerp(16.0, 12.0, bloom_u))
-            ua_l = (6.0 + math.sin(t * 1.2) * 1.0, 12.0, -8.0)
-            la_l = (-14.0, 0.0, -10.0)
+            ua_r = (lerp(-14.0, -18.0, bloom_u), lerp(-12.0, -10.0, bloom_u), lerp(14.0, 18.0, bloom_u))
+            la_r = (lerp(-20.0, -25.0, bloom_u) + math.sin(t * 2.4) * 2.4, 0.0, lerp(10.0, 8.0, bloom_u))
+            ua_l = (4.0 + math.sin(t * 1.2) * 0.8, 6.0, -5.0)
+            la_l = (-10.0, 0.0, -6.0)
             n_hand_r = "present"
             n_hand_l = "relaxed"
             n_weight_shift = -0.30
@@ -2641,43 +2641,43 @@ for f in FRAMES_TO_KEY:
             nx, ny, nyaw = -0.60, 0.58, 22.0
             lean_x, head_rx, head_rz = 2.0, 3.0, 14.0
             n_eye_yaw, n_eye_pitch = 10.0, 0.0
-            ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
-            ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
+            ua_r, la_r = (4.0, -6.0, 5.0), (-10.0, 0.0, 6.0)
+            ua_l, la_l = (4.0, 6.0, -5.0), (-10.0, 0.0, -6.0)
             n_hand_l, n_hand_r = "relaxed", "relaxed"
             n_weight_shift = 0.15
             n_brow, n_smile = 0.20, 0.40
         elif t < 25.5:
-            # Beat 5: Starry Twilight — Newton (0.02, 0.45), yaw=+24° — gazes up-right (+12°, -10°) presenting Giant Gravity Well!
-            nx, ny, nyaw = 0.02, 0.45, 24.0
-            lean_x = 2.0 + breath * 0.4
+            # Beat 5: Starry Twilight — Newton (-0.10, 0.50), yaw=+22° — chest-level open gesture cleanly BELOW & LEFT of Gravity Well ring!
+            nx, ny, nyaw = -0.10, 0.50, 22.0
+            lean_x = 1.8 + breath * 0.4
             head_rx = -8.0 + math.sin(t * 1.4) * 2.0
             head_rz = 14.0 + math.sin(t * 1.8) * 3.0
             n_eye_yaw = 12.0 + math.sin(t * 1.7) * 1.8
             n_eye_pitch = -10.0 + math.sin(t * 1.4) * 1.6
-            ua_l = (-30.0 + math.sin(t * 2.0) * 2.8, 14.0, -28.0)
-            la_l = (-34.0, 0.0, -14.0)
-            ua_r = (6.0 + math.sin(t * 1.3) * 1.0, -12.0, 8.0)
-            la_r = (-14.0, 0.0, 10.0)
+            ua_l = (-14.0 + math.sin(t * 2.0) * 2.0, 10.0, -15.0)
+            la_l = (-22.0, 0.0, -10.0)
+            ua_r = (4.0 + math.sin(t * 1.3) * 0.8, -6.0, 5.0)
+            la_r = (-10.0, 0.0, 6.0)
             n_hand_l = "present"
             n_hand_r = "relaxed"
-            n_weight_shift = 0.32
+            n_weight_shift = 0.30
             n_brow, n_smile = 0.72, 0.70
         else:
-            # Beat 6: Moonlit Grand Finale — Newton (-0.05, 0.55), yaw=+18° — proud contrapposto glancing from rocket toward camera!
-            nx, ny, nyaw = -0.05, 0.55, 18.0
+            # Beat 6: Moonlit Grand Finale — Newton (-0.14, 0.58), yaw=+18° — chest-level gesture 100% clear of Gravity Well ring & left frame edge!
+            nx, ny, nyaw = -0.14, 0.58, 18.0
             glance_cam = smoothstep(26.50, 29.20, t)
             lean_x = 1.0 + breath * 0.4
             head_rx = lerp(-8.0, -4.5, glance_cam) + math.sin(t * 1.3) * 1.8
             head_rz = lerp(11.0, 5.0, glance_cam) + math.sin(t * 1.5) * 2.2
             n_eye_yaw = lerp(10.0, 2.0, glance_cam)
             n_eye_pitch = lerp(-12.0, -4.0, glance_cam)
-            ua_l = (-24.0 + math.sin(t * 1.6) * 2.0, 14.0, -24.0)
-            la_l = (-30.0, 0.0, -14.0)
-            ua_r = (6.0 + math.sin(t * 1.2) * 1.0, -12.0, 8.0)
-            la_r = (-14.0, 0.0, 10.0)
+            ua_l = (-13.0 + math.sin(t * 1.6) * 1.6, 10.0, -14.0)
+            la_l = (-20.0, 0.0, -10.0)
+            ua_r = (4.0 + math.sin(t * 1.2) * 0.8, -6.0, 5.0)
+            la_r = (-10.0, 0.0, 6.0)
             n_hand_l = "present"
             n_hand_r = "relaxed"
-            n_weight_shift = 0.28
+            n_weight_shift = 0.26
             n_brow, n_smile = 0.58, 0.75
 
         nrig.location = Vector((nx, ny, n_base_z))
@@ -2731,18 +2731,18 @@ for f in FRAMES_TO_KEY:
             h_weight_shift = -0.15
             jaw_bias, h_brow, h_smile = 0.0, -0.1, 0.0
         elif t < 9.5:
-            # Beat 2: Courtyard Debate — Halley (1.05, 0.45), yaw=-28° — eye-to-eye (-12°), "point" 4.5-6.9s -> amazed "present" at 6.95s!
-            hx_p, hy_p, hyaw = 1.05, 0.45, -28.0
+            # Beat 2: Courtyard Debate — Halley (1.12, 0.46), yaw=-26° — eye-to-eye (-12°), "point" 4.5-6.9s -> amazed "present" at 6.95s!
+            hx_p, hy_p, hyaw = 1.12, 0.46, -26.0
             ask = 1.0 - smoothstep(6.75, 7.20, t)
-            lean_x = 4.5 * ask + breath * 0.4
+            lean_x = 4.2 * ask + breath * 0.4
             head_rx = 3.5 * ask - 2.0 * (1.0 - ask)
-            head_rz = -14.0 + math.sin(t * 3.5) * 3.5 * ask
+            head_rz = -14.0 + math.sin(t * 3.5) * 3.2 * ask
             h_eye_yaw = -12.0 + math.sin(t * 2.6) * 1.5 * ask
             h_eye_pitch = lerp(1.5, 4.5, smoothstep(6.95, 7.55, t))
-            ua_r = (lerp(-8.0, -28.0, ask), lerp(-14.0, -16.0, ask), lerp(14.0, 28.0, ask))
-            la_r = (lerp(-20.0, -38.0, ask) + math.sin(t * 4.2) * 4.0 * ask, 0.0, lerp(12.0, 14.0, ask))
-            ua_l = (6.0 + math.sin(t * 1.4) * 1.0, 12.0, -8.0)
-            la_l = (-14.0, 0.0, -10.0)
+            ua_r = (lerp(-6.0, -18.0, ask), lerp(-10.0, -12.0, ask), lerp(10.0, 18.0, ask))
+            la_r = (lerp(-16.0, -28.0, ask) + math.sin(t * 4.2) * 3.5 * ask, 0.0, lerp(8.0, 10.0, ask))
+            ua_l = (4.0 + math.sin(t * 1.4) * 0.8, 6.0, -5.0)
+            la_l = (-10.0, 0.0, -6.0)
             h_hand_r = "point" if t < 6.95 else "present"
             h_hand_l = "relaxed"
             h_weight_shift = lerp(-0.32, 0.24, smoothstep(6.85, 7.50, t))
@@ -2754,29 +2754,29 @@ for f in FRAMES_TO_KEY:
             hx_p, hy_p, hyaw = 1.85, 0.52, -18.0
             lean_x, head_rx, head_rz = 2.0, 4.0, -10.0
             h_eye_yaw, h_eye_pitch = -8.0, 0.0
-            ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
-            ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
+            ua_l, la_l = (4.0, 6.0, -5.0), (-10.0, 0.0, -6.0)
+            ua_r, la_r = (4.0, -6.0, 5.0), (-10.0, 0.0, 6.0)
             h_hand_l, h_hand_r = "relaxed", "relaxed"
             h_weight_shift = -0.15
             jaw_bias, h_brow, h_smile = 0.0, 0.0, 0.0
         elif t < 20.5:
-            # Beat 4: Halley (2.34, 0.42), yaw=+24° — looks RIGHT (+14°) at Cradle -> at 17.45s CLACK BOTH hands snap to "shock" + knee-bend recoil!
+            # Beat 4: Halley (2.30, 0.44), yaw=+22° — looks RIGHT (+14°) at Cradle -> at 17.45s CLACK BOTH hands snap to "shock" + knee-bend recoil!
             shock = smoothstep(17.42, 17.68, t)
             recoil_osc = math.sin((t - 17.45) * 19.0) * math.exp(-(t - 17.45) * 3.4) * 4.5 if t >= 17.45 else 0.0
             eye_dart = math.sin((t - 17.45) * 13.0) * math.exp(-(t - 17.45) * 2.4) * 5.0 if t >= 17.45 else 0.0
             knee_bend_u = shock * (1.0 - 0.35 * smoothstep(18.60, 20.20, t))
-            hx_p = 2.34 - shock * 0.07
-            hy_p = 0.42 + shock * 0.09
-            hyaw = 24.0
-            lean_x = lerp(6.0, -12.5, shock) + recoil_osc
+            hx_p = 2.30 - shock * 0.07
+            hy_p = 0.44 + shock * 0.09
+            hyaw = 22.0
+            lean_x = lerp(5.5, -12.0, shock) + recoil_osc
             head_rx = lerp(7.0, -10.0, shock)
             head_rz = lerp(16.0, 14.0, shock) + math.sin(t * 6.2) * 3.5 * shock
             h_eye_yaw = 14.0 + eye_dart
             h_eye_pitch = lerp(5.0, -7.0, shock)
-            ua_l = (lerp(-20.0, -36.0, shock), lerp(16.0, 20.0, shock), lerp(-22.0, -36.0, shock))
-            la_l = (lerp(-28.0, -54.0, shock), 0.0, lerp(-14.0, -30.0, shock))
-            ua_r = (lerp(6.0, -24.0, shock), lerp(-12.0, -20.0, shock), lerp(8.0, 28.0, shock))
-            la_r = (lerp(-14.0, -42.0, shock), 0.0, lerp(10.0, 26.0, shock))
+            ua_l = (lerp(-14.0, -26.0, shock), lerp(10.0, 14.0, shock), lerp(-14.0, -22.0, shock))
+            la_l = (lerp(-20.0, -40.0, shock), 0.0, lerp(-10.0, -20.0, shock))
+            ua_r = (lerp(4.0, -18.0, shock), lerp(-6.0, -12.0, shock), lerp(5.0, 18.0, shock))
+            la_r = (lerp(-10.0, -34.0, shock), 0.0, lerp(6.0, 16.0, shock))
             h_hand_l = "point" if t < 17.45 else "shock"
             h_hand_r = "relaxed" if t < 17.45 else "shock"
             h_weight_shift = lerp(0.28, -0.45, shock)
@@ -2788,27 +2788,27 @@ for f in FRAMES_TO_KEY:
             hx_p, hy_p, hyaw = 2.40, 0.54, -20.0
             lean_x, head_rx, head_rz = 2.0, 3.0, -14.0
             h_eye_yaw, h_eye_pitch = -10.0, 0.0
-            ua_l, la_l = (6.0, 12.0, -8.0), (-14.0, 0.0, -10.0)
-            ua_r, la_r = (6.0, -12.0, 8.0), (-14.0, 0.0, 10.0)
+            ua_l, la_l = (4.0, 6.0, -5.0), (-10.0, 0.0, -6.0)
+            ua_r, la_r = (4.0, -6.0, 5.0), (-10.0, 0.0, 6.0)
             h_hand_l, h_hand_r = "relaxed", "relaxed"
             h_weight_shift = -0.15
             jaw_bias, h_brow, h_smile = 0.0, 0.25, 0.15
         else:
-            # Beat 6: Moonlit Grand Finale — Halley (1.15, 0.55), yaw=-18° — proud contrapposto glancing from rocket toward camera!
-            hx_p, hy_p, hyaw = 1.15, 0.55, -18.0
+            # Beat 6: Moonlit Grand Finale — Halley (1.24, 0.58), yaw=-18° — chest-level gesture 100% clear of Gravity Well ring & right frame edge!
+            hx_p, hy_p, hyaw = 1.24, 0.58, -18.0
             glance_cam = smoothstep(26.50, 29.20, t)
             lean_x = 1.0 + breath * 0.4
             head_rx = lerp(-8.0, -4.5, glance_cam) + math.sin(t * 1.4) * 1.8
             head_rz = lerp(-11.0, -5.0, glance_cam) + math.sin(t * 1.6) * 2.2
             h_eye_yaw = lerp(-10.0, -2.0, glance_cam)
             h_eye_pitch = lerp(-12.0, -4.0, glance_cam)
-            ua_r = (-24.0 + math.sin(t * 1.5) * 2.0, -14.0, 24.0)
-            la_r = (-30.0, 0.0, 14.0)
-            ua_l = (6.0 + math.sin(t * 1.3) * 1.0, 12.0, -8.0)
-            la_l = (-14.0, 0.0, -10.0)
+            ua_r = (-13.0 + math.sin(t * 1.5) * 1.6, -10.0, 14.0)
+            la_r = (-20.0, 0.0, 10.0)
+            ua_l = (4.0 + math.sin(t * 1.3) * 0.8, 6.0, -5.0)
+            la_l = (-10.0, 0.0, -6.0)
             h_hand_r = "present"
             h_hand_l = "relaxed"
-            h_weight_shift = -0.28
+            h_weight_shift = -0.26
             jaw_bias, h_brow, h_smile = 0.0, 0.58, 0.58
 
         # Exact trigonometric hip-drop keeps Halley's feet 100% grounded on FLOOR_Z=0.0 during Beat 4 knee-bend recoil!

@@ -83,15 +83,15 @@
       "beatId": "B1",
       "speaker": "narrator",
       "start": 0.15,
-      "end": 4.35,
+      "end": 4.20,
       "text": "One falling apple sparked the wildest question—does the Moon fall too?"
     },
     {
       "id": "L2",
       "beatId": "B2",
       "speaker": "halley",
-      "start": 4.55,
-      "end": 6.75,
+      "start": 4.30,
+      "end": 6.85,
       "text": "Impossible, Newton! What holds the Moon up?"
     },
     {
@@ -99,7 +99,7 @@
       "beatId": "B2",
       "speaker": "newton",
       "start": 6.95,
-      "end": 9.35,
+      "end": 9.50,
       "text": "Invisible gravity—every mass pulls every other mass!"
     },
     {
@@ -107,23 +107,23 @@
       "beatId": "B3",
       "speaker": "narrator",
       "start": 9.60,
-      "end": 15.30,
+      "end": 15.25,
       "text": "Next, Newton shot sunlight through a glass prism—splitting white light into seven rainbow colors!"
     },
     {
       "id": "L5",
       "beatId": "B4",
       "speaker": "narrator",
-      "start": 15.60,
-      "end": 18.00,
+      "start": 15.35,
+      "end": 17.90,
       "text": "Every action triggers an equal, opposite reaction—"
     },
     {
       "id": "L6",
       "beatId": "B4",
       "speaker": "halley",
-      "start": 18.15,
-      "end": 20.30,
+      "start": 18.00,
+      "end": 20.50,
       "text": "Whoa! That steel ball nearly knocked me over!"
     },
     {
@@ -131,15 +131,15 @@
       "beatId": "B5",
       "speaker": "narrator",
       "start": 20.60,
-      "end": 25.25,
+      "end": 25.20,
       "text": "Gravity bends a fall into orbit—uniting falling apples and moons under one law!"
     },
     {
       "id": "L8",
       "beatId": "B6",
       "speaker": "narrator",
-      "start": 25.60,
-      "end": 29.55,
+      "start": 25.30,
+      "end": 29.85,
       "text": "Rockets, satellites, Moon landings today—every launch flies on Isaac Newton's laws."
     }
   ],
