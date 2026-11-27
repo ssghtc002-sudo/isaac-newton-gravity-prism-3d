@@ -1,0 +1,498 @@
+{
+  "title": "Why Ejecting From a Fighter Jet Shrinks You by 1 Inch",
+  "duration": 30.0,
+  "lines": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "text": "Movies make ejecting look easy, but pulling this handle shrinks your spine an inch!",
+      "start": 0.08,
+      "end": 4.0343,
+      "ratePct": 0,
+      "atempo": 1.0,
+      "words": [
+        {
+          "word": "Movies",
+          "start": 0.08,
+          "end": 0.4163
+        },
+        {
+          "word": "make",
+          "start": 0.4288,
+          "end": 0.6038
+        },
+        {
+          "word": "ejecting",
+          "start": 0.6163,
+          "end": 1.0538
+        },
+        {
+          "word": "look",
+          "start": 1.0663,
+          "end": 1.2288
+        },
+        {
+          "word": "easy,",
+          "start": 1.3038,
+          "end": 1.6538
+        },
+        {
+          "word": "but",
+          "start": 1.7413,
+          "end": 1.9163
+        },
+        {
+          "word": "pulling",
+          "start": 1.9288,
+          "end": 2.2288
+        },
+        {
+          "word": "this",
+          "start": 2.2413,
+          "end": 2.3788
+        },
+        {
+          "word": "handle",
+          "start": 2.3913,
+          "end": 2.7163
+        },
+        {
+          "word": "shrinks",
+          "start": 2.7288,
+          "end": 3.0788
+        },
+        {
+          "word": "your",
+          "start": 3.0913,
+          "end": 3.1913
+        },
+        {
+          "word": "spine",
+          "start": 3.2038,
+          "end": 3.5413
+        },
+        {
+          "word": "an",
+          "start": 3.5538,
+          "end": 3.6288
+        },
+        {
+          "word": "inch!",
+          "start": 3.6413,
+          "end": 4.0343
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "narrator",
+      "text": "First, an explosive cord inside the glass shatters the canopy in fifty milliseconds.",
+      "start": 4.88,
+      "end": 9.4464,
+      "ratePct": 0,
+      "atempo": 1.0498,
+      "words": [
+        {
+          "word": "First,",
+          "start": 4.88,
+          "end": 5.2205
+        },
+        {
+          "word": "an",
+          "start": 5.3281,
+          "end": 5.3878
+        },
+        {
+          "word": "explosive",
+          "start": 5.3998,
+          "end": 5.9972
+        },
+        {
+          "word": "cord",
+          "start": 6.0092,
+          "end": 6.3318
+        },
+        {
+          "word": "inside",
+          "start": 6.3437,
+          "end": 6.7859
+        },
+        {
+          "word": "the",
+          "start": 6.7978,
+          "end": 6.8576
+        },
+        {
+          "word": "glass",
+          "start": 6.8695,
+          "end": 7.2519
+        },
+        {
+          "word": "shatters",
+          "start": 7.2638,
+          "end": 7.6462
+        },
+        {
+          "word": "the",
+          "start": 7.6582,
+          "end": 7.7418
+        },
+        {
+          "word": "canopy",
+          "start": 7.7538,
+          "end": 8.2317
+        },
+        {
+          "word": "in",
+          "start": 8.2437,
+          "end": 8.3632
+        },
+        {
+          "word": "fifty",
+          "start": 8.3751,
+          "end": 8.6978
+        },
+        {
+          "word": "milliseconds.",
+          "start": 8.7097,
+          "end": 9.4464
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "text": "Cable garters whip your legs back, as a catapult charge blasts you up the rails.",
+      "start": 9.88,
+      "end": 14.096,
+      "ratePct": 0,
+      "atempo": 1.0,
+      "words": [
+        {
+          "word": "Cable",
+          "start": 9.88,
+          "end": 10.1167
+        },
+        {
+          "word": "garters",
+          "start": 10.1292,
+          "end": 10.5292
+        },
+        {
+          "word": "whip",
+          "start": 10.5417,
+          "end": 10.6917
+        },
+        {
+          "word": "your",
+          "start": 10.7042,
+          "end": 10.8417
+        },
+        {
+          "word": "legs",
+          "start": 10.8542,
+          "end": 11.1417
+        },
+        {
+          "word": "back,",
+          "start": 11.1542,
+          "end": 11.5042
+        },
+        {
+          "word": "as",
+          "start": 11.5667,
+          "end": 11.6542
+        },
+        {
+          "word": "a",
+          "start": 11.6667,
+          "end": 11.7167
+        },
+        {
+          "word": "catapult",
+          "start": 11.7292,
+          "end": 12.3042
+        },
+        {
+          "word": "charge",
+          "start": 12.3167,
+          "end": 12.7542
+        },
+        {
+          "word": "blasts",
+          "start": 12.7667,
+          "end": 13.1917
+        },
+        {
+          "word": "you",
+          "start": 13.2042,
+          "end": 13.3542
+        },
+        {
+          "word": "up",
+          "start": 13.3667,
+          "end": 13.4792
+        },
+        {
+          "word": "the",
+          "start": 13.4917,
+          "end": 13.5667
+        },
+        {
+          "word": "rails.",
+          "start": 13.5792,
+          "end": 14.096
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "text": "Sixteen Gs squash your spinal discs flat, shrinking you by two and a half centimeters!",
+      "start": 14.88,
+      "end": 19.9601,
+      "ratePct": 0,
+      "atempo": 1.0,
+      "words": [
+        {
+          "word": "Sixteen",
+          "start": 14.88,
+          "end": 15.3886
+        },
+        {
+          "word": "Gs",
+          "start": 15.4136,
+          "end": 15.8136
+        },
+        {
+          "word": "squash",
+          "start": 15.8261,
+          "end": 16.2511
+        },
+        {
+          "word": "your",
+          "start": 16.2636,
+          "end": 16.3761
+        },
+        {
+          "word": "spinal",
+          "start": 16.3886,
+          "end": 16.8011
+        },
+        {
+          "word": "discs",
+          "start": 16.8136,
+          "end": 17.2011
+        },
+        {
+          "word": "flat,",
+          "start": 17.2136,
+          "end": 17.5511
+        },
+        {
+          "word": "shrinking",
+          "start": 17.6886,
+          "end": 18.0386
+        },
+        {
+          "word": "you",
+          "start": 18.0511,
+          "end": 18.1511
+        },
+        {
+          "word": "by",
+          "start": 18.1636,
+          "end": 18.2761
+        },
+        {
+          "word": "two",
+          "start": 18.2886,
+          "end": 18.6761
+        },
+        {
+          "word": "and",
+          "start": 18.6886,
+          "end": 18.8886
+        },
+        {
+          "word": "a",
+          "start": 18.9011,
+          "end": 18.9386
+        },
+        {
+          "word": "half",
+          "start": 18.9511,
+          "end": 19.1761
+        },
+        {
+          "word": "centimeters!",
+          "start": 19.1886,
+          "end": 19.9601
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "text": "Twin rockets clear the tail fin, while a drogue chute stops you from tumbling.",
+      "start": 20.68,
+      "end": 24.4905,
+      "ratePct": 0,
+      "atempo": 1.0,
+      "words": [
+        {
+          "word": "Twin",
+          "start": 20.68,
+          "end": 20.9
+        },
+        {
+          "word": "rockets",
+          "start": 20.9125,
+          "end": 21.325
+        },
+        {
+          "word": "clear",
+          "start": 21.3375,
+          "end": 21.5875
+        },
+        {
+          "word": "the",
+          "start": 21.6,
+          "end": 21.675
+        },
+        {
+          "word": "tail",
+          "start": 21.6875,
+          "end": 21.9625
+        },
+        {
+          "word": "fin,",
+          "start": 21.975,
+          "end": 22.3
+        },
+        {
+          "word": "while",
+          "start": 22.35,
+          "end": 22.525
+        },
+        {
+          "word": "a",
+          "start": 22.5375,
+          "end": 22.575
+        },
+        {
+          "word": "drogue",
+          "start": 22.5875,
+          "end": 22.9375
+        },
+        {
+          "word": "chute",
+          "start": 22.95,
+          "end": 23.2375
+        },
+        {
+          "word": "stops",
+          "start": 23.25,
+          "end": 23.625
+        },
+        {
+          "word": "you",
+          "start": 23.6375,
+          "end": 23.7625
+        },
+        {
+          "word": "from",
+          "start": 23.775,
+          "end": 23.95
+        },
+        {
+          "word": "tumbling.",
+          "start": 23.9625,
+          "end": 24.4905
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "text": "The seat drops as your chute opens, leaving you shorter until gravity resets!",
+      "start": 25.58,
+      "end": 29.4252,
+      "ratePct": 0,
+      "atempo": 1.0,
+      "words": [
+        {
+          "word": "The",
+          "start": 25.58,
+          "end": 25.6001
+        },
+        {
+          "word": "seat",
+          "start": 25.6126,
+          "end": 25.8501
+        },
+        {
+          "word": "drops",
+          "start": 25.8626,
+          "end": 26.2126
+        },
+        {
+          "word": "as",
+          "start": 26.2251,
+          "end": 26.3001
+        },
+        {
+          "word": "your",
+          "start": 26.3126,
+          "end": 26.4126
+        },
+        {
+          "word": "chute",
+          "start": 26.4251,
+          "end": 26.7626
+        },
+        {
+          "word": "opens,",
+          "start": 26.7751,
+          "end": 27.2001
+        },
+        {
+          "word": "leaving",
+          "start": 27.2251,
+          "end": 27.5001
+        },
+        {
+          "word": "you",
+          "start": 27.5126,
+          "end": 27.6001
+        },
+        {
+          "word": "shorter",
+          "start": 27.6126,
+          "end": 28.0376
+        },
+        {
+          "word": "until",
+          "start": 28.0501,
+          "end": 28.3876
+        },
+        {
+          "word": "gravity",
+          "start": 28.4001,
+          "end": 28.8001
+        },
+        {
+          "word": "resets!",
+          "start": 28.8126,
+          "end": 29.4252
+        }
+      ]
+    }
+  ]
+}

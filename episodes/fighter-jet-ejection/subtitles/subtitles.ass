@@ -1,0 +1,96 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,66,&H00FFFFFF,&H0038C8FF,&H00080A10,&H96000000,-1,0,0,0,100,100,0,0,1,8,3.0,2,80,80,260,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.08,0:00:00.43,Default,,0,0,0,,{\c&H0038C8FF&}Movies{\c&H00FFFFFF&} make\Nejecting look easy,
+Dialogue: 0,0:00:00.43,0:00:00.62,Default,,0,0,0,,Movies {\c&H0038C8FF&}make{\c&H00FFFFFF&}\Nejecting look easy,
+Dialogue: 0,0:00:00.62,0:00:01.07,Default,,0,0,0,,Movies make\N{\c&H0038C8FF&}ejecting{\c&H00FFFFFF&} look easy,
+Dialogue: 0,0:00:01.07,0:00:01.30,Default,,0,0,0,,Movies make\Nejecting {\c&H0038C8FF&}look{\c&H00FFFFFF&} easy,
+Dialogue: 0,0:00:01.30,0:00:01.65,Default,,0,0,0,,Movies make\Nejecting look {\c&H0038C8FF&}easy,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:01.74,0:00:01.93,Default,,0,0,0,,{\c&H0038C8FF&}but{\c&H00FFFFFF&} pulling this handle
+Dialogue: 0,0:00:01.93,0:00:02.24,Default,,0,0,0,,but {\c&H0038C8FF&}pulling{\c&H00FFFFFF&} this handle
+Dialogue: 0,0:00:02.24,0:00:02.39,Default,,0,0,0,,but pulling {\c&H0038C8FF&}this{\c&H00FFFFFF&} handle
+Dialogue: 0,0:00:02.39,0:00:02.72,Default,,0,0,0,,but pulling this {\c&H0038C8FF&}handle{\c&H00FFFFFF&}
+Dialogue: 0,0:00:02.73,0:00:03.09,Default,,0,0,0,,{\c&H0038C8FF&}shrinks{\c&H00FFFFFF&} your spine\Nan inch!
+Dialogue: 0,0:00:03.09,0:00:03.20,Default,,0,0,0,,shrinks {\c&H0038C8FF&}your{\c&H00FFFFFF&} spine\Nan inch!
+Dialogue: 0,0:00:03.20,0:00:03.55,Default,,0,0,0,,shrinks your {\c&H0038C8FF&}spine{\c&H00FFFFFF&}\Nan inch!
+Dialogue: 0,0:00:03.55,0:00:03.64,Default,,0,0,0,,shrinks your spine\N{\c&H0038C8FF&}an{\c&H00FFFFFF&} inch!
+Dialogue: 0,0:00:03.64,0:00:04.03,Default,,0,0,0,,shrinks your spine\Nan {\c&H0038C8FF&}inch!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:04.88,0:00:05.33,Default,,0,0,0,,{\c&H0038C8FF&}First,{\c&H00FFFFFF&} an explosive\Ncord inside the glass
+Dialogue: 0,0:00:05.33,0:00:05.40,Default,,0,0,0,,First, {\c&H0038C8FF&}an{\c&H00FFFFFF&} explosive\Ncord inside the glass
+Dialogue: 0,0:00:05.40,0:00:06.01,Default,,0,0,0,,First, an {\c&H0038C8FF&}explosive{\c&H00FFFFFF&}\Ncord inside the glass
+Dialogue: 0,0:00:06.01,0:00:06.34,Default,,0,0,0,,First, an explosive\N{\c&H0038C8FF&}cord{\c&H00FFFFFF&} inside the glass
+Dialogue: 0,0:00:06.34,0:00:06.80,Default,,0,0,0,,First, an explosive\Ncord {\c&H0038C8FF&}inside{\c&H00FFFFFF&} the glass
+Dialogue: 0,0:00:06.80,0:00:06.87,Default,,0,0,0,,First, an explosive\Ncord inside {\c&H0038C8FF&}the{\c&H00FFFFFF&} glass
+Dialogue: 0,0:00:06.87,0:00:07.25,Default,,0,0,0,,First, an explosive\Ncord inside the {\c&H0038C8FF&}glass{\c&H00FFFFFF&}
+Dialogue: 0,0:00:07.26,0:00:07.66,Default,,0,0,0,,{\c&H0038C8FF&}shatters{\c&H00FFFFFF&} the canopy\Nin fifty milliseconds.
+Dialogue: 0,0:00:07.66,0:00:07.75,Default,,0,0,0,,shatters {\c&H0038C8FF&}the{\c&H00FFFFFF&} canopy\Nin fifty milliseconds.
+Dialogue: 0,0:00:07.75,0:00:08.24,Default,,0,0,0,,shatters the {\c&H0038C8FF&}canopy{\c&H00FFFFFF&}\Nin fifty milliseconds.
+Dialogue: 0,0:00:08.24,0:00:08.38,Default,,0,0,0,,shatters the canopy\N{\c&H0038C8FF&}in{\c&H00FFFFFF&} fifty milliseconds.
+Dialogue: 0,0:00:08.38,0:00:08.71,Default,,0,0,0,,shatters the canopy\Nin {\c&H0038C8FF&}fifty{\c&H00FFFFFF&} milliseconds.
+Dialogue: 0,0:00:08.71,0:00:09.45,Default,,0,0,0,,shatters the canopy\Nin fifty {\c&H0038C8FF&}milliseconds.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:09.88,0:00:10.13,Default,,0,0,0,,{\c&H0038C8FF&}Cable{\c&H00FFFFFF&} garters whip\Nyour legs back,
+Dialogue: 0,0:00:10.13,0:00:10.54,Default,,0,0,0,,Cable {\c&H0038C8FF&}garters{\c&H00FFFFFF&} whip\Nyour legs back,
+Dialogue: 0,0:00:10.54,0:00:10.70,Default,,0,0,0,,Cable garters {\c&H0038C8FF&}whip{\c&H00FFFFFF&}\Nyour legs back,
+Dialogue: 0,0:00:10.70,0:00:10.85,Default,,0,0,0,,Cable garters whip\N{\c&H0038C8FF&}your{\c&H00FFFFFF&} legs back,
+Dialogue: 0,0:00:10.85,0:00:11.15,Default,,0,0,0,,Cable garters whip\Nyour {\c&H0038C8FF&}legs{\c&H00FFFFFF&} back,
+Dialogue: 0,0:00:11.15,0:00:11.50,Default,,0,0,0,,Cable garters whip\Nyour legs {\c&H0038C8FF&}back,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:11.57,0:00:11.67,Default,,0,0,0,,{\c&H0038C8FF&}as{\c&H00FFFFFF&} a catapult charge
+Dialogue: 0,0:00:11.67,0:00:11.73,Default,,0,0,0,,as {\c&H0038C8FF&}a{\c&H00FFFFFF&} catapult charge
+Dialogue: 0,0:00:11.73,0:00:12.32,Default,,0,0,0,,as a {\c&H0038C8FF&}catapult{\c&H00FFFFFF&} charge
+Dialogue: 0,0:00:12.32,0:00:12.75,Default,,0,0,0,,as a catapult {\c&H0038C8FF&}charge{\c&H00FFFFFF&}
+Dialogue: 0,0:00:12.77,0:00:13.20,Default,,0,0,0,,{\c&H0038C8FF&}blasts{\c&H00FFFFFF&} you\Nup the rails.
+Dialogue: 0,0:00:13.20,0:00:13.37,Default,,0,0,0,,blasts {\c&H0038C8FF&}you{\c&H00FFFFFF&}\Nup the rails.
+Dialogue: 0,0:00:13.37,0:00:13.49,Default,,0,0,0,,blasts you\N{\c&H0038C8FF&}up{\c&H00FFFFFF&} the rails.
+Dialogue: 0,0:00:13.49,0:00:13.58,Default,,0,0,0,,blasts you\Nup {\c&H0038C8FF&}the{\c&H00FFFFFF&} rails.
+Dialogue: 0,0:00:13.58,0:00:14.10,Default,,0,0,0,,blasts you\Nup the {\c&H0038C8FF&}rails.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:14.88,0:00:15.41,Default,,0,0,0,,{\c&H0038C8FF&}Sixteen{\c&H00FFFFFF&} Gs squash\Nyour spinal discs flat,
+Dialogue: 0,0:00:15.41,0:00:15.83,Default,,0,0,0,,Sixteen {\c&H0038C8FF&}Gs{\c&H00FFFFFF&} squash\Nyour spinal discs flat,
+Dialogue: 0,0:00:15.83,0:00:16.26,Default,,0,0,0,,Sixteen Gs {\c&H0038C8FF&}squash{\c&H00FFFFFF&}\Nyour spinal discs flat,
+Dialogue: 0,0:00:16.26,0:00:16.39,Default,,0,0,0,,Sixteen Gs squash\N{\c&H0038C8FF&}your{\c&H00FFFFFF&} spinal discs flat,
+Dialogue: 0,0:00:16.39,0:00:16.81,Default,,0,0,0,,Sixteen Gs squash\Nyour {\c&H0038C8FF&}spinal{\c&H00FFFFFF&} discs flat,
+Dialogue: 0,0:00:16.81,0:00:17.21,Default,,0,0,0,,Sixteen Gs squash\Nyour spinal {\c&H0038C8FF&}discs{\c&H00FFFFFF&} flat,
+Dialogue: 0,0:00:17.21,0:00:17.55,Default,,0,0,0,,Sixteen Gs squash\Nyour spinal discs {\c&H0038C8FF&}flat,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:17.69,0:00:18.05,Default,,0,0,0,,{\c&H0038C8FF&}shrinking{\c&H00FFFFFF&} you by two
+Dialogue: 0,0:00:18.05,0:00:18.16,Default,,0,0,0,,shrinking {\c&H0038C8FF&}you{\c&H00FFFFFF&} by two
+Dialogue: 0,0:00:18.16,0:00:18.29,Default,,0,0,0,,shrinking you {\c&H0038C8FF&}by{\c&H00FFFFFF&} two
+Dialogue: 0,0:00:18.29,0:00:18.68,Default,,0,0,0,,shrinking you by {\c&H0038C8FF&}two{\c&H00FFFFFF&}
+Dialogue: 0,0:00:18.69,0:00:18.90,Default,,0,0,0,,{\c&H0038C8FF&}and{\c&H00FFFFFF&} a half centimeters!
+Dialogue: 0,0:00:18.90,0:00:18.95,Default,,0,0,0,,and {\c&H0038C8FF&}a{\c&H00FFFFFF&} half centimeters!
+Dialogue: 0,0:00:18.95,0:00:19.19,Default,,0,0,0,,and a {\c&H0038C8FF&}half{\c&H00FFFFFF&} centimeters!
+Dialogue: 0,0:00:19.19,0:00:19.96,Default,,0,0,0,,and a half {\c&H0038C8FF&}centimeters!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:20.68,0:00:20.91,Default,,0,0,0,,{\c&H0038C8FF&}Twin{\c&H00FFFFFF&} rockets clear\Nthe tail fin,
+Dialogue: 0,0:00:20.91,0:00:21.34,Default,,0,0,0,,Twin {\c&H0038C8FF&}rockets{\c&H00FFFFFF&} clear\Nthe tail fin,
+Dialogue: 0,0:00:21.34,0:00:21.60,Default,,0,0,0,,Twin rockets {\c&H0038C8FF&}clear{\c&H00FFFFFF&}\Nthe tail fin,
+Dialogue: 0,0:00:21.60,0:00:21.69,Default,,0,0,0,,Twin rockets clear\N{\c&H0038C8FF&}the{\c&H00FFFFFF&} tail fin,
+Dialogue: 0,0:00:21.69,0:00:21.98,Default,,0,0,0,,Twin rockets clear\Nthe {\c&H0038C8FF&}tail{\c&H00FFFFFF&} fin,
+Dialogue: 0,0:00:21.98,0:00:22.30,Default,,0,0,0,,Twin rockets clear\Nthe tail {\c&H0038C8FF&}fin,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:22.35,0:00:22.54,Default,,0,0,0,,{\c&H0038C8FF&}while{\c&H00FFFFFF&} a drogue chute
+Dialogue: 0,0:00:22.54,0:00:22.59,Default,,0,0,0,,while {\c&H0038C8FF&}a{\c&H00FFFFFF&} drogue chute
+Dialogue: 0,0:00:22.59,0:00:22.95,Default,,0,0,0,,while a {\c&H0038C8FF&}drogue{\c&H00FFFFFF&} chute
+Dialogue: 0,0:00:22.95,0:00:23.24,Default,,0,0,0,,while a drogue {\c&H0038C8FF&}chute{\c&H00FFFFFF&}
+Dialogue: 0,0:00:23.25,0:00:23.64,Default,,0,0,0,,{\c&H0038C8FF&}stops{\c&H00FFFFFF&} you\Nfrom tumbling.
+Dialogue: 0,0:00:23.64,0:00:23.78,Default,,0,0,0,,stops {\c&H0038C8FF&}you{\c&H00FFFFFF&}\Nfrom tumbling.
+Dialogue: 0,0:00:23.78,0:00:23.96,Default,,0,0,0,,stops you\N{\c&H0038C8FF&}from{\c&H00FFFFFF&} tumbling.
+Dialogue: 0,0:00:23.96,0:00:24.49,Default,,0,0,0,,stops you\Nfrom {\c&H0038C8FF&}tumbling.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:25.58,0:00:25.61,Default,,0,0,0,,{\c&H0038C8FF&}The{\c&H00FFFFFF&} seat drops\Nas your chute opens,
+Dialogue: 0,0:00:25.61,0:00:25.86,Default,,0,0,0,,The {\c&H0038C8FF&}seat{\c&H00FFFFFF&} drops\Nas your chute opens,
+Dialogue: 0,0:00:25.86,0:00:26.23,Default,,0,0,0,,The seat {\c&H0038C8FF&}drops{\c&H00FFFFFF&}\Nas your chute opens,
+Dialogue: 0,0:00:26.23,0:00:26.31,Default,,0,0,0,,The seat drops\N{\c&H0038C8FF&}as{\c&H00FFFFFF&} your chute opens,
+Dialogue: 0,0:00:26.31,0:00:26.43,Default,,0,0,0,,The seat drops\Nas {\c&H0038C8FF&}your{\c&H00FFFFFF&} chute opens,
+Dialogue: 0,0:00:26.43,0:00:26.78,Default,,0,0,0,,The seat drops\Nas your {\c&H0038C8FF&}chute{\c&H00FFFFFF&} opens,
+Dialogue: 0,0:00:26.78,0:00:27.20,Default,,0,0,0,,The seat drops\Nas your chute {\c&H0038C8FF&}opens,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:27.23,0:00:27.51,Default,,0,0,0,,{\c&H0038C8FF&}leaving{\c&H00FFFFFF&} you shorter\Nuntil gravity resets!
+Dialogue: 0,0:00:27.51,0:00:27.61,Default,,0,0,0,,leaving {\c&H0038C8FF&}you{\c&H00FFFFFF&} shorter\Nuntil gravity resets!
+Dialogue: 0,0:00:27.61,0:00:28.05,Default,,0,0,0,,leaving you {\c&H0038C8FF&}shorter{\c&H00FFFFFF&}\Nuntil gravity resets!
+Dialogue: 0,0:00:28.05,0:00:28.40,Default,,0,0,0,,leaving you shorter\N{\c&H0038C8FF&}until{\c&H00FFFFFF&} gravity resets!
+Dialogue: 0,0:00:28.40,0:00:28.81,Default,,0,0,0,,leaving you shorter\Nuntil {\c&H0038C8FF&}gravity{\c&H00FFFFFF&} resets!
+Dialogue: 0,0:00:28.81,0:00:29.43,Default,,0,0,0,,leaving you shorter\Nuntil gravity {\c&H0038C8FF&}resets!{\c&H00FFFFFF&}

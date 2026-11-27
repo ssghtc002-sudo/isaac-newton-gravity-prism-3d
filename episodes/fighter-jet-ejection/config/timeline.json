@@ -1,0 +1,103 @@
+{
+  "title": "Why Ejecting From a Fighter Jet Shrinks You by 1 Inch",
+  "duration": 30.0,
+  "fps": 60,
+  "totalFrames": 1800,
+  "resolution": [1080, 1920],
+  "audio": {
+    "masterPath": "audio/output/master_audio.wav",
+    "manifestPath": "audio/output/voice_manifest.json",
+    "srtPath": "subtitles/subtitles.srt",
+    "assPath": "subtitles/subtitles.ass"
+  },
+  "speakers": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "lang": "en-us",
+      "speed": 1.0,
+      "pan": 0.0
+    }
+  },
+  "beats": [
+    { "id": "B1", "name": "Cockpit Panic Hook & Ejection Handle Pull", "start": 0.0, "end": 4.8 },
+    { "id": "B2", "name": "MDC Canopy-Breaker Detonation (Bullet-Time)", "start": 4.8, "end": 9.8 },
+    { "id": "B3", "name": "Leg-Restraint Garters & Catapult Launch", "start": 9.8, "end": 14.8 },
+    { "id": "B4", "name": "16G Spine X-Ray Compression (-2.5 cm)", "start": 14.8, "end": 20.6 },
+    { "id": "B5", "name": "Under-Seat Rocket, Tail Clearance & Drogue Chute", "start": 20.6, "end": 25.5 },
+    { "id": "B6", "name": "Seat-Man Separation & Main Parachute Finale", "start": 25.5, "end": 30.0 }
+  ],
+  "dialogue": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "start": 0.08,
+      "end": 4.68,
+      "text": "Movies make ejecting look easy, but pulling this handle shrinks your spine an inch!"
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "narrator",
+      "start": 4.88,
+      "end": 9.62,
+      "text": "First, an explosive cord inside the glass shatters the canopy in fifty milliseconds."
+    },
+    {
+      "id": "L3",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "start": 9.88,
+      "end": 14.60,
+      "text": "Cable garters whip your legs back, as a catapult charge blasts you up the rails."
+    },
+    {
+      "id": "L4",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "start": 14.88,
+      "end": 20.38,
+      "text": "Sixteen Gs squash your spinal discs flat, shrinking you by two and a half centimeters!"
+    },
+    {
+      "id": "L5",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "start": 20.68,
+      "end": 25.32,
+      "text": "Twin rockets clear the tail fin, while a drogue chute stops you from tumbling."
+    },
+    {
+      "id": "L6",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "start": 25.58,
+      "end": 29.75,
+      "text": "The seat drops as your chute opens, leaving you shorter until gravity resets!"
+    }
+  ],
+  "sfx": [
+    { "t": 0.10, "type": "cockpit_alarm", "pan": 0.0 },
+    { "t": 0.85, "type": "cockpit_alarm", "pan": 0.0 },
+    { "t": 1.60, "type": "cockpit_alarm", "pan": 0.0 },
+    { "t": 2.17, "type": "handle_grip_click", "pan": 0.0 },
+    { "t": 2.50, "type": "handle_yank_snap", "pan": 0.0 },
+    { "t": 3.05, "type": "brace_thump", "pan": 0.0 },
+    { "t": 4.70, "type": "mdc_cord_spark", "pan": 0.0 },
+    { "t": 5.00, "type": "canopy_shatter_slowmo", "pan": 0.0 },
+    { "t": 5.40, "type": "xray_scan_whoosh", "pan": 0.0 },
+    { "t": 10.17, "type": "garter_cable_snap", "pan": 0.0 },
+    { "t": 11.67, "type": "catapult_fire_boom", "pan": 0.0 },
+    { "t": 12.10, "type": "rail_slide_screech", "pan": 0.0 },
+    { "t": 14.95, "type": "xray_scan_whoosh", "pan": 0.0 },
+    { "t": 15.55, "type": "spine_compress_creak", "pan": 0.0 },
+    { "t": 16.50, "type": "g_load_pulse", "pan": 0.0 },
+    { "t": 17.50, "type": "g_load_pulse", "pan": 0.0 },
+    { "t": 20.83, "type": "rocket_ignite_roar", "pan": 0.0 },
+    { "t": 22.75, "type": "tail_flyby_whoosh", "pan": -0.15 },
+    { "t": 23.33, "type": "drogue_mortar_pop", "pan": 0.15 },
+    { "t": 25.75, "type": "separation_latch_clunk", "pan": 0.12 },
+    { "t": 26.40, "type": "main_chute_blossom", "pan": 0.0 },
+    { "t": 27.50, "type": "wind_canopy_outro", "pan": 0.0 }
+  ]
+}
