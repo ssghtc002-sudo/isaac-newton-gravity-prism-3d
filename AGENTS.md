@@ -77,14 +77,14 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
 
 ---
 
-## 6. Default `30 fps` YouTube Shorts → True 4K Unified Modal Cloud Pipeline (`episodes/<name>/`, `.github/workflows/render-episode-4k.yml`)
-- **Default Frame Rate = `30 fps` (`900` frames for `30.0s` Shorts)**:
-  - All **NEW YouTube Shorts** MUST default to **`30 fps`** (`FPS = 30`, `TOTAL_FRAMES = 900` for `30.0s`) — evenly divides `60Hz/120Hz` mobile displays for zero stutter, noticeably smoother fast action/X-ray/explosions than `24 fps`, with only `+25%` render cost (`60 fps` available on explicit user request).
+## 6. Default `60 fps` YouTube Shorts → True 4K Unified Modal Cloud Pipeline (`episodes/<name>/`, `.github/workflows/render-episode-4k.yml`)
+- **Default Frame Rate = `60 fps` (`1800` frames for `30.0s` Shorts)**:
+  - All **NEW YouTube Shorts** MUST default to **`60 fps`** (`FPS = 60`, `TOTAL_FRAMES = 1800` for `30.0s`) — ultra-smooth buttery motion on `60Hz/120Hz` mobile displays AND unlocks YouTube's highest **4K 60fps high-bitrate codec tier** (~50% higher bitrate for razor-sharp explosions, X-ray rotations, and fast action!).
 - **Unified Studio Episodes Architecture (Zero Repeated Modal Secret Setup!)**:
   - Place all new shorts inside `ssghtc002-sudo/isaac-newton-gravity-prism-3d/episodes/<episode-name>/` and render via the shared workflow `.github/workflows/render-episode-4k.yml` (`-f episode=<episode-name> -f workers=10 -f samples=16 -f upscale_4k=true`), which automatically reuses the repo's already-configured `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` and publishes directly to GitHub Release tag `<episode-name>-4k` (`https://github.com/ssghtc002-sudo/isaac-newton-gravity-prism-3d/releases/download/<episode-name>-4k/<safe_name>_4k.mp4`).
-- **Default Pipeline = Modal 10-GPU Parallel Render**:
-  - Render native **Full HD (`1080×1920`, `scale=100%`, `30 fps`, Cycles OPTIX + GPU OIDN)** across `10` parallel Modal GPUs.
-  - Export **True 4K (`2160×3840`)** Lanczos ARRI-Alexa finished MP4 (`libx264`, `High@L5.1`, `CRF 15`, `yuv420p`, `AAC 192k`, `-movflags +faststart` for instant mobile/Reels/Shorts playback).
+- **Default Pipeline = Modal 10-GPU Parallel Render (`4K 60fps`)**:
+  - Render native **Full HD (`1080×1920`, `scale=100%`, `60 fps`, Cycles OPTIX + GPU OIDN)** across `10` parallel Modal GPUs (note: increase Modal chunk timeout if needed for `1800` frames).
+  - Export **True 4K (`2160×3840`, `60 fps`)** Lanczos ARRI-Alexa finished MP4 (`libx264`, `High@L5.2` for full 4K@60fps compliance, `CRF 15`, `yuv420p`, `AAC 192k`, `-movflags +faststart` for instant mobile/Reels/Shorts playback).
 - **Tightened ARRI-Alexa Bloom & Warm Container Cache**:
   - Use `scale=2160:3840:flags=lanczos` (NEVER invalid `:accurate_rnd=1` option!).
   - Highlight bloom: `eq=brightness=-0.52:contrast=2.8,gblur=sigma=22` blended with `screen:all_opacity=0.20` (1080p: `sigma=12`, `opacity=0.22`).
