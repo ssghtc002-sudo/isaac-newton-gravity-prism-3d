@@ -1744,9 +1744,11 @@ def _build_tactical_helmet(
     em = eb.to_mesh()
     inv_rig = rig.matrix_world.inverted()
     head_top_w = max((eb.matrix_world @ v.co).z for v in em.vertices)
-    skull_local = [inv_rig @ (eb.matrix_world @ v.co) for v in em.vertices if (eb.matrix_world @ v.co).z > head_top_w - 0.145]
+    all_head_local = [inv_rig @ (eb.matrix_world @ v.co) for v in em.vertices if (eb.matrix_world @ v.co).z > head_top_w - 0.28]
+    skull_local = [p for p in all_head_local if p.z > (inv_rig @ Vector((0.0, 0.0, head_top_w))).z - 0.155]
     eye_ctr_local = inv_rig @ actor["eye_center_rest"]
     teeth_ctr_local = inv_rig @ actor["teeth_center_rest"]
+    jaw_local = [p for p in all_head_local if abs(p.x) < 0.115 and p.z <= eye_ctr_local.z + 0.02]
     eb.to_mesh_clear()
 
     sx_min = min(v.x for v in skull_local)
@@ -1905,21 +1907,49 @@ def _build_tactical_helmet(
         ni = (i + 1) % st_segs
         sbm.faces.new((band_bot[i], band_bot[ni], band_top[ni], band_top[i]))
 
-    # Chin strap looping cleanly along rear jawline from ear -> under jaw -> ear (zero cheek clipping!)
-    chin_z = teeth_ctr_local.z - 0.056
-    chin_y = teeth_ctr_local.y + 0.036
-    cs_pts = []
-    cs_n = 18
+    # Chin strap tucked snugly along the outer jawline (ear -> snug under-chin -> ear; strictly above neck!)
+    chin_y = teeth_ctr_local.y + 0.026
+    jaw_z_floor = teeth_ctr_local.z - 0.056
+    jaw_only = [p for p in jaw_local if p.z >= jaw_z_floor - 0.006 and p.y < skull_cy + 0.025]
+    under_center = [
+        p for p in jaw_only
+        if abs(p.x - skull_cx) < 0.018 and abs(p.y - chin_y) < 0.022 and p.z < teeth_ctr_local.z - 0.022
+    ]
+    chin_z = max(jaw_z_floor, (min(p.z for p in under_center) - 0.0018) if under_center else (teeth_ctr_local.z - 0.052))
+    cs_pts: list[Vector] = []
+    cs_n = 22
     for k in range(cs_n + 1):
         u = (k / cs_n) * 2.0 - 1.0  # -1 (right ear) .. 0 (under jaw) .. +1 (left ear)
+        au = abs(u)
         px = skull_cx + u * (rx * 0.90)
-        pz = chin_z + (helm_cz + 0.006 - chin_z) * (abs(u) ** 2.6)
-        py = chin_y * (1.0 - u * u) + (skull_cy + 0.018) * (u * u)
+        pz = chin_z + (helm_cz + 0.004 - chin_z) * (au ** 2.25)
+        py = chin_y * (1.0 - au * au) + (skull_cy + 0.014) * (au * au)
+
+        if 0.0 <= au <= 0.85 and jaw_only:
+            if au < 0.45:
+                near_u = [p for p in jaw_only if abs(p.x - px) < 0.014 and abs(p.y - py) < 0.018 and p.z < teeth_ctr_local.z - 0.018]
+                if near_u:
+                    pz = max(jaw_z_floor, min(p.z for p in near_u) - 0.0018)
+            else:
+                sgn = 1.0 if u > 0.0 else -1.0
+                near_s = [p for p in jaw_only if (p.x - skull_cx) * sgn > 0.015 and abs(p.y - py) < 0.018 and abs(p.z - pz) < 0.016]
+                if near_s:
+                    outer_x = max((p.x - skull_cx) * sgn for p in near_s)
+                    px = skull_cx + sgn * max(abs(px - skull_cx), outer_x + 0.0026)
         cs_pts.append(Vector((px, py, pz)))
+
+    # 2 smooth passes (keeping endpoints anchored inside helmet rim) for crisp natural webbing drape
+    for _ in range(2):
+        smoothed = [cs_pts[0]]
+        for k in range(1, len(cs_pts) - 1):
+            smoothed.append(cs_pts[k - 1] * 0.22 + cs_pts[k] * 0.56 + cs_pts[k + 1] * 0.22)
+        smoothed.append(cs_pts[-1])
+        cs_pts = smoothed
+
     r_prev = None
     for k, pt in enumerate(cs_pts):
-        v1 = sbm.verts.new((pt.x, pt.y - 0.0055, pt.z))
-        v2 = sbm.verts.new((pt.x, pt.y + 0.0055, pt.z))
+        v1 = sbm.verts.new((pt.x, pt.y - 0.0042, pt.z))
+        v2 = sbm.verts.new((pt.x, pt.y + 0.0042, pt.z))
         if r_prev is not None:
             sbm.faces.new((r_prev[0], v1, v2, r_prev[1]))
         r_prev = (v1, v2)
@@ -1933,7 +1963,7 @@ def _build_tactical_helmet(
     straps.matrix_world = rig.matrix_world.copy()
     straps.data.materials.append(mat_strap)
     ssol = straps.modifiers.new("Solidify", "SOLIDIFY")
-    ssol.thickness = 0.0035
+    ssol.thickness = 0.0026
     _link_obj(straps, col)
 
     parts = [shell, hw, gframe, glens, straps]
@@ -2060,20 +2090,20 @@ def _build_plate_carrier_vest(
 # TACTICAL HAND GRIP POSE + GRENADE SOCKET
 # ============================================================================
 def apply_grenade_grip(rig, side: str = "R", grip_amount: float = 1.0, frame: int | None = None) -> None:
-    """Wrap fingers securely around an M67/Mk2 fragmentation grenade (~32mm radius).
-    grip_amount=1.0 -> firm tactical grip holding safety spoon; 0.0 -> open release."""
+    """Wrap fingers securely around an M67 fragmentation grenade (R_OUTER=42mm) with zero shell poke-through.
+    grip_amount=1.0 -> firm tactical grip clamping safety spoon; 0.0 -> open athletic release."""
     side_u = "L" if str(side).upper().startswith("L") else "R"
     g = max(0.0, min(1.0, float(grip_amount)))
 
     has_finger5 = f"finger5-1.{side_u}" in rig.pose.bones
     digit_indices = (2, 3, 4, 5) if has_finger5 else (1, 2, 3, 4)
-    # Tight grip curls vs open release curls
-    curls_closed = (54.0, 62.0, 66.0, 70.0)
+    # Calibrated around 84mm M67 shell so fingertips hug the cast-iron curvature without piercing it
+    curls_closed = (46.0, 52.0, 56.0, 60.0)
     curls_open = (10.0, 12.0, 15.0, 18.0)
 
     for d_slot, f_idx in enumerate(digit_indices):
         c_deg = curls_open[d_slot] + (curls_closed[d_slot] - curls_open[d_slot]) * g
-        for seg, mult in ((1, 0.82), (2, 1.08), (3, 0.78)):
+        for seg, mult in ((1, 0.78), (2, 1.02), (3, 0.72)):
             bname = f"finger{f_idx}-{seg}.{side_u}"
             if bname in rig.pose.bones:
                 pb = rig.pose.bones[bname]
@@ -2082,10 +2112,10 @@ def apply_grenade_grip(rig, side: str = "R", grip_amount: float = 1.0, frame: in
                 if frame is not None:
                     pb.keyframe_insert("rotation_euler", frame=frame)
 
-    # Thumb wraps opposing the fingers over the safety spoon
-    thm_c = 8.0 + 34.0 * g
+    # Thumb wraps opposing the fingers firmly over the rolled-steel safety spoon
+    thm_c = 8.0 + 30.0 * g
     if has_finger5:
-        for seg, mult in ((1, 0.45), (2, 0.92), (3, 0.85)):
+        for seg, mult in ((1, 0.42), (2, 0.88), (3, 0.78)):
             bname = f"finger1-{seg}.{side_u}"
             if bname in rig.pose.bones:
                 pb = rig.pose.bones[bname]
@@ -2096,26 +2126,28 @@ def apply_grenade_grip(rig, side: str = "R", grip_amount: float = 1.0, frame: in
 
 
 def _create_hero_grenade_socket(actor: dict, col: bpy.types.Collection) -> bpy.types.Object:
-    """Create `Hero_Grenade_Socket` Empty parented cleanly to `wrist.R`, positioned right in the
-    center of Hero's gripping palm/fingers so the photoreal grenade attaches with ZERO floating or clipping."""
+    """Create `Hero_Grenade_Socket` Empty parented cleanly to `wrist.R`, positioned +0.025m forward
+    along the distal gripping palm & cupped fingers so the M67 grenade sits snugly inside his closed
+    fist and NEVER clips the shirt cuff during Beat 1 pin-pull or Beat 2 throw wind-up."""
     rig = actor["rig"]
     bpy.context.view_layer.update()
 
-    # Compute exact palm center in rest pose from wrist.R + metacarpal2.R + finger3-1.R
     pb_w = rig.pose.bones["wrist.R"]
-    pb_m2 = rig.pose.bones.get("metacarpal2.R")
     pb_f3 = rig.pose.bones.get("finger3-1.R")
+    pb_f3_tip = rig.pose.bones.get("finger3-3.R")
 
     w_tail = rig.matrix_world @ pb_w.tail
-    if pb_m2 is not None and pb_f3 is not None:
+    if pb_f3 is not None and pb_f3_tip is not None:
         knuckle_pt = rig.matrix_world @ pb_f3.head
-        # Palm center sits slightly forward-inward of the metacarpal/knuckle midpoint (~3.2cm radius of grenade!)
-        palm_base = w_tail.lerp(knuckle_pt, 0.68)
-        # Inward palm normal in rig local space is roughly (-Y, +X) -> in world space, transform local offset
-        local_palm_dir = rig.matrix_world.to_3x3() @ Vector((0.028, -0.022, -0.012))
-        socket_world = palm_base + local_palm_dir
+        f3_tip = rig.matrix_world @ pb_f3_tip.tail
+        hand_fwd = (knuckle_pt - w_tail).normalized()
+        # Inward palm normal perpendicular to hand_fwd pointing toward curled fingertips/thumb
+        raw_in = f3_tip - knuckle_pt
+        palm_in = (raw_in - hand_fwd * raw_in.dot(hand_fwd)).normalized()
+        # Distal palm-cup center (+0.018m past metacarpal knuckles -> ~0.025m further from wrist cuff)
+        socket_world = knuckle_pt + hand_fwd * 0.018 + palm_in * 0.038
     else:
-        socket_world = w_tail + Vector((0.0, 0.0, -0.04))
+        socket_world = w_tail + Vector((0.0, 0.0, -0.05))
 
     sock = bpy.data.objects.new("Hero_Grenade_Socket", None)
     sock.empty_display_type = "SPHERE"
@@ -2132,11 +2164,18 @@ def _create_hero_grenade_socket(actor: dict, col: bpy.types.Collection) -> bpy.t
 # ============================================================================
 def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
     """Animate Hero Soldier:
-    - Beat 1 (f=1..108): Iconic pin-pull close-up! Right hand holds grenade cleanly ~0.14m in front-right of lips,
-      left hand steadies/pulls pin; f=24..54 jaw tenses cleanly (<= 10.5 deg) & head whips back-left on POP!
-    - Beat 2 (f=109..148): Athletic wind-up (f=110..124), explosive overhand throw releasing at EXACT f=134,
-      natural follow-through (f=135..170)!
-    - Beats 3-6 (f=171..720): Tactical crouch behind sandbag parapet watching the enemy bunker."""
+    - Beat 1 (f=1..108): Authentic Action-Movie Teeth Pin-Pull!
+      * f=1..24: Right hand brings grenade cleanly up to mouth/lips so the chrome pull-ring sits
+        literally at his teeth (`socket_z ≈ teeth_z - 0.058m`, ~0.052m laterally in front-left of lips,
+        gentle clamped jaw ~6.0 deg — never gaping!).
+      * f=24..50: Unmistakable opposite-direction tug — head snaps decisively back-right while right
+        arm pulls firmly forward-left (~0.14m separation!), visually ripping the pin out with his teeth!
+      * f=50..92: Hero returns gaze straight ahead with intense determined eyes and lowers grenade
+        slightly into hero-inspection stance (~0.14m out from chest/chin) with spoon visibly clamped!
+      * Left arm stays cleanly in a low tactical ready/brace posture out of foreground/subtitles!
+    - Beat 2 (f=109..148): Athletic wind-up (f=108..122), whip acceleration (f=128), explosive
+      overhand throw releasing at EXACT f=134, natural follow-through (f=148)!
+    - Beats 3-6 (f=172..720): Tactical crouch behind sandbag parapet watching the enemy bunker."""
     rig = actor["rig"]
 
     # Helper to apply a complete upper-body + facial pose cleanly at a keyframe
@@ -2175,24 +2214,21 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
         mc.apply_arm_with_clavicle(rig, "L", ua_l, la_l, frame=f)
 
         apply_grenade_grip(rig, "R", grip_amount=grip_r, frame=f)
-        if hand_l == "pin_pinch":
-            apply_grenade_grip(rig, "L", grip_amount=0.82, frame=f)
-        else:
-            mc.apply_hand_gesture(rig, "L", hand_l, frame=f)
+        mc.apply_hand_gesture(rig, "L", hand_l, frame=f)
 
-        # Clamp jaw <= 11.0 deg per mission brief & AGENTS.md Section 1!
+        # Clamp jaw <= 10.0 deg per AGENTS.md Section 1 (gentle ring bite ~6 deg, never gaping!)
         mc.apply_facial_acting(
             rig,
             t=t,
             frame=f,
-            jaw_open_deg=min(11.0, jaw_deg),
+            jaw_open_deg=min(10.0, jaw_deg),
             brow_lift=brow,
             smile=smile,
             blink_period=3.6,
             blink_phase=1.1,
             eye_yaw_deg=eye_yaw,
             eye_pitch_deg=eye_pitch,
-            lip_narrow=0.22 if jaw_deg > 4.0 else 0.0,
+            lip_narrow=0.28 if jaw_deg >= 4.5 else 0.0,
         )
 
     # Arm kinematics in MPFB2 character space:
@@ -2200,78 +2236,87 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
     #   +ry lifts -X toward +Z; +rz swings -X toward -Y (forward!); -rz swings -X toward +Y (back!)
     #   For lowerarm01.R: +rz bends elbow inward toward face/chest; -rx lifts forearm up toward mouth!
     # Left arm (+X rest):
-    #   -ry lifts +X toward +Z; -rz swings +X toward -Y (forward!)
+    #   +rx/+rz keeps left arm cleanly down & braced by left hip/side (ZERO foreground belly/subtitle clutter!)
 
-    # BEAT 1 (f=1..108): Heroic Close-Up — Right hand holds grenade cleanly ~0.14m in front-right of lips/chin!
-    # Left hand stays cleanly down-left/side (ZERO forearm crossover!)
-    # f=1: Focused arrival holding grenade cleanly up-right near mouth/chin
+    # BEAT 1 (f=1..108): Action-Movie Teeth Pin-Pull Close-Up
+    # f=1: Bringing live grenade smoothly up toward lips/mouth (low tactical left arm brace!)
     pose_hero(
         1,
-        spine2=(3.0, -1.5, -2.0), spine1=(2.0, 0.0, -2.0),
-        neck=(2.0, 0.0, -4.0), head=(3.0, 1.5, -6.0),
-        ua_r=(-16.0, 10.0, 46.0), la_r=(-64.0, 12.0, 24.0),
-        ua_l=(-8.0, -6.0, -22.0), la_l=(-26.0, -4.0, -12.0),
+        spine2=(3.0, -1.0, -1.5), spine1=(2.0, 0.0, -1.5),
+        neck=(1.5, 0.0, -2.5), head=(2.5, 0.5, -3.5),
+        ua_r=(-0.5, -9.0, 31.0), la_r=(-79.5, 12.0, 57.0),
+        ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=1.8, brow=-0.34, eye_yaw=-4.0, eye_pitch=-5.0,
+        jaw_deg=1.8, brow=-0.36, eye_yaw=-3.0, eye_pitch=-4.0,
     )
-    # f=24: Teeth-pull bite engagement — leans head slightly right-down toward pull ring, jaw tenses!
+    # f=18: Chrome pull-ring arrives literally at teeth/lips! Head leans gently forward, jaw ready (5.2 deg)
+    pose_hero(
+        18,
+        spine2=(4.2, -1.5, -2.2), spine1=(2.8, 0.0, -1.8),
+        neck=(2.8, -0.5, -3.8), head=(4.2, 1.2, -5.2),
+        ua_r=(-2.5, -4.0, 43.5), la_r=(-86.0, 12.0, 57.5),
+        ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=5.2, brow=-0.46, eye_yaw=-4.0, eye_pitch=-5.0,
+    )
+    # f=24: BITE LOCKED! Teeth clamped cleanly around chrome pull-ring (jaw=6.0 deg, socket_z=teeth_z-0.058m!)
     pose_hero(
         24,
-        spine2=(4.0, -2.0, -3.0), spine1=(3.0, 0.0, -2.0),
-        neck=(3.0, -1.0, -6.0), head=(5.0, 3.0, -9.0),
-        ua_r=(-17.0, 11.0, 48.0), la_r=(-66.0, 12.0, 26.0),
-        ua_l=(-10.0, -8.0, -26.0), la_l=(-30.0, -5.0, -14.0),
-        grip_r=1.0, hand_l="pin_pinch",
-        jaw_deg=8.2, brow=-0.50, eye_yaw=-5.0, eye_pitch=-7.0,
-    )
-    # f=34: Peak pin-pull tension! Jaw clamped at 10.2 deg (<= 11 deg!), intense furrowed brow
-    pose_hero(
-        34,
-        spine2=(4.5, -2.5, -2.0), spine1=(3.5, 0.0, -1.0),
-        neck=(2.5, -1.0, -4.0), head=(4.5, 2.5, -5.0),
-        ua_r=(-18.0, 12.0, 48.0), la_r=(-66.0, 12.0, 25.0),
-        ua_l=(-10.0, -8.0, -24.0), la_l=(-28.0, -5.0, -12.0),
-        grip_r=1.0, hand_l="pin_pinch",
-        jaw_deg=10.2, brow=-0.58, eye_yaw=-3.0, eye_pitch=-6.0,
-    )
-    # f=46: DECISIVE PIN POP! Head whips back-left, right hand holds grenade rock-steady!
-    pose_hero(
-        46,
-        spine2=(2.0, 3.0, 6.0), spine1=(1.0, 2.0, 5.0),
-        neck=(-3.0, 3.0, 10.0), head=(-6.0, -5.0, 16.0),
-        ua_r=(-16.0, 10.0, 46.0), la_r=(-60.0, 10.0, 22.0),
-        ua_l=(-8.0, -6.0, -16.0), la_l=(-22.0, -4.0, -10.0),
+        spine2=(4.5, -1.5, -2.5), spine1=(3.0, 0.0, -2.0),
+        neck=(3.0, -0.5, -4.0), head=(4.5, 1.5, -5.5),
+        ua_r=(-3.0, -3.0, 44.0), la_r=(-86.0, 12.0, 57.5),
+        ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=4.8, brow=-0.45, eye_yaw=6.0, eye_pitch=-2.0,
+        jaw_deg=6.0, brow=-0.54, eye_yaw=-4.0, eye_pitch=-5.5,
     )
-    # f=56: Settle after pin pop — intense eyes lock onto enemy bunker downrange!
+    # f=36: MID-PULL TENSION! Opposite-direction tug — head pulls back-right while right arm pulls forward-left!
     pose_hero(
-        56,
-        spine2=(3.0, 1.0, 3.0), spine1=(2.0, 0.0, 2.0),
-        neck=(0.0, 0.0, 4.0), head=(-2.0, -1.0, 5.0),
-        ua_r=(-15.0, 10.0, 46.0), la_r=(-56.0, 9.0, 20.0),
-        ua_l=(-8.0, -6.0, -20.0), la_l=(-24.0, -4.0, -12.0),
+        36,
+        spine2=(3.8, -0.5, -0.5), spine1=(2.5, 0.2, -0.5),
+        neck=(1.2, 0.4, -0.8), head=(1.5, 0.0, -0.8),
+        ua_r=(-3.5, -7.5, 38.0), la_r=(-86.0, 11.0, 58.5),
+        ua_l=(11.0, -4.0, 15.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=1.8, brow=-0.38, eye_yaw=2.0, eye_pitch=0.0,
+        jaw_deg=6.2, brow=-0.58, eye_yaw=-1.0, eye_pitch=-3.0,
     )
-    # f=84: Holding live spoon down firmly (proving pin pull doesn't start timer!), steady tactical composure
+    # f=50: DECISIVE PIN POP! Head snaps sharply back-right while right arm pulls firmly forward-left (~0.14m gap!)
     pose_hero(
-        84,
-        spine2=(3.5, -1.0, 0.0), spine1=(2.5, 0.0, 0.0),
-        neck=(1.0, 0.0, 1.0), head=(0.0, 0.0, 1.0),
-        ua_r=(-14.0, 8.0, 44.0), la_r=(-52.0, 8.0, 18.0),
-        ua_l=(-10.0, -8.0, -24.0), la_l=(-26.0, -4.0, -12.0),
+        50,
+        spine2=(3.0, 0.5, 1.5), spine1=(2.0, 0.5, 1.0),
+        neck=(-0.5, 1.0, 2.5), head=(-1.5, -1.5, 4.0),
+        ua_r=(-4.0, -12.0, 32.0), la_r=(-86.0, 10.0, 60.0),
+        ua_l=(12.0, -5.0, 16.0), la_l=(-20.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=1.4, brow=-0.35, eye_yaw=0.0, eye_pitch=-2.0,
+        jaw_deg=3.8, brow=-0.46, eye_yaw=3.5, eye_pitch=-1.0,
     )
-    # f=108: Transition into athletic throw stance
+    # f=70: HERO INSPECTION STANCE — intense determined eyes straight ahead, grenade ~0.14m out, spoon clamped!
+    pose_hero(
+        70,
+        spine2=(3.0, -0.5, 0.0), spine1=(2.0, 0.0, 0.0),
+        neck=(0.5, 0.0, 0.5), head=(0.0, 0.0, 0.5),
+        ua_r=(-10.0, -12.0, 34.5), la_r=(-72.5, 8.0, 48.5),
+        ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=1.5, brow=-0.38, eye_yaw=0.0, eye_pitch=0.0,
+    )
+    # f=92: Rock-steady tactical composure holding live safety spoon clamped down before throw
+    pose_hero(
+        92,
+        spine2=(3.2, -0.6, -0.4), spine1=(2.2, 0.0, -0.2),
+        neck=(0.6, 0.0, 0.6), head=(0.0, 0.0, 0.5),
+        ua_r=(-10.5, -11.0, 34.0), la_r=(-70.0, 8.0, 46.0),
+        ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=1.4, brow=-0.38, eye_yaw=0.0, eye_pitch=0.0,
+    )
+    # f=108: Transition into athletic throw stance (left arm stays cleanly braced low-side, never blocking chest!)
     pose_hero(
         108,
-        spine2=(4.0, -2.0, -6.0), spine1=(3.0, 0.0, -6.0),
+        spine2=(3.5, -1.8, -6.0), spine1=(2.5, 0.0, -5.5),
         neck=(1.0, 0.0, 4.0), head=(0.0, 0.0, 6.0),
-        ua_r=(-12.0, 16.0, 22.0), la_r=(-46.0, 8.0, 18.0),
-        ua_l=(-22.0, -18.0, -46.0), la_l=(-20.0, -4.0, -12.0),
-        grip_r=1.0, hand_l="present",
+        ua_r=(-12.0, 14.0, 20.0), la_r=(-48.0, 8.0, 22.0),
+        ua_l=(8.0, -6.0, 12.0), la_l=(-22.0, -2.0, -6.0),
+        grip_r=1.0, hand_l="relaxed",
         jaw_deg=2.0, brow=-0.42, eye_yaw=2.0, eye_pitch=1.0,
         weight_shift=-0.25, knee_bend=0.18,
     )
@@ -2282,10 +2327,10 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
         122,
         spine2=(-4.0, -5.0, -22.0), spine1=(-3.0, -3.0, -16.0),
         neck=(2.0, 2.0, 14.0), head=(0.0, 2.0, 18.0),
-        ua_r=(-12.0, 58.0, -56.0), la_r=(-42.0, 10.0, 18.0),
-        ua_l=(-42.0, -24.0, -56.0), la_l=(-14.0, 0.0, -8.0),
-        grip_r=1.0, hand_l="point",
-        jaw_deg=6.5, brow=-0.55, eye_yaw=6.0, eye_pitch=3.0,
+        ua_r=(-12.0, 56.0, -54.0), la_r=(-42.0, 10.0, 18.0),
+        ua_l=(16.0, -4.0, 28.0), la_l=(-16.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=5.8, brow=-0.55, eye_yaw=6.0, eye_pitch=3.0,
         weight_shift=-0.45, knee_bend=0.26, hip_drop_z=0.04,
     )
     # f=128: Mid-whip acceleration — torso driving forward, elbow leading high!
@@ -2293,10 +2338,10 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
         128,
         spine2=(4.0, 1.0, -4.0), spine1=(4.0, 0.0, -2.0),
         neck=(0.0, 0.0, 3.0), head=(-2.0, 0.0, 4.0),
-        ua_r=(-52.0, 58.0, 14.0), la_r=(-28.0, 8.0, 10.0),
-        ua_l=(-20.0, -14.0, -32.0), la_l=(-30.0, -6.0, -18.0),
+        ua_r=(-50.0, 56.0, 14.0), la_r=(-28.0, 8.0, 10.0),
+        ua_l=(14.0, -5.0, 22.0), la_l=(-18.0, -2.0, -4.0),
         grip_r=0.92, hand_l="relaxed",
-        jaw_deg=9.2, brow=-0.60, eye_yaw=2.0, eye_pitch=5.0,
+        jaw_deg=7.5, brow=-0.60, eye_yaw=2.0, eye_pitch=5.0,
         weight_shift=0.12, knee_bend=0.22, hip_drop_z=0.03,
     )
     # f=134: EXACT GRENADE RELEASE FRAME! Right arm extended high-forward toward enemy bunker (+Y), fingers open!
@@ -2305,9 +2350,9 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
         spine2=(10.0, 3.0, 10.0), spine1=(6.0, 2.0, 8.0),
         neck=(-4.0, -2.0, -8.0), head=(-5.0, -2.0, -10.0),
         ua_r=(-38.0, 48.0, 52.0), la_r=(-8.0, 0.0, -4.0),
-        ua_l=(8.0, -8.0, 16.0), la_l=(-30.0, -6.0, -18.0),
+        ua_l=(10.0, -6.0, 18.0), la_l=(-24.0, -2.0, -6.0),
         grip_r=0.0, hand_l="relaxed",
-        jaw_deg=8.4, brow=-0.52, eye_yaw=-2.0, eye_pitch=8.0,
+        jaw_deg=7.2, brow=-0.52, eye_yaw=-2.0, eye_pitch=8.0,
         weight_shift=0.40, knee_bend=0.24, hip_drop_z=0.035,
     )
     # f=148: Athletic follow-through — right arm sweeps down across torso, eyes tracking arc!
@@ -2509,6 +2554,66 @@ def _animate_enemy_sentry(
     _set_bezier(rig)
 
 
+def _cinch_shirt_cuffs(actor: dict) -> None:
+    """Taper the loose flared boho cuff of `elvs_male_boho_top1` around both wrists into a crisp,
+    fitted military BDU combat-shirt cuff so the grenade NEVER clips the sleeve during Beat 1 or Beat 2."""
+    shirt_obj = actor["equipped"].get("Shirt")
+    rig = actor["rig"]
+    if shirt_obj is None or shirt_obj.type != "MESH":
+        return
+    bpy.context.view_layer.update()
+    rig_from_shirt = rig.matrix_world.inverted() @ shirt_obj.matrix_world
+    shirt_from_rig = rig_from_shirt.inverted()
+    mesh = shirt_obj.data
+
+    for side in ("R", "L"):
+        pb_w = rig.pose.bones.get(f"wrist.{side}")
+        pb_la2 = rig.pose.bones.get(f"lowerarm02.{side}")
+        if pb_w is None or pb_la2 is None:
+            continue
+        w_head = pb_w.head.copy()
+        arm_dir = (w_head - pb_la2.head).normalized()
+        for v in mesh.vertices:
+            p_rig = rig_from_shirt @ v.co
+            rel = p_rig - w_head
+            proj = rel.dot(arm_dir)
+            if -0.115 < proj < 0.055:
+                rad_vec = rel - arm_dir * proj
+                rad = rad_vec.length
+                if rad < 0.135 and rad > 1e-5:
+                    u = max(0.0, min(1.0, (proj + 0.115) / 0.095))
+                    w = u * u * (3.0 - 2.0 * u)
+                    max_r = 0.041
+                    new_rad = (rad * (1.0 - w) + max_r * w) if rad > max_r else rad
+                    new_proj = (proj * (1.0 - 0.85 * w) + (-0.015) * (0.85 * w)) if proj > -0.015 else proj
+                    p_new = w_head + arm_dir * new_proj + rad_vec * (new_rad / rad)
+                    v.co = shirt_from_rig @ p_new
+    mesh.update()
+
+
+def _find_front_teeth_vertex_ids(actor: dict) -> list[int]:
+    """Find vertex indices of the central front incisors on `teeth_base` in rest pose so
+    evaluated mouth/teeth world coordinates remain 100% invariant across all head rotations."""
+    teeth_obj = actor["equipped"].get("Teeth")
+    rig = actor["rig"]
+    if teeth_obj is None:
+        return []
+    bpy.context.view_layer.update()
+    inv_rig = rig.matrix_world.inverted()
+    deps = bpy.context.evaluated_depsgraph_get()
+    et = teeth_obj.evaluated_get(deps)
+    tm = et.to_mesh()
+    t_local = [(i, inv_rig @ (et.matrix_world @ v.co)) for i, v in enumerate(tm.vertices)]
+    et.to_mesh_clear()
+    if not t_local:
+        return []
+    central = [it for it in t_local if abs(it[1].x) < 0.014]
+    if len(central) < 8:
+        central = t_local
+    central.sort(key=lambda it: it[1].y)  # -Y is front in MPFB2 local space
+    return [it[0] for it in central[:16]]
+
+
 def _sample_socket_trajectory(sock: bpy.types.Object, start_f: int = 1, end_f: int = RELEASE_FRAME) -> tuple[dict[int, tuple[float, float, float]], dict[int, tuple[float, float, float, float]]]:
     """Evaluate exact world-space position & quaternion of `Hero_Grenade_Socket` across frames `start_f..end_f`."""
     scene = bpy.context.scene
@@ -2528,6 +2633,38 @@ def _sample_socket_trajectory(sock: bpy.types.Object, start_f: int = 1, end_f: i
     scene.frame_set(prev_f)
     bpy.context.view_layer.update()
     return positions, quats
+
+
+def _sample_hero_mouth_trajectory(hero: dict, start_f: int = 1, end_f: int = 108) -> dict[int, Vector]:
+    """Evaluate exact world-space front-center of Hero's `teeth_base` across frames `start_f..end_f`
+    so the master scene can keep the grenade's chrome pull-ring locked literally at his teeth!"""
+    scene = bpy.context.scene
+    prev_f = scene.frame_current
+    teeth_obj = hero["equipped"].get("Teeth")
+    front_vids: list[int] = hero.get("front_teeth_vids", [])
+    mouth_positions: dict[int, Vector] = {}
+
+    for f in range(start_f, end_f + 1):
+        scene.frame_set(f)
+        bpy.context.view_layer.update()
+        if teeth_obj is not None:
+            deps = bpy.context.evaluated_depsgraph_get()
+            et = teeth_obj.evaluated_get(deps)
+            tm = et.to_mesh()
+            if front_vids and max(front_vids) < len(tm.vertices):
+                pts = [et.matrix_world @ tm.vertices[idx].co for idx in front_vids]
+            else:
+                pts = [et.matrix_world @ v.co for v in tm.vertices]
+            et.to_mesh_clear()
+            if pts:
+                ctr = sum(pts, Vector((0.0, 0.0, 0.0))) / len(pts)
+                mouth_positions[f] = Vector((round(float(ctr.x), 5), round(float(ctr.y), 5), round(float(ctr.z), 5)))
+                continue
+        mouth_positions[f] = Vector((0.09, 0.16, 1.59))
+
+    scene.frame_set(prev_f)
+    bpy.context.view_layer.update()
+    return mouth_positions
 
 
 def _build_single_soldier(
@@ -2638,6 +2775,11 @@ def _build_single_soldier(
         shirt_mat = gear_mats["hero_shirt"] if is_hero else gear_mats["enemy_shirt"]
         shirt_obj.data.materials.clear()
         shirt_obj.data.materials.append(shirt_mat)
+        # Cinch loose boho bell-cuffs around wrists into snug BDU tactical cuffs (zero grenade clipping!)
+        _cinch_shirt_cuffs(actor)
+
+    # Record front-center incisor vertex IDs in rest pose for exact mouth/teeth world tracking
+    actor["front_teeth_vids"] = _find_front_teeth_vertex_ids(actor)
 
     # Move MPFB2 objects cleanly into target collection
     mpfb_objs = [actor["rig"], actor["body"], *actor["equipped"].values()]
@@ -2670,8 +2812,9 @@ def _build_single_soldier(
 def build_soldiers(col: bpy.types.Collection | None = None, total_frames: int = TOTAL_FRAMES_DEFAULT) -> dict:
     """Build real 4K MakeHuman MPFB2 soldiers:
     - Hero_Soldier at (0,0,0), 1.80m, yaw=162 deg (+18 deg toward +X for 3/4 movie close-up!),
-      with MICH/FAST helmet, plate carrier vest, Beat 1 pin-pull + Beat 2 overhand throw (release f=134),
-      and exact `Hero_Grenade_Socket` Empty parented to `wrist.R` + pre-baked world coordinates f=1..134!
+      with MICH/FAST helmet, plate carrier vest, Beat 1 teeth pin-pull + Beat 2 overhand throw (release f=134),
+      exact `Hero_Grenade_Socket` Empty parented to `wrist.R` + pre-baked world coordinates f=1..134,
+      and exact `hero_mouth_world_positions` (evaluated `teeth_base` front-center) for f=1..108!
     - Enemy_A at (-0.78, 8.55, 0) & Enemy_B at (+0.82, 8.65, 0), dark slate-charcoal armor,
       guarding bunker (f=1..495), recoiling/diving (f=496..611), PG-13 slow-mo shockwave knockback (f=612..720)."""
     target_col = col if col is not None else bpy.context.scene.collection
@@ -2711,8 +2854,9 @@ def build_soldiers(col: bpy.types.Collection | None = None, total_frames: int = 
         eye_pt = hero["eye_center_rest"]
         catch.rotation_euler = _aim_euler(catch.location, eye_pt)
 
-    # Sample exact world positions & rotations of Hero_Grenade_Socket for frames 1..134!
+    # Sample exact world positions & rotations of Hero_Grenade_Socket (f=1..134) & teeth_base front-center (f=1..108)!
     socket_positions, socket_quats = _sample_socket_trajectory(grenade_socket, 1, RELEASE_FRAME)
+    mouth_positions = _sample_hero_mouth_trajectory(hero, 1, 108)
 
     return {
         "hero": hero,
@@ -2721,6 +2865,7 @@ def build_soldiers(col: bpy.types.Collection | None = None, total_frames: int = 
         "hero_grenade_socket": grenade_socket,
         "hero_socket_world_positions": socket_positions,
         "hero_socket_world_quats": socket_quats,
+        "hero_mouth_world_positions": mouth_positions,
         "release_frame": RELEASE_FRAME,
         "release_pos": socket_positions[RELEASE_FRAME],
         "grenade_landing_pos": GRENADE_LANDING_POS,

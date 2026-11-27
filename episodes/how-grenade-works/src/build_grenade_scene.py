@@ -136,31 +136,88 @@ def animate_grenade_world_path(
     hero_socket_positions: dict[int, Vector],
     release_frame: int = 134,
     total_frames: int = TOTAL_FRAMES,
+    hero_mouth_positions: dict[int, Vector] | None = None,
 ) -> None:
     """
     Seamlessly drives Grenade_Root from Hero Soldier's gripping right hand (f=1..134),
-    launches out of his palm into Matrix Bullet-Time mid-air X-Ray (f=134..440),
-    dives into the Enemy Sandbag Bunker (f=440..495) with a crisp dirt micro-hop (f=495..508),
-    and scales up the 48-shard blast burst cleanly at detonation (f=612..720) so fragments
-    read heroically from the wide 32mm Hollywood action camera!
+    orienting the chrome pull-ring (local -X, Z=+0.063) directly toward Hero's mouth/teeth
+    during the Beat 1 pin-pull (f=1..54), launches out of his palm into Matrix Bullet-Time
+    mid-air X-Ray (f=134..440), dives into the Enemy Sandbag Bunker (f=440..495) with a crisp
+    dirt micro-hop (f=495..508), and scales up the 48-shard blast burst cleanly at detonation
+    (f=612..720) so fragments read heroically from the wide 32mm Hollywood action camera!
     """
     rel_pos = Vector(hero_socket_positions.get(release_frame, (0.24, 0.42, 1.62)))
     bt_entry_pos = Vector(cinema_camera.grenade_pos_at(152))
 
-    # 1. Held in Hero's right hand (f = 1..134) — facing Beat 1 camera (+Y side) with pull ring toward Hero's mouth!
+    pin_pull_end = min(54, release_frame)
+    default_mouth = Vector(cinema_camera.HERO_MOUTH_LOCAL)
+    mouth_keys = sorted(hero_mouth_positions.keys()) if hero_mouth_positions else []
+
+    def _mouth_at(frame: int) -> Vector:
+        if hero_mouth_positions:
+            if frame in hero_mouth_positions:
+                return Vector(hero_mouth_positions[frame])
+            nearest = min(mouth_keys, key=lambda k: abs(k - frame))
+            return Vector(hero_mouth_positions[nearest])
+        return default_mouth.copy()
+
+    # 1. Held in Hero's right hand (f = 1..134)
+    #    - f = 1..54: orient local -X pull-ring (at local Z = +0.063) directly toward Hero's mouth/teeth!
+    #    - f = 55..134: steady hold -> athletic wind-up wrist tilt to release_frame.
+    prev_rot_z: float | None = None
+    last_pin_rot_y = math.radians(-10.0)
+    last_pin_rot_z = math.radians(158.0)
+
     for f in range(1, release_frame + 1):
         p = Vector(hero_socket_positions.get(f, rel_pos))
         grenade_root.location = p
-        # Rotate +162° Z so olive body faces Beat 1 camera & chrome pull-ring angles cleanly toward Hero's lips/teeth!
-        # Subtle wrist tilt during pin tug (f=24..56) and wind-up throw (f=108..134)
-        tilt_x = math.radians(8.0) if f <= 108 else math.radians(8.0 + 18.0 * _smoothstep((f - 108) / 26.0))
-        rot_z = math.radians(158.0)
-        grenade_root.rotation_euler = Euler((tilt_x, math.radians(-10.0), rot_z))
+
+        if f <= pin_pull_end:
+            mouth_p = _mouth_at(f)
+            pin_origin = p + Vector((0.0, 0.0, 0.063))
+            delta = mouth_p - pin_origin
+            horiz = math.hypot(delta.x, delta.y)
+            if horiz > 1e-4:
+                # Under XYZ Euler R_z(rz) @ R_y(ry) @ R_x(0), local -X maps to:
+                #   (-cos(rz)*cos(ry), -sin(rz)*cos(ry), +sin(ry))
+                # Setting rz = atan2(-dy, -dx) & ry = atan2(dz, horiz) aims local -X straight at Hero's teeth!
+                rot_z = math.atan2(-delta.y, -delta.x)
+                rot_y = max(
+                    math.radians(-20.0),
+                    min(math.radians(20.0), math.atan2(delta.z, max(horiz, 0.02))),
+                )
+            else:
+                rot_z = prev_rot_z if prev_rot_z is not None else math.radians(158.0)
+                rot_y = last_pin_rot_y
+
+            if prev_rot_z is not None:
+                while rot_z - prev_rot_z > math.pi:
+                    rot_z -= 2.0 * math.pi
+                while rot_z - prev_rot_z < -math.pi:
+                    rot_z += 2.0 * math.pi
+            prev_rot_z = rot_z
+            last_pin_rot_y = rot_y
+            last_pin_rot_z = rot_z
+            tilt_x = 0.0
+        else:
+            # Smoothly transition out of teeth-pull alignment into steady hold & overhand throw whip
+            u_settle = _smoothstep((f - pin_pull_end) / 18.0)
+            u_throw = _smoothstep((f - 108) / max(1.0, float(release_frame - 108))) if f > 108 else 0.0
+            tilt_x = math.radians(8.0 * u_settle + 18.0 * u_throw)
+            rot_y = last_pin_rot_y * (1.0 - u_throw) + math.radians(-10.0) * u_throw
+            rot_z = last_pin_rot_z
+
+        grenade_root.rotation_euler = Euler((tilt_x, rot_y, rot_z))
         grenade_root.scale = (1.0, 1.0, 1.0)
         grenade_root.keyframe_insert("location", frame=f)
         grenade_root.keyframe_insert("rotation_euler", frame=f)
         if f in (1, release_frame):
             grenade_root.keyframe_insert("scale", frame=f)
+
+    rel_rx = math.radians(26.0)
+    rel_ry = math.radians(-10.0)
+    rel_rz = last_pin_rot_z
+    bt_rz_base = round(rel_rz / (2.0 * math.pi)) * (2.0 * math.pi)
 
     # 2. Explosive release transition into Matrix Bullet-Time (f = 135..151)
     for f in range(release_frame + 1, 152):
@@ -169,12 +226,12 @@ def animate_grenade_world_path(
         p = rel_pos.lerp(bt_entry_pos, u)
         p.z += 0.22 * math.sin(math.pi * u)
         grenade_root.location = p
-        # Smoothly spin into front cutaway alignment (rot_z = 0°) facing the -Y bullet-time macro camera!
+        # Smoothly spin into front cutaway alignment (rot_z = 0° mod 360°) facing the -Y bullet-time macro camera!
         su = _smoothstep(u)
         grenade_root.rotation_euler = Euler((
-            math.radians(26.0 * (1.0 - su) + 4.0 * su),
-            math.radians(-10.0 * (1.0 - su)),
-            math.radians(158.0 * (1.0 - su)),
+            rel_rx * (1.0 - su) + math.radians(4.0) * su,
+            rel_ry * (1.0 - su),
+            rel_rz * (1.0 - su) + bt_rz_base * su,
         ))
         grenade_root.keyframe_insert("location", frame=f)
         grenade_root.keyframe_insert("rotation_euler", frame=f)
@@ -188,14 +245,13 @@ def animate_grenade_world_path(
             t_bt = (f - 152) / 288.0
             rx = math.radians(4.0 * math.cos(t_bt * math.pi * 1.5))
             ry = math.radians(5.0 * math.sin(t_bt * math.pi * 2.0))
-            rz = math.radians(3.0 * math.sin(t_bt * math.pi))
+            rz = bt_rz_base + math.radians(3.0 * math.sin(t_bt * math.pi))
         else:
             # Accelerating dive into enemy sandbag ground zero, stabilizing upright at landing
             u = (f - 440) / 55.0
-            su = _smoothstep(u)
             rx = math.radians(-12.0 * math.sin(math.pi * u))
             ry = math.radians(14.0 * math.sin(math.pi * u))
-            rz = math.radians(0.0 * su)
+            rz = bt_rz_base
         grenade_root.rotation_euler = Euler((rx, ry, rz))
         grenade_root.keyframe_insert("location", frame=f)
         grenade_root.keyframe_insert("rotation_euler", frame=f)
@@ -210,7 +266,7 @@ def animate_grenade_world_path(
             hop = 0.048 * math.sin(math.pi * u) * (1.0 - 0.35 * u)
             tilt = math.radians(14.0 * math.sin(math.pi * u))
         grenade_root.location = Vector((land_pos.x, land_pos.y, land_pos.z + hop))
-        grenade_root.rotation_euler = Euler((tilt, 0.0, 0.0))
+        grenade_root.rotation_euler = Euler((tilt, 0.0, bt_rz_base))
         grenade_root.keyframe_insert("location", frame=f)
         grenade_root.keyframe_insert("rotation_euler", frame=f)
 
@@ -233,7 +289,47 @@ def animate_grenade_world_path(
     _set_bezier(grenade_root)
 
 
-def _tune_beat6_explosion_cinematography(env_info: dict, grenade: dict) -> None:
+def _enforce_hidden_from_frame(
+    obj: bpy.types.Object,
+    hide_from: int = 600,
+    total_frames: int = TOTAL_FRAMES,
+) -> None:
+    """
+    Guarantee `obj` is hidden (`hide_viewport=True`, `hide_render=True`) for all frames `>= hide_from`
+    without clobbering any earlier visibility hide keys already set by `grenade_asset.py`.
+    """
+    prev_f = max(1, hide_from - 1)
+    for prop in ("hide_viewport", "hide_render"):
+        ad = obj.animation_data
+        fc = ad.action.fcurves.find(prop) if (ad and ad.action) else None
+        if fc is None:
+            setattr(obj, prop, False)
+            obj.keyframe_insert(prop, frame=1)
+            obj.keyframe_insert(prop, frame=prev_f)
+        else:
+            if fc.evaluate(prev_f) < 0.5:
+                setattr(obj, prop, False)
+                obj.keyframe_insert(prop, frame=prev_f)
+            for kp in fc.keyframe_points:
+                if kp.co.x >= hide_from:
+                    kp.co.y = 1.0
+        setattr(obj, prop, True)
+        obj.keyframe_insert(prop, frame=hide_from)
+        obj.keyframe_insert(prop, frame=total_frames)
+
+    ad = obj.animation_data
+    if ad and ad.action:
+        for fc in ad.action.fcurves:
+            if fc.data_path in ("hide_viewport", "hide_render"):
+                for kp in fc.keyframe_points:
+                    kp.interpolation = "CONSTANT"
+
+
+def _tune_beat6_explosion_cinematography(
+    env_info: dict,
+    grenade: dict,
+    total_frames: int = TOTAL_FRAMES,
+) -> None:
     """
     Prevent Beat 6 white-out while keeping dramatic Christopher-Nolan-style high-contrast
     fiery core + dark sunlit smoke plume + crisp flying iron shards + diving sentries!
@@ -258,6 +354,15 @@ def _tune_beat6_explosion_cinematography(env_info: dict, grenade: dict) -> None:
             o.animation_data_clear()
             o.hide_viewport = True
             o.hide_render = True
+
+    # 1b. Defensive Beat 6 guard: guarantee pull_pin (including chrome ring/cotter children) & spoon
+    #     are 100% hidden by f >= 600 so neither ever appears near the Beat 6 explosion!
+    parts = grenade.get("parts", {})
+    for part_key in ("pull_pin", "spoon"):
+        part_obj = parts.get(part_key)
+        if isinstance(part_obj, bpy.types.Object):
+            for o in [part_obj, *part_obj.children_recursive]:
+                _enforce_hidden_from_frame(o, hide_from=600, total_frames=total_frames)
 
     # 2. Clamp ALL explosion / flash / burn point lights in Beat 6 so sunlit desert & bunker stay richly exposed!
     for light_obj in bpy.data.objects:
@@ -307,110 +412,6 @@ def _tune_beat6_explosion_cinematography(env_info: dict, grenade: dict) -> None:
                     n.inputs["Color"].default_value = (1.0, 0.42, 0.04, 1.0)
 
 
-def build_sky_finale_title(col: bpy.types.Collection, total_frames: int = TOTAL_FRAMES) -> None:
-    """
-    AGENTS.md Section 2 Compliant World-Space 2-Zone Brushed-Gold Sky Monument Title for Beat 6 Finale
-    Cleanly placed in the open blue-gold sky above the bunker canopy (Z = 2.48m),
-    with generous horizontal margins and smooth camera-tracking yaw!
-    """
-    font = bpy.data.fonts.load(str(FONT_PATH)) if FONT_PATH.is_file() else None
-
-    mat_gold = bpy.data.materials.new("FinaleTitle_SatinGold")
-    mat_gold.use_nodes = True
-    nt = mat_gold.node_tree
-    nt.nodes.clear()
-    out = nt.nodes.new("ShaderNodeOutputMaterial")
-    geom = nt.nodes.new("ShaderNodeNewGeometry")
-    vt = nt.nodes.new("ShaderNodeVectorTransform")
-    vt.vector_type = "NORMAL"
-    vt.convert_from = "WORLD"
-    vt.convert_to = "OBJECT"
-    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
-    az = nt.nodes.new("ShaderNodeMath")
-    az.operation = "ABSOLUTE"
-    mr = nt.nodes.new("ShaderNodeMapRange")
-    mr.clamp = True
-    mr.inputs["From Min"].default_value = 0.82
-    mr.inputs["From Max"].default_value = 0.92
-    nt.links.new(geom.outputs["Normal"], vt.inputs["Vector"])
-    nt.links.new(vt.outputs["Vector"], sep.inputs["Vector"])
-    nt.links.new(sep.outputs["Z"], az.inputs[0])
-    nt.links.new(az.outputs["Value"], mr.inputs["Value"])
-
-    face = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    face.inputs["Base Color"].default_value = (1.0, 0.80, 0.24, 1.0)
-    face.inputs["Metallic"].default_value = 0.72
-    face.inputs["Roughness"].default_value = 0.24
-    face.inputs["Emission Color"].default_value = (1.0, 0.78, 0.22, 1.0)
-    face.inputs["Emission Strength"].default_value = 1.75
-
-    side = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    side.inputs["Base Color"].default_value = (0.04, 0.035, 0.03, 1.0)
-    side.inputs["Metallic"].default_value = 0.92
-    side.inputs["Roughness"].default_value = 0.30
-
-    mix = nt.nodes.new("ShaderNodeMixShader")
-    nt.links.new(mr.outputs["Result"], mix.inputs["Fac"])
-    nt.links.new(side.outputs["BSDF"], mix.inputs[1])
-    nt.links.new(face.outputs["BSDF"], mix.inputs[2])
-    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
-
-    mat_key = bpy.data.materials.new("FinaleTitle_ObsidianKeyline")
-    mat_key.use_nodes = True
-    bsdf_k = mat_key.node_tree.nodes["Principled BSDF"]
-    bsdf_k.inputs["Base Color"].default_value = (0.015, 0.018, 0.025, 1.0)
-    bsdf_k.inputs["Roughness"].default_value = 0.65
-
-    rig = bpy.data.objects.new("Finale_SkyTitle_Rig", None)
-    rig.location = Vector((0.0, 7.45, 2.38))
-    col.objects.link(rig)
-
-    for f, deg_z in [(614, -22.0), (634, -20.0), (676, 6.0), (total_frames, 26.0)]:
-        rig.rotation_euler = Euler((math.pi / 2.0, 0.0, math.radians(deg_z)))
-        rig.keyframe_insert("rotation_euler", frame=f)
-    _set_bezier(rig)
-
-    cdata = bpy.data.curves.new("Finale_SkyTitle", type="FONT")
-    cdata.body = "PRE-SCORED SHOCKWAVE"
-    if font:
-        cdata.font = font
-    cdata.size = 0.175
-    cdata.align_x = "CENTER"
-    cdata.align_y = "CENTER"
-    cdata.extrude = 0.010
-    cdata.bevel_depth = 0.0012
-    cdata.bevel_resolution = 2
-    tobj = bpy.data.objects.new("Finale_SkyTitle", cdata)
-    tobj.data.materials.append(mat_gold)
-    tobj.parent = rig
-    col.objects.link(tobj)
-
-    kdata = bpy.data.curves.new("Finale_SkyTitle_Keyline", type="FONT")
-    kdata.body = "PRE-SCORED SHOCKWAVE"
-    if font:
-        kdata.font = font
-    kdata.size = 0.175
-    kdata.align_x = "CENTER"
-    kdata.align_y = "CENTER"
-    kdata.extrude = 0.007
-    kdata.offset = 0.009
-    kobj = bpy.data.objects.new("Finale_SkyTitle_Keyline", kdata)
-    kobj.location = Vector((0.0, 0.0, -0.014))
-    kobj.data.materials.append(mat_key)
-    kobj.parent = rig
-    col.objects.link(kobj)
-
-    for o in (tobj, kobj):
-        for f, hidden in [(1, True), (620, True), (622, False), (total_frames, False)]:
-            o.hide_viewport = hidden
-            o.hide_render = hidden
-            o.keyframe_insert("hide_viewport", frame=f)
-            o.keyframe_insert("hide_render", frame=f)
-        for fc in o.animation_data.action.fcurves:
-            for kp in fc.keyframe_points:
-                kp.interpolation = "CONSTANT"
-
-
 def build_master_scene(samples: int, scale: int, device: str) -> None:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     configure_render(samples=samples, scale=scale, device=device)
@@ -452,10 +453,11 @@ def build_master_scene(samples: int, scale: int, device: str) -> None:
         hero_socket_positions=soldiers["hero_socket_world_positions"],
         release_frame=soldiers["release_frame"],
         total_frames=TOTAL_FRAMES,
+        hero_mouth_positions=soldiers.get("hero_mouth_world_positions"),
     )
 
     # Tune Beat 1 handheld label cleanliness & Beat 6 Hollywood explosion contrast (zero white-out!)
-    _tune_beat6_explosion_cinematography(env_info, grenade)
+    _tune_beat6_explosion_cinematography(env_info, grenade, total_frames=TOTAL_FRAMES)
 
     mac_l = bpy.data.lights.new("Grenade_Macro_Key", type="AREA")
     mac_l.shape = "DISK"
@@ -470,10 +472,7 @@ def build_master_scene(samples: int, scale: int, device: str) -> None:
         mac_l.energy = e
         mac_l.keyframe_insert("energy", frame=f)
 
-    # 4. World-Space Beat 6 Open-Sky Monument Title
-    build_sky_finale_title(col=col_grenade, total_frames=TOTAL_FRAMES)
-
-    # 5. Hollywood 6-Beat Cinema Camera Rig
+    # 4. Hollywood 6-Beat Cinema Camera Rig
     cinema_camera.build_cinema_camera(
         col=col_cam,
         grenade_root=grenade["root"],

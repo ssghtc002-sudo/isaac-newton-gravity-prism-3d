@@ -1017,11 +1017,11 @@ def _build_materials(
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     mats["hot_edge"] = m_hot
 
-    # 19. 2-Zone Brushed Satin-Gold / Cyan / Amber 3D Typography (AGENTS.md Section 2!)
+    # 19. 2-Zone High-Contrast 3D Typography + Dark Obsidian Plaque (AGENTS.md Section 2!)
     def make_3d_text_mat(
         name: str,
         face_col: tuple[float, float, float],
-        emit_strength: float = 1.85,
+        emit_strength: float = 1.65,
     ) -> bpy.types.Material:
         mat = bpy.data.materials.new(nm(name))
         mat.use_nodes = True
@@ -1029,7 +1029,7 @@ def _build_materials(
         nt.nodes.clear()
         out = nt.nodes.new("ShaderNodeOutputMaterial")
 
-        # Object-Space |N.z| > 0.85 separates crisp satin face from dark obsidian-bronze sides
+        # Object-Space |N.z| > 0.85 separates crisp luminous face from dark obsidian sides
         geom = nt.nodes.new("ShaderNodeNewGeometry")
         vec_t = nt.nodes.new("ShaderNodeVectorTransform")
         vec_t.vector_type = "NORMAL"
@@ -1050,15 +1050,16 @@ def _build_materials(
 
         face_bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
         face_bsdf.inputs["Base Color"].default_value = (*face_col, 1.0)
-        face_bsdf.inputs["Metallic"].default_value = 0.62
-        face_bsdf.inputs["Roughness"].default_value = 0.24
+        face_bsdf.inputs["Metallic"].default_value = 0.10
+        face_bsdf.inputs["Roughness"].default_value = 0.34
+        face_bsdf.inputs["Specular IOR Level"].default_value = 0.18
         face_bsdf.inputs["Emission Color"].default_value = (*face_col, 1.0)
         face_bsdf.inputs["Emission Strength"].default_value = emit_strength
 
         side_bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-        side_bsdf.inputs["Base Color"].default_value = (0.025, 0.028, 0.036, 1.0)
-        side_bsdf.inputs["Metallic"].default_value = 0.90
-        side_bsdf.inputs["Roughness"].default_value = 0.30
+        side_bsdf.inputs["Base Color"].default_value = (0.010, 0.014, 0.022, 1.0)
+        side_bsdf.inputs["Metallic"].default_value = 0.78
+        side_bsdf.inputs["Roughness"].default_value = 0.36
 
         mix = nt.nodes.new("ShaderNodeMixShader")
         nt.links.new(mask.outputs["Result"], mix.inputs["Fac"])
@@ -1067,33 +1068,52 @@ def _build_materials(
         nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
         return mat
 
-    mats["text_gold"] = make_3d_text_mat("Text3D_SatinGold", (1.0, 0.82, 0.28), 1.88)
-    mats["text_cyan"] = make_3d_text_mat("Text3D_CyanTech", (0.28, 0.88, 1.0), 1.92)
-    mats["text_amber"] = make_3d_text_mat("Text3D_AmberAlert", (1.0, 0.48, 0.10), 2.00)
+    # Pure crisp bright white component labels (AgX-safe 1.65 emission, zero bloom blow-out!)
+    mats["text_white"] = make_3d_text_mat("Text3D_CrispWhite", (0.98, 0.99, 1.0), 1.65)
+    # Vivid gold-amber countdown digits (AgX-safe 1.85 emission, rich saturated amber-gold!)
+    mats["text_countdown_gold"] = make_3d_text_mat("Text3D_CountdownGold", (1.0, 0.64, 0.04), 1.85)
+    mats["text_countdown_amber"] = make_3d_text_mat("Text3D_CountdownAmber", (1.0, 0.40, 0.02), 1.92)
+    # Retained accent typography presets for compatibility
+    mats["text_gold"] = make_3d_text_mat("Text3D_SatinGold", (1.0, 0.64, 0.04), 1.85)
+    mats["text_cyan"] = make_3d_text_mat("Text3D_CyanTech", (0.08, 0.86, 1.0), 1.75)
+    mats["text_amber"] = make_3d_text_mat("Text3D_AmberAlert", (1.0, 0.40, 0.02), 1.92)
 
-    # Dark obsidian keyline backing
+    # Matte Dark Obsidian Glass Backing Plaque (>15:1 contrast even against bright sunlit desert sand!)
+    m_plaque = bpy.data.materials.new(nm("Text3D_Obsidian_Plaque"))
+    m_plaque.use_nodes = True
+    bsdf_p = m_plaque.node_tree.nodes["Principled BSDF"]
+    bsdf_p.inputs["Base Color"].default_value = (0.008, 0.012, 0.020, 1.0)
+    bsdf_p.inputs["Metallic"].default_value = 0.08
+    bsdf_p.inputs["Roughness"].default_value = 0.45
+    bsdf_p.inputs["Specular IOR Level"].default_value = 0.10
+    bsdf_p.inputs["Coat Weight"].default_value = 0.0
+    mats["plaque_obsidian"] = m_plaque
+
+    # Dark obsidian keyline & pointer outer backing sleeve
     m_keyline = bpy.data.materials.new(nm("Text3D_Obsidian_Keyline"))
     m_keyline.use_nodes = True
     bsdf = m_keyline.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (0.008, 0.010, 0.016, 1.0)
-    bsdf.inputs["Metallic"].default_value = 0.22
-    bsdf.inputs["Roughness"].default_value = 0.62
+    bsdf.inputs["Base Color"].default_value = (0.006, 0.009, 0.015, 1.0)
+    bsdf.inputs["Metallic"].default_value = 0.06
+    bsdf.inputs["Roughness"].default_value = 0.48
+    bsdf.inputs["Specular IOR Level"].default_value = 0.08
     mats["text_keyline"] = m_keyline
 
-    # Sleek Glowing Cyan & Gold Pointer Leader Lines (AgX-safe emission!)
+    # Crisp Glowing Cyan & Gold Pointer Leader Lines & Plaque Accent Bars (AgX-safe emission!)
     def make_pointer_mat(name: str, col_rgb: tuple[float, float, float], emit_s: float) -> bpy.types.Material:
         mat = bpy.data.materials.new(nm(name))
         mat.use_nodes = True
         bsdf = mat.node_tree.nodes["Principled BSDF"]
         bsdf.inputs["Base Color"].default_value = (*col_rgb, 1.0)
-        bsdf.inputs["Metallic"].default_value = 0.45
-        bsdf.inputs["Roughness"].default_value = 0.20
+        bsdf.inputs["Metallic"].default_value = 0.15
+        bsdf.inputs["Roughness"].default_value = 0.28
         bsdf.inputs["Emission Color"].default_value = (*col_rgb, 1.0)
         bsdf.inputs["Emission Strength"].default_value = emit_s
         return mat
 
-    mats["pointer_cyan"] = make_pointer_mat("Pointer_Line_Cyan", (0.22, 0.88, 1.0), 2.10)
-    mats["pointer_gold"] = make_pointer_mat("Pointer_Line_Gold", (1.0, 0.78, 0.22), 2.05)
+    mats["pointer_cyan"] = make_pointer_mat("Pointer_Line_Cyan", (0.06, 0.84, 1.0), 2.05)
+    mats["pointer_gold"] = make_pointer_mat("Pointer_Line_Gold", (1.0, 0.66, 0.06), 2.05)
+    mats["pointer_amber"] = make_pointer_mat("Pointer_Line_Amber", (1.0, 0.42, 0.03), 2.10)
 
     return mats, shader_nodes
 
@@ -1978,6 +1998,59 @@ def _build_optics_fx(
 # ==============================================================================
 # CRISP 3D ENGINEERING COMPONENT LABELS + GLOWING POINTER LEADER LINES
 # ==============================================================================
+def _make_rounded_plaque_bm(
+    width: float,
+    height: float,
+    thickness: float,
+    corner_r: float,
+    corner_segs: int = 6,
+    bevel_w: float = 0.00026,
+) -> bmesh.types.BMesh:
+    """
+    Build a sleek chamfered rounded-rectangle backing plaque centered at (0, 0, 0) in XY
+    with mathematically exact uniform perimeter bevels (zero n-gon bevel artifacts).
+    """
+    bm = bmesh.new()
+    hw = max(0.0012, 0.5 * width)
+    hh = max(0.0006, 0.5 * height)
+    r = min(corner_r, hw * 0.45, hh * 0.45)
+    hz = 0.5 * thickness
+    b = min(bevel_w, hz * 0.45, r * 0.45)
+
+    # Perimeter points (x, y) and exact outward 2D unit normals (nx, ny) going CCW
+    pts_2d: list[tuple[float, float, float, float]] = []
+    corners = [
+        (hw - r, hh - r, 0.0, 0.5 * math.pi),
+        (-hw + r, hh - r, 0.5 * math.pi, math.pi),
+        (-hw + r, -hh + r, math.pi, 1.5 * math.pi),
+        (hw - r, -hh + r, 1.5 * math.pi, 2.0 * math.pi),
+    ]
+    for cx, cy, a0, a1 in corners:
+        for s in range(corner_segs + 1):
+            a = _lerp(a0, a1, s / corner_segs)
+            ca, sa = math.cos(a), math.sin(a)
+            pts_2d.append((cx + r * ca, cy + r * sa, ca, sa))
+
+    n_pts = len(pts_2d)
+    r_bi = [bm.verts.new((x - b * nx, y - b * ny, -hz)) for x, y, nx, ny in pts_2d]
+    r_bo = [bm.verts.new((x, y, -hz + b)) for x, y, nx, ny in pts_2d]
+    r_fo = [bm.verts.new((x, y, +hz - b)) for x, y, nx, ny in pts_2d]
+    r_fi = [bm.verts.new((x - b * nx, y - b * ny, +hz)) for x, y, nx, ny in pts_2d]
+
+    for ring_a, ring_b in ((r_bi, r_bo), (r_bo, r_fo), (r_fo, r_fi)):
+        for i in range(n_pts):
+            inext = (i + 1) % n_pts
+            f = bm.faces.new((ring_a[i], ring_a[inext], ring_b[inext], ring_b[i]))
+            f.smooth = True
+
+    f_front = bm.faces.new(r_fi)
+    f_front.smooth = False
+    f_back = bm.faces.new(r_bi[::-1])
+    f_back.smooth = False
+
+    return bm
+
+
 def _build_3d_labels(
     mats: dict[str, bpy.types.Material],
     col: bpy.types.Collection,
@@ -1986,8 +2059,9 @@ def _build_3d_labels(
     prefix: str = "",
 ) -> dict[str, Any]:
     """
-    Build all 3D engineering callouts, pointer leader lines + target dots, and live
-    Beat 4 countdown numbers, ALL parented directly to `Grenade_Root` so they travel
+    Build all 3D engineering callouts, chamfered dark obsidian backing plaques with
+    glowing accent bars, dark-rimmed pointer leader lines + target dots, and live
+    Beat 4 countdown badges — ALL parented directly to `Grenade_Root` so they travel
     in lockstep with the grenade at any world transform!
     """
     resolved_font = Path(font_path) if font_path else FONT_PATH
@@ -2002,10 +2076,11 @@ def _build_3d_labels(
         text_pos: tuple[float, float, float],
         size: float,
         text_mat: bpy.types.Material,
+        accent_mat: bpy.types.Material | None = None,
         pointer_mat: bpy.types.Material | None = None,
         pointer_pts: list[tuple[float, float, float]] | None = None,
-        shelf_span: tuple[float, float, float, float] | None = None,
         align_x: str = "CENTER",
+        is_countdown: bool = False,
     ) -> dict[str, Any]:
         rig = bpy.data.objects.new(nm(f"LabelRig_{key}"), None)
         rig.location = Vector((0.0, 0.0, 0.0))
@@ -2026,16 +2101,18 @@ def _build_3d_labels(
         cdata.size = size
         cdata.align_x = align_x
         cdata.align_y = "CENTER"
-        cdata.extrude = size * 0.078
-        cdata.bevel_depth = size * 0.011
+        cdata.extrude = size * 0.048
+        cdata.bevel_depth = size * 0.0075
         cdata.bevel_resolution = 2
-        cdata.space_character = 1.04
+        cdata.space_character = 1.03
+        cdata.space_line = 1.12
         tobj = bpy.data.objects.new(nm(f"Text_{key}"), cdata)
         tobj.data.materials.append(text_mat)
         tobj.parent = text_anchor
+        tobj.visible_shadow = False
         _link_obj(tobj, col)
 
-        # Dark obsidian keyline backing recessed behind text (+Y in Grenade_Root = -Z in text_anchor)
+        # Subtle dark obsidian keyline backing immediately behind letters for crisp glyph separation
         kdata = bpy.data.curves.new(nm(f"TextKeyline_{key}"), type="FONT")
         kdata.body = text
         if font:
@@ -2043,50 +2120,235 @@ def _build_3d_labels(
         kdata.size = size
         kdata.align_x = align_x
         kdata.align_y = "CENTER"
-        kdata.extrude = size * 0.055
-        kdata.offset = size * 0.068
-        kdata.space_character = 1.04
+        kdata.extrude = size * 0.032
+        kdata.offset = size * 0.045
+        kdata.space_character = 1.03
+        kdata.space_line = 1.12
         kobj = bpy.data.objects.new(nm(f"TextKeyline_{key}"), kdata)
-        kobj.location = Vector((0.0, 0.0, -size * 0.14))
+        kobj.location = Vector((0.0, 0.0, -0.00055))
         kobj.data.materials.append(mats["text_keyline"])
         kobj.parent = text_anchor
+        kobj.visible_shadow = False
         _link_obj(kobj, col)
 
+        # Evaluate exact tight 2D glyph bounds in text_anchor local space for precision plaque sizing
+        bpy.context.view_layer.update()
+        bb_xs = [v[0] for v in tobj.bound_box]
+        bb_ys = [v[1] for v in tobj.bound_box]
+        min_x, max_x = min(bb_xs), max(bb_xs)
+        min_y, max_y = min(bb_ys), max(bb_ys)
+        text_w = max_x - min_x
+        text_h = max_y - min_y
+        if text_w < 1e-4 or text_h < 1e-4:
+            lines = text.splitlines() or [text]
+            text_w = max(len(ln) for ln in lines) * size * 0.68
+            text_h = len(lines) * size * 1.10
+            min_x, max_x = -0.5 * text_w, 0.5 * text_w
+            min_y, max_y = -0.5 * text_h, 0.5 * text_h
+
+        # Sleek Chamfered Dark Obsidian Glass Backing Plaque (0.0018m behind text, >15:1 contrast!)
+        plaque_objs: list[bpy.types.Object] = []
+        pad_r = max(0.0036, size * 0.54)
+        pad_l = pad_r if is_countdown else (pad_r + 0.0020)
+        pad_y_top = max(0.0026, size * (0.34 if is_countdown else 0.42))
+        pad_y_bot = max(0.0036, size * (0.40 if is_countdown else 0.58))
+        plaque_w = text_w + pad_l + pad_r
+        plaque_h = text_h + pad_y_top + pad_y_bot
+        plaque_thick = 0.0014 if is_countdown else 0.0011
+        plaque_front_z = -0.0018
+        plaque_center_x = 0.5 * ((min_x - pad_l) + (max_x + pad_r))
+        plaque_center_y = 0.5 * ((min_y - pad_y_bot) + (max_y + pad_y_top))
+        corner_r = min(plaque_h * 0.30, 0.0034 if is_countdown else 0.0026)
+
+        plaque_bm = _make_rounded_plaque_bm(
+            width=plaque_w,
+            height=plaque_h,
+            thickness=plaque_thick,
+            corner_r=corner_r,
+            corner_segs=6,
+            bevel_w=0.00026,
+        )
+        plaque_obj = _create_mesh_obj(
+            nm(f"TextPlaque_{key}"),
+            plaque_bm,
+            mats["plaque_obsidian"],
+            col,
+            parent=text_anchor,
+            location=(plaque_center_x, plaque_center_y, plaque_front_z - 0.5 * plaque_thick),
+            smooth_all=None,
+        )
+        plaque_obj.visible_shadow = False
+        plaque_objs.append(plaque_obj)
+
+        # Thin glowing cyan / gold rim accent bar(s) flush on front of the dark obsidian plaque
+        bar_mat = accent_mat or pointer_mat or mats["pointer_gold"]
+        if is_countdown:
+            # Symmetrical gold/amber bottom & top HUD accent bars on countdown badge
+            bot_bar_bm = _make_rounded_plaque_bm(
+                width=max(0.006, plaque_w - 2.2 * corner_r),
+                height=0.00110,
+                thickness=0.00055,
+                corner_r=0.00045,
+                corner_segs=4,
+                bevel_w=0.00014,
+            )
+            bot_bar = _create_mesh_obj(
+                nm(f"TextPlaqueBarBot_{key}"),
+                bot_bar_bm,
+                bar_mat,
+                col,
+                parent=text_anchor,
+                location=(
+                    plaque_center_x,
+                    plaque_center_y - 0.5 * plaque_h + 0.00130,
+                    plaque_front_z + 0.00018,
+                ),
+                smooth_all=None,
+            )
+            bot_bar.visible_shadow = False
+            plaque_objs.append(bot_bar)
+
+            top_bar_bm = _make_rounded_plaque_bm(
+                width=max(0.005, (plaque_w - 2.2 * corner_r) * 0.56),
+                height=0.00062,
+                thickness=0.00045,
+                corner_r=0.00028,
+                corner_segs=4,
+                bevel_w=0.00010,
+            )
+            top_bar = _create_mesh_obj(
+                nm(f"TextPlaqueBarTop_{key}"),
+                top_bar_bm,
+                bar_mat,
+                col,
+                parent=text_anchor,
+                location=(
+                    plaque_center_x,
+                    plaque_center_y + 0.5 * plaque_h - 0.00110,
+                    plaque_front_z + 0.00016,
+                ),
+                smooth_all=None,
+            )
+            top_bar.visible_shadow = False
+            plaque_objs.append(top_bar)
+        else:
+            # Sleek left vertical accent pill bar + thin bottom glowing trim bar (Kurzgesagt / Apple Keynote HUD!)
+            left_bar_bm = _make_rounded_plaque_bm(
+                width=0.00095,
+                height=max(0.003, plaque_h * 0.62),
+                thickness=0.00050,
+                corner_r=0.00042,
+                corner_segs=4,
+                bevel_w=0.00010,
+            )
+            left_bar = _create_mesh_obj(
+                nm(f"TextPlaqueBarLeft_{key}"),
+                left_bar_bm,
+                bar_mat,
+                col,
+                parent=text_anchor,
+                location=(
+                    plaque_center_x - 0.5 * plaque_w + 0.00195,
+                    plaque_center_y + 0.00035,
+                    plaque_front_z + 0.00018,
+                ),
+                smooth_all=None,
+            )
+            left_bar.visible_shadow = False
+            plaque_objs.append(left_bar)
+
+            bot_trim_bm = _make_rounded_plaque_bm(
+                width=max(0.006, plaque_w - 2.2 * corner_r),
+                height=0.00060,
+                thickness=0.00044,
+                corner_r=0.00024,
+                corner_segs=4,
+                bevel_w=0.00010,
+            )
+            bot_trim = _create_mesh_obj(
+                nm(f"TextPlaqueBarBot_{key}"),
+                bot_trim_bm,
+                bar_mat,
+                col,
+                parent=text_anchor,
+                location=(
+                    plaque_center_x,
+                    plaque_center_y - 0.5 * plaque_h + 0.00090,
+                    plaque_front_z + 0.00015,
+                ),
+                smooth_all=None,
+            )
+            bot_trim.visible_shadow = False
+            plaque_objs.append(bot_trim)
+
+        # Crisp Dark-Rimmed Glowing Pointer Leader Lines + Target Dot + Reticle
         pointer_objs: list[bpy.types.Object] = []
         if pointer_pts and len(pointer_pts) >= 2 and pointer_mat is not None:
             pts_v = [Vector(p) for p in pointer_pts]
-            line_bm = _make_tube_along_path_bm(pts_v, radius=0.00038, n_seg=8, cap_ends=True)
+            # Bright glowing core tube (~1.53x thicker than V2 for razor-crisp mobile readability!)
+            line_bm = _make_tube_along_path_bm(pts_v, radius=0.00058, n_seg=10, cap_ends=True)
             line_obj = _create_mesh_obj(
                 nm(f"PointerLine_{key}"), line_bm, pointer_mat, col, parent=rig,
             )
+            line_obj.visible_shadow = False
             pointer_objs.append(line_obj)
 
-            if shelf_span is not None:
-                x0, x1, sy, sz = shelf_span
-                sh_bm = _make_tube_along_path_bm(
-                    [Vector((x0, sy, sz)), Vector((x1, sy, sz))],
-                    radius=0.00038, n_seg=8, cap_ends=True,
-                )
-                sh_obj = _create_mesh_obj(
-                    nm(f"PointerShelf_{key}"), sh_bm, pointer_mat, col, parent=rig,
-                )
-                pointer_objs.append(sh_obj)
+            # Dark obsidian backing outline sleeve directly behind leader line (+0.00080m in +Y)
+            sleeve_pts = [p + Vector((0.0, 0.00080, 0.0)) for p in pts_v]
+            sleeve_bm = _make_tube_along_path_bm(sleeve_pts, radius=0.00108, n_seg=10, cap_ends=True)
+            sleeve_obj = _create_mesh_obj(
+                nm(f"PointerSleeve_{key}"), sleeve_bm, mats["plaque_obsidian"], col, parent=rig,
+            )
+            sleeve_obj.visible_shadow = False
+            pointer_objs.append(sleeve_obj)
 
-            # Glowing endpoint dot at component anchor (pts_v[0])
+            # Clean machined elbow spheres at any intermediate vertices
+            for j_idx, jp in enumerate(pts_v[1:-1]):
+                jb_bm = bmesh.new()
+                bmesh.ops.create_icosphere(jb_bm, subdivisions=2, radius=0.00072)
+                jb_obj = _create_mesh_obj(
+                    nm(f"PointerJoint_{key}_{j_idx}"), jb_bm, pointer_mat, col,
+                    parent=rig, location=jp,
+                )
+                jb_obj.visible_shadow = False
+                pointer_objs.append(jb_obj)
+
+                js_bm = bmesh.new()
+                bmesh.ops.create_icosphere(js_bm, subdivisions=2, radius=0.00118)
+                js_obj = _create_mesh_obj(
+                    nm(f"PointerJointBg_{key}_{j_idx}"), js_bm, mats["plaque_obsidian"], col,
+                    parent=rig, location=jp + Vector((0.0, 0.00080, 0.0)),
+                )
+                js_obj.visible_shadow = False
+                pointer_objs.append(js_obj)
+
+            # Sharp bright glowing target dot right on the mechanical component (pts_v[0])
             dot_bm = bmesh.new()
-            bmesh.ops.create_icosphere(dot_bm, subdivisions=2, radius=0.00110)
+            bmesh.ops.create_icosphere(dot_bm, subdivisions=2, radius=0.00145)
             dot_obj = _create_mesh_obj(
                 nm(f"PointerDot_{key}"), dot_bm, pointer_mat, col,
                 parent=rig, location=pts_v[0],
             )
+            dot_obj.visible_shadow = False
             pointer_objs.append(dot_obj)
 
-            # Subtle precision reticle ring around target dot facing -Y camera
-            ret_bm = _make_torus_bm(0.00205, 0.00024, major_seg=24, minor_seg=8)
+            # Dark obsidian backing ring behind target reticle so dot pops even on bright brass/sand!
+            ret_bg_bm = _make_torus_bm(0.00245, 0.00062, major_seg=28, minor_seg=10)
+            ret_bg_obj = _create_mesh_obj(
+                nm(f"PointerReticleBg_{key}"), ret_bg_bm, mats["plaque_obsidian"], col,
+                parent=rig, location=pts_v[0] + Vector((0.0, 0.00075, 0.0)),
+                rotation=(math.pi / 2.0, 0.0, 0.0),
+            )
+            ret_bg_obj.visible_shadow = False
+            pointer_objs.append(ret_bg_obj)
+
+            # Precision glowing reticle ring around target dot facing -Y camera
+            ret_bm = _make_torus_bm(0.00245, 0.00034, major_seg=28, minor_seg=10)
             ret_obj = _create_mesh_obj(
                 nm(f"PointerReticle_{key}"), ret_bm, pointer_mat, col,
                 parent=rig, location=pts_v[0], rotation=(math.pi / 2.0, 0.0, 0.0),
             )
+            ret_obj.visible_shadow = False
             pointer_objs.append(ret_obj)
 
         return {
@@ -2094,8 +2356,9 @@ def _build_3d_labels(
             "text_anchor": text_anchor,
             "text_obj": tobj,
             "keyline_obj": kobj,
+            "plaque_objs": plaque_objs,
             "pointer_objs": pointer_objs,
-            "all_objs": [tobj, kobj] + pointer_objs,
+            "all_objs": [tobj, kobj] + plaque_objs + pointer_objs,
         }
 
     labels: dict[str, Any] = {}
@@ -2103,29 +2366,30 @@ def _build_3d_labels(
     # 1. SAFETY PIN (points to pull pin/ring on -X side, Beat 1/2)
     labels["safety_pin"] = make_label_with_pointer(
         "SafetyPin", "SAFETY PIN",
-        text_pos=(-0.024, -0.004, 0.091),
-        size=0.0054,
-        text_mat=mats["text_gold"],
+        text_pos=(-0.016, -0.004, 0.095),
+        size=0.0074,
+        text_mat=mats["text_white"],
+        accent_mat=mats["pointer_gold"],
         pointer_mat=mats["pointer_gold"],
         pointer_pts=[
             (-0.024, -0.0035, 0.0645),
-            (-0.024, -0.0045, 0.085),
+            (-0.024, -0.0020, 0.0915),
         ],
-        shelf_span=(-0.042, -0.006, -0.0045, 0.085),
         align_x="CENTER",
     )
 
-    # 2. SAFETY LEVER (SPOON) (points directly onto curved spoon front contour, Beat 2)
+    # 2. SAFETY LEVER (SPOON) — clean mid-bottom-right, strictly above bottom subtitle bar (Z >= -0.052)!
     labels["safety_lever"] = make_label_with_pointer(
         "SafetyLever", "SAFETY LEVER (SPOON)",
-        text_pos=(0.006, -0.004, -0.056),
-        size=0.0046,
-        text_mat=mats["text_cyan"],
+        text_pos=(0.006, -0.004, -0.050),
+        size=0.0063,
+        text_mat=mats["text_white"],
+        accent_mat=mats["pointer_cyan"],
         pointer_mat=mats["pointer_cyan"],
         pointer_pts=[
             (0.0460, -0.0045, -0.008),
-            (0.0460, -0.0045, -0.049),
-            (-0.024, -0.0045, -0.049),
+            (0.0460, -0.0032, -0.050),
+            (0.0355, -0.0020, -0.050),
         ],
         align_x="CENTER",
     )
@@ -2133,59 +2397,59 @@ def _build_3d_labels(
     # 3. TORSION SPRING (points straight to gleaming 6-coil helical spring top-right, Beat 2–3)
     labels["torsion_spring"] = make_label_with_pointer(
         "TorsionSpring", "TORSION SPRING",
-        text_pos=(0.015, -0.004, 0.092),
-        size=0.0052,
-        text_mat=mats["text_gold"],
+        text_pos=(0.006, -0.004, 0.096),
+        size=0.0072,
+        text_mat=mats["text_white"],
+        accent_mat=mats["pointer_gold"],
         pointer_mat=mats["pointer_gold"],
         pointer_pts=[
             (0.0090, -0.0052, 0.0650),
-            (0.015, -0.0045, 0.086),
+            (0.0110, -0.0020, 0.0925),
         ],
-        shelf_span=(-0.009, 0.039, -0.0045, 0.086),
         align_x="CENTER",
     )
 
-    # 4. STRIKER HAMMER (points to striker hammer top-left, Beat 3)
+    # 4. STRIKER HAMMER (points to striker hammer top-center/left, Beat 3 tight 60.5mm punch-in!)
     labels["striker_hammer"] = make_label_with_pointer(
         "StrikerHammer", "STRIKER HAMMER",
-        text_pos=(-0.014, -0.004, 0.092),
-        size=0.0052,
-        text_mat=mats["text_gold"],
+        text_pos=(-0.005, -0.004, 0.096),
+        size=0.0072,
+        text_mat=mats["text_white"],
+        accent_mat=mats["pointer_gold"],
         pointer_mat=mats["pointer_gold"],
         pointer_pts=[
             (-0.0030, -0.0045, 0.0695),
-            (-0.014, -0.0045, 0.086),
+            (-0.0050, -0.0020, 0.0925),
         ],
-        shelf_span=(-0.038, 0.010, -0.0045, 0.086),
         align_x="CENTER",
     )
 
-    # 5. BRASS PRIMER (points directly to gleaming percussion primer cap center, Beat 3)
+    # 5. BRASS PRIMER — crisp 2-line badge tucked cleanly to right of neck inside tight Beat 3 frame!
     labels["brass_primer"] = make_label_with_pointer(
-        "BrassPrimer", "BRASS PRIMER",
-        text_pos=(0.034, -0.004, 0.053),
-        size=0.0048,
-        text_mat=mats["text_cyan"],
+        "BrassPrimer", "BRASS\nPRIMER",
+        text_pos=(0.038, -0.004, 0.050),
+        size=0.0066,
+        text_mat=mats["text_white"],
+        accent_mat=mats["pointer_cyan"],
         pointer_mat=mats["pointer_cyan"],
         pointer_pts=[
-            (0.0052, -0.0050, 0.0470),
-            (0.053, -0.0045, 0.0470),
+            (0.0052, -0.0052, 0.0470),
+            (0.0245, -0.0020, 0.0470),
         ],
         align_x="CENTER",
     )
 
-    # 6. 4-SEC DELAY FUSE (points to glowing machined brass column, Beat 4)
+    # 6. 4-SEC DELAY FUSE — upper-mid-right (Z = +0.028), in front of X-ray shell (Y = -0.031) & clear of subtitles!
     labels["delay_fuse"] = make_label_with_pointer(
-        "DelayFuse", "4-SEC DELAY FUSE",
-        text_pos=(0.000, -0.004, -0.056),
-        size=0.0050,
-        text_mat=mats["text_gold"],
+        "DelayFuse", "4-SEC\nDELAY FUSE",
+        text_pos=(0.036, -0.031, 0.028),
+        size=0.0066,
+        text_mat=mats["text_white"],
+        accent_mat=mats["pointer_gold"],
         pointer_mat=mats["pointer_gold"],
         pointer_pts=[
-            (0.0076, -0.0055, 0.0180),
-            (0.026, -0.0050, 0.0180),
-            (0.026, -0.0045, -0.049),
-            (-0.026, -0.0045, -0.049),
+            (0.0076, -0.0085, 0.0260),
+            (0.0175, -0.0290, 0.0260),
         ],
         align_x="CENTER",
     )
@@ -2193,36 +2457,38 @@ def _build_3d_labels(
     # 7. PRE-SCORED SHELL (points to internal diamond V-grooves, Beat 5–6)
     labels["pre_scored_shell"] = make_label_with_pointer(
         "PreScoredShell", "PRE-SCORED SHELL",
-        text_pos=(0.0, -0.004, 0.094),
-        size=0.0054,
-        text_mat=mats["text_gold"],
+        text_pos=(0.0, -0.004, 0.096),
+        size=0.0074,
+        text_mat=mats["text_white"],
+        accent_mat=mats["pointer_gold"],
         pointer_mat=mats["pointer_gold"],
         pointer_pts=[
-            (-0.025, -0.0020, 0.022),
-            (-0.028, -0.0045, 0.087),
-            (0.028, -0.0045, 0.087),
+            (-0.024, -0.0020, 0.024),
+            (-0.024, -0.0020, 0.0925),
         ],
         align_x="CENTER",
     )
 
-    # 8. Live 3D Countdown ("4.0 s", "3.0 s", "2.0 s", "1.0 s", "0.0 s") cleanly above grenade!
+    # 8. Live 3D Countdown ("4.0 s" .. "0.0 s") on sleek dark obsidian HUD pill cleanly above grenade!
     countdown: dict[str, dict[str, Any]] = {}
-    for step_key, body, mat_key in (
-        ("4.0", "4.0 s", "text_gold"),
-        ("3.0", "3.0 s", "text_gold"),
-        ("2.0", "2.0 s", "text_amber"),
-        ("1.0", "1.0 s", "text_amber"),
-        ("0.0", "0.0 s", "text_amber"),
+    for step_key, body, mat_key, acc_key in (
+        ("4.0", "4.0 s", "text_countdown_gold", "pointer_gold"),
+        ("3.0", "3.0 s", "text_countdown_gold", "pointer_gold"),
+        ("2.0", "2.0 s", "text_countdown_gold", "pointer_gold"),
+        ("1.0", "1.0 s", "text_countdown_amber", "pointer_amber"),
+        ("0.0", "0.0 s", "text_countdown_amber", "pointer_amber"),
     ):
         countdown[step_key] = make_label_with_pointer(
             f"Timer_{step_key.replace('.', '_')}",
             body,
-            text_pos=(0.0, -0.003, 0.095),
-            size=0.0138,
+            text_pos=(0.0, -0.003, 0.096),
+            size=0.0146,
             text_mat=mats[mat_key],
+            accent_mat=mats[acc_key],
             pointer_mat=None,
             pointer_pts=None,
             align_x="CENTER",
+            is_countdown=True,
         )
     labels["countdown"] = countdown
 
@@ -2461,7 +2727,7 @@ def animate_grenade(
     # ------------------------------------------------------------------
     # 4. MECHANICAL MOTION CHOREOGRAPHY (ALL IN LOCAL Grenade_Root SPACE)
     # ------------------------------------------------------------------
-    # Pull Pin extraction to -X
+    # Pull Pin extraction to -X (hide rig + all mesh children cleanly after exit so it never reappears in Beat 6!)
     pin = parts["pull_pin"]
     _clear_anim(pin)
     pin_d = max(1, pin_e - pin_s)
@@ -2478,8 +2744,13 @@ def animate_grenade(
         pin.keyframe_insert("location", frame=max(1, min(T, f)))
         pin.keyframe_insert("rotation_euler", frame=max(1, min(T, f)))
     _set_bezier(pin)
+    pin_vis_end = min(T, pin_e + 4)
+    _key_visibility(pin, [(1, pin_vis_end)], T)
+    for pin_child in pin.children_recursive:
+        _clear_anim(pin_child)
+        _key_visibility(pin_child, [(1, pin_vis_end)], T)
 
-    # Safety Spoon: tiny tension twitch on pin exit, then dramatic spinning launch at spoon_fly!
+    # Safety Spoon: tiny tension twitch on pin exit, dramatic spinning launch, then hide cleanly after exit!
     spoon = parts["spoon"]
     _clear_anim(spoon)
     sp_d = max(1, spoon_e - spoon_s)
@@ -2500,6 +2771,11 @@ def animate_grenade(
         spoon.keyframe_insert("location", frame=max(1, min(T, f)))
         spoon.keyframe_insert("rotation_euler", frame=max(1, min(T, f)))
     _set_bezier(spoon)
+    spoon_vis_end = min(T, spoon_e + 8)
+    _key_visibility(spoon, [(1, spoon_vis_end)], T)
+    for sp_child in spoon.children_recursive:
+        _clear_anim(sp_child)
+        _key_visibility(sp_child, [(1, spoon_vis_end)], T)
 
     # Torsion Spring unwind
     spring = parts["spring"]
@@ -2743,7 +3019,7 @@ def animate_grenade(
         def set_label_vis(entry: dict[str, Any], ranges: list[tuple[int, int]], ptr_ranges: list[tuple[int, int]] | None = None) -> None:
             r_text = ranges if show_labels else []
             r_ptr = (ptr_ranges if ptr_ranges is not None else ranges) if show_labels else []
-            for obj in (entry["text_obj"], entry["keyline_obj"]):
+            for obj in [entry["text_obj"], entry["keyline_obj"]] + list(entry.get("plaque_objs", [])):
                 _clear_anim(obj)
                 _key_visibility(obj, r_text, T)
             for pobj in entry["pointer_objs"]:
@@ -2765,9 +3041,9 @@ def animate_grenade(
         # Gently raise PRE-SCORED SHELL slightly at fracture so exploding shards stay well clear
         ps_anchor = labels["pre_scored_shell"]["text_anchor"]
         _clear_anim(ps_anchor)
-        ps_anchor.location = Vector((0.0, -0.004, 0.094))
+        ps_anchor.location = Vector((0.0, -0.004, 0.096))
         ps_anchor.keyframe_insert("location", frame=max(1, frac_f - 4))
-        ps_anchor.location = Vector((0.0, -0.004, 0.112))
+        ps_anchor.location = Vector((0.0, -0.004, 0.114))
         ps_anchor.keyframe_insert("location", frame=min(T, frac_f + 12))
         _set_bezier(ps_anchor)
 
