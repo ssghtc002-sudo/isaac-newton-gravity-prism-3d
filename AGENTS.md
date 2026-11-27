@@ -1,6 +1,6 @@
-# AGENTS.md — 3D Science Short Production Playbook (V10 Cinema Standard)
+# AGENTS.md — 3D Science & Action Short Production Playbook (V11 Viral Shorts Standard)
 
-Mandatory engineering standards learned and verified during **Scientist #9 (Isaac Newton)** and required for **Scientist #10+** repositories. Every agent working on 3D scenes, characters, shaders, audio, framing, or cloud rendering MUST follow these rules from Frame 1.
+Mandatory engineering standards learned and verified across **Scientist #9 (Isaac Newton)**, **Scientist #10 (Benjamin Franklin)**, **How Stitches Work V2**, and **How a Grenade Works (Rajinikanth Swag Cut)**. Every agent working on 3D scenes, characters, shaders, audio, framing, or cloud rendering MUST follow these rules from Frame 1.
 
 ---
 
@@ -16,50 +16,53 @@ Never ship dark/black/squinted MPFB2 eyes or gaping jaws:
 - **Front-Facing Specular Cornea (No Refractive Blackout)**:
   - Replace refractive outer cornea BSDF with Camera-ray front-facing `LayerWeight(Fresnel, Blend=0.34)` mixing `Transparent BSDF` + ultra-crisp `Glossy BSDF(Roughness=0.014)` (`Backfacing` / non-camera rays -> pure `Transparent BSDF`).
 - **Softbox Eye Catchlight (`AREA`, NEVER tiny `POINT`)**:
-  - Use a `0.42m` softbox `AREA` light (`52 W` day / `62 W` night, `diffuse_factor = 0.28`, `specular_factor = 1.75`) aimed at eye height (`Z ≈ 1.62m`) via quaternion tracking. Tiny `0.08m` point lights are sub-pixel (`0.11 px`) and get erased by OIDN.
+  - Use a `0.42m` softbox `AREA` light (`52 W` day / `62 W` night, `diffuse_factor = 0.11–0.28` tuned to avoid cheek blowout, `specular_factor = 1.75–1.80`) aimed at eye height (`Z ≈ 1.62m`) via quaternion tracking. Tiny `0.08m` point lights are sub-pixel (`0.11 px`) and get erased by OIDN.
 - **Natural Eyelids & Jaw Limits**:
   - Maintain a relaxed `-5.0°` upper-eyelid open baseline (`orbicularis03`); NEVER let smiles squint upper lids shut.
-  - Clamp `jaw` rotation to `<= 14.0°` (typical speech `8.5°–9.5°`, shock peak `10.5°`) with smile attenuation (`jaw_calm`) so mouths never gape unnaturally.
+  - Clamp `jaw` rotation to `<= 14.0°` (typical speech `8.5°–9.5°`, shock/spit peak `10.5°`) with smile attenuation (`jaw_calm`) so mouths never gape unnaturally.
 
 ---
 
-## 2. Crisp 3D Formulas, Equations & Sky Titles (`src/build_*_scene.py`)
-Never allow white-blown, blurry, or hand-overlapped 3D typography:
+## 2. Crisp 3D Engineering Labels, Formulas & Typography (`src/build_*_scene.py`)
+Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
+- **High-Contrast Dark Obsidian Glass Backing Plaques (Mandatory for Sunlit/Daylight Scenes)**:
+  - Behind every 3D component callout or countdown timer, add a chamfered dark obsidian rounded-rect plaque (`Base Color = (0.008, 0.012, 0.020)`, `Roughness = 0.45`, low specular `0.10`, `visible_shadow = False`) with sleek glowing cyan/gold trim accent bars and dark-rimmed leader pointer lines (`>15:1` contrast even on bright sunlit sky/desert!).
+  - Do NOT add redundant Beat 6 sky title text over clean action finales unless the user explicitly asks for a monument title.
 - **2-Zone Brushed-Metallic Face + Dark Extrusion Shader**:
-  - Use Object-Space `|N.z|` separation (`> 0.85` = crisp satin-gold / cyan-gold face, side bevel/extrusion = dark obsidian-bronze metallic) — do NOT rely on `LayerWeight.Facing` alone (renders as `< 0.3 px` invisible rim).
-  - Keep emission strength AgX-safe (`1.35–2.20`, NEVER `5.0+` which clips to white under `AgX - Punchy` and triggers FFmpeg bloom blow-out).
-- **Thin Bevel + Dark Keyline Backing + Capsule Halo**:
+  - Use Object-Space `|N.z|` separation (`> 0.85` = crisp pure-white/satin-gold/cyan face, side bevel/extrusion = dark obsidian-bronze metallic) — do NOT rely on `LayerWeight.Facing` alone (renders as `< 0.3 px` invisible rim).
+  - Keep emission strength AgX-safe (`1.35–2.10`, NEVER `5.0+` which clips to white under `AgX - Punchy` and triggers FFmpeg bloom blow-out).
+- **Thin Bevel + Dark Keyline Backing + Native Unicode Glyphs**:
   - Keep extrusion shallow (`0.004–0.0055m`) and bevel subtle (`0.0005–0.0007m`) so glyphs don't bloat.
-  - Add a slightly recessed (`+0.006m` behind text) dark obsidian keyline backing + capsule (`x⁴ + y²`) sky veil halo for instant daylight & night legibility.
-- **Native Unicode Math Glyphs**:
   - Use `DejaVuSans-Bold.ttf` (bundled in `subtitles/fonts/`) with real math typography (`·`, `₁`, `₂`, `²`, `−`, `×`, `→`, `ε`, `Φ`, `ρ`). Verify every glyph exists in the font before rendering.
-- **Exact DOF Focus Plane & Zero Hand Overlap**:
-  - Place floating 3D formulas on the **exact camera DOF focus plane** (`Y ≈ 0.20m`) and cleanly **above actor heads (`Z ≈ 2.00–2.06m`)** — NEVER at chest/hand height (`Z ≈ 1.24m`) where gesturing hands clip through text.
-  - Place Beat 6 finale monument title cleanly in open sky (`Z ≈ 2.48–2.60m`), clear of Moon/props.
+- **Exact DOF Focus Plane & Zero Hand / Subtitle Overlap**:
+  - Place floating 3D labels on the **exact camera DOF focus plane** and cleanly clear of both gesturing hands AND bottom karaoke subtitles (`NDC Y >= -0.45`).
 
 ---
 
-## 3. Volumetric Optics, Beams, Lightning & Glass Props (`src/build_*_scene.py`)
+## 3. Volumetric Optics, X-Ray Cutaways, Fireballs & Local-Space Shaders (`src/build_*_scene.py`)
+- **100% Local-Space Prop Shaders**:
+  - Always drive spatial cutaway scans (`ScanZ`), burn fronts (`BurnZ`), procedural bump, and turbulent plasma off `ShaderNodeTexCoord.Object` bound to the prop's local root Empty (NEVER World `Geometry.Position`) so X-ray effects work flawlessly while props fly/spin across the scene.
+- **Procedural 3D Turbulent Fireballs (Zero Flat Concentric Circles)**:
+  - Displace icosphere fireballs with 3D turbulence and shade via `(1 - Facing)^p * 3D Noise` radial soft-edge falloff so explosions look organic and cinematic, never like hard flat bullseye rings.
 - **Open-Ended Additive Optical Cones/Ribbons**:
-  - Always pass `end_fill_type="NOTHING"` on volumetric beam/cone meshes so flat end-caps never poke through screens, easels, or lenses.
+  - Always pass `end_fill_type="NOTHING"` (`cap_ends=False`) on volumetric beam/spark/cone meshes so flat end-caps never poke through screens, easels, or lenses.
   - Use `ShaderNodeAddShader` (`Emission` + `Transparent`) driven by `Camera Ray * (1 - Backfacing)` — NEVER high-opacity double-walled `MixShader` which turns beams into opaque pastel walls under AgX.
-- **`orient_beam` Axis Discipline**:
-  - `to_track_quat("Z", "Y")` maps local `+Y` to world `+Z` (vertical). Always keep cross-sectional scaling explicit (`(radius_scale * width_mult, radius_scale, length)`) and clamp beam endpoints to the **front plane** of any receiving screen/easel (zero back-face bleed-through).
-- **Refractive Glass Shadow Bypass**:
-  - Every `Transmission Weight > 0.5` glass prop (prism, lens, jar, vacuum tube) MUST route `LightPath.Is Shadow Ray -> Transparent BSDF` so Cycles (`caustics_refractive = False`) never casts solid black shadows or blocks internal light rays.
-- **Camera-Facing Science Displays**:
-  - Verify `dot(display_normal, to_camera) > +0.55` for every easel, dial, book page, or diagram — never angle a key physics display away from the lens.
-- **Bounce Budget**:
-  - Set `cycles.transparent_max_bounces >= 10` whenever layered additive beams + transparent hair/corneas overlap.
+- **Refractive & X-Ray Glass Shadow Bypass**:
+  - Every `Transmission Weight > 0.5` glass prop or X-ray cutaway shell MUST route `LightPath.Is Shadow Ray -> Transparent BSDF` so Cycles (`caustics_refractive = False`) never casts solid black shadows or blocks internal light rays.
+- **`bmesh` Material Slot Preservation & Bounce Budget**:
+  - Always append materials to `mesh.materials` BEFORE `bm.to_mesh(mesh)` and NEVER call `mesh.materials.clear()` afterwards.
+  - Set `cycles.transparent_max_bounces >= 12` whenever layered X-ray shells + additive sparks + hair/corneas overlap.
 
 ---
 
-## 4. Zero-Clipping Hand Choreography & Framing QA (`src/verify_framing.py`)
+## 4. Zero-Clipping Hand/Prop Choreography, World-Space Handoffs & Framing QA (`src/verify_framing.py`)
+- **World-Space Multi-Phase Prop Physics**:
+  - Whenever a prop transfers between an object, a character's hand/teeth, and ballistic flight (e.g., grenade pull-pin, thrown weapon, surgical suture), unparent it into World Space and drive exact phase handoffs from evaluated bone/vertex trajectories (`0.000mm` transition error), then cleanly hide detached debris with `CONSTANT` visibility keyframes once off-screen so it never reappears later.
 - **Hand-to-Prop Clearance**:
-  - Audit every gesturing hand pose against nearby 3D props (gravity wells, coils, lenses, tables) at peak swing frames; keep `>= 0.14m` minimum clearance so fingers never slice through hero props.
-- **Automated 6-Beat Sightline & Station Isolation Check**:
-  - Maintain `src/verify_framing.py` projecting every hero head, formula, prop, and adjacent station edge into camera NDC (`[-1, 1]`) across all 6 beats.
-  - Every commit touching layout or camera MUST pass `python3 src/verify_framing.py` with **100% CLEAR** head/prop separation and **OUTSIDE** station-isolation margins.
+  - Audit every gesturing hand pose and cuff sleeve against nearby 3D props at peak frames so fingers/sleeves never slice through hero props.
+- **Automated 6-Beat Sightline & Subtitle-Zone Check**:
+  - Maintain `src/verify_framing.py` projecting every hero head, prop, 3D label, and action zone into 9:16 camera NDC (`[-1, 1]`) across all 6 beats, clear of the bottom subtitle zone (`NDC Y < -0.55`).
+  - Every commit touching layout or camera MUST pass `python3 src/verify_framing.py` with **100% PASSED**.
 
 ---
 
@@ -74,24 +77,36 @@ Never allow white-blown, blurry, or hand-overlapped 3D typography:
 
 ---
 
-## 6. Native Full HD → True 4K Cloud Render & 1-Tap Mobile Download (`render_on_modal.py`, `.github/workflows/render-modal-4k.yml`)
-- **Default Pipeline = Modal 10-GPU Parallel Render (`~3–4 min` warm)**:
-  - Render native **Full HD (`1080×1920`, `scale=100%`, `24 fps`, Cycles OPTIX + GPU OIDN)** across `10` parallel Modal GPUs.
+## 6. Default `30 fps` YouTube Shorts → True 4K Unified Modal Cloud Pipeline (`episodes/<name>/`, `.github/workflows/render-episode-4k.yml`)
+- **Default Frame Rate = `30 fps` (`900` frames for `30.0s` Shorts)**:
+  - All **NEW YouTube Shorts** MUST default to **`30 fps`** (`FPS = 30`, `TOTAL_FRAMES = 900` for `30.0s`) — evenly divides `60Hz/120Hz` mobile displays for zero stutter, noticeably smoother fast action/X-ray/explosions than `24 fps`, with only `+25%` render cost (`60 fps` available on explicit user request).
+- **Unified Studio Episodes Architecture (Zero Repeated Modal Secret Setup!)**:
+  - Place all new shorts inside `ssghtc002-sudo/isaac-newton-gravity-prism-3d/episodes/<episode-name>/` and render via the shared workflow `.github/workflows/render-episode-4k.yml` (`-f episode=<episode-name> -f workers=10 -f samples=16 -f upscale_4k=true`), which automatically reuses the repo's already-configured `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` and publishes directly to GitHub Release tag `<episode-name>-4k` (`https://github.com/ssghtc002-sudo/isaac-newton-gravity-prism-3d/releases/download/<episode-name>-4k/<safe_name>_4k.mp4`).
+- **Default Pipeline = Modal 10-GPU Parallel Render**:
+  - Render native **Full HD (`1080×1920`, `scale=100%`, `30 fps`, Cycles OPTIX + GPU OIDN)** across `10` parallel Modal GPUs.
   - Export **True 4K (`2160×3840`)** Lanczos ARRI-Alexa finished MP4 (`libx264`, `High@L5.1`, `CRF 15`, `yuv420p`, `AAC 192k`, `-movflags +faststart` for instant mobile/Reels/Shorts playback).
-- **Tightened ARRI-Alexa Bloom (Preserves Sharp Text & Jewels)**:
+- **Tightened ARRI-Alexa Bloom & Warm Container Cache**:
   - Use `scale=2160:3840:flags=lanczos` (NEVER invalid `:accurate_rnd=1` option!).
   - Highlight bloom: `eq=brightness=-0.52:contrast=2.8,gblur=sigma=22` blended with `screen:all_opacity=0.20` (1080p: `sigma=12`, `opacity=0.22`).
-- **Keep Modal Container Cache Warm**:
-  - Do NOT alter `modal.Image` setup layers unnecessarily once cached; pull latest repo code at runtime via `git fetch --depth 1 origin main && git reset --hard origin/main`.
-- **1-Tap Mobile Download via GitHub Actions + Releases**:
-  - Include `.github/workflows/render-modal-4k.yml` (`workflow_dispatch`, `permissions: contents: write`) using repo secrets `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET`, publishing the finished 4K `.mp4` to GitHub Release tag `latest-4k` for instant 1-tap mobile download (`https://github.com/<owner>/<repo>/releases/download/latest-4k/<file>.mp4`).
-  - Always test the exact `ffmpeg -filter_complex` string locally on a `0.1s` synthetic clip before pushing.
+  - Keep `render_on_modal.py`'s `modal.Image` setup layers byte-for-byte identical to the cached `studio_image` (`/opt/newton_repo`) so Modal boots warm in seconds and pulls latest code via `git fetch --depth 1 origin main && git reset --hard origin/main`.
+  - Always test the exact `ffmpeg -filter_complex` string locally on a `0.2s` synthetic clip before pushing.
 
 ---
 
-## 7. Multi-Agent QA Workflow Before Every Final 4K Render
-Before kicking off any 4K cloud render, run parallel verification:
+## 7. Strict `1 Agent = 1 Single Focused Task` Crew Rule
+- **NEVER assign 2–3 combined roles to a single subagent.**
+- Split complex productions into dedicated single-responsibility agents working on non-overlapping files (e.g., `Lead Director`, `Camera & Framing`, `Hero Prop / X-Ray Asset`, `Hero Character Animator`, `Environment / Battlefield`, `3D Typography & Labels`, `Scriptwriter`, `Voice / TTS`, `Foley SFX`, `BGM Composer`, `Finale Cleanup`).
+- Define explicit mathematical handoff contracts (exact world coordinates, socket dicts, frame milestones) upfront so all parallel agents integrate cleanly with zero conflicts.
+
+---
+
+## 8. Mandatory Local Frame-by-Frame Cycles Visual QA Before Every 4K Cloud Render
+Never push blind to Modal 4K — always run full QA first:
 1. `python3 -m py_compile` + AST undefined-name check on all Python files.
-2. `python3 src/verify_framing.py` (100% PASSED across all 6 beats).
-3. Live `ffmpeg` 0.1s filter-graph validation with bundled `subtitles/subtitles.ass` & `subtitles/fonts/`.
-4. Audio LUFS / peak / duration audit (zero truncated trailing syllables).
+2. `python3 src/verify_framing.py` (**100% PASSED** across all 6 beats + gimbal audit).
+3. Live `ffmpeg` 0.2s 4K filter-graph validation with bundled `subtitles/subtitles.ass` & `subtitles/fonts/`.
+4. Audio LUFS (`-14.0 ± 0.15 LUFS`) / True Peak (`<= -1.5 dBFS`) / duration / zero-truncation audit.
+5. **Local Blender 4.2 Cycles Visual Inspection (`/tmp/blender/blender`, `scale=35%`, `samples=6`)**:
+   - Render all 6 representative beat frames **PLUS a dense consecutive frame sequence of Beat 1's viral hook** (to verify character acting, hand/mouth prop contact, swag timing, and zero clipping).
+   - Visually inspect **EVERY rendered frame with `view_file`**, fix any visual flaw immediately, re-verify, and ONLY THEN push & trigger the 10-GPU Modal 4K render!
+
