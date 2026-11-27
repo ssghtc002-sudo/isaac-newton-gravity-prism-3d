@@ -12,9 +12,9 @@ Style: Default,DejaVu Sans,66,&H00FFFFFF,&H0038C8FF,&H00080A10,&H96000000,-1,0,0
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.10,0:00:00.19,Default,,0,0,0,,{\c&H0038C8FF&}In{\c&H00FFFFFF&} movies,\Nsoldiers pull
 Dialogue: 0,0:00:00.19,0:00:00.48,Default,,0,0,0,,In {\c&H0038C8FF&}movies,{\c&H00FFFFFF&}\Nsoldiers pull
-Dialogue: 0,0:00:00.48,0:00:00.82,Default,,0,0,0,,In movies,\N{\c&H0038C8FF&}soldiers{\c&H00FFFFFF&} pull
-Dialogue: 0,0:00:00.82,0:00:00.99,Default,,0,0,0,,In movies,\Nsoldiers {\c&H0038C8FF&}pull{\c&H00FFFFFF&}
-Dialogue: 0,0:00:00.99,0:00:01.07,Default,,0,0,0,,{\c&H0038C8FF&}a{\c&H00FFFFFF&} grenade pin\Nwith their teeth—
+Dialogue: 0,0:00:00.48,0:00:00.83,Default,,0,0,0,,In movies,\N{\c&H0038C8FF&}soldiers{\c&H00FFFFFF&} pull
+Dialogue: 0,0:00:00.83,0:00:01.00,Default,,0,0,0,,In movies,\Nsoldiers {\c&H0038C8FF&}pull{\c&H00FFFFFF&}
+Dialogue: 0,0:00:01.00,0:00:01.07,Default,,0,0,0,,{\c&H0038C8FF&}a{\c&H00FFFFFF&} grenade pin\Nwith their teeth—
 Dialogue: 0,0:00:01.07,0:00:01.37,Default,,0,0,0,,a {\c&H0038C8FF&}grenade{\c&H00FFFFFF&} pin\Nwith their teeth—
 Dialogue: 0,0:00:01.37,0:00:01.50,Default,,0,0,0,,a grenade {\c&H0038C8FF&}pin{\c&H00FFFFFF&}\Nwith their teeth—
 Dialogue: 0,0:00:01.50,0:00:01.67,Default,,0,0,0,,a grenade pin\N{\c&H0038C8FF&}with{\c&H00FFFFFF&} their teeth—
@@ -24,15 +24,15 @@ Dialogue: 0,0:00:02.14,0:00:02.31,Default,,0,0,0,,{\c&H0038C8FF&}that{\c&H00FFFF
 Dialogue: 0,0:00:02.31,0:00:02.52,Default,,0,0,0,,that {\c&H0038C8FF&}would{\c&H00FFFFFF&} rip\Nyour teeth out,
 Dialogue: 0,0:00:02.52,0:00:02.65,Default,,0,0,0,,that would {\c&H0038C8FF&}rip{\c&H00FFFFFF&}\Nyour teeth out,
 Dialogue: 0,0:00:02.65,0:00:02.82,Default,,0,0,0,,that would rip\N{\c&H0038C8FF&}your{\c&H00FFFFFF&} teeth out,
-Dialogue: 0,0:00:02.82,0:00:03.03,Default,,0,0,0,,that would rip\Nyour {\c&H0038C8FF&}teeth{\c&H00FFFFFF&} out,
-Dialogue: 0,0:00:03.03,0:00:03.20,Default,,0,0,0,,that would rip\Nyour teeth {\c&H0038C8FF&}out,{\c&H00FFFFFF&}
-Dialogue: 0,0:00:03.20,0:00:03.33,Default,,0,0,0,,{\c&H0038C8FF&}and{\c&H00FFFFFF&} it doesn't even\Nstart the timer!
-Dialogue: 0,0:00:03.33,0:00:03.41,Default,,0,0,0,,and {\c&H0038C8FF&}it{\c&H00FFFFFF&} doesn't even\Nstart the timer!
-Dialogue: 0,0:00:03.41,0:00:03.67,Default,,0,0,0,,and it {\c&H0038C8FF&}doesn't{\c&H00FFFFFF&} even\Nstart the timer!
-Dialogue: 0,0:00:03.67,0:00:03.84,Default,,0,0,0,,and it doesn't {\c&H0038C8FF&}even{\c&H00FFFFFF&}\Nstart the timer!
-Dialogue: 0,0:00:03.84,0:00:04.05,Default,,0,0,0,,and it doesn't even\N{\c&H0038C8FF&}start{\c&H00FFFFFF&} the timer!
-Dialogue: 0,0:00:04.05,0:00:04.18,Default,,0,0,0,,and it doesn't even\Nstart {\c&H0038C8FF&}the{\c&H00FFFFFF&} timer!
-Dialogue: 0,0:00:04.18,0:00:04.46,Default,,0,0,0,,and it doesn't even\Nstart the {\c&H0038C8FF&}timer!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:02.82,0:00:03.04,Default,,0,0,0,,that would rip\Nyour {\c&H0038C8FF&}teeth{\c&H00FFFFFF&} out,
+Dialogue: 0,0:00:03.04,0:00:03.21,Default,,0,0,0,,that would rip\Nyour teeth {\c&H0038C8FF&}out,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:03.21,0:00:03.34,Default,,0,0,0,,{\c&H0038C8FF&}and{\c&H00FFFFFF&} it doesn't even\Nstart the timer!
+Dialogue: 0,0:00:03.34,0:00:03.42,Default,,0,0,0,,and {\c&H0038C8FF&}it{\c&H00FFFFFF&} doesn't even\Nstart the timer!
+Dialogue: 0,0:00:03.42,0:00:03.68,Default,,0,0,0,,and it {\c&H0038C8FF&}doesn't{\c&H00FFFFFF&} even\Nstart the timer!
+Dialogue: 0,0:00:03.68,0:00:03.85,Default,,0,0,0,,and it doesn't {\c&H0038C8FF&}even{\c&H00FFFFFF&}\Nstart the timer!
+Dialogue: 0,0:00:03.85,0:00:04.06,Default,,0,0,0,,and it doesn't even\N{\c&H0038C8FF&}start{\c&H00FFFFFF&} the timer!
+Dialogue: 0,0:00:04.06,0:00:04.19,Default,,0,0,0,,and it doesn't even\Nstart {\c&H0038C8FF&}the{\c&H00FFFFFF&} timer!
+Dialogue: 0,0:00:04.19,0:00:04.47,Default,,0,0,0,,and it doesn't even\Nstart the {\c&H0038C8FF&}timer!{\c&H00FFFFFF&}
 Dialogue: 0,0:00:04.85,0:00:05.10,Default,,0,0,0,,{\c&H0038C8FF&}Watch{\c&H00FFFFFF&} what happens
 Dialogue: 0,0:00:05.10,0:00:05.30,Default,,0,0,0,,Watch {\c&H0038C8FF&}what{\c&H00FFFFFF&} happens
 Dialogue: 0,0:00:05.30,0:00:05.65,Default,,0,0,0,,Watch what {\c&H0038C8FF&}happens{\c&H00FFFFFF&}
@@ -97,20 +97,20 @@ Dialogue: 0,0:00:20.85,0:00:21.14,Default,,0,0,0,,The {\c&H0038C8FF&}moment{\c&H
 Dialogue: 0,0:00:21.14,0:00:21.24,Default,,0,0,0,,The moment {\c&H0038C8FF&}it{\c&H00FFFFFF&} lands\Nby the sandbags,
 Dialogue: 0,0:00:21.24,0:00:21.48,Default,,0,0,0,,The moment it {\c&H0038C8FF&}lands{\c&H00FFFFFF&}\Nby the sandbags,
 Dialogue: 0,0:00:21.48,0:00:21.58,Default,,0,0,0,,The moment it lands\N{\c&H0038C8FF&}by{\c&H00FFFFFF&} the sandbags,
-Dialogue: 0,0:00:21.58,0:00:21.72,Default,,0,0,0,,The moment it lands\Nby {\c&H0038C8FF&}the{\c&H00FFFFFF&} sandbags,
-Dialogue: 0,0:00:21.72,0:00:22.16,Default,,0,0,0,,The moment it lands\Nby the {\c&H0038C8FF&}sandbags,{\c&H00FFFFFF&}
-Dialogue: 0,0:00:22.16,0:00:22.31,Default,,0,0,0,,{\c&H0038C8FF&}the{\c&H00FFFFFF&} flame\Nhits the core—
-Dialogue: 0,0:00:22.31,0:00:22.55,Default,,0,0,0,,the {\c&H0038C8FF&}flame{\c&H00FFFFFF&}\Nhits the core—
-Dialogue: 0,0:00:22.55,0:00:22.75,Default,,0,0,0,,the flame\N{\c&H0038C8FF&}hits{\c&H00FFFFFF&} the core—
+Dialogue: 0,0:00:21.58,0:00:21.73,Default,,0,0,0,,The moment it lands\Nby {\c&H0038C8FF&}the{\c&H00FFFFFF&} sandbags,
+Dialogue: 0,0:00:21.73,0:00:22.17,Default,,0,0,0,,The moment it lands\Nby the {\c&H0038C8FF&}sandbags,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:22.17,0:00:22.31,Default,,0,0,0,,{\c&H0038C8FF&}the{\c&H00FFFFFF&} flame\Nhits the core—
+Dialogue: 0,0:00:22.31,0:00:22.56,Default,,0,0,0,,the {\c&H0038C8FF&}flame{\c&H00FFFFFF&}\Nhits the core—
+Dialogue: 0,0:00:22.56,0:00:22.75,Default,,0,0,0,,the flame\N{\c&H0038C8FF&}hits{\c&H00FFFFFF&} the core—
 Dialogue: 0,0:00:22.75,0:00:22.90,Default,,0,0,0,,the flame\Nhits {\c&H0038C8FF&}the{\c&H00FFFFFF&} core—
 Dialogue: 0,0:00:22.90,0:00:23.14,Default,,0,0,0,,the flame\Nhits the {\c&H0038C8FF&}core—{\c&H00FFFFFF&}
 Dialogue: 0,0:00:23.14,0:00:23.29,Default,,0,0,0,,{\c&H0038C8FF&}and{\c&H00FFFFFF&} superheated\Ngas swells
-Dialogue: 0,0:00:23.29,0:00:23.82,Default,,0,0,0,,and {\c&H0038C8FF&}superheated{\c&H00FFFFFF&}\Ngas swells
-Dialogue: 0,0:00:23.82,0:00:23.97,Default,,0,0,0,,and superheated\N{\c&H0038C8FF&}gas{\c&H00FFFFFF&} swells
-Dialogue: 0,0:00:23.97,0:00:24.26,Default,,0,0,0,,and superheated\Ngas {\c&H0038C8FF&}swells{\c&H00FFFFFF&}
-Dialogue: 0,0:00:24.26,0:00:24.36,Default,,0,0,0,,{\c&H0038C8FF&}to{\c&H00FFFFFF&} extreme pressure!
-Dialogue: 0,0:00:24.36,0:00:24.70,Default,,0,0,0,,to {\c&H0038C8FF&}extreme{\c&H00FFFFFF&} pressure!
-Dialogue: 0,0:00:24.70,0:00:25.16,Default,,0,0,0,,to extreme {\c&H0038C8FF&}pressure!{\c&H00FFFFFF&}
+Dialogue: 0,0:00:23.29,0:00:23.83,Default,,0,0,0,,and {\c&H0038C8FF&}superheated{\c&H00FFFFFF&}\Ngas swells
+Dialogue: 0,0:00:23.83,0:00:23.97,Default,,0,0,0,,and superheated\N{\c&H0038C8FF&}gas{\c&H00FFFFFF&} swells
+Dialogue: 0,0:00:23.97,0:00:24.27,Default,,0,0,0,,and superheated\Ngas {\c&H0038C8FF&}swells{\c&H00FFFFFF&}
+Dialogue: 0,0:00:24.27,0:00:24.36,Default,,0,0,0,,{\c&H0038C8FF&}to{\c&H00FFFFFF&} extreme pressure!
+Dialogue: 0,0:00:24.36,0:00:24.71,Default,,0,0,0,,to {\c&H0038C8FF&}extreme{\c&H00FFFFFF&} pressure!
+Dialogue: 0,0:00:24.71,0:00:25.17,Default,,0,0,0,,to extreme {\c&H0038C8FF&}pressure!{\c&H00FFFFFF&}
 Dialogue: 0,0:00:25.55,0:00:25.65,Default,,0,0,0,,{\c&H0038C8FF&}In{\c&H00FFFFFF&} a millisecond,\Nthe pre-scored cast-iron
 Dialogue: 0,0:00:25.65,0:00:25.74,Default,,0,0,0,,In {\c&H0038C8FF&}a{\c&H00FFFFFF&} millisecond,\Nthe pre-scored cast-iron
 Dialogue: 0,0:00:25.74,0:00:26.36,Default,,0,0,0,,In a {\c&H0038C8FF&}millisecond,{\c&H00FFFFFF&}\Nthe pre-scored cast-iron

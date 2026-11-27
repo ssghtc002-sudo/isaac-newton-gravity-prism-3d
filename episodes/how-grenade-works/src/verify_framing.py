@@ -7,18 +7,21 @@ Pure-Python (runs cleanly outside Blender!) and imports `camera_state_at`,
 camera engine and framing verifier share 100% identical math with zero drift.
 
 Verifies:
-  1. All 7 key beat moments:
-       - B1  f=035: Hero face & grenade in hand (plus Hero <-> Grenade horizontal separation!)
-       - B1/2 f=134: Hero throw release & outstretched arm separation
-       - B2  f=195: Mid-air Matrix Bullet-Time X-ray grenade + 3D component labels + ~55% screen fill
-       - B3  f=294: Striker hammer slamming primer cap + flying safety spoon
-       - B4  f=420: 4-second mid-air delay column burn + 3D countdown callout
-       - B5  f=540: Low-angle bunker ground-level macro + Enemy Sandbag Wall + diving Rival Sentry
-       - B6  f=665: Wide bullet-time explosion climax (fireball, sandbags, BOTH diving sentries, shockwave)
+  1. All 9 key beat moments:
+       - B1-Bite f=024: Heroic low-angle tight close-up on teeth biting chrome pull-ring
+       - B1      f=035: Hero close-up pin rip-out (2mm micro-snap punch) + Hero <-> Grenade separation
+       - B1-Spit f=068: Rajinikanth teeth pin spit-flick (56mm + Screen-Right kinetic whip-accent)
+       - B1/2    f=134: Hero throw release & outstretched arm separation (35mm)
+       - B2      f=195: Mid-air Matrix Bullet-Time X-ray grenade + 3D component labels + ~55% screen fill
+       - B3      f=294: Striker hammer slamming primer cap + flying safety spoon
+       - B4      f=420: 4-second mid-air delay column burn + 3D countdown callout
+       - B5      f=540: Low-angle bunker ground-level macro + Enemy Sandbag Wall + diving Rival Sentry
+       - B6      f=665: Wide bullet-time explosion climax (fireball, sandbags, BOTH diving sentries, shockwave)
      plus Beat 6 orbital start (f=634) & end (f=720) framing!
   2. 9:16 Portrait Subtitle Safe-Zone:
-       - Primary hero subjects (Hero face/mouth, mid-air grenade core, bunker grenade core,
-         ground-zero explosion) strictly inside NDC Y in [-0.25, +0.60].
+       - Beat 1 Hero eyes, mouth/teeth, grenade fist & Screen-Right spit-flick exit path strictly
+         inside the upper-middle safe zone NDC Y in [-0.15, +0.62].
+       - Primary Beats 2-6 hero subjects strictly inside NDC Y in [-0.25, +0.60].
        - Foreground grenade bottom edge cleanly above karaoke subtitle band (NDC Y > -0.55).
   3. Full 720-frame continuity & anti-gimbal-flip sweep (TRACK_TO -Z / UP_Y safety +
      exact `GRENADE_FLIGHT_KFS` anchor verification).
@@ -125,7 +128,7 @@ def main() -> int:
         )
 
     # ------------------------------------------------------------------
-    # 2. 7 KEY BEATS + BEAT 6 ORBIT BOUNDARY FRAMING CHECKS
+    # 2. 9 KEY BEATS + BEAT 6 ORBIT BOUNDARY FRAMING CHECKS
     # ------------------------------------------------------------------
     g195 = grenade_pos_at(195)
     g294 = grenade_pos_at(294)
@@ -136,17 +139,52 @@ def main() -> int:
     # points_spec entry: (label, world_pt, max_abs_ndc_x, min_ndc_y, max_ndc_y)
     beat_checks = [
         (
-            "B1",
-            35,
-            "Hero Close-Up: Face & Grenade Near Mouth (Pin Pull)",
+            "B1-Bite",
+            24,
+            "Hero Low-Angle Tight Close-Up: Teeth Biting Chrome Pull-Ring",
             [
-                ("HeroEyes", HERO_EYE_LOCAL, 0.75, -0.25, 0.60),
-                ("HeroMouth", HERO_MOUTH_LOCAL, 0.75, -0.25, 0.60),
-                ("HeroCrown", (0.0, 0.06, 1.80), 0.78, -0.10, 0.78),
-                ("GrenadeInHand", HERO_GRENADE_HAND_LOCAL, 0.75, -0.25, 0.60),
-                ("PullPinRing", (0.13, 0.30, 1.54), 0.82, -0.30, 0.65),
+                ("HeroEyes", HERO_EYE_LOCAL, 0.72, -0.15, 0.62),
+                ("HeroMouth", HERO_MOUTH_LOCAL, 0.72, -0.15, 0.62),
+                ("HeroCrown", (0.0, 0.06, 1.80), 0.75, -0.10, 0.78),
+                ("BitePinAtTeeth", (0.04, 0.19, 1.54), 0.45, -0.15, 0.62),
+                ("GrenadeInHand", HERO_GRENADE_HAND_LOCAL, 0.75, -0.15, 0.62),
             ],
             [("HeroEyes", "GrenadeInHand", 0.40)],
+            None,
+        ),
+        (
+            "B1",
+            35,
+            "Hero Close-Up: Pin Rip-Out Micro-Snap Punch (Face & Grenade)",
+            [
+                ("HeroEyes", HERO_EYE_LOCAL, 0.75, -0.15, 0.62),
+                ("HeroMouth", HERO_MOUTH_LOCAL, 0.75, -0.15, 0.62),
+                ("HeroCrown", (0.0, 0.06, 1.80), 0.78, -0.10, 0.78),
+                ("GrenadeInHand", HERO_GRENADE_HAND_LOCAL, 0.75, -0.15, 0.62),
+                ("PullPinRing", (0.13, 0.30, 1.54), 0.82, -0.15, 0.62),
+            ],
+            [("HeroEyes", "GrenadeInHand", 0.40)],
+            None,
+        ),
+        (
+            "B1-Spit",
+            68,
+            "Rajinikanth Pin Spit-Flick Moment (56mm Kinetic Whip-Accent)",
+            [
+                ("HeroEyes", HERO_EYE_LOCAL, 0.60, -0.15, 0.62),
+                ("HeroMouth", HERO_MOUTH_LOCAL, 0.60, -0.15, 0.62),
+                ("HeroCrown", (0.0, 0.06, 1.80), 0.68, -0.10, 0.78),
+                ("GrenadeInHand", HERO_GRENADE_HAND_LOCAL, 0.75, -0.15, 0.62),
+                # Synced to build_grenade_scene.py Phase 3 spit ballistic launch:
+                # v0=(-0.65, +0.85, +0.42) m/s, g=(0, 0, -4.2) m/s^2 from f=65 mouth release
+                ("SpitPin_f68", (-0.081, 0.216, 1.560), 0.75, -0.15, 0.62),
+                ("SpitPinExit", (-0.190, 0.358, 1.484), 0.85, -0.15, 0.62),
+            ],
+            [
+                ("HeroEyes", "GrenadeInHand", 0.40),
+                ("HeroMouth", "SpitPin_f68", 0.15),
+                ("HeroMouth", "SpitPinExit", 0.40),
+            ],
             None,
         ),
         (
@@ -305,6 +343,56 @@ def main() -> int:
                 f"  [{'PASS' if f_ok else 'FAIL'}] MACRO FILL ({key_name}, 8.4cm dia): "
                 f"{fill * 100.0:.1f}% screen width (target {min_fill * 100:.0f}%..{max_fill * 100:.0f}%)"
             )
+
+    # ------------------------------------------------------------------
+    # 2b. BEAT 1 HEROIC LOW-ANGLE, PRIME PUSH & KINETIC FX AUDIT
+    # ------------------------------------------------------------------
+    b1_base_1 = camera_state_at(1.0, include_motion_fx=False)
+    b1_base_26 = camera_state_at(26.0, include_motion_fx=False)
+    b1_base_68 = camera_state_at(68.0, include_motion_fx=False)
+    b1_base_104 = camera_state_at(104.0, include_motion_fx=False)
+    b1_base_134 = camera_state_at(134.0, include_motion_fx=False)
+    b1_fx_34 = camera_state_at(34.0, include_motion_fx=True)
+    b1_base_34 = camera_state_at(34.0, include_motion_fx=False)
+    b1_fx_66 = camera_state_at(66.0, include_motion_fx=True)
+    b1_base_66 = camera_state_at(66.0, include_motion_fx=False)
+
+    low_angle_ok = (
+        1.435 <= b1_base_1[0][2] <= 1.445
+        and 1.475 <= b1_base_104[0][2] <= 1.485
+        and all(
+            camera_state_at(float(f), include_motion_fx=False)[1][2]
+            > camera_state_at(float(f), include_motion_fx=False)[0][2]
+            for f in range(1, 109)
+        )
+    )
+    lens_curve_ok = (
+        abs(b1_base_1[2] - 48.0) < 1e-4
+        and abs(b1_base_26[2] - 56.0) < 1e-4
+        and abs(b1_base_68[2] - 56.0) < 1e-4
+        and abs(b1_base_104[2] - 46.0) < 1e-4
+        and abs(b1_base_134[2] - 35.0) < 1e-4
+    )
+    rip_punch_mm = b1_fx_34[2] - b1_base_34[2]
+    rip_snap_ok = 1.5 <= rip_punch_mm <= 2.5
+    whip_delta_x = b1_base_66[1][0] - b1_fx_66[1][0]  # Positive => Screen-Right (-X) whip lead
+    whip_ok = whip_delta_x >= 0.012
+
+    for flag in (low_angle_ok, lens_curve_ok, rip_snap_ok, whip_ok):
+        if not flag:
+            errors += 1
+
+    print(
+        "\n[BEAT 1 HEROIC LOW-ANGLE, LENS CURVE & KINETIC FX AUDIT]\n"
+        f"  [{'PASS' if low_angle_ok else 'FAIL'}] Low-angle Z={b1_base_1[0][2]:.3f}m -> {b1_base_104[0][2]:.3f}m "
+        f"(subtly looking upward across all f=1..108)\n"
+        f"  [{'PASS' if lens_curve_ok else 'FAIL'}] Prime push: "
+        f"f1={b1_base_1[2]:.1f}mm -> f26..68={b1_base_26[2]:.1f}..{b1_base_68[2]:.1f}mm -> "
+        f"f104={b1_base_104[2]:.1f}mm -> f134={b1_base_134[2]:.1f}mm\n"
+        f"  [{'PASS' if rip_snap_ok else 'FAIL'}] f=34 pin-rip micro-snap punch: +{rip_punch_mm:.2f}mm lens kick\n"
+        f"  [{'PASS' if whip_ok else 'FAIL'}] f=66 spit-flick kinetic whip-accent: "
+        f"Screen-Right tgt lead={whip_delta_x * 1000.0:.1f}mm"
+    )
 
     # ------------------------------------------------------------------
     # 3. FULL 720-FRAME ANTI-GIMBAL-FLIP & CONTINUITY AUDIT

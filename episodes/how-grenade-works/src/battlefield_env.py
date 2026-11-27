@@ -19,7 +19,7 @@ from pathlib import Path
 
 import bmesh
 import bpy
-from mathutils import Euler, Matrix, Vector
+from mathutils import Euler, Matrix, Quaternion, Vector
 
 # Ensure root `src/mpfb_characters.py` is importable regardless of CWD
 _THIS_FILE = Path(__file__).resolve()
@@ -1534,20 +1534,20 @@ def _build_golden_hour_world_and_lights(col: bpy.types.Collection, total_frames:
     hero_eye_focus = Vector((0.03, 0.12, 1.67))
     hero_chest_focus = Vector((0.0, 0.05, 1.42))
 
-    # 1. Subtle Warm Desert Sand Bounce Fill Softbox (lifts facial shadows on Hero without killing golden-hour drama)
-    fill_loc = (1.35, 1.75, 1.55)
+    # 1. Subtle Warm Desert Sand Bounce Fill Softbox (sculpted jawline shadows — avoids flat white cheek blowout!)
+    fill_loc = (1.45, 1.55, 1.38)
     fill_light = _add_light(
         "Hero_DesertBounceFill",
         "AREA",
         fill_loc,
         _aim_euler(fill_loc, hero_chest_focus),
-        energy=48.0,
-        color=(1.0, 0.80, 0.56),
+        energy=30.0,
+        color=(1.0, 0.78, 0.54),
         col=col,
         size=1.85,
     )
 
-    # 2. AGENTS.md Section 1 Mandatory Wet-Cornea Softbox Eye Catchlight (0.42m AREA, 52W, diff=0.28, spec=1.75!)
+    # 2. AGENTS.md Section 1 Mandatory Wet-Cornea Softbox Eye Catchlight (0.42m AREA, crisp specular, low diffuse bleed!)
     # Positioned in front-right (+X, +Y) where Hero faces (yaw=162 deg -> faces +0.31X, +0.95Y)
     catch_loc = (0.58, 1.28, 1.78)
     catch_light = _add_light(
@@ -1555,15 +1555,15 @@ def _build_golden_hour_world_and_lights(col: bpy.types.Collection, total_frames:
         "AREA",
         catch_loc,
         _aim_euler(catch_loc, hero_eye_focus),
-        energy=52.0,
+        energy=46.0,
         color=(1.0, 0.96, 0.90),
         col=col,
         size=0.42,
     )
     if hasattr(catch_light.data, "diffuse_factor"):
-        catch_light.data.diffuse_factor = 0.28
+        catch_light.data.diffuse_factor = 0.11
     if hasattr(catch_light.data, "specular_factor"):
-        catch_light.data.specular_factor = 1.75
+        catch_light.data.specular_factor = 1.80
 
     # 3. Subtle Cool Desert Sky Rim on Hero opposite sun for sculptural helmet & shoulder separation
     rim_loc = (-1.75, -1.65, 2.35)
@@ -1979,8 +1979,9 @@ def _build_plate_carrier_vest(
     mat_webbing: bpy.types.Material,
     col: bpy.types.Collection,
 ) -> list[bpy.types.Object]:
-    """Build a snug sculpted Tactical Plate Carrier Vest with slim front/rear SAPI plates, shoulder pads,
-    side cummerbund, 3 front rifle magazine pouches & MOLLE straps, parented cleanly to `spine02`!"""
+    """Build a sleek, form-fitting Tactical Plate Carrier Vest (Crye JPC silhouette) with slim front/rear
+    SAPI plates, flush-contoured shoulder straps, rib-hugging curved wrap cummerbund (ZERO protruding side slabs!),
+    3 front rifle magazine pouches & MOLLE straps, parented cleanly to `spine02`!"""
     rig = actor["rig"]
     body = actor["body"]
     bpy.context.view_layer.update()
@@ -1991,29 +1992,48 @@ def _build_plate_carrier_vest(
     inv_rig = rig.matrix_world.inverted()
     pb_s3 = rig.pose.bones["spine03"]
     pb_s1 = rig.pose.bones["spine01"]
-    z_lo = pb_s3.head.z - 0.03
-    z_hi = pb_s1.head.z + 0.11
-    torso_pts = [
+    z_lo = pb_s3.head.z - 0.025
+    z_hi = pb_s1.head.z + 0.085
+    all_torso = [
         inv_rig @ (es.matrix_world @ v.co)
         for v in em.vertices
-        if abs((inv_rig @ (es.matrix_world @ v.co)).x) < 0.175 and z_lo <= (inv_rig @ (es.matrix_world @ v.co)).z <= z_hi
+        if abs((inv_rig @ (es.matrix_world @ v.co)).x) < 0.185 and z_lo <= (inv_rig @ (es.matrix_world @ v.co)).z <= z_hi + 0.06
     ]
     es.to_mesh_clear()
 
-    if torso_pts:
-        y_front = min(p.y for p in torso_pts) - 0.010
-        raw_back = max(p.y for p in torso_pts) + 0.008
-        # Clamp torso front-to-back depth <= 0.23m so back plate hugs spine snugly (zero boxy backpack!)
-        y_back = min(raw_back, y_front + 0.235)
-        half_w = min(0.172, max(0.140, 0.5 * (max(p.x for p in torso_pts) - min(p.x for p in torso_pts)) + 0.010))
-    else:
-        y_front, y_back, half_w = -0.140, 0.090, 0.160
-
-    z_bot = z_lo + 0.04
-    z_top = z_hi - 0.02
+    z_bot = z_lo + 0.035
+    z_top = z_hi - 0.015
     plate_h = z_top - z_bot
     plate_zc = 0.5 * (z_bot + z_top)
-    plate_w = half_w * 1.48
+
+    # Measure chest SAPI footprint & lower-rib cummerbund contour separately so ribs never inherit shoulder width!
+    chest_pts = [p for p in all_torso if abs(p.x) < 0.145 and z_bot <= p.z <= z_top]
+    rib_pts = [p for p in all_torso if abs(p.x) < 0.175 and (z_bot - 0.01) <= p.z <= (z_bot + plate_h * 0.50)]
+    shoulder_pts = [p for p in all_torso if 0.065 <= abs(p.x) <= 0.120 and z_top - 0.03 <= p.z <= z_hi + 0.055]
+
+    if chest_pts:
+        y_front = min(p.y for p in chest_pts) - 0.008
+        raw_back = max(p.y for p in chest_pts) + 0.006
+        y_back = min(raw_back, y_front + 0.232)
+    else:
+        y_front, y_back = -0.148, 0.084
+
+    if rib_pts:
+        rib_half_w = min(0.156, max(0.132, 0.5 * (max(p.x for p in rib_pts) - min(p.x for p in rib_pts))))
+        rib_y_front = min(p.y for p in rib_pts)
+        rib_y_back = min(max(p.y for p in rib_pts), rib_y_front + 0.222)
+    else:
+        rib_half_w, rib_y_front, rib_y_back = 0.145, -0.145, 0.070
+
+    if shoulder_pts:
+        sh_top_z = max(p.z for p in shoulder_pts) + 0.004
+        sh_y_front = min(p.y for p in shoulder_pts) - 0.004
+        sh_y_back = max(p.y for p in shoulder_pts) + 0.004
+    else:
+        sh_top_z, sh_y_front, sh_y_back = z_top + 0.014, y_front + 0.032, y_back - 0.006
+
+    plate_w = rib_half_w * 1.54  # Sleek swimmer-cut SAPI plate width (~0.22-0.24m)
+    y_mid = 0.5 * (y_front + y_back)
 
     bm = bmesh.new()
 
@@ -2024,34 +2044,133 @@ def _build_plate_carrier_vest(
             bmesh.ops.rotate(bm, cent=(0, 0, 0), matrix=Euler((math.radians(rot_x), 0, 0)).to_matrix(), verts=res["verts"])
         bmesh.ops.translate(bm, vec=(cx, cy, cz), verts=res["verts"])
 
+    def add_curved_wrap_band(
+        pts_xy: list[tuple[float, float]],
+        z_lo_band: float,
+        z_hi_band: float,
+        thickness: float,
+        side_sgn: float,
+    ) -> None:
+        """Sweep a closed, rib-hugging Cordura strap smoothly along an XY path with outward thickness."""
+        rings = []
+        n_pts = len(pts_xy)
+        for idx_p, (px, py) in enumerate(pts_xy):
+            p_prev = Vector((pts_xy[max(0, idx_p - 1)][0], pts_xy[max(0, idx_p - 1)][1], 0.0))
+            p_next = Vector((pts_xy[min(n_pts - 1, idx_p + 1)][0], pts_xy[min(n_pts - 1, idx_p + 1)][1], 0.0))
+            tang = (p_next - p_prev)
+            if tang.length < 1e-6:
+                tang = Vector((0.0, 1.0, 0.0))
+            tang.normalize()
+            # Outward normal pointing away from torso centerline
+            nrm = Vector((tang.y, -tang.x, 0.0))
+            if nrm.x * side_sgn < 0.0:
+                nrm = -nrm
+            in_x, in_y = px - nrm.x * (thickness * 0.35), py - nrm.y * (thickness * 0.35)
+            out_x, out_y = px + nrm.x * (thickness * 0.65), py + nrm.y * (thickness * 0.65)
+            v0 = bm.verts.new((in_x, in_y, z_lo_band))
+            v1 = bm.verts.new((out_x, out_y, z_lo_band))
+            v2 = bm.verts.new((out_x, out_y, z_hi_band))
+            v3 = bm.verts.new((in_x, in_y, z_hi_band))
+            rings.append((v0, v1, v2, v3))
+
+        for k in range(len(rings) - 1):
+            a0, a1, a2, a3 = rings[k]
+            b0, b1, b2, b3 = rings[k + 1]
+            bm.faces.new((a0, a1, b1, b0))
+            bm.faces.new((a1, a2, b2, b1))
+            bm.faces.new((a2, a3, b3, b2))
+            bm.faces.new((a3, a0, b0, b3))
+        bm.faces.new((rings[0][3], rings[0][2], rings[0][1], rings[0][0]))
+        bm.faces.new((rings[-1][0], rings[-1][1], rings[-1][2], rings[-1][3]))
+
     # 1. Slim Contoured Front & Rear Armored SAPI Plates
-    add_beveled_plate(0.0, y_front - 0.011, plate_zc, plate_w, 0.024, plate_h, rot_x=-3.5)
-    add_beveled_plate(0.0, y_back + 0.010, plate_zc + 0.008, plate_w * 0.94, 0.022, plate_h * 0.96, rot_x=2.5)
+    add_beveled_plate(0.0, y_front - 0.008, plate_zc, plate_w, 0.021, plate_h, rot_x=-2.5)
+    add_beveled_plate(0.0, y_back + 0.008, plate_zc + 0.006, plate_w * 0.94, 0.020, plate_h * 0.96, rot_x=2.0)
 
-    # 2. Padded Tactical Shoulder Straps bridging front & back plates snugly
-    y_mid = 0.5 * (y_front + y_back)
-    shoulder_depth = (y_back - y_front) + 0.026
-    for sgn in (-1.0, 1.0):
-        add_beveled_plate(sgn * (half_w * 0.58), y_mid, z_top + 0.020, 0.060, shoulder_depth, 0.024, rot_x=0.0)
-        add_beveled_plate(sgn * (half_w * 0.60), y_front - 0.008, z_top - 0.018, 0.056, 0.024, 0.075, rot_x=-6.0)
+    def add_curved_shoulder_strap(x_center: float, pts_yz: list[tuple[float, float]], width: float, thickness: float) -> None:
+        """Sweep one single continuous Cordura shoulder strap smoothly over the trapezius (YZ arch)."""
+        rings = []
+        n_pts = len(pts_yz)
+        hw = width * 0.5
+        for idx_p, (py, pz) in enumerate(pts_yz):
+            p_prev = Vector((0.0, pts_yz[max(0, idx_p - 1)][0], pts_yz[max(0, idx_p - 1)][1]))
+            p_next = Vector((0.0, pts_yz[min(n_pts - 1, idx_p + 1)][0], pts_yz[min(n_pts - 1, idx_p + 1)][1]))
+            tang = p_next - p_prev
+            if tang.length < 1e-6:
+                tang = Vector((0.0, 1.0, 0.0))
+            tang.normalize()
+            # Outward normal in YZ plane (pointing away from body interior / upward over shoulder)
+            nrm = Vector((0.0, -tang.z, tang.y))
+            if nrm.z < -0.2 and idx_p > 0 and idx_p < n_pts - 1:
+                nrm = -nrm
+            in_y, in_z = py - nrm.y * (thickness * 0.30), pz - nrm.z * (thickness * 0.30)
+            out_y, out_z = py + nrm.y * (thickness * 0.70), pz + nrm.z * (thickness * 0.70)
+            v0 = bm.verts.new((x_center - hw, in_y, in_z))
+            v1 = bm.verts.new((x_center + hw, in_y, in_z))
+            v2 = bm.verts.new((x_center + hw, out_y, out_z))
+            v3 = bm.verts.new((x_center - hw, out_y, out_z))
+            rings.append((v0, v1, v2, v3))
 
-    # 3. Slim Side Cummerbund Panels wrapping ribs snugly
+        for k in range(len(rings) - 1):
+            a0, a1, a2, a3 = rings[k]
+            b0, b1, b2, b3 = rings[k + 1]
+            bm.faces.new((a0, a1, b1, b0))
+            bm.faces.new((a1, a2, b2, b1))
+            bm.faces.new((a2, a3, b3, b2))
+            bm.faces.new((a3, a0, b0, b3))
+        bm.faces.new((rings[0][3], rings[0][2], rings[0][1], rings[0][0]))
+        bm.faces.new((rings[-1][0], rings[-1][1], rings[-1][2], rings[-1][3]))
+
+    # 2. Continuous Curved Tactical Shoulder Straps hugging snugly over trapezius (zero floating collar horns!)
+    sh_peak_z = sh_top_z - 0.002
+    sh_y_peak = 0.5 * (sh_y_front + sh_y_back) + 0.006
     for sgn in (-1.0, 1.0):
-        add_beveled_plate(sgn * (half_w + 0.008), y_mid, z_bot + plate_h * 0.34, 0.020, shoulder_depth * 0.86, plate_h * 0.42)
+        sh_x = sgn * (plate_w * 0.36)
+        strap_yz = [
+            (y_front - 0.006, z_top - 0.022),
+            (y_front + 0.006, z_top + 0.004),
+            (sh_y_front + 0.004, sh_peak_z - 0.010),
+            (sh_y_peak, sh_peak_z),
+            (sh_y_back - 0.004, sh_peak_z - 0.010),
+            (y_back - 0.006, z_top + 0.004),
+            (y_back + 0.006, z_top - 0.020),
+        ]
+        add_curved_shoulder_strap(sh_x, strap_yz, width=0.042, thickness=0.010)
+
+    # 3. Seamless Flush Side Cummerbund Band connecting INSIDE front SAPI plate -> tight rib hug -> INSIDE rear SAPI!
+    #    Zero gap, zero protruding side wing!
+    rib_yc = 0.5 * (rib_y_front + rib_y_back)
+    c_z_lo = z_bot + plate_h * 0.16
+    c_z_hi = z_bot + plate_h * 0.42
+    flank_x = rib_half_w + 0.001  # Tightly hugs BDU combat shirt ribs without jutting out!
+    front_x_in = plate_w * 0.34   # Anchored cleanly INSIDE front SAPI plate edge (zero side gap!)
+    rear_x_in = plate_w * 0.34    # Anchored cleanly INSIDE rear SAPI plate edge
+    for sgn in (-1.0, 1.0):
+        wrap_pts: list[tuple[float, float]] = [
+            (sgn * front_x_in, y_front - 0.006),
+            (sgn * (plate_w * 0.49), y_front - 0.003),
+            (sgn * (flank_x * 0.94), rib_y_front + 0.018),
+            (sgn * flank_x, rib_yc - 0.025),
+            (sgn * flank_x, rib_yc + 0.020),
+            (sgn * (flank_x * 0.92), rib_y_back - 0.012),
+            (sgn * (plate_w * 0.47), y_back + 0.003),
+            (sgn * rear_x_in, y_back + 0.006),
+        ]
+        add_curved_wrap_band(wrap_pts, c_z_lo, c_z_hi, thickness=0.0085, side_sgn=sgn)
 
     # 4. 3 Front Sculpted Rifle Magazine Pouches across lower chest!
-    pouch_w = (plate_w * 0.86) / 3.0 - 0.008
+    pouch_w = (plate_w * 0.86) / 3.0 - 0.007
     pouch_h = plate_h * 0.42
     pouch_z = z_bot + pouch_h * 0.56
     for p_i in (-1, 0, 1):
-        px = p_i * (pouch_w + 0.009)
-        add_beveled_plate(px, y_front - 0.032, pouch_z, pouch_w, 0.028, pouch_h, rot_x=-3.0)
-        add_beveled_plate(px, y_front - 0.037, pouch_z + pouch_h * 0.32, pouch_w * 0.88, 0.012, pouch_h * 0.34, rot_x=-5.0)
+        px = p_i * (pouch_w + 0.008)
+        add_beveled_plate(px, y_front - 0.026, pouch_z, pouch_w, 0.024, pouch_h, rot_x=-2.5)
+        add_beveled_plate(px, y_front - 0.031, pouch_z + pouch_h * 0.32, pouch_w * 0.88, 0.010, pouch_h * 0.34, rot_x=-4.5)
 
     # 5. Upper-Left Tactical Comms / Admin Pouch
-    add_beveled_plate(half_w * 0.38, y_front - 0.028, z_top - 0.072, 0.064, 0.022, 0.074, rot_x=-4.0)
+    add_beveled_plate(rib_half_w * 0.36, y_front - 0.023, z_top - 0.068, 0.060, 0.019, 0.070, rot_x=-3.5)
 
-    bmesh.ops.bevel(bm, geom=list(bm.edges), offset=0.006, segments=2, affect="EDGES")
+    bmesh.ops.bevel(bm, geom=list(bm.edges), offset=0.0045, segments=2, affect="EDGES")
     bm.normal_update()
     vmesh = bpy.data.meshes.new(f"{name}_PlateCarrier_Mesh")
     bm.to_mesh(vmesh)
@@ -2066,10 +2185,10 @@ def _build_plate_carrier_vest(
     # MOLLE horizontal webbing strips & morale patch panel
     wbm = bmesh.new()
     for strip_i in range(3):
-        sz = z_top - 0.045 - strip_i * 0.034
+        sz = z_top - 0.042 - strip_i * 0.032
         res = bmesh.ops.create_cube(wbm, size=1.0)
-        bmesh.ops.scale(wbm, vec=(plate_w * 0.88, 0.010, 0.016), verts=res["verts"])
-        bmesh.ops.translate(wbm, vec=(0.0, y_front - 0.036, sz), verts=res["verts"])
+        bmesh.ops.scale(wbm, vec=(plate_w * 0.86, 0.009, 0.014), verts=res["verts"])
+        bmesh.ops.translate(wbm, vec=(0.0, y_front - 0.028, sz), verts=res["verts"])
     wbm.normal_update()
     wmesh = bpy.data.meshes.new(f"{name}_VestMOLLE_Mesh")
     wbm.to_mesh(wmesh)
@@ -2164,21 +2283,29 @@ def _create_hero_grenade_socket(actor: dict, col: bpy.types.Collection) -> bpy.t
 # ============================================================================
 def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
     """Animate Hero Soldier:
-    - Beat 1 (f=1..108): Authentic Action-Movie Teeth Pin-Pull!
-      * f=1..24: Right hand brings grenade cleanly up to mouth/lips so the chrome pull-ring sits
-        literally at his teeth (`socket_z ≈ teeth_z - 0.058m`, ~0.052m laterally in front-left of lips,
-        gentle clamped jaw ~6.0 deg — never gaping!).
-      * f=24..50: Unmistakable opposite-direction tug — head snaps decisively back-right while right
-        arm pulls firmly forward-left (~0.14m separation!), visually ripping the pin out with his teeth!
-      * f=50..92: Hero returns gaze straight ahead with intense determined eyes and lowers grenade
-        slightly into hero-inspection stance (~0.14m out from chest/chin) with spoon visibly clamped!
-      * Left arm stays cleanly in a low tactical ready/brace posture out of foreground/subtitles!
+    - Beat 1 (f=1..108): Badass Rajinikanth Swagger + Authentic Inter-Incisal Teeth Pin-Pull & Spit-Flick!
+      * f=1..18 (Confident Approach): Chin slightly tucked (+6 deg), narrowed intense hero eyes locked toward
+        camera, subtle confident raised-brow tension; right fist lifts M67 grenade smoothly up front-left of mouth.
+      * f=16..28 (THE TEETH BITE): At f=16 jaw parts (7.5 deg) to accept chrome ring; at f=22..28 teeth CLAMP
+        DOWN FIRMLY onto chrome pull-ring wire (jaw=2.4 deg) with Hero_Grenade_Socket at Z ≈ bite_z - 0.0612m
+        and ~0.050m laterally in front-left of mouth (ring outer wire literally between incisors!).
+      * f=28..33 (Gritty Tension Strain): Head & right fist tense ~4mm against each other before pin breaks free!
+      * f=33..46 (EXPLOSIVE OPPOSITE-DIRECTION RIP): Head whips decisively BACK-RIGHT (~+18 deg yaw, heroic chin
+        lift) while right arm yanks grenade firmly FORWARD-LEFT & slightly DOWN (~0.15m separation from mouth!).
+      * f=46..62 (RAJINIKANTH SWAGGER SMIRK): Live grenade held steady at upper-chest/shoulder height (spoon
+        visibly clamped!); head turns toward camera with badass asymmetric half-smirk, narrowed confident eyes &
+        one cocked eyebrow while chrome pull-ring + cotter pin dangles heroically from clamped teeth!
+      * f=60..72 (RAJINIKANTH TEETH SPIT / FLICK): Quick anticipation cock slightly left (f=60..64), then sharp
+        chin whip RIGHT-AND-UP (+14 deg yaw, -8 deg pitch up) + crisp mouth flick (jaw 2.4 -> 10.5 at f=66 -> 2.8
+        at f=72) spitting/flicking the spinning pin right out of his teeth!
+      * f=74..108 (COOL BOSS CONFIDENCE): Cool boss nod (f=78..88) + confident grenade wrist tilt/bounce in his
+        clenched fist, then transitions seamlessly into Beat 2 explosive overhand throw (f=109..134)!
     - Beat 2 (f=109..148): Athletic wind-up (f=108..122), whip acceleration (f=128), explosive
       overhand throw releasing at EXACT f=134, natural follow-through (f=148)!
     - Beats 3-6 (f=172..720): Tactical crouch behind sandbag parapet watching the enemy bunker."""
     rig = actor["rig"]
 
-    # Helper to apply a complete upper-body + facial pose cleanly at a keyframe
+    # Helper to apply a complete upper-body + expressive swagger facial pose cleanly at a keyframe
     def pose_hero(
         f: int,
         spine2: tuple[float, float, float],
@@ -2199,6 +2326,11 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
         weight_shift: float = -0.18,
         knee_bend: float = 0.14,
         hip_drop_z: float = 0.0,
+        smirk: float = 0.0,
+        brow_cock: float = 0.0,
+        eye_narrow: float = 0.0,
+        lip_spit: float = 0.0,
+        wrist_r_extra: tuple[float, float, float] | None = None,
     ):
         t = (f - 1) / float(FPS)
         rig.location = Vector((HERO_POS[0], HERO_POS[1], actor["base_z"] - hip_drop_z))
@@ -2213,23 +2345,113 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
         mc.apply_arm_with_clavicle(rig, "R", ua_r, la_r, frame=f)
         mc.apply_arm_with_clavicle(rig, "L", ua_l, la_l, frame=f)
 
+        # Optional expressive right-wrist tilt/bounce for Beat 1 cool-boss swagger!
+        if wrist_r_extra is not None and "wrist.R" in rig.pose.bones:
+            la_rx, _la_ry, la_rz = float(la_r[0]), float(la_r[1]), float(la_r[2])
+            base_wrx = max(-6.0, min(6.0, (la_rx + 14.0) * 0.16))
+            base_wry = max(-5.0, min(5.0, -max(0.0, -la_rx - 16.0) * 0.12))
+            base_wrz = max(-5.0, min(5.0, -la_rz * 0.18))
+            mc.set_bone_char_rot(
+                rig,
+                "wrist.R",
+                base_wrx + wrist_r_extra[0],
+                base_wry + wrist_r_extra[1],
+                base_wrz + wrist_r_extra[2],
+                frame=f,
+            )
+
         apply_grenade_grip(rig, "R", grip_amount=grip_r, frame=f)
         mc.apply_hand_gesture(rig, "L", hand_l, frame=f)
 
-        # Clamp jaw <= 10.0 deg per AGENTS.md Section 1 (gentle ring bite ~6 deg, never gaping!)
+        # Clamp jaw <= 12.0 deg per AGENTS.md Section 1 (allows crisp 10.5 deg spit-flick while never gaping!)
+        jaw_clamped = max(0.0, min(12.0, float(jaw_deg)))
         mc.apply_facial_acting(
             rig,
             t=t,
             frame=f,
-            jaw_open_deg=min(10.0, jaw_deg),
+            jaw_open_deg=jaw_clamped,
             brow_lift=brow,
             smile=smile,
-            blink_period=3.6,
-            blink_phase=1.1,
+            blink_period=3.8,
+            blink_phase=1.9,
             eye_yaw_deg=eye_yaw,
             eye_pitch_deg=eye_pitch,
-            lip_narrow=0.28 if jaw_deg >= 4.5 else 0.0,
+            lip_narrow=max(0.28 if jaw_clamped >= 4.5 else 0.0, lip_spit * 0.65),
         )
+
+        # --- Expressive Rajinikanth Swagger Facial Layer (keyed on every pose_hero call for clean Bezier!) ---
+        sm = max(0.0, min(1.0, float(smirk)))
+        bc = max(-1.0, min(1.0, float(brow_cock)))
+        en = max(0.0, min(1.0, float(eye_narrow)))
+        sp = max(0.0, min(1.0, float(lip_spit)))
+
+        # 1. Intense narrowed hero eyes (raises lower lid orbicularis04 + slight focused upper lid without closing!)
+        #    Keep upper lid strictly <= -1.6 deg so bright iris & wet-cornea catchlights always gleam (AGENTS.md Sec 1)
+        if en > 1e-4:
+            lid_focus = -5.0 + 3.2 * en + max(-3.0, min(1.5, float(eye_pitch) * 0.18))
+            mc.set_bone_char_rot(rig, "orbicularis03.L", lid_focus, 0.0, 0.0, frame=f)
+            mc.set_bone_char_rot(rig, "orbicularis03.R", lid_focus, 0.0, 0.0, frame=f)
+        if "orbicularis04.L" in rig.pose.bones:
+            mc.set_bone_char_loc(rig, "orbicularis04.L", 0.0, 0.0, 0.0014 * en + 0.0005 * max(0.0, smile), frame=f)
+        if "orbicularis04.R" in rig.pose.bones:
+            mc.set_bone_char_loc(rig, "orbicularis04.R", 0.0, 0.0, 0.0014 * en + 0.0005 * max(0.0, smile), frame=f)
+
+        # 2. Asymmetric cocked eyebrow (refined movie-star arch on camera-facing Left brow while Right brow furrows!)
+        brow_micro = math.sin(t * 1.15 + 1.9) * 0.00045
+        furrow_dx = min(0.0, float(brow)) * 0.0020
+        dz_l = float(brow) * 0.0052 + bc * 0.0032 + brow_micro
+        dz_r = float(brow) * 0.0054 - bc * 0.0018 - brow_micro * 0.45
+        mc.set_bone_char_loc(rig, "oculi01.L", furrow_dx * (1.0 - 0.50 * max(0.0, bc)), 0.0, dz_l, frame=f)
+        mc.set_bone_char_loc(rig, "oculi01.R", -furrow_dx, 0.0, dz_r, frame=f)
+        if "oculi02.L" in rig.pose.bones:
+            mc.set_bone_char_loc(rig, "oculi02.L", 0.0, 0.0, bc * 0.0036 + float(brow) * 0.0018, frame=f)
+        if "oculi02.R" in rig.pose.bones:
+            mc.set_bone_char_loc(rig, "oculi02.R", 0.0, 0.0, -bc * 0.0016 + float(brow) * 0.0022, frame=f)
+
+        # 3. Badass Rajinikanth asymmetric half-smirk (charismatic subtle lift on camera-facing .L mouth corner!)
+        jaw_calm = max(0.35, 1.0 - jaw_clamped / 12.0)
+        narrow_val = max(0.28 if jaw_clamped >= 4.5 else 0.0, sp * 0.85)
+        narrow_in = narrow_val * 0.0024
+        narrow_fwd = -narrow_val * 0.0016
+        dz_sm_base = float(smile) * 0.0040 * jaw_calm
+        dx_sm_base = abs(float(smile)) * 0.0018 * jaw_calm
+        # Camera-facing Left mouth corner (Screen Right) lifts cleanly into charismatic Rajinikanth half-smirk!
+        mc.set_bone_char_loc(
+            rig,
+            "risorius03.L",
+            dx_sm_base + 0.0044 * sm - narrow_in,
+            0.0018 * float(smile) * jaw_calm + 0.0032 * sm + narrow_fwd,
+            dz_sm_base + 0.0056 * sm,
+            frame=f,
+        )
+        # Right corner stays cool & composed
+        mc.set_bone_char_loc(
+            rig,
+            "risorius03.R",
+            -dx_sm_base - 0.0005 * sm + narrow_in,
+            0.0018 * float(smile) * jaw_calm + 0.0003 * sm + narrow_fwd,
+            dz_sm_base + 0.0004 * sm,
+            frame=f,
+        )
+        if "levator05.L" in rig.pose.bones:
+            mc.set_bone_char_loc(
+                rig,
+                "levator05.L",
+                0.0016 * sm + max(0.0, smile) * 0.0010,
+                -0.0014 * sm - max(0.0, smile) * 0.0012,
+                0.0032 * sm + max(0.0, smile) * 0.0020,
+                frame=f,
+            )
+        if "oris04.L" in rig.pose.bones:
+            mc.set_bone_char_loc(rig, "oris04.L", 0.0010 * sm, 0.0008 * sm, 0.0020 * sm, frame=f)
+        if "oris03.L" in rig.pose.bones:
+            mc.set_bone_char_loc(rig, "oris03.L", 0.0008 * sm, 0.0007 * sm, 0.0018 * sm, frame=f)
+
+        # 4. Crisp spit-flick lip burst (forward -Y protrusion on upper/lower lip midline at f=65..67)
+        if "oris02" in rig.pose.bones:
+            mc.set_bone_char_loc(rig, "oris02", 0.0, -(narrow_val * 0.0022 + sp * 0.0034), -narrow_val * 0.0004 + sp * 0.0005, frame=f)
+        if "oris06" in rig.pose.bones:
+            mc.set_bone_char_loc(rig, "oris06", 0.0, -(narrow_val * 0.0024 + sp * 0.0036), narrow_val * 0.0005 - sp * 0.0005, frame=f)
 
     # Arm kinematics in MPFB2 character space:
     # Right arm (-X rest):
@@ -2238,78 +2460,217 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
     # Left arm (+X rest):
     #   +rx/+rz keeps left arm cleanly down & braced by left hip/side (ZERO foreground belly/subtitle clutter!)
 
-    # BEAT 1 (f=1..108): Action-Movie Teeth Pin-Pull Close-Up
-    # f=1: Bringing live grenade smoothly up toward lips/mouth (low tactical left arm brace!)
+    # =========================================================================
+    # BEAT 1 (f=1..108): RAJINIKANTH SWAGGER + REAL TEETH PIN-PULL + SPIT-FLICK
+    # =========================================================================
+    # f=1 (Confident Approach): Chin slightly tucked (+6 deg), narrowed intense hero eyes locked on camera,
+    # slight confident raised-brow tension; right fist rising smoothly with live M67 grenade!
     pose_hero(
         1,
-        spine2=(3.0, -1.0, -1.5), spine1=(2.0, 0.0, -1.5),
-        neck=(1.5, 0.0, -2.5), head=(2.5, 0.5, -3.5),
-        ua_r=(-0.5, -9.0, 31.0), la_r=(-79.5, 12.0, 57.0),
+        spine2=(2.0, -0.5, 1.5), spine1=(1.5, 0.0, 1.5),
+        neck=(2.0, 0.0, 3.5), head=(4.2, -1.8, 6.0),
+        ua_r=(-1.0, -14.5, 29.0), la_r=(-74.0, 11.0, 54.0),
         ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=1.8, brow=-0.36, eye_yaw=-3.0, eye_pitch=-4.0,
+        jaw_deg=1.6, brow=-0.22, eye_yaw=6.0, eye_pitch=-2.5,
+        smirk=0.28, brow_cock=0.35, eye_narrow=0.72,
     )
-    # f=18: Chrome pull-ring arrives literally at teeth/lips! Head leans gently forward, jaw ready (5.2 deg)
+    # f=11: Smooth approach — head turns smoothly left toward rising grenade, eyes lock onto chrome ring
     pose_hero(
-        18,
-        spine2=(4.2, -1.5, -2.2), spine1=(2.8, 0.0, -1.8),
-        neck=(2.8, -0.5, -3.8), head=(4.2, 1.2, -5.2),
-        ua_r=(-2.5, -4.0, 43.5), la_r=(-86.0, 12.0, 57.5),
+        11,
+        spine2=(2.2, -0.8, -0.8), spine1=(1.5, 0.0, -0.8),
+        neck=(2.0, -0.3, -1.8), head=(3.8, 0.6, -3.2),
+        ua_r=(-2.0, -10.5, 37.5), la_r=(-80.5, 12.0, 56.5),
         ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=5.2, brow=-0.46, eye_yaw=-4.0, eye_pitch=-5.0,
+        jaw_deg=2.2, brow=-0.32, eye_yaw=-2.5, eye_pitch=-4.5,
+        smirk=0.05, brow_cock=0.10, eye_narrow=0.76,
     )
-    # f=24: BITE LOCKED! Teeth clamped cleanly around chrome pull-ring (jaw=6.0 deg, socket_z=teeth_z-0.058m!)
+    # f=16 (JAW PARTS!): Mouth opens cleanly (jaw=7.5 deg) to receive chrome pull-ring right at front incisors!
     pose_hero(
-        24,
-        spine2=(4.5, -1.5, -2.5), spine1=(3.0, 0.0, -2.0),
-        neck=(3.0, -0.5, -4.0), head=(4.5, 1.5, -5.5),
-        ua_r=(-3.0, -3.0, 44.0), la_r=(-86.0, 12.0, 57.5),
+        16,
+        spine2=(2.4, -1.0, -1.5), spine1=(1.5, 0.0, -1.5),
+        neck=(2.2, -0.4, -3.4), head=(3.8, 1.2, -5.2),
+        ua_r=(-2.6, -11.2, 42.0), la_r=(-81.0, 12.0, 61.0),
         ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=6.0, brow=-0.54, eye_yaw=-4.0, eye_pitch=-5.5,
+        jaw_deg=7.5, brow=-0.46, eye_yaw=-4.0, eye_pitch=-5.0,
+        smirk=0.0, brow_cock=0.0, eye_narrow=0.80,
     )
-    # f=36: MID-PULL TENSION! Opposite-direction tug — head pulls back-right while right arm pulls forward-left!
+    # f=22 (THE TEETH BITE — CLAMP LOCKED!): Teeth clamp FIRMLY onto chrome pull-ring (jaw=2.4 deg)!
+    # Hero_Grenade_Socket calibrated to EXACT Z ≈ bite_z - 0.0612m (<1mm!) and 0.050m front-left of mouth!
     pose_hero(
-        36,
-        spine2=(3.8, -0.5, -0.5), spine1=(2.5, 0.2, -0.5),
-        neck=(1.2, 0.4, -0.8), head=(1.5, 0.0, -0.8),
-        ua_r=(-3.5, -7.5, 38.0), la_r=(-86.0, 11.0, 58.5),
-        ua_l=(11.0, -4.0, 15.0), la_l=(-18.0, 0.0, -4.0),
+        22,
+        spine2=(2.5, -1.0, -1.8), spine1=(1.6, 0.0, -1.8),
+        neck=(2.2, -0.5, -4.0), head=(3.8, 1.5, -5.8),
+        ua_r=(-2.8, -10.5, 43.0), la_r=(-81.5, 12.0, 62.0),
+        ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=6.2, brow=-0.58, eye_yaw=-1.0, eye_pitch=-3.0,
+        jaw_deg=2.4, brow=-0.58, eye_yaw=-4.2, eye_pitch=-5.2,
+        smirk=0.0, brow_cock=0.0, eye_narrow=0.88,
     )
-    # f=50: DECISIVE PIN POP! Head snaps sharply back-right while right arm pulls firmly forward-left (~0.14m gap!)
+    # f=26: Rock-solid bite hold — chrome ring locked tightly between upper & lower central incisors!
     pose_hero(
-        50,
-        spine2=(3.0, 0.5, 1.5), spine1=(2.0, 0.5, 1.0),
-        neck=(-0.5, 1.0, 2.5), head=(-1.5, -1.5, 4.0),
-        ua_r=(-4.0, -12.0, 32.0), la_r=(-86.0, 10.0, 60.0),
+        26,
+        spine2=(2.5, -1.0, -1.8), spine1=(1.6, 0.0, -1.8),
+        neck=(2.2, -0.5, -4.0), head=(3.8, 1.5, -5.8),
+        ua_r=(-2.8, -10.5, 43.0), la_r=(-81.5, 12.0, 62.0),
+        ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=2.4, brow=-0.62, eye_yaw=-4.2, eye_pitch=-5.2,
+        smirk=0.0, brow_cock=0.0, eye_narrow=0.90,
+    )
+    # f=28: Last locked frame right before gritty pin-break tension begins!
+    pose_hero(
+        28,
+        spine2=(2.5, -1.0, -1.8), spine1=(1.6, 0.0, -1.8),
+        neck=(2.2, -0.5, -4.0), head=(3.8, 1.5, -5.8),
+        ua_r=(-2.8, -10.5, 43.0), la_r=(-81.5, 12.0, 62.0),
+        ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=2.3, brow=-0.66, eye_yaw=-4.0, eye_pitch=-5.0,
+        smirk=0.0, brow_cock=0.0, eye_narrow=0.92,
+    )
+    # f=33 (GRITTY TENSION STRAIN!): Head & fist tense ~4-5mm against each other before cotter pin pops free!
+    pose_hero(
+        33,
+        spine2=(2.2, -0.6, -1.0), spine1=(1.4, 0.0, -1.0),
+        neck=(1.8, -0.2, -3.0), head=(3.2, 1.0, -4.4),
+        ua_r=(-3.0, -11.2, 41.8), la_r=(-81.2, 12.0, 61.4),
+        ua_l=(10.5, -4.0, 14.5), la_l=(-18.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=2.2, brow=-0.74, eye_yaw=-2.5, eye_pitch=-4.2,
+        smirk=0.0, brow_cock=0.0, eye_narrow=0.96,
+    )
+    # f=38 (SNAP BREAK-FREE MID-WHIP!): Cotter pin yields — head & right arm accelerate violently apart!
+    pose_hero(
+        38,
+        spine2=(1.8, 0.5, 1.2), spine1=(1.2, 0.4, 1.0),
+        neck=(0.2, 0.6, 1.5), head=(-0.5, -0.8, 3.5),
+        ua_r=(-4.5, -14.5, 35.5), la_r=(-79.0, 10.5, 57.0),
+        ua_l=(11.5, -4.5, 15.5), la_l=(-19.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=2.4, brow=-0.58, eye_yaw=1.5, eye_pitch=-2.0,
+        smirk=0.08, brow_cock=0.10, eye_narrow=0.86,
+    )
+    # f=46 (EXPLOSIVE OPPOSITE-DIRECTION RIP PEAK!): Head whips decisively BACK-RIGHT (+18 deg yaw, heroic
+    # chin lift!) while right arm yanks grenade firmly FORWARD-LEFT & slightly DOWN (~0.15m+ clean separation!)
+    pose_hero(
+        46,
+        spine2=(1.2, 1.4, 3.2), spine1=(0.8, 0.8, 2.5),
+        neck=(-1.6, 1.4, 5.2), head=(-3.2, -2.4, 12.8),
+        ua_r=(-6.8, -19.5, 29.5), la_r=(-74.5, 9.0, 53.0),
         ua_l=(12.0, -5.0, 16.0), la_l=(-20.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=3.8, brow=-0.46, eye_yaw=3.5, eye_pitch=-1.0,
+        jaw_deg=2.4, brow=-0.38, eye_yaw=1.5, eye_pitch=-0.5,
+        smirk=0.35, brow_cock=0.32, eye_narrow=0.80,
     )
-    # f=70: HERO INSPECTION STANCE — intense determined eyes straight ahead, grenade ~0.14m out, spoon clamped!
+    # f=54 (RAJINIKANTH SWAGGER SMIRK!): Grenade held rock-steady at upper-chest/shoulder height (spoon clamped!),
+    # head turns smoothly toward camera with asymmetric half-smirk + cocked brow while pin dangles from teeth!
     pose_hero(
-        70,
-        spine2=(3.0, -0.5, 0.0), spine1=(2.0, 0.0, 0.0),
-        neck=(0.5, 0.0, 0.5), head=(0.0, 0.0, 0.5),
-        ua_r=(-10.0, -12.0, 34.5), la_r=(-72.5, 8.0, 48.5),
+        54,
+        spine2=(1.8, 0.6, 3.5), spine1=(1.2, 0.4, 3.0),
+        neck=(0.4, -0.4, 6.5), head=(2.2, -3.8, 15.0),
+        ua_r=(-8.5, -17.5, 31.0), la_r=(-72.0, 8.5, 50.0),
+        ua_l=(10.5, -4.2, 14.5), la_l=(-18.5, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=2.4, brow=-0.28, eye_yaw=0.5, eye_pitch=-1.5,
+        smirk=0.82, brow_cock=0.58, eye_narrow=0.82,
+    )
+    # f=60: Peak Rajinikanth swagger smirk hold — piercing eye contact dead into camera with pin in teeth!
+    pose_hero(
+        60,
+        spine2=(2.0, 0.5, 3.5), spine1=(1.4, 0.4, 3.0),
+        neck=(0.6, -0.4, 6.5), head=(2.6, -4.0, 15.2),
+        ua_r=(-8.8, -17.0, 31.2), la_r=(-71.5, 8.5, 49.5),
+        ua_l=(10.5, -4.2, 14.5), la_l=(-18.5, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=2.4, brow=-0.26, eye_yaw=0.0, eye_pitch=-1.5,
+        smirk=0.90, brow_cock=0.62, eye_narrow=0.84,
+    )
+    # f=63 (SPIT-FLICK ANTICIPATION!): Quick anticipation cock of head slightly left (-5.5 deg) before spit-whip!
+    pose_hero(
+        63,
+        spine2=(2.4, -0.2, 2.2), spine1=(1.6, 0.0, 1.8),
+        neck=(1.4, 0.2, 4.0), head=(4.5, 0.8, 9.5),
+        ua_r=(-8.8, -17.0, 31.2), la_r=(-71.5, 8.5, 49.5),
+        ua_l=(10.5, -4.2, 14.5), la_l=(-18.5, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=2.4, brow=-0.34, eye_yaw=4.5, eye_pitch=-2.0,
+        smirk=0.65, brow_cock=0.45, eye_narrow=0.88,
+    )
+    # f=66 (RAJINIKANTH TEETH SPIT-FLICK PEAK!): Sharp chin whip RIGHT-AND-UP (+14 deg yaw, -8 deg pitch up)
+    # + intense narrowed eyes locked coolly on lens + crisp pursed mouth flick (jaw=10.5 deg) launching pin!
+    pose_hero(
+        66,
+        spine2=(1.2, 1.2, 4.5), spine1=(0.8, 0.6, 3.8),
+        neck=(-2.5, -0.8, 8.8), head=(-4.2, -4.5, 22.0),
+        ua_r=(-8.5, -16.8, 31.5), la_r=(-71.5, 8.5, 49.5),
+        ua_l=(10.5, -4.2, 14.5), la_l=(-18.5, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=10.5, brow=-0.36, eye_yaw=-8.5, eye_pitch=-3.5,
+        smirk=0.42, brow_cock=0.28, eye_narrow=0.90, lip_spit=1.0,
+    )
+    # f=71 (SPIT-FLICK SNAP FOLLOW-THROUGH!): Chin hits apex right-and-up while jaw snaps cleanly shut (2.8 deg)!
+    pose_hero(
+        71,
+        spine2=(1.0, 1.4, 4.8), spine1=(0.8, 0.8, 4.0),
+        neck=(-3.0, -1.0, 9.5), head=(-5.2, -4.8, 23.5),
+        ua_r=(-8.5, -16.8, 31.5), la_r=(-71.5, 8.5, 49.5),
+        ua_l=(10.5, -4.2, 14.5), la_l=(-18.5, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=2.8, brow=-0.28, eye_yaw=-9.5, eye_pitch=-2.5,
+        smirk=0.80, brow_cock=0.52, eye_narrow=0.84, lip_spit=0.10,
+    )
+    # f=75 (COOL BOSS RECOVERY): Smoothly returns to swaggering camera gaze with charismatic half-smirk
+    pose_hero(
+        75,
+        spine2=(2.0, 0.4, 3.2), spine1=(1.4, 0.2, 2.6),
+        neck=(0.5, -0.2, 5.5), head=(2.0, -3.2, 13.0),
+        ua_r=(-9.2, -16.0, 32.0), la_r=(-71.0, 8.2, 48.5),
+        ua_l=(10.2, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=1.6, brow=-0.26, smile=0.12, eye_yaw=1.5, eye_pitch=-1.5,
+        smirk=0.78, brow_cock=0.52, eye_narrow=0.78,
+        wrist_r_extra=(0.0, 0.0, 0.0),
+    )
+    # f=81 (COOL BOSS NOD DOWN + WRIST DIP): Confident slow boss nod as right fist dips slightly
+    pose_hero(
+        81,
+        spine2=(2.6, 0.2, 2.8), spine1=(1.8, 0.2, 2.2),
+        neck=(2.6, -0.2, 5.0), head=(8.2, -2.5, 11.8),
+        ua_r=(-10.2, -18.5, 32.5), la_r=(-68.0, 7.5, 46.5),
         ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=1.5, brow=-0.38, eye_yaw=0.0, eye_pitch=0.0,
+        jaw_deg=1.5, brow=-0.24, smile=0.14, eye_yaw=2.0, eye_pitch=-4.0,
+        smirk=0.82, brow_cock=0.55, eye_narrow=0.80,
+        wrist_r_extra=(-9.0, -6.0, 5.0),
     )
-    # f=92: Rock-steady tactical composure holding live safety spoon clamped down before throw
+    # f=87 (COOL BOSS NOD UP + CONFIDENT GRENADE WRIST BOUNCE/TILT!): Crisp +2.5cm lift showcasing clamped spoon!
     pose_hero(
-        92,
-        spine2=(3.2, -0.6, -0.4), spine1=(2.2, 0.0, -0.2),
-        neck=(0.6, 0.0, 0.6), head=(0.0, 0.0, 0.5),
-        ua_r=(-10.5, -11.0, 34.0), la_r=(-70.0, 8.0, 46.0),
+        87,
+        spine2=(1.8, 0.4, 2.8), spine1=(1.2, 0.2, 2.2),
+        neck=(-0.6, -0.4, 5.0), head=(-1.2, -3.5, 12.2),
+        ua_r=(-6.5, -10.5, 34.0), la_r=(-77.5, 10.0, 50.0),
         ua_l=(10.0, -4.0, 14.0), la_l=(-18.0, 0.0, -4.0),
         grip_r=1.0, hand_l="relaxed",
-        jaw_deg=1.4, brow=-0.38, eye_yaw=0.0, eye_pitch=0.0,
+        jaw_deg=1.5, brow=-0.24, smile=0.15, eye_yaw=2.0, eye_pitch=-0.5,
+        smirk=0.84, brow_cock=0.58, eye_narrow=0.78,
+        wrist_r_extra=(11.0, 9.0, -7.0),
     )
-    # f=108: Transition into athletic throw stance (left arm stays cleanly braced low-side, never blocking chest!)
+    # f=96 (COMBAT LOCK-IN): Smirk settles into cold tactical focus turning back toward enemy bunker
+    pose_hero(
+        96,
+        spine2=(2.8, -0.6, -1.0), spine1=(2.0, 0.0, -1.0),
+        neck=(0.8, 0.0, 1.5), head=(0.8, -0.5, 2.5),
+        ua_r=(-10.5, -6.0, 30.5), la_r=(-64.0, 8.0, 38.0),
+        ua_l=(9.5, -4.8, 13.5), la_l=(-19.5, -1.0, -4.5),
+        grip_r=1.0, hand_l="relaxed",
+        jaw_deg=1.6, brow=-0.42, eye_yaw=1.5, eye_pitch=0.0,
+        smirk=0.12, brow_cock=0.08, eye_narrow=0.76,
+        wrist_r_extra=(0.0, 0.0, 0.0),
+    )
+    # f=108: Seamless transition into athletic Beat 2 throw stance (left arm braced low-side!)
     pose_hero(
         108,
         spine2=(3.5, -1.8, -6.0), spine1=(2.5, 0.0, -5.5),
@@ -2319,6 +2680,7 @@ def _animate_hero_soldier(actor: dict, total_frames: int) -> None:
         grip_r=1.0, hand_l="relaxed",
         jaw_deg=2.0, brow=-0.42, eye_yaw=2.0, eye_pitch=1.0,
         weight_shift=-0.25, knee_bend=0.18,
+        smirk=0.0, brow_cock=0.0, eye_narrow=0.65,
     )
 
     # BEAT 2 (f=109..148): Athletic Wind-Up & Explosive Overhand Throw (EXACT Release at f=134!)
@@ -2591,27 +2953,137 @@ def _cinch_shirt_cuffs(actor: dict) -> None:
     mesh.update()
 
 
-def _find_front_teeth_vertex_ids(actor: dict) -> list[int]:
-    """Find vertex indices of the central front incisors on `teeth_base` in rest pose so
-    evaluated mouth/teeth world coordinates remain 100% invariant across all head rotations."""
+def _find_bite_and_nose_vertex_ids(actor: dict) -> dict[str, list[int]]:
+    """Find exact rest-pose vertex indices for:
+    - `upper_bite_vids`: LOWERMOST front-most vertices of upper central incisors (`head` group on `teeth_base`)
+    - `lower_bite_vids`: UPPERMOST front-most vertices of lower central incisors (`jaw` group on `teeth_base`)
+    - `nose_tip_vids`: anterior front-most apex vertices of Hero's nose tip on `body`
+    This eliminates the upper-palate/gum bug that caused the pull-ring to poke his nostril and guarantees
+    exact inter-incisal teeth tracking verified against nose_tip_z across all head rotations!"""
     teeth_obj = actor["equipped"].get("Teeth")
+    body_obj = actor.get("body")
     rig = actor["rig"]
-    if teeth_obj is None:
-        return []
+    result: dict[str, list[int]] = {"upper_bite_vids": [], "lower_bite_vids": [], "nose_tip_vids": []}
+
     bpy.context.view_layer.update()
     inv_rig = rig.matrix_world.inverted()
     deps = bpy.context.evaluated_depsgraph_get()
-    et = teeth_obj.evaluated_get(deps)
-    tm = et.to_mesh()
-    t_local = [(i, inv_rig @ (et.matrix_world @ v.co)) for i, v in enumerate(tm.vertices)]
-    et.to_mesh_clear()
-    if not t_local:
-        return []
-    central = [it for it in t_local if abs(it[1].x) < 0.014]
-    if len(central) < 8:
-        central = t_local
-    central.sort(key=lambda it: it[1].y)  # -Y is front in MPFB2 local space
-    return [it[0] for it in central[:16]]
+
+    if teeth_obj is not None:
+        et = teeth_obj.evaluated_get(deps)
+        tm = et.to_mesh()
+        jaw_vg = teeth_obj.vertex_groups.get("jaw")
+        jaw_idx = jaw_vg.index if jaw_vg is not None else -1
+
+        upper_central: list[tuple[int, Vector]] = []
+        lower_central: list[tuple[int, Vector]] = []
+        all_central: list[tuple[int, Vector]] = []
+
+        for i, v in enumerate(tm.vertices):
+            lp = inv_rig @ (et.matrix_world @ v.co)
+            if abs(lp.x) < 0.0085:
+                all_central.append((i, lp))
+                jaw_w = 0.0
+                if jaw_idx >= 0 and i < len(teeth_obj.data.vertices):
+                    for g in teeth_obj.data.vertices[i].groups:
+                        if g.group == jaw_idx:
+                            jaw_w = g.weight
+                            break
+                if jaw_w > 0.30:
+                    lower_central.append((i, lp))
+                else:
+                    upper_central.append((i, lp))
+        et.to_mesh_clear()
+
+        # Upper central incisors: restrict to front buccal/incisal surface (-Y front), then take LOWERMOST Z!
+        if upper_central:
+            u_min_y = min(it[1].y for it in upper_central)
+            u_front = [it for it in upper_central if it[1].y <= u_min_y + 0.012]
+            if len(u_front) < 8:
+                u_front = upper_central
+            u_front.sort(key=lambda it: (it[1].z, it[1].y))  # LOWERMOST Z = true incisor cutting edge!
+            result["upper_bite_vids"] = [it[0] for it in u_front[:8]]
+
+        # Lower central incisors: restrict to front buccal/incisal surface (-Y front), then take UPPERMOST Z!
+        if lower_central:
+            l_min_y = min(it[1].y for it in lower_central)
+            l_front = [it for it in lower_central if it[1].y <= l_min_y + 0.012]
+            if len(l_front) < 8:
+                l_front = lower_central
+            l_front.sort(key=lambda it: (-it[1].z, it[1].y))  # UPPERMOST Z = true lower incisor cutting edge!
+            result["lower_bite_vids"] = [it[0] for it in l_front[:8]]
+
+        # Fallback if teeth asset lacks separate jaw vertex group: split central front teeth by median Z
+        if (not result["upper_bite_vids"] or not result["lower_bite_vids"]) and all_central:
+            min_y = min(it[1].y for it in all_central)
+            front = [it for it in all_central if it[1].y <= min_y + 0.012]
+            zs = sorted(it[1].z for it in front)
+            mid_z = zs[len(zs) // 2]
+            u_fb = sorted([it for it in front if it[1].z >= mid_z], key=lambda it: it[1].z)
+            l_fb = sorted([it for it in front if it[1].z <= mid_z], key=lambda it: -it[1].z)
+            result["upper_bite_vids"] = [it[0] for it in u_fb[:8]]
+            result["lower_bite_vids"] = [it[0] for it in l_fb[:8]]
+
+    # Find exact anterior nose-tip apex vertices on body mesh (front-most -Y midline below eye height!)
+    if body_obj is not None:
+        eb = body_obj.evaluated_get(deps)
+        bm_mesh = eb.to_mesh()
+        eye_local = inv_rig @ actor.get("eye_center_rest", Vector((0.0, 0.0, 1.67)))
+        nose_band = []
+        for i, v in enumerate(bm_mesh.vertices):
+            lp = inv_rig @ (eb.matrix_world @ v.co)
+            if abs(lp.x) < 0.006 and (eye_local.z - 0.075) <= lp.z <= (eye_local.z - 0.005) and lp.y < -0.10:
+                nose_band.append((i, lp))
+        eb.to_mesh_clear()
+        if nose_band:
+            nose_band.sort(key=lambda it: it[1].y)  # -Y is front in MPFB2 local space -> literal nose tip!
+            result["nose_tip_vids"] = [it[0] for it in nose_band[:6]]
+
+    return result
+
+
+def _tune_hero_skin_sculpted(body_obj: bpy.types.Object) -> None:
+    """Deepen and warm Hero's MPFB2 ENHANCED_SSS skin shader slightly (rugged sun-tanned desert specialist
+    value + tighter SSS) so golden-hour sunlight carves sculpted Hollywood jawline shadows instead of
+    washing out cheeks to bright white under AgX."""
+    if body_obj is None:
+        return
+    for slot in body_obj.material_slots:
+        mat = slot.material
+        if mat is None or not mat.use_nodes or not mat.node_tree:
+            continue
+        mname = mat.name.lower()
+        if any(skip in mname for skip in ("nail", "genital")):
+            continue
+        if mat.users > 1:
+            mat = mat.copy()
+            slot.material = mat
+        is_lip = "lip" in mname
+        for node in mat.node_tree.nodes:
+            if node.type != "GROUP":
+                continue
+            if getattr(node, "node_tree", None) is not None and node.node_tree.users > 1:
+                node.node_tree = node.node_tree.copy()
+            if not is_lip:
+                if "colorMixIn" in node.inputs and not node.inputs["colorMixIn"].is_linked:
+                    node.inputs["colorMixIn"].default_value = (0.38, 0.21, 0.12, 1.0)
+                if "colorMixInStrength" in node.inputs and not node.inputs["colorMixInStrength"].is_linked:
+                    node.inputs["colorMixInStrength"].default_value = 0.24
+                if "Brightness" in node.inputs and not node.inputs["Brightness"].is_linked:
+                    node.inputs["Brightness"].default_value = -0.11
+                if "Contrast" in node.inputs and not node.inputs["Contrast"].is_linked:
+                    node.inputs["Contrast"].default_value = 0.09
+                if "Roughness" in node.inputs and not node.inputs["Roughness"].is_linked:
+                    node.inputs["Roughness"].default_value = 0.43
+                if "SSS strength" in node.inputs and not node.inputs["SSS strength"].is_linked:
+                    node.inputs["SSS strength"].default_value = 0.11
+            else:
+                if "Brightness" in node.inputs and not node.inputs["Brightness"].is_linked:
+                    node.inputs["Brightness"].default_value = -0.08
+                if "Contrast" in node.inputs and not node.inputs["Contrast"].is_linked:
+                    node.inputs["Contrast"].default_value = 0.06
+                if "SSS strength" in node.inputs and not node.inputs["SSS strength"].is_linked:
+                    node.inputs["SSS strength"].default_value = 0.12
 
 
 def _sample_socket_trajectory(sock: bpy.types.Object, start_f: int = 1, end_f: int = RELEASE_FRAME) -> tuple[dict[int, tuple[float, float, float]], dict[int, tuple[float, float, float, float]]]:
@@ -2635,36 +3107,89 @@ def _sample_socket_trajectory(sock: bpy.types.Object, start_f: int = 1, end_f: i
     return positions, quats
 
 
-def _sample_hero_mouth_trajectory(hero: dict, start_f: int = 1, end_f: int = 108) -> dict[int, Vector]:
-    """Evaluate exact world-space front-center of Hero's `teeth_base` across frames `start_f..end_f`
-    so the master scene can keep the grenade's chrome pull-ring locked literally at his teeth!"""
+def _sample_hero_bite_and_head(
+    hero: dict,
+    start_f: int = 1,
+    end_f: int = 108,
+) -> tuple[dict[int, Vector], dict[int, Quaternion], dict[int, float]]:
+    """Evaluate exact world-space inter-incisal bite point (`hero_bite_world_positions[f]`),
+    evaluated `head` bone world quaternion (`hero_head_world_quats[f]`), and verified nose-tip Z
+    (`nose_tip_z_map[f]`) across frames `start_f..end_f`.
+    Guarantees `bite_z <= nose_tip_z - 0.024m` on every frame so the pull-ring NEVER touches his nose!"""
     scene = bpy.context.scene
     prev_f = scene.frame_current
+    rig = hero["rig"]
+    body_obj = hero.get("body")
     teeth_obj = hero["equipped"].get("Teeth")
-    front_vids: list[int] = hero.get("front_teeth_vids", [])
-    mouth_positions: dict[int, Vector] = {}
+    u_vids: list[int] = hero.get("upper_bite_vids", [])
+    l_vids: list[int] = hero.get("lower_bite_vids", [])
+    nose_vids: list[int] = hero.get("nose_tip_vids", [])
+    pb_head = rig.pose.bones.get("head")
+
+    bite_positions: dict[int, Vector] = {}
+    head_quats: dict[int, Quaternion] = {}
+    nose_tip_z_map: dict[int, float] = {}
 
     for f in range(start_f, end_f + 1):
         scene.frame_set(f)
         bpy.context.view_layer.update()
+        deps = bpy.context.evaluated_depsgraph_get()
+
+        # 1. Exact world quaternion of Hero's `head` pose bone
+        if pb_head is not None:
+            head_mw = rig.matrix_world @ pb_head.matrix
+            head_quats[f] = head_mw.to_quaternion().normalized()
+        else:
+            head_quats[f] = rig.matrix_world.to_quaternion().normalized()
+
+        # 2. Exact evaluated world nose tip Z from base body mesh
+        nose_tip_z: float | None = None
+        if body_obj is not None and nose_vids:
+            eb = body_obj.evaluated_get(deps)
+            bm_mesh = eb.to_mesh()
+            if max(nose_vids) < len(bm_mesh.vertices):
+                n_pts = [eb.matrix_world @ bm_mesh.vertices[idx].co for idx in nose_vids]
+                nose_tip_z = sum(p.z for p in n_pts) / len(n_pts)
+            eb.to_mesh_clear()
+
+        # 3. Exact inter-incisal bite point (midpoint of lower edge of upper central incisors & upper edge of lower incisors)
+        bite_pt: Vector | None = None
         if teeth_obj is not None:
-            deps = bpy.context.evaluated_depsgraph_get()
             et = teeth_obj.evaluated_get(deps)
             tm = et.to_mesh()
-            if front_vids and max(front_vids) < len(tm.vertices):
-                pts = [et.matrix_world @ tm.vertices[idx].co for idx in front_vids]
-            else:
-                pts = [et.matrix_world @ v.co for v in tm.vertices]
+            n_v = len(tm.vertices)
+            u_pts = [et.matrix_world @ tm.vertices[idx].co for idx in u_vids if idx < n_v]
+            l_pts = [et.matrix_world @ tm.vertices[idx].co for idx in l_vids if idx < n_v]
             et.to_mesh_clear()
-            if pts:
-                ctr = sum(pts, Vector((0.0, 0.0, 0.0))) / len(pts)
-                mouth_positions[f] = Vector((round(float(ctr.x), 5), round(float(ctr.y), 5), round(float(ctr.z), 5)))
-                continue
-        mouth_positions[f] = Vector((0.09, 0.16, 1.59))
+            if u_pts and l_pts:
+                u_ctr = sum(u_pts, Vector((0.0, 0.0, 0.0))) / len(u_pts)
+                l_ctr = sum(l_pts, Vector((0.0, 0.0, 0.0))) / len(l_pts)
+                bite_pt = 0.5 * (u_ctr + l_ctr)
+            elif u_pts:
+                bite_pt = sum(u_pts, Vector((0.0, 0.0, 0.0))) / len(u_pts)
+            elif l_pts:
+                bite_pt = sum(l_pts, Vector((0.0, 0.0, 0.0))) / len(l_pts)
+
+        if bite_pt is None:
+            bite_pt = Vector((0.09, 0.15, 1.595))
+
+        # Safety guarantee against evaluated nose tip Z (never closer than 2.45 cm below nose tip!)
+        if nose_tip_z is not None:
+            if bite_pt.z > nose_tip_z - 0.0245:
+                bite_pt.z = nose_tip_z - 0.0245
+            nose_tip_z_map[f] = round(float(nose_tip_z), 5)
+        else:
+            nose_tip_z_map[f] = round(float(bite_pt.z + 0.028), 5)
+
+        bite_positions[f] = Vector((
+            round(float(bite_pt.x), 5),
+            round(float(bite_pt.y), 5),
+            round(float(bite_pt.z), 5),
+        ))
 
     scene.frame_set(prev_f)
     bpy.context.view_layer.update()
-    return mouth_positions
+    return bite_positions, head_quats, nose_tip_z_map
 
 
 def _build_single_soldier(
@@ -2686,8 +3211,8 @@ def _build_single_soldier(
             "height": 0.62,
             "target_height_m": height_m,
             "skin_assets": ["middleage_caucasian_male.mhmat"],
-            "iris_major_rgb": (0.28, 0.52, 0.66),
-            "iris_minor_rgb": (0.12, 0.24, 0.34),
+            "iris_major_rgb": (0.17, 0.34, 0.46),
+            "iris_minor_rgb": (0.06, 0.14, 0.22),
             "eyebrow_assets": ["eyebrow002.mhclo"],
             "hair_assets": ["short04.mhclo"],
             "hair_tint_rgb": (0.24, 0.17, 0.12),
@@ -2763,6 +3288,10 @@ def _build_single_soldier(
     # Enforce exact evaluated stature & ground contact
     _normalize_actor_height_and_ground(actor, target_height_m=height_m, floor_z=pos[2])
 
+    # Deepen/warm Hero skin tone slightly for sculpted Hollywood desert jawline shadows (zero white blowout!)
+    if is_hero:
+        _tune_hero_skin_sculpted(actor["body"])
+
     # Double-check AGENTS.md Section 1 shadow flags on eyes & lashes
     for part_key in ("Eyes", "Eyelashes"):
         p_obj = actor["equipped"].get(part_key)
@@ -2778,8 +3307,12 @@ def _build_single_soldier(
         # Cinch loose boho bell-cuffs around wrists into snug BDU tactical cuffs (zero grenade clipping!)
         _cinch_shirt_cuffs(actor)
 
-    # Record front-center incisor vertex IDs in rest pose for exact mouth/teeth world tracking
-    actor["front_teeth_vids"] = _find_front_teeth_vertex_ids(actor)
+    # Record exact inter-incisal upper/lower biting-edge & nose-tip vertex IDs in rest pose!
+    bite_vids = _find_bite_and_nose_vertex_ids(actor)
+    actor["upper_bite_vids"] = bite_vids["upper_bite_vids"]
+    actor["lower_bite_vids"] = bite_vids["lower_bite_vids"]
+    actor["nose_tip_vids"] = bite_vids["nose_tip_vids"]
+    actor["front_teeth_vids"] = bite_vids["upper_bite_vids"] + bite_vids["lower_bite_vids"]
 
     # Move MPFB2 objects cleanly into target collection
     mpfb_objs = [actor["rig"], actor["body"], *actor["equipped"].values()]
@@ -2812,9 +3345,11 @@ def _build_single_soldier(
 def build_soldiers(col: bpy.types.Collection | None = None, total_frames: int = TOTAL_FRAMES_DEFAULT) -> dict:
     """Build real 4K MakeHuman MPFB2 soldiers:
     - Hero_Soldier at (0,0,0), 1.80m, yaw=162 deg (+18 deg toward +X for 3/4 movie close-up!),
-      with MICH/FAST helmet, plate carrier vest, Beat 1 teeth pin-pull + Beat 2 overhand throw (release f=134),
+      with MICH/FAST helmet, form-fitting Crye JPC plate carrier vest, Beat 1 Rajinikanth swagger teeth
+      pin-pull & spit-flick + Beat 2 overhand throw (release f=134),
       exact `Hero_Grenade_Socket` Empty parented to `wrist.R` + pre-baked world coordinates f=1..134,
-      and exact `hero_mouth_world_positions` (evaluated `teeth_base` front-center) for f=1..108!
+      exact `hero_bite_world_positions` & `hero_mouth_world_positions` (inter-incisal bite line,
+      strictly >= 0.024m below nose tip) and `hero_head_world_quats` (evaluated head world quaternion) for f=1..108!
     - Enemy_A at (-0.78, 8.55, 0) & Enemy_B at (+0.82, 8.65, 0), dark slate-charcoal armor,
       guarding bunker (f=1..495), recoiling/diving (f=496..611), PG-13 slow-mo shockwave knockback (f=612..720)."""
     target_col = col if col is not None else bpy.context.scene.collection
@@ -2854,9 +3389,11 @@ def build_soldiers(col: bpy.types.Collection | None = None, total_frames: int = 
         eye_pt = hero["eye_center_rest"]
         catch.rotation_euler = _aim_euler(catch.location, eye_pt)
 
-    # Sample exact world positions & rotations of Hero_Grenade_Socket (f=1..134) & teeth_base front-center (f=1..108)!
+    # Sample exact world positions & rotations of Hero_Grenade_Socket (f=1..134),
+    # exact inter-incisal bite line (strictly >= 0.024m below nose tip) & head world quaternions (f=1..108)!
     socket_positions, socket_quats = _sample_socket_trajectory(grenade_socket, 1, RELEASE_FRAME)
-    mouth_positions = _sample_hero_mouth_trajectory(hero, 1, 108)
+    bite_positions, head_quats, nose_tip_z_map = _sample_hero_bite_and_head(hero, 1, 108)
+    hero["nose_tip_z_by_frame"] = nose_tip_z_map
 
     return {
         "hero": hero,
@@ -2865,7 +3402,9 @@ def build_soldiers(col: bpy.types.Collection | None = None, total_frames: int = 
         "hero_grenade_socket": grenade_socket,
         "hero_socket_world_positions": socket_positions,
         "hero_socket_world_quats": socket_quats,
-        "hero_mouth_world_positions": mouth_positions,
+        "hero_mouth_world_positions": {f: v.copy() for f, v in bite_positions.items()},
+        "hero_bite_world_positions": bite_positions,
+        "hero_head_world_quats": head_quats,
         "release_frame": RELEASE_FRAME,
         "release_pos": socket_positions[RELEASE_FRAME],
         "grenade_landing_pos": GRENADE_LANDING_POS,

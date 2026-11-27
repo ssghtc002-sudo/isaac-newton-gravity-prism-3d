@@ -2,8 +2,10 @@
 How a Grenade Actually Works — 4K Hollywood Action + Slow-Mo X-Ray Studio Audio (AGENTS.md V10)
   - Studio Microsoft Neural Narration (en-US-BrianNeural — razor-crisp viral documentary pacing, zero truncation)
   - 124 BPM Tactical Action & Matrix Bullet-Time X-Ray Score (vocal-pocket EQ 250-3500 Hz + -9.5 dB sidechain ducking)
-  - 19 Tactile Battlefield & Mechanical Foley SFX:
-      * B1: pin_pull_click (metallic tooth-tug & cotter pin pop), pin_ring_jingle (chrome ring jingle)
+  - 20 Tactile Battlefield & Mechanical Foley SFX:
+      * B1: pin_pull_click (heavy steel cotter-pin strain & violent metallic snap-out at t=1.38s),
+            pin_teeth_spit_flick (Rajinikanth teeth spit-flick transient + spinning chrome ring zing & Doppler air-whip at t=2.68s),
+            pin_ring_jingle (soft receding chrome ring metallic sparkle at t=2.95s)
       * B2: hero_throw_whoosh (wind-up & throw), bullet_time_drop (Matrix freeze drop),
             xray_slice_whoosh (cyan X-ray laser sweep), spring_tension_creak (coiled steel tension)
       * B3: spoon_ping_fly (iconic lever PING!), striker_hammer_snap (steel slam), primer_spark_pop (brass primer crack)
@@ -339,30 +341,97 @@ def synth_sfx(kind: str, pan: float, event_t: float) -> np.ndarray:
     rng = np.random.default_rng(int(round(event_t * 1000)) + abs(hash(kind)) % 10000)
 
     if kind == "pin_pull_click":
-        # Metallic tooth-tug friction (0..0.15s) -> crisp bent cotter-pin spring POP (0.16s)
-        n = int(0.46 * SR)
+        # Heavy steel cotter-pin strain (0..0.064s) -> violent metallic snap-out & extraction zing (0.062s)
+        n = int(0.48 * SR)
         t = np.arange(n, dtype=np.float32) / SR
-        tug_env = np.where(t < 0.16, np.sin(math.pi * np.clip(t, 0.0, 0.16) / 0.16), 0.0)
-        tug = butter_filter(rng.standard_normal(n).astype(np.float32), "band", (2100.0, 8800.0), order=2) * tug_env * 0.44
-        t_pop = np.maximum(0.0, t - 0.155)
-        pop_mask = (t >= 0.155).astype(np.float32)
+        strain_env = np.where(t < 0.068, np.maximum(0.0, np.sin(math.pi * np.clip(t, 0.0, 0.068) / 0.068)) ** 0.75, 0.0).astype(np.float32)
+        strain_f = 1520.0 + 980.0 * np.clip(t / 0.064, 0.0, 1.0)
+        strain_groan = np.sin(2.0 * math.pi * np.cumsum(strain_f.astype(np.float64)) / SR).astype(np.float32) * strain_env * 0.24
+        strain_scrape = butter_filter(rng.standard_normal(n).astype(np.float32), "band", (1850.0, 8600.0), order=2) * strain_env * 0.56
+        t_pop = np.maximum(0.0, t - 0.062)
+        pop_mask = (t >= 0.062).astype(np.float32)
+        steel_body = np.sin(2.0 * math.pi * (245.0 * np.exp(-t_pop * 42.0) + 86.0) * t_pop) * np.exp(-t_pop * 38.0) * pop_mask * 0.54
         clink = (
-            0.55 * np.sin(2 * math.pi * 3850.0 * t_pop)
-            + 0.38 * np.sin(2 * math.pi * 6120.0 * t_pop)
-            + 0.24 * np.sin(2 * math.pi * 8740.0 * t_pop)
-        ) * np.exp(-t_pop * 26.0) * pop_mask * 0.65
-        snap = butter_filter(rng.standard_normal(n).astype(np.float32), "band", (2800.0, 11500.0), order=2) * np.exp(-t_pop * 55.0) * pop_mask * 0.72
-        return pan_stereo(np.tanh((tug + clink + snap) * 0.85).astype(np.float32) * 0.72, pan)
+            0.58 * np.sin(2.0 * math.pi * 3720.0 * t_pop)
+            + 0.40 * np.sin(2.0 * math.pi * 5980.0 * t_pop)
+            + 0.28 * np.sin(2.0 * math.pi * 8860.0 * t_pop)
+        ) * np.exp(-t_pop * 23.0) * pop_mask * 0.68
+        snap = butter_filter(rng.standard_normal(n).astype(np.float32), "band", (2400.0, 12800.0), order=2) * np.exp(-t_pop * 58.0) * pop_mask * 1.02
+        yank_zing = butter_filter(rng.standard_normal(n).astype(np.float32), "band", (3100.0, 9600.0), order=2) * np.exp(-((t_pop - 0.045) / 0.045) ** 2) * pop_mask * 0.36
+        mono = np.tanh((strain_groan + strain_scrape + steel_body + clink + snap + yank_zing) * 0.90).astype(np.float32) * 0.78
+        fade = int(0.014 * SR)
+        mono[-fade:] *= np.linspace(1.0, 0.0, fade, dtype=np.float32)
+        return pan_sweep_stereo(mono, pan, float(np.clip(pan + 0.16, -0.95, 0.95)))
+
+    if kind == "pin_teeth_spit_flick":
+        # Rajinikanth teeth spit-flick: 20ms sharp high-passed air-puff/tongue-flick +
+        # gleaming high-speed spinning chrome ring metallic zing (2.8 -> 5.4 kHz) + 350ms flutter & Doppler air-whip panning L -> R!
+        n = int(0.56 * SR)
+        t = np.arange(n, dtype=np.float32) / SR
+
+        # 1. Crisp 20ms high-passed air-puff / tongue-flick transient + chrome-off-teeth micro-click
+        puff_env = (np.minimum(1.0, t / 0.0018) * np.exp(-t / 0.0065) * (t < 0.042)).astype(np.float32)
+        air_puff = butter_filter(rng.standard_normal(n).astype(np.float32), "high", 3400.0, order=3) * puff_env * 1.18
+        tooth_flick = (
+            butter_filter(rng.standard_normal(n).astype(np.float32), "band", (4400.0, 12500.0), order=2) * 0.72
+            + 0.34 * np.sin(2.0 * math.pi * 5550.0 * t)
+        ) * np.exp(-t * 200.0)
+        pan_mouth = float(np.clip(pan - 0.48, -0.35, 0.35))
+        mouth_stereo = pan_stereo((air_puff + tooth_flick).astype(np.float32) * 0.64, pan_mouth)
+
+        # 2. Gleaming spinning chrome ring metallic zing (2.8 kHz -> 5.4 kHz modulated shimmer + 350ms quick ring flutter)
+        t_ring = np.maximum(0.0, t - 0.008)
+        m_ring = (t >= 0.008).astype(np.float32)
+        dur_zing = 0.35
+        prog = np.clip(t_ring / dur_zing, 0.0, 1.0)
+        f_up = 2800.0 + 2600.0 * (prog ** 0.85)
+        f_sweep = np.where(t_ring <= dur_zing, f_up, 5400.0 * np.exp(-np.maximum(0.0, t_ring - dur_zing) * 2.2))
+        spin_rate = 28.0 + 22.0 * prog
+        spin_phase = 2.0 * math.pi * np.cumsum(spin_rate.astype(np.float64)) / SR
+        f_mod = f_sweep.astype(np.float64) + 115.0 * np.sin(spin_phase)
+        ph1 = 2.0 * math.pi * np.cumsum(f_mod) / SR
+        ph2 = 2.0 * math.pi * np.cumsum(f_mod * 1.495) / SR
+        ph3 = 2.0 * math.pi * np.cumsum(f_mod * 2.13) / SR
+        flutter = (0.58 + 0.42 * np.sin(spin_phase)).astype(np.float32)
+        zing_env = (np.minimum(1.0, t_ring / 0.012) * np.exp(-((t_ring / 0.24) ** 1.45)) * m_ring).astype(np.float32)
+        zing = (0.54 * np.sin(ph1) + 0.30 * np.sin(ph2) + 0.18 * np.sin(ph3)).astype(np.float32) * flutter * zing_env
+
+        # 3. High-speed Doppler air-whip sweeping dynamically L -> R past the lens
+        whip_env = (np.exp(-((t_ring - 0.13) / 0.115) ** 2) * np.minimum(1.0, t_ring / 0.014) * m_ring).astype(np.float32)
+        whip_hi = butter_filter(rng.standard_normal(n).astype(np.float32), "band", (1600.0, 8200.0), order=2) * whip_env * (0.62 + 0.38 * np.sin(spin_phase).astype(np.float32)) * 0.62
+        whip_mid = butter_filter(rng.standard_normal(n).astype(np.float32), "band", (420.0, 1750.0), order=2) * np.exp(-((t_ring - 0.11) / 0.10) ** 2) * m_ring * 0.44
+        doppler_f = 1180.0 + 1320.0 * np.exp(-((t_ring - 0.14) / 0.10) ** 2)
+        doppler_whistle = np.sin(2.0 * math.pi * np.cumsum(doppler_f.astype(np.float64)) / SR).astype(np.float32) * whip_env * 0.16
+
+        p0 = float(np.clip(pan - 0.68, -0.60, 0.0))
+        p1 = float(np.clip(pan + 0.48, 0.40, 0.94))
+        ring_stereo = pan_sweep_stereo((zing * 0.68 + whip_hi + whip_mid + doppler_whistle).astype(np.float32), p0, p1)
+
+        out = np.tanh((mouth_stereo + ring_stereo) * 0.92).astype(np.float32) * 0.74
+        fade = int(0.024 * SR)
+        out[-fade:] *= np.linspace(1.0, 0.0, fade, dtype=np.float32)[:, None]
+        return out
 
     if kind == "pin_ring_jingle":
-        # Chrome pull-ring double-clink jingle
-        n = int(0.52 * SR)
+        # Soft receding chrome pull-ring metallic sparkle tail sweeping outward screen-right
+        n = int(0.48 * SR)
         t = np.arange(n, dtype=np.float32) / SR
-        r1 = (0.50 * np.sin(2 * math.pi * 4680.0 * t) + 0.35 * np.sin(2 * math.pi * 7240.0 * t) + 0.22 * np.sin(2 * math.pi * 10420.0 * t)) * np.exp(-t * 14.0)
-        t2 = np.maximum(0.0, t - 0.11)
-        m2 = (t >= 0.11).astype(np.float32)
-        r2 = (0.45 * np.sin(2 * math.pi * 5120.0 * t2) + 0.32 * np.sin(2 * math.pi * 7890.0 * t2)) * np.exp(-t2 * 16.0) * m2 * 0.72
-        return pan_stereo(((r1 + r2) * 0.42).astype(np.float32), pan)
+        spin_shimmer = (0.72 + 0.28 * np.sin(2.0 * math.pi * 36.0 * t)).astype(np.float32)
+        r1 = (
+            0.50 * np.sin(2.0 * math.pi * 4720.0 * t)
+            + 0.35 * np.sin(2.0 * math.pi * 7310.0 * t)
+            + 0.22 * np.sin(2.0 * math.pi * 10480.0 * t)
+        ) * np.exp(-t * 14.5) * spin_shimmer
+        t2 = np.maximum(0.0, t - 0.115)
+        m2 = (t >= 0.115).astype(np.float32)
+        r2 = (
+            0.44 * np.sin(2.0 * math.pi * 5180.0 * t2)
+            + 0.30 * np.sin(2.0 * math.pi * 7940.0 * t2)
+        ) * np.exp(-t2 * 16.5) * m2 * 0.68
+        mono = ((r1 + r2) * np.minimum(1.0, t / 0.008) * 0.28).astype(np.float32)
+        fade = int(0.020 * SR)
+        mono[-fade:] *= np.linspace(1.0, 0.0, fade, dtype=np.float32)
+        return pan_sweep_stereo(mono, pan, float(np.clip(pan + 0.26, -0.95, 0.95)))
 
     if kind == "hero_throw_whoosh":
         # Heroic wind-up & forceful overhead throw whoosh sweeping L -> R

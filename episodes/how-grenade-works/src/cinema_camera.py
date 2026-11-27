@@ -275,6 +275,52 @@ def _handheld_drift(frame: float) -> tuple[Vec3, Vec3]:
     return (dx, dy, dz), (tx, 0.0, tz)
 
 
+def _pin_rip_snap_impulse(frame: float) -> tuple[Vec3, Vec3, float]:
+    """
+    Crisp subtle 2mm micro-snap camera punch at f=34 (Hero teeth ripping the pull-pin free).
+    Combines a damped 2.0mm camera-body kick with a subtle +2.0mm focal micro-punch
+    (56mm -> 58mm -> 56mm), decaying smoothly to strict zero by f=45.
+    """
+    if frame < 33.0 or frame > 45.0:
+        return (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), 0.0
+    rise = _smoothstep(33.0, 34.0, frame)
+    fade = 1.0 - _smoothstep(41.0, 45.0, frame)
+    dt = max(0.0, frame - 33.5)
+    env = rise * fade * math.exp(-0.42 * dt)
+    osc = math.sin(dt * 2.35 + 0.65)
+    cam_d = (
+        -0.0020 * env * osc,
+        -0.0018 * env * math.cos(dt * 1.9),
+        0.0020 * env * osc,
+    )
+    tgt_d = (
+        -0.0025 * env * osc,
+        0.0,
+        0.0018 * env * osc,
+    )
+    lens_d = 2.0 * rise * fade * math.exp(-0.45 * max(0.0, frame - 34.0))
+    return cam_d, tgt_d, lens_d
+
+
+def _spit_flick_whip_accent(frame: float) -> tuple[Vec3, Vec3]:
+    """
+    Slick subtle kinetic whip-accent at f=66 (Rajinikanth teeth pin spit-flick toward Screen-Right).
+    Leads subtly toward Screen-Right (-X, -Y world) with a crisp upward flick accent,
+    opening clean Screen-Right framing headroom for the spinning chrome pin before
+    settling smoothly to strict zero by f=80.
+    """
+    if frame < 64.5 or frame > 80.0:
+        return (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)
+    rise = _smoothstep(64.5, 66.5, frame)
+    fade = 1.0 - _smoothstep(74.0, 80.0, frame)
+    dt = max(0.0, frame - 66.0)
+    env = rise * fade * math.exp(-0.24 * dt)
+    ring = 1.0 + 0.14 * math.sin(dt * 2.0)
+    cam_d = (-0.011 * env * ring, 0.006 * env, 0.004 * env)
+    tgt_d = (-0.022 * env * ring, -0.009 * env, 0.005 * env)
+    return cam_d, tgt_d
+
+
 def _striker_snap_impulse(frame: float) -> Vec3:
     """Crisp 2.4mm damped cinema-gimbal impulse when striker hammer slams primer (f=294..304)."""
     if frame < 294.0 or frame > 306.0:
@@ -425,7 +471,9 @@ def camera_state_at(
     Computes exact (cam_pos, tgt_pos, lens_mm, aperture_fstop) for any frame in [1, 720].
 
     6-Beat Hollywood Action Choreography:
-      - Beat 1 (f=1..108):    Hero 3/4 front close-up, 50mm f/3.5, subtle handheld drift
+      - Beat 1 (f=1..108):    Heroic low-angle Rajinikanth close-up (Z=1.44->1.48m),
+                              48mm->56mm(f=26..68)->46mm(f=104), f=34 2mm pin-rip punch &
+                              f=66 spit-flick kinetic whip-accent
       - Throw (f=108..152):   Widens to 35mm f/4.2 at release (f=134), whip-pans into flight
       - Beat 2 (f=152..235):  Matrix bullet-time X-ray orbit, 58-60mm f/8.0, d=0.43m
       - Beat 3 (f=235..355):  Striker/primer macro punch-in, 62mm f/8.0, d=0.37m + micro snap
@@ -438,34 +486,52 @@ def camera_state_at(
     gren_pos = grenade_pos_at(frame, hero_pos=hero_pos, bunker_pos=bunker_pos)
 
     # ------------------------------------------------------------------
-    # PHASE A: Beat 1 Hero Close-Up & Beat 1->2 Throw (f = 1..134)
+    # PHASE A: Beat 1 Heroic Low-Angle Rajinikanth Close-Up & Throw (f = 1..134)
     # ------------------------------------------------------------------
     if frame <= 134.0:
+        # Heroic slight low-angle (Z = 1.44m -> 1.48m across f=1..104) looking subtly UPWARD
+        # at Hero's jawline, teeth, chrome ring & intense eyes; steps closer & more centered on
+        # the mouth-to-grenade action during teeth bite & rip (f=18..56), then settles cleanly
+        # into the EXACT throw-release anchor (-0.96, 1.28, 1.62) at f=134 for seamless Phase B.
         cam_kfs: list[tuple[float, Vec3]] = [
-            (1.0,   (-0.54, 1.44, 1.55)),
-            (35.0,  (-0.52, 1.38, 1.56)),
-            (75.0,  (-0.50, 1.32, 1.57)),
-            (108.0, (-0.52, 1.34, 1.56)),
-            (122.0, (-0.76, 1.30, 1.60)),
-            (134.0, (-0.96, 1.28, 1.62)),
+            (1.0,   (-0.50, 1.40, 1.440)),
+            (18.0,  (-0.46, 1.33, 1.450)),
+            (34.0,  (-0.45, 1.30, 1.455)),
+            (56.0,  (-0.45, 1.31, 1.465)),
+            (68.0,  (-0.46, 1.33, 1.472)),
+            (104.0, (-0.50, 1.35, 1.480)),
+            (108.0, (-0.52, 1.34, 1.485)),
+            (122.0, (-0.76, 1.30, 1.560)),
+            (134.0, (-0.96, 1.28, 1.620)),
         ]
+        # Centered on mouth-to-grenade bite/rip action, drifting subtly Screen-Right (-X) for
+        # the f=66..68 spit-flick corridor while keeping eyes/mouth/fist/pin inside NDC Y [-0.15, +0.62].
         tgt_kfs: list[tuple[float, Vec3]] = [
-            (1.0,   (0.04, 0.19, 1.54)),
-            (35.0,  (0.04, 0.20, 1.55)),
-            (75.0,  (0.04, 0.21, 1.55)),
-            (108.0, (0.05, 0.22, 1.54)),
-            (122.0, (0.08, 0.25, 1.55)),
-            (134.0, (0.12, 0.28, 1.54)),
+            (1.0,   (0.03, 0.19, 1.518)),
+            (18.0,  (0.03, 0.19, 1.512)),
+            (34.0,  (0.03, 0.19, 1.512)),
+            (56.0,  (0.02, 0.19, 1.512)),
+            (68.0,  (0.01, 0.18, 1.514)),
+            (104.0, (0.04, 0.21, 1.520)),
+            (108.0, (0.05, 0.22, 1.525)),
+            (122.0, (0.08, 0.25, 1.538)),
+            (134.0, (0.12, 0.28, 1.540)),
         ]
+        # Prime push: 48mm (f=1) -> 56mm (f=26..68 tight teeth/smirk/spit punch-in) -> 46mm (f=104) -> 35mm (f=134)
         lens_kfs = [
-            (1.0,   50.0),
-            (75.0,  50.0),
-            (108.0, 48.0),
-            (122.0, 40.0),
+            (1.0,   48.0),
+            (26.0,  56.0),
+            (68.0,  56.0),
+            (104.0, 46.0),
+            (108.0, 45.0),
+            (122.0, 39.5),
             (134.0, 35.0),
         ]
         fstop_kfs = [
             (1.0,   3.5),
+            (26.0,  3.8),
+            (68.0,  3.8),
+            (104.0, 3.5),
             (108.0, 3.5),
             (134.0, 4.2),
         ]
@@ -606,13 +672,22 @@ def camera_state_at(
     # ------------------------------------------------------------------
     if include_motion_fx:
         h_cam, h_tgt = _handheld_drift(frame)
+        r_cam, r_tgt, r_lens = _pin_rip_snap_impulse(frame)
+        w_cam, w_tgt = _spit_flick_whip_accent(frame)
         s_cam = _striker_snap_impulse(frame)
         b_cam = _bunker_impact_thud(frame)
         p_cam, p_tgt = _pressure_tremor(frame)
         j_cam, j_tgt = _shockwave_jolt(frame)
 
-        cam_pos = _add3(cam_pos, _add3(_add3(h_cam, s_cam), _add3(b_cam, _add3(p_cam, j_cam))))
-        tgt_pos = _add3(tgt_pos, _add3(h_tgt, _add3(p_tgt, j_tgt)))
+        cam_pos = _add3(
+            cam_pos,
+            _add3(_add3(h_cam, _add3(r_cam, w_cam)), _add3(s_cam, _add3(b_cam, _add3(p_cam, j_cam)))),
+        )
+        tgt_pos = _add3(
+            tgt_pos,
+            _add3(_add3(h_tgt, _add3(r_tgt, w_tgt)), _add3(p_tgt, j_tgt)),
+        )
+        lens = lens + r_lens
 
     return cam_pos, tgt_pos, lens, fstop
 
@@ -651,12 +726,12 @@ def build_cinema_camera(
     Features:
       - `sensor_width = 36.0`, `sensor_fit = 'AUTO'`, `clip_start = 0.01`, `clip_end = 150.0`
       - `TRACK_TO` constraint (`TRACK_NEGATIVE_Z`, `UP_Y`) onto `Camera_Target`
-      - Animated Cinema Prime focal length (`50mm -> 35mm -> 58-62mm -> 48-50mm -> 32-35mm`)
+      - Animated Cinema Prime focal length (`48mm -> 56mm -> 46mm -> 35mm -> 58-62mm -> 48-50mm -> 32-35mm`)
       - Animated Cinema DOF (`use_dof = True`, `focus_object = target`, `aperture_blades = 7`,
-        `f/3.5` Hero bokeh -> `f/8.0` X-ray tack-sharp macro -> `f/6.3` bunker -> `f/5.6` climax)
-      - Subtle handheld micro-drift (Beat 1-2), silky stabilized gimbal orbit (Beat 2-4),
-        escalating overpressure tremor (Beat 5, f=540..611), and shockwave jolt +
-        53° bullet-time orbital sweep (Beat 6, f=612..720).
+        `f/3.5-3.8` Hero bokeh -> `f/8.0` X-ray tack-sharp macro -> `f/6.3` bunker -> `f/5.6` climax)
+      - Subtle handheld micro-drift + f=34 pin-rip micro-snap + f=66 spit-flick whip-accent (Beat 1),
+        silky stabilized gimbal orbit (Beat 2-4), escalating overpressure tremor (Beat 5, f=540..611),
+        and shockwave jolt + 53° bullet-time orbital sweep (Beat 6, f=612..720).
     """
     if bpy is None:
         raise RuntimeError("build_cinema_camera() must be executed inside Blender (bpy unavailable).")
@@ -672,7 +747,7 @@ def build_cinema_camera(
     cam_data.sensor_width = SENSOR_WIDTH_MM
     cam_data.clip_start = 0.01
     cam_data.clip_end = 150.0
-    cam_data.lens = 50.0
+    cam_data.lens = 48.0
 
     target = bpy.data.objects.new("Camera_Target", None)
     target.empty_display_type = "SPHERE"

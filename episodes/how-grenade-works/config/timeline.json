@@ -77,8 +77,9 @@
     }
   ],
   "sfx": [
-    { "t": 0.95, "type": "pin_pull_click", "pan": -0.18 },
-    { "t": 1.60, "type": "pin_ring_jingle", "pan": -0.32 },
+    { "t": 1.38, "type": "pin_pull_click", "pan": -0.18 },
+    { "t": 2.68, "type": "pin_teeth_spit_flick", "pan": 0.42 },
+    { "t": 2.95, "type": "pin_ring_jingle", "pan": 0.60 },
     { "t": 5.30, "type": "hero_throw_whoosh", "pan": 0.0 },
     { "t": 6.00, "type": "bullet_time_drop", "pan": 0.0 },
     { "t": 6.45, "type": "xray_slice_whoosh", "pan": 0.0 },
