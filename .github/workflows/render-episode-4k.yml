@@ -30,7 +30,7 @@ permissions:
 jobs:
   render-episode-4k:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 150
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
