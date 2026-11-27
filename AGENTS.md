@@ -110,3 +110,8 @@ Never push blind to Modal 4K — always run full QA first:
    - Render all 6 representative beat frames **PLUS a dense consecutive frame sequence of Beat 1's viral hook** (to verify character acting, hand/mouth prop contact, swag timing, and zero clipping).
    - Visually inspect **EVERY rendered frame with `view_file`**, fix any visual flaw immediately, re-verify, and ONLY THEN push & trigger the 10-GPU Modal 4K render!
 
+---
+
+## 9. Viral Shorts Roadmap Memory (`VIRAL_SHORTS_ROADMAP.md`)
+- The next 30 approved episode topics (hooks, X-ray money shots, viral triggers, folder names) live in [`VIRAL_SHORTS_ROADMAP.md`](VIRAL_SHORTS_ROADMAP.md).
+- When the user says "next video" / "next topic", pick the first `TODO` row, mark it `🟡 IN PROGRESS` when production starts and `✅ 4K` (with Release tag) once delivered — in the same commit.
