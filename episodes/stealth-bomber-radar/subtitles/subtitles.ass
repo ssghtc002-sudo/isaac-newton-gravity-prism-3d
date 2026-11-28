@@ -10,33 +10,33 @@ Style: Default,DejaVu Sans,66,&H0038C8FF,&H00FFFFFF,&H00080A10,&H96000000,-1,0,0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.08,0:00:00.93,Default,,0,0,0,,{\1c&H0038C8FF&\kf20}This {\1c&H00FFE633&\kf35}172-foot {\1c&H0038C8FF&\kf30}bomber
-Dialogue: 0,0:00:00.93,0:00:01.78,Default,,0,0,0,,{\1c&H0038C8FF&\kf30}weighs {\1c&H004258FF&\kf30}eighty {\1c&H004258FF&\kf25}tons,
-Dialogue: 0,0:00:01.78,0:00:02.28,Default,,0,0,0,,{\1c&H0038C8FF&\kf15}yet {\1c&H0038C8FF&\kf10}on {\1c&H00FFE633&\kf25}radar
-Dialogue: 0,0:00:02.28,0:00:02.72,Default,,0,0,0,,{\1c&H0038C8FF&\kf9}it {\1c&H004258FF&\kf35}shrinks
-Dialogue: 0,0:00:02.72,0:00:03.44,Default,,0,0,0,,{\1c&H0038C8FF&\kf10}to {\1c&H0038C8FF&\kf9}a {\1c&H004258FF&\kf53}bumblebee.
-Dialogue: 0,0:00:03.75,0:00:04.47,Default,,0,0,0,,{\1c&H0038C8FF&\kf24}Normal {\1c&H0038C8FF&\kf25}jets {\1c&H0038C8FF&\kf23}bounce
-Dialogue: 0,0:00:04.48,0:00:05.39,Default,,0,0,0,,{\1c&H00FFE633&\kf35}radar {\1c&H0038C8FF&\kf28}straight {\1c&H0038C8FF&\kf28}back,
-Dialogue: 0,0:00:05.43,0:00:06.25,Default,,0,0,0,,{\1c&H0038C8FF&\kf13}but {\1c&H00FFE633&\kf29}stealth {\1c&H0038C8FF&\kf21}wings {\1c&H0038C8FF&\kf19}use
-Dialogue: 0,0:00:06.26,0:00:07.35,Default,,0,0,0,,{\1c&H0038C8FF&\kf31}flat {\1c&H00FFE633&\kf45}origami {\1c&H0038C8FF&\kf33}angles
-Dialogue: 0,0:00:07.36,0:00:08.69,Default,,0,0,0,,{\1c&H0038C8FF&\kf10}that {\1c&H0038C8FF&\kf40}deflect\N{\1c&H0038C8FF&\kf26}waves {\1c&H00FFE633&\kf57}sideways.
-Dialogue: 0,0:00:09.08,0:00:09.70,Default,,0,0,0,,{\1c&H0038C8FF&\kf16}Even {\1c&H0038C8FF&\kf9}the {\1c&H0038C8FF&\kf37}engines
-Dialogue: 0,0:00:09.71,0:00:10.30,Default,,0,0,0,,{\1c&H0038C8FF&\kf21}stay {\1c&H004258FF&\kf38}hidden,
-Dialogue: 0,0:00:10.36,0:00:11.07,Default,,0,0,0,,{\1c&H0038C8FF&\kf22}deep {\1c&H00FFE633&\kf49}S-shaped
-Dialogue: 0,0:00:11.11,0:00:11.96,Default,,0,0,0,,{\1c&H0038C8FF&\kf13}air {\1c&H00FFE633&\kf37}tunnels {\1c&H0038C8FF&\kf35}bury
-Dialogue: 0,0:00:11.97,0:00:13.07,Default,,0,0,0,,{\1c&H0038C8FF&\kf10}the {\1c&H0038C8FF&\kf39}spinning\N{\1c&H0038C8FF&\kf25}metal {\1c&H0038C8FF&\kf36}blades
-Dialogue: 0,0:00:13.10,0:00:14.50,Default,,0,0,0,,{\1c&H0038C8FF&\kf27}so {\1c&H00FFE633&\kf45}radar {\1c&H0038C8FF&\kf29}gets {\1c&H004258FF&\kf39}trapped
-Dialogue: 0,0:00:14.51,0:00:15.56,Default,,0,0,0,,{\1c&H0038C8FF&\kf14}and {\1c&H004258FF&\kf35}dies {\1c&H0038C8FF&\kf56}inside.
-Dialogue: 0,0:00:16.02,0:00:16.91,Default,,0,0,0,,{\1c&H0038C8FF&\kf14}Then {\1c&H0038C8FF&\kf14}its {\1c&H0038C8FF&\kf26}dark {\1c&H00FFE633&\kf35}carbon
-Dialogue: 0,0:00:16.92,0:00:18.26,Default,,0,0,0,,{\1c&H0038C8FF&\kf29}skin {\1c&H004258FF&\kf52}swallows {\1c&H0038C8FF&\kf53}leftover
-Dialogue: 0,0:00:18.27,0:00:19.53,Default,,0,0,0,,{\1c&H0038C8FF&\kf40}waves {\1c&H0038C8FF&\kf14}as {\1c&H0038C8FF&\kf39}tiny {\1c&H004258FF&\kf33}heat,
-Dialogue: 0,0:00:19.65,0:00:20.51,Default,,0,0,0,,{\1c&H0038C8FF&\kf38}shrinking {\1c&H0038C8FF&\kf9}the {\1c&H0038C8FF&\kf39}echo
-Dialogue: 0,0:00:20.53,0:00:21.25,Default,,0,0,0,,{\1c&H0038C8FF&\kf17}to {\1c&H0038C8FF&\kf7}a {\1c&H004258FF&\kf48}bumblebee.
-Dialogue: 0,0:00:22.02,0:00:23.05,Default,,0,0,0,,{\1c&H0038C8FF&\kf7}It {\1c&H0038C8FF&\kf20}isn't\N{\1c&H004258FF&\kf35}sci-fi {\1c&H0038C8FF&\kf41}cloaking,
-Dialogue: 0,0:00:23.07,0:00:23.89,Default,,0,0,0,,{\1c&H0038C8FF&\kf21}just {\1c&H00FFE633&\kf29}tilted {\1c&H0038C8FF&\kf32}mirrors
-Dialogue: 0,0:00:23.90,0:00:24.85,Default,,0,0,0,,{\1c&H00FFE633&\kf49}scattering {\1c&H0038C8FF&\kf21}every {\1c&H0038C8FF&\kf25}pulse
-Dialogue: 0,0:00:24.86,0:00:25.73,Default,,0,0,0,,{\1c&H0038C8FF&\kf21}away {\1c&H0038C8FF&\kf17}from {\1c&H0038C8FF&\kf8}the {\1c&H0038C8FF&\kf41}dish.
-Dialogue: 0,0:00:26.08,0:00:26.74,Default,,0,0,0,,{\1c&H0038C8FF&\kf14}So {\1c&H0038C8FF&\kf14}by {\1c&H0038C8FF&\kf10}the {\1c&H0038C8FF&\kf28}time
-Dialogue: 0,0:00:26.80,0:00:28.03,Default,,0,0,0,,{\1c&H0038C8FF&\kf38}enemies {\1c&H0038C8FF&\kf39}finally\N{\1c&H0038C8FF&\kf32}spot {\1c&H0038C8FF&\kf14}it,
-Dialogue: 0,0:00:28.05,0:00:28.55,Default,,0,0,0,,{\1c&H0038C8FF&\kf12}the {\1c&H0038C8FF&\kf38}bomber
-Dialogue: 0,0:00:28.56,0:00:29.54,Default,,0,0,0,,{\1c&H0038C8FF&\kf22}is {\1c&H004258FF&\kf36}already {\1c&H004258FF&\kf40}gone.
+Dialogue: 0,0:00:00.08,0:00:00.77,Default,,0,0,0,,{\1c&H0038C8FF&\kf12}An {\1c&H0038C8FF&\kf25}enemy {\1c&H00FFE633&\kf32}radar
+Dialogue: 0,0:00:00.78,0:00:01.59,Default,,0,0,0,,{\1c&H0038C8FF&\kf20}crew {\1c&H0038C8FF&\kf23}sees {\1c&H0038C8FF&\kf6}a {\1c&H0038C8FF&\kf32}giant
+Dialogue: 0,0:00:01.60,0:00:02.27,Default,,0,0,0,,{\1c&H0038C8FF&\kf28}bomber {\1c&H0038C8FF&\kf39}outside,
+Dialogue: 0,0:00:02.33,0:00:02.83,Default,,0,0,0,,{\1c&H0038C8FF&\kf15}yet {\1c&H0038C8FF&\kf12}their {\1c&H0038C8FF&\kf23}screen
+Dialogue: 0,0:00:02.84,0:00:03.45,Default,,0,0,0,,{\1c&H0038C8FF&\kf27}shows {\1c&H004258FF&\kf34}nothing.
+Dialogue: 0,0:00:03.75,0:00:04.51,Default,,0,0,0,,{\1c&H0038C8FF&\kf22}Normal {\1c&H0038C8FF&\kf22}jets {\1c&H0038C8FF&\kf32}reflect
+Dialogue: 0,0:00:04.52,0:00:05.31,Default,,0,0,0,,{\1c&H00FFE633&\kf33}radar {\1c&H0038C8FF&\kf27}straight {\1c&H0038C8FF&\kf19}back
+Dialogue: 0,0:00:05.32,0:00:05.91,Default,,0,0,0,,{\1c&H0038C8FF&\kf10}for {\1c&H0038C8FF&\kf3}a {\1c&H004258FF&\kf23}missile {\1c&H004258FF&\kf23}lock,
+Dialogue: 0,0:00:05.96,0:00:06.54,Default,,0,0,0,,{\1c&H0038C8FF&\kf11}but {\1c&H0038C8FF&\kf13}this {\1c&H00FFE633&\kf34}B-2
+Dialogue: 0,0:00:06.54,0:00:07.60,Default,,0,0,0,,{\1c&H0038C8FF&\kf37}uses {\1c&H00FFE633&\kf28}angled {\1c&H00FFE633&\kf41}facets
+Dialogue: 0,0:00:07.61,0:00:08.69,Default,,0,0,0,,{\1c&H0038C8FF&\kf7}to {\1c&H0038C8FF&\kf26}bounce\N{\1c&H0038C8FF&\kf23}waves {\1c&H00FFE633&\kf52}sideways.
+Dialogue: 0,0:00:09.08,0:00:09.71,Default,,0,0,0,,{\1c&H0038C8FF&\kf19}Even {\1c&H0038C8FF&\kf12}its {\1c&H0038C8FF&\kf32}spinning
+Dialogue: 0,0:00:09.72,0:00:11.13,Default,,0,0,0,,{\1c&H0038C8FF&\kf27}metal {\1c&H0038C8FF&\kf51}turbines\N{\1c&H0038C8FF&\kf24}stay {\1c&H004258FF&\kf39}hidden,
+Dialogue: 0,0:00:11.19,0:00:12.24,Default,,0,0,0,,{\1c&H0038C8FF&\kf32}buried {\1c&H0038C8FF&\kf24}deep {\1c&H0038C8FF&\kf49}inside
+Dialogue: 0,0:00:12.25,0:00:13.45,Default,,0,0,0,,{\1c&H0038C8FF&\kf42}curved {\1c&H00FFE633&\kf42}S-shaped {\1c&H00FFE633&\kf36}tunnels
+Dialogue: 0,0:00:13.47,0:00:14.77,Default,,0,0,0,,{\1c&H0038C8FF&\kf17}that {\1c&H004258FF&\kf35}trap\N{\1c&H00FFE633&\kf37}radar {\1c&H0038C8FF&\kf41}pulses
+Dialogue: 0,0:00:14.78,0:00:15.55,Default,,0,0,0,,{\1c&H0038C8FF&\kf32}until {\1c&H0038C8FF&\kf10}they {\1c&H004258FF&\kf35}die.
+Dialogue: 0,0:00:16.02,0:00:16.63,Default,,0,0,0,,{\1c&H0038C8FF&\kf14}Then {\1c&H0038C8FF&\kf13}its {\1c&H00FFE633&\kf34}carbon
+Dialogue: 0,0:00:16.64,0:00:17.98,Default,,0,0,0,,{\1c&H0038C8FF&\kf29}skin {\1c&H004258FF&\kf53}swallows {\1c&H0038C8FF&\kf52}leftover
+Dialogue: 0,0:00:17.99,0:00:19.23,Default,,0,0,0,,{\1c&H0038C8FF&\kf40}waves {\1c&H0038C8FF&\kf15}as {\1c&H0038C8FF&\kf37}tiny {\1c&H004258FF&\kf32}heat,
+Dialogue: 0,0:00:19.34,0:00:20.44,Default,,0,0,0,,{\1c&H0038C8FF&\kf40}shrinking {\1c&H0038C8FF&\kf22}an {\1c&H004258FF&\kf48}eighty-ton
+Dialogue: 0,0:00:20.45,0:00:21.62,Default,,0,0,0,,{\1c&H0038C8FF&\kf26}jet {\1c&H0038C8FF&\kf36}into {\1c&H0038C8FF&\kf6}a {\1c&H004258FF&\kf49}bumblebee.
+Dialogue: 0,0:00:22.02,0:00:22.78,Default,,0,0,0,,{\1c&H0038C8FF&\kf26}Inside {\1c&H0038C8FF&\kf8}the {\1c&H00FFE633&\kf42}cockpit,
+Dialogue: 0,0:00:22.80,0:00:23.51,Default,,0,0,0,,{\1c&H0038C8FF&\kf10}the {\1c&H00FFE633&\kf34}pilot {\1c&H0038C8FF&\kf27}glides
+Dialogue: 0,0:00:23.52,0:00:24.52,Default,,0,0,0,,{\1c&H0038C8FF&\kf30}past {\1c&H004258FF&\kf31}missile {\1c&H00FFE633&\kf39}radar,
+Dialogue: 0,0:00:24.59,0:00:25.72,Default,,0,0,0,,{\1c&H00FFE633&\kf43}deflecting {\1c&H0038C8FF&\kf19}every\N{\1c&H0038C8FF&\kf21}pulse {\1c&H0038C8FF&\kf30}away.
+Dialogue: 0,0:00:26.08,0:00:26.83,Default,,0,0,0,,{\1c&H0038C8FF&\kf5}By {\1c&H0038C8FF&\kf10}the {\1c&H0038C8FF&\kf31}time {\1c&H0038C8FF&\kf29}enemies
+Dialogue: 0,0:00:26.85,0:00:28.00,Default,,0,0,0,,{\1c&H0038C8FF&\kf29}spot {\1c&H0038C8FF&\kf16}that {\1c&H0038C8FF&\kf35}tiny {\1c&H004258FF&\kf35}speck,
+Dialogue: 0,0:00:28.06,0:00:28.53,Default,,0,0,0,,{\1c&H0038C8FF&\kf11}the {\1c&H0038C8FF&\kf36}bomber
+Dialogue: 0,0:00:28.54,0:00:29.70,Default,,0,0,0,,{\1c&H0038C8FF&\kf22}is {\1c&H004258FF&\kf45}already {\1c&H004258FF&\kf49}overhead.

@@ -1,123 +1,123 @@
 1
-00:00:00,080 --> 00:00:00,928
-This 172-foot bomber
+00:00:00,080 --> 00:00:00,766
+An enemy radar
 
 2
-00:00:00,928 --> 00:00:01,776
-weighs eighty tons,
+00:00:00,775 --> 00:00:01,594
+crew sees a giant
 
 3
-00:00:01,776 --> 00:00:02,275
-yet on radar
+00:00:01,604 --> 00:00:02,267
+bomber outside,
 
 4
-00:00:02,275 --> 00:00:02,724
-it shrinks
+00:00:02,326 --> 00:00:02,832
+yet their screen
 
 5
-00:00:02,724 --> 00:00:03,437
-to a bumblebee.
+00:00:02,842 --> 00:00:03,446
+shows nothing.
 
 6
-00:00:03,750 --> 00:00:04,475
-Normal jets bounce
+00:00:03,750 --> 00:00:04,514
+Normal jets reflect
 
 7
-00:00:04,485 --> 00:00:05,390
-radar straight back,
+00:00:04,523 --> 00:00:05,307
+radar straight back
 
 8
-00:00:05,429 --> 00:00:06,246
-but stealth wings use
+00:00:05,316 --> 00:00:05,908
+for a missile lock,
 
 9
-00:00:06,256 --> 00:00:07,348
-flat origami angles
+00:00:05,962 --> 00:00:06,536
+but this B-2
 
 10
-00:00:07,358 --> 00:00:08,692
-that deflect
-waves sideways.
+00:00:06,545 --> 00:00:07,601
+uses angled facets
 
 11
-00:00:09,080 --> 00:00:09,696
-Even the engines
+00:00:07,610 --> 00:00:08,688
+to bounce
+waves sideways.
 
 12
-00:00:09,708 --> 00:00:10,296
-stay hidden,
+00:00:09,080 --> 00:00:09,712
+Even its spinning
 
 13
-00:00:10,355 --> 00:00:11,073
-deep S-shaped
+00:00:09,724 --> 00:00:11,134
+metal turbines
+stay hidden,
 
 14
-00:00:11,108 --> 00:00:11,956
-air tunnels bury
+00:00:11,193 --> 00:00:12,242
+buried deep inside
 
 15
-00:00:11,968 --> 00:00:13,074
-the spinning
-metal blades
+00:00:12,253 --> 00:00:13,454
+curved S-shaped tunnels
 
 16
-00:00:13,097 --> 00:00:14,498
-so radar gets trapped
+00:00:13,465 --> 00:00:14,771
+that trap
+radar pulses
 
 17
-00:00:14,510 --> 00:00:15,556
-and dies inside.
+00:00:14,782 --> 00:00:15,554
+until they die.
 
 18
-00:00:16,020 --> 00:00:16,909
-Then its dark carbon
+00:00:16,020 --> 00:00:16,630
+Then its carbon
 
 19
-00:00:16,921 --> 00:00:18,256
+00:00:16,642 --> 00:00:17,977
 skin swallows leftover
 
 20
-00:00:18,268 --> 00:00:19,530
+00:00:17,989 --> 00:00:19,227
 waves as tiny heat,
 
 21
-00:00:19,651 --> 00:00:20,513
-shrinking the echo
+00:00:19,336 --> 00:00:20,441
+shrinking an eighty-ton
 
 22
-00:00:20,525 --> 00:00:21,251
-to a bumblebee.
+00:00:20,453 --> 00:00:21,624
+jet into a bumblebee.
 
 23
-00:00:22,020 --> 00:00:23,049
-It isn't
-sci-fi cloaking,
+00:00:22,020 --> 00:00:22,777
+Inside the cockpit,
 
 24
-00:00:23,071 --> 00:00:23,887
-just tilted mirrors
+00:00:22,797 --> 00:00:23,511
+the pilot glides
 
 25
-00:00:23,898 --> 00:00:24,848
-scattering every pulse
+00:00:23,521 --> 00:00:24,516
+past missile radar,
 
 26
-00:00:24,860 --> 00:00:25,733
-away from the dish.
+00:00:24,586 --> 00:00:25,722
+deflecting every
+pulse away.
 
 27
-00:00:26,080 --> 00:00:26,741
-So by the time
+00:00:26,080 --> 00:00:26,835
+By the time enemies
 
 28
-00:00:26,801 --> 00:00:28,027
-enemies finally
-spot it,
+00:00:26,846 --> 00:00:28,001
+spot that tiny speck,
 
 29
-00:00:28,051 --> 00:00:28,549
+00:00:28,058 --> 00:00:28,527
 the bomber
 
 30
-00:00:28,561 --> 00:00:29,544
-is already gone.
+00:00:28,538 --> 00:00:29,701
+is already overhead.
