@@ -741,6 +741,7 @@ def _build_macro_vest_cutaway(
 
     # D. UHMWPE Dyneema Trauma Backer Plate (visible Beats 3-4, flexes backward in Beat 4)
     dx0, dx1 = C.VEST["dyneema_x"]
+    dx0, dx1 = dx0 + 0.006, dx1 + 0.006
     bm_dyn = bmesh.new()
     ny_d, nz_d = 18, 22
     # Build subdivided double-sided slab so DyneemaFlex shape key bulges smoothly
@@ -785,7 +786,7 @@ def _build_macro_vest_cutaway(
         crack_val.outputs[0].default_value = ct
         crack_val.outputs[0].keyframe_insert("default_value", frame=f)
 
-        dt = C.dyneema_bulge_t(ff)
+        dt = max(C.dyneema_bulge_t(ff), 0.78 * C.kevlar_ripple_t(ff))
         flex_val.outputs[0].default_value = dt
         flex_val.outputs[0].keyframe_insert("default_value", frame=f)
         sk_dyn.value = dt
@@ -867,7 +868,7 @@ def _build_projectiles_and_flashes(
     _set_visibility_windows(pistol_obj, [(1, 900)], total_frames)
 
     # Open-ended glowing slipstream trail behind 9mm (cap_ends=False)
-    mat_trail, trail_gain = _mat_additive_glow("Mat_FX_Slipstream", (1.0, 0.62, 0.16), 1.45, pistol_anchor)
+    mat_trail, trail_gain = _mat_additive_glow("Mat_FX_Slipstream", (1.0, 0.62, 0.16), 0.36, pistol_anchor)
     bm_tr = bmesh.new()
     _add_revolved_profile(
         bm_tr,
@@ -1082,7 +1083,7 @@ def _build_beat6_dust(
 ) -> list[bpy.types.Object]:
     vx = float(C.RANGE["vest_surface_x"])
     cz = float(C.RANGE["chest_z"])
-    mat_cop = _mat_solid_emissive("Mat_FX_SpentCopperFlake", (0.86, 0.44, 0.16), 0.35, metallic=0.92, roughness=0.28)
+    mat_cop = _mat_solid_emissive("Mat_FX_SpentCopperFlake", (0.55, 0.30, 0.14), 0.0, metallic=0.88, roughness=0.35)
     flakes: list[bpy.types.Object] = []
 
     for i in range(10):
@@ -1094,13 +1095,13 @@ def _build_beat6_dust(
 
         x0 = vx - 0.04 - 0.04 * (i % 4)
         y0 = -0.14 + 0.032 * i
-        z0 = cz - 0.15 - 0.06 * (i % 5)
+        z0 = 0.22 - 0.03 * (i % 5)
         for f in range(1561, total_frames + 1, 12):
             u = C.smootherstep(1561.0, float(total_frames), float(f))
             fl.location = Vector((
                 x0 - 0.03 * u + 0.015 * math.sin(u * 5.0 + i),
                 y0 + 0.02 * math.cos(u * 4.0 + i),
-                max(0.015, z0 - 0.95 * u),
+                max(0.010, z0 - 0.20 * u),
             ))
             fl.rotation_quaternion = Euler((u * 4.0 + i, u * 5.5, u * 3.0), "XYZ").to_quaternion()
             fl.keyframe_insert("location", frame=f)

@@ -1,0 +1,556 @@
+{
+  "episode": "bulletproof-vest-myth",
+  "title": "Why Bulletproof Vests DON'T Send You Flying Backward",
+  "duration": 30.0,
+  "fps": 60,
+  "voice": "en-US-BrianNeural",
+  "lines": [
+    {
+      "id": "L1",
+      "beat": "B1_HOOK",
+      "speaker": "narrator",
+      "text": "If a bullet hits your vest, you don't fly backward, you barely budge.",
+      "t0": 0.08,
+      "t1": 3.3236,
+      "ratePct": 3,
+      "atempo": 1.0376,
+      "words": [
+        {
+          "text": "If",
+          "t0": 0.08,
+          "t1": 0.1411
+        },
+        {
+          "text": "a",
+          "t0": 0.1528,
+          "t1": 0.2114
+        },
+        {
+          "text": "bullet",
+          "t0": 0.2232,
+          "t1": 0.5633
+        },
+        {
+          "text": "hits",
+          "t0": 0.575,
+          "t1": 0.7861
+        },
+        {
+          "text": "your",
+          "t0": 0.7978,
+          "t1": 0.8916
+        },
+        {
+          "text": "vest,",
+          "t0": 0.9033,
+          "t1": 1.2668
+        },
+        {
+          "text": "you",
+          "t0": 1.3137,
+          "t1": 1.4427
+        },
+        {
+          "text": "don't",
+          "t0": 1.4544,
+          "t1": 1.6538
+        },
+        {
+          "text": "fly",
+          "t0": 1.6655,
+          "t1": 1.8649
+        },
+        {
+          "text": "backward,",
+          "t0": 1.8766,
+          "t1": 2.3691
+        },
+        {
+          "text": "you",
+          "t0": 2.416,
+          "t1": 2.4981
+        },
+        {
+          "text": "barely",
+          "t0": 2.5098,
+          "t1": 2.8499
+        },
+        {
+          "text": "budge.",
+          "t0": 2.8616,
+          "t1": 3.3236
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "beat": "B2_MOMENTUM",
+      "speaker": "narrator",
+      "text": "Movies send heroes crashing through glass, yet a bullet carries less momentum than a fastball.",
+      "t0": 3.62,
+      "t1": 8.0838,
+      "ratePct": 3,
+      "atempo": 1.0,
+      "words": [
+        {
+          "text": "Movies",
+          "t0": 3.62,
+          "t1": 3.9072
+        },
+        {
+          "text": "send",
+          "t0": 3.9193,
+          "t1": 4.1377
+        },
+        {
+          "text": "heroes",
+          "t0": 4.1499,
+          "t1": 4.5504
+        },
+        {
+          "text": "crashing",
+          "t0": 4.5625,
+          "t1": 4.9508
+        },
+        {
+          "text": "through",
+          "t0": 4.963,
+          "t1": 5.1086
+        },
+        {
+          "text": "glass,",
+          "t0": 5.1207,
+          "t1": 5.6183
+        },
+        {
+          "text": "yet",
+          "t0": 5.6547,
+          "t1": 5.8125
+        },
+        {
+          "text": "a",
+          "t0": 5.8246,
+          "t1": 5.861
+        },
+        {
+          "text": "bullet",
+          "t0": 5.8732,
+          "t1": 6.1644
+        },
+        {
+          "text": "carries",
+          "t0": 6.1766,
+          "t1": 6.5285
+        },
+        {
+          "text": "less",
+          "t0": 6.5407,
+          "t1": 6.747
+        },
+        {
+          "text": "momentum",
+          "t0": 6.7591,
+          "t1": 7.2324
+        },
+        {
+          "text": "than",
+          "t0": 7.2445,
+          "t1": 7.4023
+        },
+        {
+          "text": "a",
+          "t0": 7.4144,
+          "t1": 7.4508
+        },
+        {
+          "text": "fastball.",
+          "t0": 7.463,
+          "t1": 8.0838
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "beat": "B3_KEVLAR",
+      "speaker": "narrator",
+      "text": "Instead, woven golden Kevlar catches the spinning bullet like a trampoline, spreading that force across your whole chest.",
+      "t0": 8.65,
+      "t1": 14.6102,
+      "ratePct": 3,
+      "atempo": 1.0217,
+      "words": [
+        {
+          "text": "Instead,",
+          "t0": 8.65,
+          "t1": 9.0834
+        },
+        {
+          "text": "woven",
+          "t0": 9.1191,
+          "t1": 9.4164
+        },
+        {
+          "text": "golden",
+          "t0": 9.4283,
+          "t1": 9.7852
+        },
+        {
+          "text": "Kevlar",
+          "t0": 9.7971,
+          "t1": 10.2253
+        },
+        {
+          "text": "catches",
+          "t0": 10.2372,
+          "t1": 10.6773
+        },
+        {
+          "text": "the",
+          "t0": 10.6892,
+          "t1": 10.7843
+        },
+        {
+          "text": "spinning",
+          "t0": 10.7962,
+          "t1": 11.1531
+        },
+        {
+          "text": "bullet",
+          "t0": 11.165,
+          "t1": 11.5337
+        },
+        {
+          "text": "like",
+          "t0": 11.5456,
+          "t1": 11.7121
+        },
+        {
+          "text": "a",
+          "t0": 11.736,
+          "t1": 11.7835
+        },
+        {
+          "text": "trampoline,",
+          "t0": 11.7954,
+          "t1": 12.402
+        },
+        {
+          "text": "spreading",
+          "t0": 12.521,
+          "t1": 12.8897
+        },
+        {
+          "text": "that",
+          "t0": 12.9016,
+          "t1": 13.0444
+        },
+        {
+          "text": "force",
+          "t0": 13.0563,
+          "t1": 13.3893
+        },
+        {
+          "text": "across",
+          "t0": 13.4012,
+          "t1": 13.77
+        },
+        {
+          "text": "your",
+          "t0": 13.7819,
+          "t1": 13.877
+        },
+        {
+          "text": "whole",
+          "t0": 13.8889,
+          "t1": 14.1387
+        },
+        {
+          "text": "chest.",
+          "t0": 14.1506,
+          "t1": 14.6102
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "beat": "B4_CERAMIC",
+      "speaker": "narrator",
+      "text": "For faster rifle rounds, a ceramic plate shatters the metal tip to dust, while Dyneema traps every shard.",
+      "t0": 15.15,
+      "t1": 20.6288,
+      "ratePct": 3,
+      "atempo": 1.0282,
+      "words": [
+        {
+          "text": "For",
+          "t0": 15.15,
+          "t1": 15.2377
+        },
+        {
+          "text": "faster",
+          "t0": 15.2496,
+          "t1": 15.7341
+        },
+        {
+          "text": "rifle",
+          "t0": 15.7459,
+          "t1": 16.1123
+        },
+        {
+          "text": "rounds,",
+          "t0": 16.1241,
+          "t1": 16.5259
+        },
+        {
+          "text": "a",
+          "t0": 16.5732,
+          "t1": 16.6205
+        },
+        {
+          "text": "ceramic",
+          "t0": 16.6323,
+          "t1": 17.1286
+        },
+        {
+          "text": "plate",
+          "t0": 17.1405,
+          "t1": 17.3887
+        },
+        {
+          "text": "shatters",
+          "t0": 17.4005,
+          "t1": 17.8141
+        },
+        {
+          "text": "the",
+          "t0": 17.8259,
+          "t1": 17.9087
+        },
+        {
+          "text": "metal",
+          "t0": 17.9205,
+          "t1": 18.2278
+        },
+        {
+          "text": "tip",
+          "t0": 18.2396,
+          "t1": 18.4523
+        },
+        {
+          "text": "to",
+          "t0": 18.4641,
+          "t1": 18.5468
+        },
+        {
+          "text": "dust,",
+          "t0": 18.5587,
+          "t1": 18.9014
+        },
+        {
+          "text": "while",
+          "t0": 18.9487,
+          "t1": 19.1378
+        },
+        {
+          "text": "Dyneema",
+          "t0": 19.1496,
+          "t1": 19.575
+        },
+        {
+          "text": "traps",
+          "t0": 19.5868,
+          "t1": 19.9414
+        },
+        {
+          "text": "every",
+          "t0": 19.965,
+          "t1": 20.1541
+        },
+        {
+          "text": "shard.",
+          "t0": 20.1659,
+          "t1": 20.6288
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "beat": "B5_NEWTON",
+      "speaker": "narrator",
+      "text": "And Newton's Third Law seals it, any shot strong enough to launch you would launch the shooter too.",
+      "t0": 21.15,
+      "t1": 25.5425,
+      "ratePct": 3,
+      "atempo": 1.0,
+      "words": [
+        {
+          "text": "And",
+          "t0": 21.15,
+          "t1": 21.2496
+        },
+        {
+          "text": "Newton's",
+          "t0": 21.2617,
+          "t1": 21.5772
+        },
+        {
+          "text": "Third",
+          "t0": 21.5894,
+          "t1": 21.8564
+        },
+        {
+          "text": "Law",
+          "t0": 21.8685,
+          "t1": 22.0626
+        },
+        {
+          "text": "seals",
+          "t0": 22.0748,
+          "t1": 22.451
+        },
+        {
+          "text": "it,",
+          "t0": 22.4631,
+          "t1": 22.5845
+        },
+        {
+          "text": "any",
+          "t0": 22.6452,
+          "t1": 22.8029
+        },
+        {
+          "text": "shot",
+          "t0": 22.8151,
+          "t1": 23.1306
+        },
+        {
+          "text": "strong",
+          "t0": 23.1428,
+          "t1": 23.4704
+        },
+        {
+          "text": "enough",
+          "t0": 23.4826,
+          "t1": 23.701
+        },
+        {
+          "text": "to",
+          "t0": 23.7131,
+          "t1": 23.8102
+        },
+        {
+          "text": "launch",
+          "t0": 23.8224,
+          "t1": 24.1621
+        },
+        {
+          "text": "you",
+          "t0": 24.1743,
+          "t1": 24.2593
+        },
+        {
+          "text": "would",
+          "t0": 24.2714,
+          "t1": 24.417
+        },
+        {
+          "text": "launch",
+          "t0": 24.4291,
+          "t1": 24.7568
+        },
+        {
+          "text": "the",
+          "t0": 24.769,
+          "t1": 24.8539
+        },
+        {
+          "text": "shooter",
+          "t0": 24.8661,
+          "t1": 25.1695
+        },
+        {
+          "text": "too.",
+          "t0": 25.1816,
+          "t1": 25.5425
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "beat": "B6_FINAL",
+      "speaker": "narrator",
+      "text": "So real armor never sends you flying, it just leaves one brutal bruise.",
+      "t0": 26.15,
+      "t1": 29.579,
+      "ratePct": 3,
+      "atempo": 1.0,
+      "words": [
+        {
+          "text": "So",
+          "t0": 26.15,
+          "t1": 26.3542
+        },
+        {
+          "text": "real",
+          "t0": 26.3663,
+          "t1": 26.5605
+        },
+        {
+          "text": "armor",
+          "t0": 26.5726,
+          "t1": 26.876
+        },
+        {
+          "text": "never",
+          "t0": 26.8881,
+          "t1": 27.1308
+        },
+        {
+          "text": "sends",
+          "t0": 27.143,
+          "t1": 27.3979
+        },
+        {
+          "text": "you",
+          "t0": 27.41,
+          "t1": 27.5192
+        },
+        {
+          "text": "flying,",
+          "t0": 27.5313,
+          "t1": 28.0046
+        },
+        {
+          "text": "it",
+          "t0": 28.0289,
+          "t1": 28.1017
+        },
+        {
+          "text": "just",
+          "t0": 28.1139,
+          "t1": 28.2959
+        },
+        {
+          "text": "leaves",
+          "t0": 28.308,
+          "t1": 28.5022
+        },
+        {
+          "text": "one",
+          "t0": 28.5143,
+          "t1": 28.7692
+        },
+        {
+          "text": "brutal",
+          "t0": 28.7813,
+          "t1": 29.0847
+        },
+        {
+          "text": "bruise.",
+          "t0": 29.0969,
+          "t1": 29.579
+        }
+      ]
+    }
+  ]
+}

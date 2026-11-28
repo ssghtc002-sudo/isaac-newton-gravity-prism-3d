@@ -369,23 +369,23 @@ def _build_wearable_plate_carrier(
 
     cz = float(C.HERO["chest_z"])
     bm = bmesh.new()
-    # Front armored carrier panel (MakeHuman faces -Y in rest space!)
-    _add_box_bm(bm, (0.0, -0.142, cz), (0.31, 0.034, 0.36), mat_index=0, bevel_w=0.008)
+    # Front armored carrier panel (MakeHuman faces -Y in rest space; wrap snugly outside sweater!)
+    _add_box_bm(bm, (0.0, -0.164, cz), (0.26, 0.034, 0.35), mat_index=0, bevel_w=0.008)
     # Bevelled front Silicon-Carbide strike plate center inset
-    _add_box_bm(bm, (0.0, -0.160, cz + 0.01), (0.24, 0.014, 0.28), mat_index=1, bevel_w=0.005)
+    _add_box_bm(bm, (0.0, -0.182, cz + 0.01), (0.21, 0.016, 0.27), mat_index=1, bevel_w=0.005)
     # Subtle golden Kevlar stitch accent lines & MOLLE webbing straps
     for dz in (-0.09, -0.03, 0.03, 0.09):
-        _add_box_bm(bm, (0.0, -0.168, cz + dz), (0.21, 0.004, 0.014), mat_index=0, bevel_w=0.001)
-    _add_box_bm(bm, (0.0, -0.168, cz + 0.145), (0.23, 0.006, 0.008), mat_index=2, bevel_w=0.001)
+        _add_box_bm(bm, (0.0, -0.191, cz + dz), (0.19, 0.004, 0.013), mat_index=0, bevel_w=0.001)
+    _add_box_bm(bm, (0.0, -0.191, cz + 0.142), (0.20, 0.006, 0.008), mat_index=2, bevel_w=0.001)
 
-    # Rear armored carrier panel
-    _add_box_bm(bm, (0.0, +0.132, cz), (0.30, 0.032, 0.36), mat_index=0, bevel_w=0.008)
+    # Rear armored carrier panel (hug back tightly with zero gap)
+    _add_box_bm(bm, (0.0, +0.102, cz), (0.25, 0.030, 0.34), mat_index=0, bevel_w=0.008)
     # Left & right cummerbund side straps
-    for sx in (-0.165, +0.165):
-        _add_box_bm(bm, (sx, -0.005, cz - 0.05), (0.032, 0.27, 0.14), mat_index=0, bevel_w=0.006)
+    for sx in (-0.145, +0.145):
+        _add_box_bm(bm, (sx, -0.031, cz - 0.05), (0.028, 0.24, 0.13), mat_index=0, bevel_w=0.006)
     # Padded shoulder straps bridging front to rear
-    for sx in (-0.105, +0.105):
-        _add_box_bm(bm, (sx, -0.005, cz + 0.195), (0.068, 0.24, 0.026), mat_index=0, bevel_w=0.006)
+    for sx in (-0.100, +0.100):
+        _add_box_bm(bm, (sx, -0.031, cz + 0.178), (0.062, 0.23, 0.024), mat_index=0, bevel_w=0.006)
 
     vest_obj = _new_bmesh_obj(
         "Hero_Tactical_PlateCarrier",
@@ -421,12 +421,12 @@ def _build_tactical_test_rifle(col: bpy.types.Collection) -> bpy.types.Object:
     )
     for f in bm.faces:
         f.material_index = 0
-    # Handguard, receiver, magazine, pistol grip & shoulder stock
-    _add_box_bm(bm, (-0.24, 0.0, 0.0), (0.22, 0.036, 0.042), mat_index=1, bevel_w=0.004)
-    _add_box_bm(bm, (-0.43, 0.0, -0.006), (0.19, 0.040, 0.064), mat_index=0, bevel_w=0.004)
-    _add_box_bm(bm, (-0.39, 0.0, -0.095), (0.052, 0.024, 0.13), mat_index=1, bevel_w=0.003)
-    _add_box_bm(bm, (-0.49, 0.0, -0.075), (0.032, 0.026, 0.095), mat_index=1, bevel_w=0.003)
-    _add_box_bm(bm, (-0.61, 0.0, -0.010), (0.18, 0.034, 0.088), mat_index=1, bevel_w=0.005)
+    # Compact 0.45m carbine body so butt aligns against shoulder in both Beat 2 (-1.60) & Beat 5 (-1.20)
+    _add_box_bm(bm, (-0.14, 0.0, 0.0), (0.16, 0.034, 0.038), mat_index=1, bevel_w=0.004)
+    _add_box_bm(bm, (-0.26, 0.0, -0.005), (0.14, 0.038, 0.058), mat_index=0, bevel_w=0.004)
+    _add_box_bm(bm, (-0.22, 0.0, -0.082), (0.044, 0.022, 0.11), mat_index=1, bevel_w=0.003)
+    _add_box_bm(bm, (-0.29, 0.0, -0.068), (0.028, 0.024, 0.085), mat_index=1, bevel_w=0.003)
+    _add_box_bm(bm, (-0.37, 0.0, -0.008), (0.16, 0.032, 0.076), mat_index=1, bevel_w=0.005)
     # Compact red-dot optic + subtle cyan status lens
     _add_box_bm(bm, (-0.41, 0.0, 0.044), (0.085, 0.030, 0.034), mat_index=0, bevel_w=0.003)
     _add_box_bm(bm, (-0.366, 0.0, 0.044), (0.005, 0.020, 0.020), mat_index=2, bevel_w=0.001)
@@ -528,10 +528,10 @@ def _build_hero(col: bpy.types.Collection, total_frames: int) -> dict[str, Any]:
             jaw = 1.2 + 6.5 * recoil_norm
             brow = 0.25 + 0.55 * recoil_norm
             smile = -0.15 * recoil_norm
-            ua_l = (-14.0 - 10.0 * recoil_norm, -14.0, 6.0)
-            la_l = (-42.0 - 18.0 * recoil_norm, 0.0, -8.0)
-            ua_r = (-14.0 - 10.0 * recoil_norm, 14.0, -6.0)
-            la_r = (-42.0 - 18.0 * recoil_norm, 0.0, 8.0)
+            ua_l = (0.0, 48.0 - 5.0 * recoil_norm, -8.0 * recoil_norm)
+            la_l = (0.0, 12.0, 4.0 - 10.0 * recoil_norm)
+            ua_r = (0.0, -48.0 + 5.0 * recoil_norm, 8.0 * recoil_norm)
+            la_r = (0.0, -12.0, -4.0 + 10.0 * recoil_norm)
             hand = "shock" if recoil_norm > 0.35 else "relaxed"
         elif f <= 510:
             bx, by, _ = C.HERO["b2_pos"]
@@ -541,10 +541,10 @@ def _build_hero(col: bpy.types.Collection, total_frames: int) -> dict[str, Any]:
             jaw = 1.0 + 4.5 * recoil_norm
             brow = 0.20 + 0.40 * recoil_norm
             smile = 0.0
-            ua_l = (-10.0 - 8.0 * recoil_norm, -12.0, 4.0)
-            la_l = (-32.0 - 12.0 * recoil_norm, 0.0, -6.0)
-            ua_r = (-10.0 - 8.0 * recoil_norm, 12.0, -4.0)
-            la_r = (-32.0 - 12.0 * recoil_norm, 0.0, 6.0)
+            ua_l = (0.0, 50.0 - 4.0 * recoil_norm, -6.0 * recoil_norm)
+            la_l = (0.0, 12.0, 4.0 - 8.0 * recoil_norm)
+            ua_r = (0.0, -50.0 + 4.0 * recoil_norm, 6.0 * recoil_norm)
+            la_r = (0.0, -12.0, -4.0 + 8.0 * recoil_norm)
             hand = "relaxed"
         elif f <= 1560:
             bx, by, _ = C.HERO["b5_pos"]
@@ -554,10 +554,10 @@ def _build_hero(col: bpy.types.Collection, total_frames: int) -> dict[str, Any]:
             jaw = 0.8 + 3.0 * recoil_norm
             brow = 0.15 + 0.30 * recoil_norm
             smile = 0.0
-            ua_l = (-8.0, -10.0, 4.0)
-            la_l = (-24.0, 0.0, -4.0)
-            ua_r = (-8.0, 10.0, -4.0)
-            la_r = (-24.0, 0.0, 4.0)
+            ua_l = (0.0, 50.0 - 3.0 * recoil_norm, -5.0 * recoil_norm)
+            la_l = (0.0, 12.0, 4.0)
+            ua_r = (0.0, -50.0 + 3.0 * recoil_norm, 5.0 * recoil_norm)
+            la_r = (0.0, -12.0, -4.0)
             hand = "relaxed"
         else:
             bx, by, _ = C.HERO["b6_pos"]
@@ -568,10 +568,10 @@ def _build_hero(col: bpy.types.Collection, total_frames: int) -> dict[str, Any]:
             jaw = 0.8
             brow = 0.18
             smile = 0.22 * u_calm
-            ua_l = (-8.0, -12.0, 5.0)
-            la_l = (-22.0 + 3.0 * breath, 0.0, -5.0)
-            ua_r = (-8.0, 12.0, -5.0)
-            la_r = (-22.0 - 3.0 * breath, 0.0, 5.0)
+            ua_l = (0.0, 50.0, 1.5 * breath)
+            la_l = (0.0, 12.0, 4.0 + 2.0 * breath)
+            ua_r = (0.0, -50.0, -1.5 * breath)
+            la_r = (0.0, -12.0, -4.0 - 2.0 * breath)
             hand = "relaxed"
 
         # MakeHuman faces -Y at yaw=0; +yaw_deg faces +X, -yaw_deg faces -X (mpfb_characters convention).
@@ -690,10 +690,10 @@ def _build_shooter(col: bpy.types.Collection, total_frames: int) -> dict[str, An
         # Aiming rifle posture: right hand on grip, left support hand forward on handguard
         _pose_arms_fk(
             rig,
-            ua_l=(-64.0 + 4.0 * recoil_norm, 20.0, -18.0),
-            la_l=(-46.0, 0.0, 26.0),
-            ua_r=(-52.0 + 4.0 * recoil_norm, -12.0, 14.0),
-            la_r=(-92.0, 0.0, -18.0),
+            ua_l=(0.0, 18.0 - 3.0 * recoil_norm, -70.0),
+            la_l=(0.0, -24.0, -24.0),
+            ua_r=(0.0, -20.0 + 3.0 * recoil_norm, 48.0),
+            la_r=(-8.0, 12.0, 52.0),
             hand_l="relaxed",
             hand_r="relaxed",
             frame=f,
@@ -701,7 +701,7 @@ def _build_shooter(col: bpy.types.Collection, total_frames: int) -> dict[str, An
         _apply_actor_face(rig, f=f, jaw_deg=0.8, brow_lift=-0.12, smile=0.0, eye_yaw_deg=0.0, eye_pitch_deg=0.0, force_alert_lids=True)
 
         # Keep test rifle muzzle locked squarely on RANGE muzzle datum + matching shoulder recoil!
-        rifle_obj.location = Vector((mx + srx, -0.04, cz))
+        rifle_obj.location = Vector((mx + srx, -0.095, cz))
         rifle_obj.rotation_euler = Euler((0.0, math.radians(-2.2 * recoil_norm), 0.0), "XYZ")
         rifle_obj.keyframe_insert("location", frame=f)
         rifle_obj.keyframe_insert("rotation_euler", frame=f)

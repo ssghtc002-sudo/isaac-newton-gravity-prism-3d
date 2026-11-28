@@ -246,15 +246,15 @@ def _target_world_pos(key: str, f: float) -> tuple[float, float, float]:
     if key == "shift_half_in":
         return (vx + C.hero_recoil_x(f), 0.0, cz)
     if key == "tiny_momentum":
-        return (C.pistol_bullet_x(f), 0.0, cz)
+        return (min(0.65, C.pistol_bullet_x(f)), 0.0, cz)
     if key == "kevlar_net":
         return (vx + 0.018 + 0.014 * C.kevlar_ripple_t(f), 0.0, cz)
     if key == "ceramic_dyneema":
         return (vx + 0.018, 0.0, cz + 0.015)
     if key == "newton_eq":
-        return (float(C.RANGE["b5_shooter_x"]) - 0.28, 0.0, float(C.RANGE["b5_vector_z"]))
+        return (float(C.RANGE["b5_shooter_x"]) - 0.36, 0.0, float(C.RANGE["b5_vector_z"]))
     if key == "equal_recoil":
-        return (float(C.RANGE["b5_target_x"]) + 0.28, 0.0, float(C.RANGE["b5_vector_z"]))
+        return (float(C.RANGE["b5_target_x"]) + 0.36, 0.0, float(C.RANGE["b5_vector_z"]))
     if key == "just_bruise":
         return (vx, 0.0, cz)
     raise KeyError(f"Unknown label key: {key}")
@@ -264,13 +264,13 @@ def _plaque_ndc_center(key: str, f: float, st: dict[str, Any]) -> tuple[float, f
     """Deterministic collision-free 9:16 NDC center for each label across its active window."""
     _ = (f, st)
     centers: dict[str, tuple[float, float]] = {
-        "shift_half_in": (-0.22, +0.56),
-        "tiny_momentum": (-0.20, +0.54),
+        "shift_half_in": (-0.42, +0.52),
+        "tiny_momentum": (-0.28, +0.50),
         "kevlar_net": (-0.12, +0.56),
         "ceramic_dyneema": (0.00, +0.58),
-        "newton_eq": (0.00, +0.46),
-        "equal_recoil": (0.00, -0.26),
-        "just_bruise": (-0.24, +0.56),
+        "newton_eq": (-0.44, +0.44),
+        "equal_recoil": (+0.44, +0.44),
+        "just_bruise": (-0.50, +0.40),
     }
     if key not in centers:
         raise KeyError(f"Unknown label key: {key}")

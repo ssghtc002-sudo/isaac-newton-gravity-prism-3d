@@ -606,9 +606,9 @@ def _build_backdrop_cyclorama(
     mat_backdrop: bpy.types.Material,
 ) -> bpy.types.Object:
     bm = bmesh.new()
-    nx, nz = 48, 20
-    x0, x1 = -5.6, 5.6
-    z0, z1 = -0.15, 3.80
+    nx, nz = 48, 32
+    x0, x1 = -7.0, 7.0
+    z0, z1 = -0.15, 8.80
     y_back = 2.65
 
     grid: list[list[bmesh.types.BMVert]] = []
@@ -650,7 +650,7 @@ def _build_range_floor(
     fz = float(C.RANGE["floor_z"])
     bm = bmesh.new()
     # Thick concrete slab top exactly at Z = 0.00 m
-    _add_box(bm, (0.0, 0.0, fz - 0.12), (11.6, 6.2, 0.24), mat_index=0)
+    _add_box(bm, (0.0, 0.0, fz - 0.12), (13.6, 11.6, 0.24), mat_index=0)
     # Rear dark architectural baseboard curb + subtle cyan floor accent strip
     _add_box(bm, (0.0, 2.48, fz + 0.05), (10.8, 0.18, 0.10), mat_index=1, bevel_width=0.008)
     _add_box(bm, (0.0, 2.38, fz + 0.012), (9.6, 0.010, 0.010), mat_index=2)
