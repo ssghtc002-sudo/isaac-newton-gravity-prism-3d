@@ -15,8 +15,8 @@
     "targetLufs": -14.0,
     "truePeakDbfs": -1.5,
     "aacBitrate": "320k",
-    "sfxGain": 1.12,
-    "transientGuardMs": 360
+    "sfxGain": 1.18,
+    "transientGuardMs": 380
   },
   "speakers": {
     "narrator": {
@@ -29,7 +29,7 @@
   "beats": [
     {
       "id": "B1_HOOK",
-      "name": "Cockpit Engine Failure: Master Caution & Collective Slam Down",
+      "name": "Beat 1A Exterior Turbine Fire Burst & Beat 1B Enclosed Panic Cockpit Collective Slam",
       "startFrame": 1,
       "endFrame": 240,
       "start": 0.0,
@@ -38,7 +38,7 @@
     },
     {
       "id": "B2_CLUTCH",
-      "name": "Rotor Mast X-Ray: Freewheeling Sprag Clutch Decouples Dead Engine",
+      "name": "Rotor Mast X-Ray: Seized Crimson Turbine vs Animated Golden Sprag Clutch Cam Rollers",
       "startFrame": 241,
       "endFrame": 570,
       "start": 4.0,
@@ -47,7 +47,7 @@
     },
     {
       "id": "B3_AIRFLOW",
-      "name": "Upward Airflow Windmill: Emerald Streamlines Spin Rotor Flywheel",
+      "name": "Autorotation Glide: Wide 3D Emerald Upward Ribbon Arrows & Cloud Descent Parallax",
       "startFrame": 571,
       "endFrame": 960,
       "start": 9.5,
@@ -56,7 +56,7 @@
     },
     {
       "id": "B4_MAPLE",
-      "name": "Maple Seed Physics: Side-by-Side 3D Samara & Rescue Rotor Glide",
+      "name": "Hero 3D Botanical Winged Maple Seed vs Modern Rescue Helicopter Side-by-Side",
       "startFrame": 961,
       "endFrame": 1290,
       "start": 16.0,
@@ -65,7 +65,7 @@
     },
     {
       "id": "B5_FLARE",
-      "name": "1:1 Cockpit Collective Pull & 30-Foot Exterior Nose-Up Flare",
+      "name": "Beat 5A Cockpit Collective Flare Pull & Beat 5B Exterior 30-Foot Nose-Up Flare",
       "startFrame": 1291,
       "endFrame": 1580,
       "start": 21.5,
@@ -74,7 +74,7 @@
     },
     {
       "id": "B6_LANDING",
-      "name": "Rooftop Helipad Touchdown: Smooth Zero-Engine Landing Payoff",
+      "name": "Weathered Skyscraper Rooftop Helipad Flush Touchdown & Dust Wave Payoff",
       "startFrame": 1581,
       "endFrame": 1800,
       "start": 26.3333,
@@ -89,7 +89,7 @@
       "speaker": "narrator",
       "t0": 0.08,
       "t1": 3.88,
-      "text": "When a helicopter's engine dies mid-air, the pilot slams this lever straight down."
+      "text": "When a helicopter's engine explodes mid-air, the pilot immediately slams this lever straight down."
     },
     {
       "id": "L2",
@@ -136,72 +136,72 @@
     {
       "ev": "b1_engine_flameout",
       "beat": "B1_HOOK",
-      "frame": 14,
-      "t": 0.2333,
+      "frame": 18,
+      "t": 0.30,
       "type": "turbine_flameout_spool_down",
       "pan": 0.0
     },
     {
       "ev": "b1_caution_alarm",
       "beat": "B1_HOOK",
-      "frame": 42,
-      "t": 0.70,
+      "frame": 122,
+      "t": 2.0333,
       "type": "cockpit_master_caution_beeps",
-      "pan": -0.20
+      "pan": -0.15
     },
     {
       "ev": "b1_collective_slam",
       "beat": "B1_HOOK",
-      "frame": 120,
-      "t": 2.00,
+      "frame": 152,
+      "t": 2.5333,
       "type": "collective_lever_mechanical_slam",
       "pan": 0.25
     },
     {
       "ev": "b2_xray_sweep",
       "beat": "B2_CLUTCH",
-      "frame": 270,
-      "t": 4.50,
+      "frame": 265,
+      "t": 4.4167,
       "type": "xray_scan_harmonic_sweep",
       "pan": 0.0
     },
     {
       "ev": "b2_shaft_seize",
       "beat": "B2_CLUTCH",
-      "frame": 340,
-      "t": 5.6667,
+      "frame": 345,
+      "t": 5.75,
       "type": "engine_shaft_seize_clunk",
       "pan": -0.15
     },
     {
       "ev": "b2_sprag_unlock",
       "beat": "B2_CLUTCH",
-      "frame": 415,
-      "t": 6.9167,
+      "frame": 405,
+      "t": 6.75,
       "type": "sprag_clutch_bicycle_ratchet",
       "pan": 0.15
     },
     {
       "ev": "b3_airflow_surge",
       "beat": "B3_AIRFLOW",
-      "frame": 605,
-      "t": 10.0833,
+      "frame": 600,
+      "t": 10.00,
       "type": "upward_airflow_rush_whoosh",
       "pan": 0.0
     },
     {
       "ev": "b3_rotor_windmill",
       "beat": "B3_AIRFLOW",
-      "frame": 740,
-      "t": 12.3333,
+      "frame": 735,
+      "t": 12.25,
       "type": "rotor_blade_slap_windmill",
       "pan": 0.10
     },
     {
       "ev": "b3_flywheel_charge",
       "beat": "B3_AIRFLOW",
-      "frame": 865,
-      "t": 14.4167,
+      "frame": 860,
+      "t": 14.3333,
       "type": "kinetic_flywheel_harmonic_rise",
       "pan": 0.0
     },
@@ -216,32 +216,32 @@
     {
       "ev": "b4_vortex_sync",
       "beat": "B4_MAPLE",
-      "frame": 1125,
-      "t": 18.75,
+      "frame": 1130,
+      "t": 18.8333,
       "type": "autorotation_vortex_pulse",
       "pan": 0.25
     },
     {
       "ev": "b5_cockpit_pull",
       "beat": "B5_FLARE",
-      "frame": 1350,
-      "t": 22.50,
+      "frame": 1345,
+      "t": 22.4167,
       "type": "collective_pull_ratchet_click",
       "pan": 0.20
     },
     {
       "ev": "b5_flare_bite",
       "beat": "B5_FLARE",
-      "frame": 1465,
-      "t": 24.4167,
+      "frame": 1462,
+      "t": 24.3667,
       "type": "flare_blade_bite_air_thump",
       "pan": 0.0
     },
     {
       "ev": "b5_cushion_wash",
       "beat": "B5_FLARE",
-      "frame": 1525,
-      "t": 25.4167,
+      "frame": 1522,
+      "t": 25.3667,
       "type": "downwash_cushion_sub_boom",
       "pan": 0.0
     },

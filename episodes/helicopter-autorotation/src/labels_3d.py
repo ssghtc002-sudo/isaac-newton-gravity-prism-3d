@@ -163,7 +163,8 @@ def verify_font_glyphs(font_path: str | Path, texts: list[str] | None = None) ->
 def _target_world_pos(key: str, f: float) -> tuple[float, float, float]:
     """Exact 3D component anchor point for each of the 6 contract callouts."""
     if key == "engine_dead":
-        return tuple(C.STAGE["cockpit_caution_pos"])
+        hpos, _ = C.heli_pose_at(f)
+        return (hpos[0], hpos[1] + 0.16, hpos[2] + 0.28)
     if key == "sprag_clutch":
         return tuple(C.STAGE["b2_clutch_world"])
     if key == "upward_airflow":

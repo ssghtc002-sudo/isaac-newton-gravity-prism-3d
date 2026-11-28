@@ -1,13 +1,13 @@
 """
-build_heli_scene.py — Master Scene Integrator for Episode #5:
+build_heli_scene.py — Master Scene Integrator (V2 Ultimate) for Episode #5:
 "Why a Helicopter With a Dead Engine DOESN'T Fall Like a Rock" (4K 60fps, 1800 frames).
 
 Unifies all 6 specialist 3D modules strictly from `heli_contract.py`:
-  1. heli_env.py          — Golden-hour sunset sky dome, 28 glass skyscrapers, rooftop helipad (Z=0.90m) & V12 lights
-  2. characters.py        — 2 photoreal 4K MPFB2 Rescue Aviators (Pilot & Co-Pilot) + 1:1 Rescue Cockpit
-  3. helicopter_asset.py  — Crisp white-and-red Rescue Helicopter, X-Ray Sprag Clutch, Seized Turbine & 3D Maple Seed
-  4. heli_fx.py           — Open-ended additive upward airflow streamlines, maple vortices, 30-ft flare & touchdown wash
-  5. cinema_camera.py     — 6-beat 9:16 portrait camera (incl. label-free Beat 5A f/3.6 bokeh) & exact DOF rig
+  1. heli_env.py          — Golden-hour sunset sky, curtain-wall glass skyscrapers, cloud descent parallax, weathered helipad & V12 lights
+  2. characters.py        — 2 photoreal 4K MPFB2 Rescue Aviators in dark-navy Nomex suits + enclosed 1:1 cockpit w/ live crashing RPM needles
+  3. helicopter_asset.py  — Modern lofted twin-engine H145/Dauphin rescue helicopter, 12-sprag X-ray clutch, coning rotor & 2.1x botanical maple seed
+  4. heli_fx.py           — Beat 1A turbine fireball/sparks/smoke, Beat 2 stall halo, Beat 3 6 wide emerald ribbon arrows, flare & rooftop dust wave
+  5. cinema_camera.py     — 8-segment 9:16 portrait camera (Beat 1A/1B split + label-free Beat 5A f/3.6 bokeh) & exact DOF rig
   6. labels_3d.py         — 6 AgX-safe dark-obsidian plaque 3D callouts & perpendicular pointer reticles
 
 Supports `--start-frame`, `--end-frame`, `--frame-step` (default 1, enables budget `--draft-preview`),
@@ -61,17 +61,27 @@ _EP_FONT = EPISODE_DIR / "subtitles" / "fonts" / "DejaVuSans-Bold.ttf"
 FONT_PATH: Path = _EP_FONT if _EP_FONT.is_file() else (REPO_ROOT / "subtitles" / "fonts" / "DejaVuSans-Bold.ttf")
 
 DEFAULT_PREVIEW_FRAMES: tuple[int, ...] = (
-    24, 125, 195,       # Beat 1: 1:1 Rescue Cockpit (Pilot slams collective down, ENG OUT flashing)
-    310, 365, 460,      # Beat 2: Local-space Cowling X-Ray, Seized Crimson Shaft & Sprag Clutch Snap-Open
-    635, 765, 895,      # Beat 3: Upward Emerald Airflow Streamlines & Kinetic Flywheel Rotor Ring
-    1020, 1140, 1245,   # Beat 4: Sculpted 3D Maple Seed vs. Rescue Rotor Side-by-Side
-    1375, 1495, 1555,   # Beat 5A: 1:1 Cockpit Flare Pull (f/3.6 bokeh) + Beat 5B: 30-Ft Nose-Up Flare (f/8.0)
-    1635, 1715,         # Beat 6: Smooth Zero-Engine Flush Touchdown on Yellow `H` Rooftop Helipad
+    26, 55, 95,         # Beat 1A: Exterior Modern Rescue Chopper — Dorsal Turbine Fire Burst, Sparks & Black Smoke!
+    125, 165, 215,      # Beat 1B: Dark Enclosed 1:1 Cockpit — Panic Crew, Crashing ENG 0% & Collective Slam!
+    310, 365, 455,      # Beat 2: Local-Space Cowling X-Ray, Seized Crimson Turbine & 12 Golden Cam Sprags
+    635, 765, 895,      # Beat 3: 6 Wide Sculpted Emerald 3D Ribbon Arrows & Cloud Descent Parallax
+    1020, 1140, 1245,   # Beat 4: Enlarged 2.1x Botanical 3D Maple Seed vs. Modern Rescue Rotor Side-by-Side
+    1375, 1495, 1555,   # Beat 5A: Enclosed Cockpit Flare Pull (f/3.6 bokeh) + Beat 5B: 30-Ft Nose-Up Flare (f/8.0)
+    1635, 1715,         # Beat 6: Smooth Zero-Engine Flush Touchdown on Weathered Rooftop Helipad + Dust Wave
 )
 DEFAULT_BEAT1_DENSE_FRAMES: tuple[int, ...] = tuple(
     sorted(
         set(range(1, C.BEATS["B1_HOOK"][1] + 1, 10))
-        | {C.EV["b1_engine_flameout"], C.EV["b1_caution_alarm"], C.EV["b1_collective_slam"], C.BEATS["B1_HOOK"][1]}
+        | {
+            C.EV["b1_engine_flameout"],
+            34,
+            C.B1_EXTERIOR_END,
+            C.B1_COCKPIT_START,
+            C.EV["b1_caution_alarm"],
+            C.EV["b1_collective_slam"],
+            175,
+            C.BEATS["B1_HOOK"][1],
+        }
     )
 )
 

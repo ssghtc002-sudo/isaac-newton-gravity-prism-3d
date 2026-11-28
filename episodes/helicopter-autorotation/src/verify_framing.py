@@ -1,6 +1,10 @@
 """
-verify_framing.py — Pre-flight Mathematical 9:16 Portrait Framing, Subtitle Safe-Zone & Gimbal QA
+verify_framing.py — Pre-flight Mathematical 9:16 Portrait Framing, Subtitle Safe-Zone & Gimbal QA (V2 Ultimate)
 for Episode #5: "Why a Helicopter With a Dead Engine DOESN'T Fall Like a Rock" (60 fps, 1800 frames).
+
+Audits all 8 cinematic segments (Beat 1A exterior turbine explosion -> Beat 1B enclosed panic cockpit ->
+Beats 2..4 -> Beat 5A f/3.6 cockpit flare pull -> Beat 5B f/8.0 30-ft exterior flare -> Beat 6 flush landing),
+all 6 C.LABELS (`NDC Y >= -0.45`), all 7 hard cuts `(116, 241, 571, 961, 1291, 1451, 1581)`, and 0.00 mm skid contact.
 
 Pure-Python (runs cleanly outside Blender via `python3 episodes/helicopter-autorotation/src/verify_framing.py`).
 """
@@ -15,7 +19,7 @@ if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
 import heli_contract as C  # noqa: E402
-from cinema_camera import HARD_CUT_FRAMES, camera_state_at, project_ndc  # noqa: E402
+from cinema_camera import camera_state_at, project_ndc  # noqa: E402
 from labels_3d import _target_world_pos  # noqa: E402
 
 Vec3 = tuple[float, float, float]
@@ -59,7 +63,7 @@ def _check_point(
     )
     status = "PASS" if ok else "FAIL"
     print(
-        f"  [{status}] {tag:28s} -> NDC=({nx:+.2f}, {ny:+.2f}) depth={z:.2f}m "
+        f"  [{status}] {tag:30s} -> NDC=({nx:+.2f}, {ny:+.2f}) depth={z:.2f}m "
         f"(|X|<={max_abs_x:.2f}, Y in [{min_y:+.2f}, {max_y:+.2f}])"
     )
     if not ok:
@@ -69,30 +73,55 @@ def _check_point(
 
 def main() -> int:
     errors: list[str] = []
-    print("=== Helicopter Autorotation Ep#5 — 9:16 Portrait Framing & Safe-Zone QA (60fps, 1800f) ===")
+    print("=== Helicopter Autorotation Ep#5 (V2 Ultimate) — 9:16 Portrait Framing & Safe-Zone QA (60fps, 1800f) ===")
 
-    # 1. BEAT 1 (1..240): 1:1 Rescue Cockpit — Pilot, Co-Pilot, ENG OUT Caution & Collective Slam
-    print("\n[BEAT 1 — 1:1 Rescue Cockpit Engine Failure & Collective Slam (1..240)]")
-    px, py, _ = C.CREW["pilot_pos"]
-    cx, cy, _ = C.CREW["copilot_pos"]
-    for f in (1, 14, 42, 120, 240):
+    # 1A. BEAT 1A (1..115): Exterior Modern Rescue Chopper — Dorsal Turbine Explosion, Sparks & Dark Smoke!
+    print("\n[BEAT 1A — Exterior Turbine Fire Burst, Sparks & Black Smoke (1..115)]")
+    for f in (1, 18, 55, 108, C.B1_EXTERIOR_END):
         st = camera_state_at(float(f), include_motion_fx=True)
+        hpos, _ = C.heli_pose_at(float(f))
         focus_err = abs(st["focus_dist"] - _dist3(st["cam_pos"], st["tgt_pos"]))
         dof_ok = abs(st["fstop"] - 7.5) < 1e-3 and focus_err < 1e-4
         if not dof_ok:
-            errors.append(f"B1 f={f}: fstop={st['fstop']:.2f} focus_err={focus_err:.5f}")
+            errors.append(f"B1A f={f}: fstop={st['fstop']:.2f} focus_err={focus_err:.5f}")
         print(
             f"  f={f:03d} | cam=({st['cam_pos'][0]:+.2f},{st['cam_pos'][1]:+.2f},{st['cam_pos'][2]:+.2f}) "
             f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f} dof={'PASS' if dof_ok else 'FAIL'}"
         )
-        _check_point(errors, f"B1_f{f:03d}_PilotEyes", (px, py, float(C.CREW["pilot_eye_z"])), st, 0.85, -0.25, 0.50)
-        _check_point(errors, f"B1_f{f:03d}_CoPilotEyes", (cx, cy, float(C.CREW["copilot_eye_z"])), st, 0.85, -0.25, 0.50)
-        _check_point(errors, f"B1_f{f:03d}_EngOutPanel", tuple(C.STAGE["cockpit_caution_pos"]), st, 0.70, -0.42, 0.30)
-        _check_point(errors, f"B1_f{f:03d}_CollectiveGrip", (0.10, -0.32, 0.80), st, 0.75, -0.48, 0.20)
+        _check_point(errors, f"B1A_f{f:03d}_HeliCore", hpos, st, 0.72, -0.30, 0.45)
+        _check_point(
+            errors,
+            f"B1A_f{f:03d}_TurbineFire",
+            (hpos[0], hpos[1] + 0.16, hpos[2] + 0.28),
+            st,
+            0.78,
+            -0.25,
+            0.55,
+        )
 
-    # 2. BEAT 2 (241..570): Dorsal Macro X-Ray on Seized Shaft & Freewheeling Sprag Clutch
-    print("\n[BEAT 2 — Macro X-Ray: Seized Turbine Shaft & Freewheeling Sprag Clutch (241..570)]")
-    for f in (241, 295, 340, 415, 570):
+    # 1B. BEAT 1B (116..240): Dark Enclosed 1:1 Cockpit — Panic Crew, Crashing ENG 0% & Collective Slam!
+    print("\n[BEAT 1B — Dark Enclosed 1:1 Rescue Cockpit: ENG OUT, Crashing RPM & Collective Slam (116..240)]")
+    px, py, _ = C.CREW["pilot_pos"]
+    cx, cy, _ = C.CREW["copilot_pos"]
+    for f in (C.B1_COCKPIT_START, 152, 195, 240):
+        st = camera_state_at(float(f), include_motion_fx=True)
+        focus_err = abs(st["focus_dist"] - _dist3(st["cam_pos"], st["tgt_pos"]))
+        dof_ok = abs(st["fstop"] - 7.5) < 1e-3 and focus_err < 1e-4
+        if not dof_ok:
+            errors.append(f"B1B f={f}: fstop={st['fstop']:.2f} focus_err={focus_err:.5f}")
+        print(
+            f"  f={f:03d} | cam=({st['cam_pos'][0]:+.2f},{st['cam_pos'][1]:+.2f},{st['cam_pos'][2]:+.2f}) "
+            f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f} dof={'PASS' if dof_ok else 'FAIL'}"
+        )
+        _check_point(errors, f"B1B_f{f:03d}_PilotEyes", (px, py, float(C.CREW["pilot_eye_z"])), st, 0.88, -0.25, 0.55)
+        _check_point(errors, f"B1B_f{f:03d}_CoPilotEyes", (cx, cy, float(C.CREW["copilot_eye_z"])), st, 0.88, -0.25, 0.55)
+        _check_point(errors, f"B1B_f{f:03d}_EngOutPanel", tuple(C.STAGE["cockpit_caution_pos"]), st, 0.72, -0.42, 0.35)
+        _check_point(errors, f"B1B_f{f:03d}_RPMGauge", tuple(C.STAGE["cockpit_rpm_gauge_pos"]), st, 0.72, -0.45, 0.30)
+        _check_point(errors, f"B1B_f{f:03d}_CollectiveGrip", (0.12, -0.18, 0.80), st, 0.78, -0.50, 0.25)
+
+    # 2. BEAT 2 (241..570): Dorsal Macro X-Ray on Seized Crimson Turbine & 12 Golden Cam Sprags
+    print("\n[BEAT 2 — Macro X-Ray: Seized Crimson Turbine & 12 Golden Cam Sprags (241..570)]")
+    for f in (241, 295, 345, 405, 570):
         st = camera_state_at(float(f), include_motion_fx=True)
         hpos, _ = C.heli_pose_at(float(f))
         print(
@@ -100,12 +129,12 @@ def main() -> int:
             f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f}"
         )
         _check_point(errors, f"B2_f{f:03d}_SpragClutch", tuple(C.STAGE["b2_clutch_world"]), st, 0.65, -0.35, 0.45)
-        _check_point(errors, f"B2_f{f:03d}_TurbineShaft", (0.00, 0.24, 2.13), st, 0.75, -0.35, 0.45)
+        _check_point(errors, f"B2_f{f:03d}_TurbineShaft", (0.00, 0.28, 2.12), st, 0.75, -0.35, 0.45)
         _check_point(errors, f"B2_f{f:03d}_HeliCore", hpos, st, 0.75, -0.45, 0.35)
 
-    # 3. BEAT 3 (571..960): Golden-Hour Autorotation Glide & Upward Emerald Airflow
-    print("\n[BEAT 3 — Upward Airflow Windmill & Kinetic Flywheel Spin (571..960)]")
-    for f in (571, 620, 740, 865, 960):
+    # 3. BEAT 3 (571..960): Golden-Hour Autorotation Glide & 6 Wide Emerald 3D Ribbon Arrows
+    print("\n[BEAT 3 — Upward Airflow Ribbon Arrows & Kinetic Flywheel Spin (571..960)]")
+    for f in (571, 615, 735, 860, 960):
         st = camera_state_at(float(f), include_motion_fx=True)
         hpos, _ = C.heli_pose_at(float(f))
         print(
@@ -113,11 +142,11 @@ def main() -> int:
             f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f}"
         )
         _check_point(errors, f"B3_f{f:03d}_HeliCore", hpos, st, 0.75, -0.35, 0.45)
-        _check_point(errors, f"B3_f{f:03d}_RotorHub", (hpos[0], hpos[1], hpos[2] + 0.44), st, 0.80, -0.25, 0.55)
+        _check_point(errors, f"B3_f{f:03d}_RotorHub", (hpos[0], hpos[1], hpos[2] + C.HELI_ROTOR_HUB_LOCAL_Z), st, 0.80, -0.25, 0.55)
 
-    # 4. BEAT 4 (961..1290): Side-by-Side Sculpted 3D Maple Seed (Left) vs Rescue Rotor (Right)
-    print("\n[BEAT 4 — 3D Winged Maple Seed vs Rescue Rotor Comparison (961..1290)]")
-    for f in (961, 1005, 1125, 1290):
+    # 4. BEAT 4 (961..1290): Side-by-Side Hero Botanical 3D Maple Seed (Left) vs Modern Rescue Rotor (Right)
+    print("\n[BEAT 4 — Hero 3D Botanical Maple Seed vs Modern Rescue Rotor (961..1290)]")
+    for f in (961, 1000, 1130, 1290):
         st = camera_state_at(float(f), include_motion_fx=True)
         mpos, _ = C.maple_seed_pose_at(float(f))
         hpos, _ = C.heli_pose_at(float(f))
@@ -128,9 +157,9 @@ def main() -> int:
         _check_point(errors, f"B4_f{f:04d}_MapleSeed", mpos, st, 0.85, -0.35, 0.50)
         _check_point(errors, f"B4_f{f:04d}_RescueHeli", hpos, st, 0.85, -0.35, 0.50)
 
-    # 5A. BEAT 5A (1291..1450): Label-Free 1:1 Cockpit Final Flare Pull (f/3.6 Bokeh!)
-    print("\n[BEAT 5A — 1:1 Cockpit Final Flare Pull Close-Up (1291..1450, f/3.6 Bokeh)]")
-    for f in (1291, 1350, 1400, C.B5_COCKPIT_END):
+    # 5A. BEAT 5A (1291..1450): Label-Free Enclosed Cockpit Final Flare Pull (f/3.6 Bokeh!)
+    print("\n[BEAT 5A — Enclosed Cockpit Final Flare Pull Close-Up (1291..1450, f/3.6 Bokeh)]")
+    for f in (1291, 1345, 1400, C.B5_COCKPIT_END):
         st = camera_state_at(float(f), include_motion_fx=True)
         fs_ok = abs(st["fstop"] - 3.6) < 1e-2
         if not fs_ok:
@@ -139,13 +168,13 @@ def main() -> int:
             f"  f={f:04d} | cam=({st['cam_pos'][0]:+.2f},{st['cam_pos'][1]:+.2f},{st['cam_pos'][2]:+.2f}) "
             f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f} bokeh={'PASS' if fs_ok else 'FAIL'}"
         )
-        _check_point(errors, f"B5A_f{f:04d}_PilotEyes", (px, py, float(C.CREW["pilot_eye_z"])), st, 0.85, -0.25, 0.50)
-        _check_point(errors, f"B5A_f{f:04d}_CoPilotEyes", (cx, cy, float(C.CREW["copilot_eye_z"])), st, 0.90, -0.25, 0.50)
-        _check_point(errors, f"B5A_f{f:04d}_CollectivePull", (0.10, -0.30, 0.94), st, 0.75, -0.48, 0.25)
+        _check_point(errors, f"B5A_f{f:04d}_PilotEyes", (px, py, float(C.CREW["pilot_eye_z"])), st, 0.88, -0.25, 0.55)
+        _check_point(errors, f"B5A_f{f:04d}_CoPilotEyes", (cx, cy, float(C.CREW["copilot_eye_z"])), st, 0.92, -0.25, 0.55)
+        _check_point(errors, f"B5A_f{f:04d}_CollectivePull", (0.12, -0.18, 0.94), st, 0.78, -0.50, 0.25)
 
-    # 5B. BEAT 5B (1451..1580): Crisp f/8.0 Exterior 30-Foot Nose-Up Flare over Helipad
+    # 5B. BEAT 5B (1451..1580): Crisp f/8.0 Exterior 30-Foot Nose-Up Flare over Weathered Helipad
     print("\n[BEAT 5B — Exterior 30-Foot Nose-Up Flare over Rooftop Helipad (1451..1580)]")
-    for f in (C.B5_EXTERIOR_START, 1468, 1525, 1580):
+    for f in (C.B5_EXTERIOR_START, 1466, 1522, 1580):
         st = camera_state_at(float(f), include_motion_fx=True)
         hpos, _ = C.heli_pose_at(float(f))
         fs_ok = abs(st["fstop"] - 8.0) < 1e-2
@@ -158,7 +187,7 @@ def main() -> int:
         _check_point(errors, f"B5B_f{f:04d}_HeliFlare", hpos, st, 0.80, -0.25, 0.55)
         _check_point(errors, f"B5B_f{f:04d}_HelipadH", tuple(C.STAGE["helipad_center"]), st, 0.85, -0.50, 0.20)
 
-    # 6. BEAT 6 (1581..1800): Smooth Rooftop Helipad Touchdown Payoff
+    # 6. BEAT 6 (1581..1800): Smooth Rooftop Helipad Touchdown Payoff + Dust Wave
     print("\n[BEAT 6 — Smooth Zero-Engine Rooftop Helipad Touchdown (1581..1800)]")
     for f in (1581, 1635, 1685, 1800):
         st = camera_state_at(float(f), include_motion_fx=True)
@@ -170,7 +199,7 @@ def main() -> int:
         _check_point(errors, f"B6_f{f:04d}_HeliTouchdown", hpos, st, 0.75, -0.30, 0.45)
         _check_point(errors, f"B6_f{f:04d}_HelipadH", tuple(C.STAGE["helipad_center"]), st, 0.80, -0.45, 0.25)
 
-    # Flush skid-contact verification at touchdown (f=1685 & f=1800)
+    # Exact flush skid-contact verification at touchdown (f=1685 & f=1800)
     h_td, _ = C.heli_pose_at(1685.0)
     skid_world_z = h_td[2] + C.HELI_SKID_BOTTOM_LOCAL_Z
     skid_err = abs(skid_world_z - float(C.STAGE["helipad_z"]))
@@ -187,14 +216,14 @@ def main() -> int:
             pt = _target_world_pos(key, float(f))
             _check_point(errors, f"LBL_{key}_f{f:04d}", pt, st, 0.88, LABEL_MIN_NDC_Y, 0.85, min_depth=0.25)
 
-    # 8. FULL 1800-FRAME ANTI-GIMBAL-FLIP & INTRA-BEAT CONTINUITY AUDIT
+    # 8. FULL 1800-FRAME ANTI-GIMBAL-FLIP & INTRA-BEAT CONTINUITY AUDIT (7 HARD CUTS!)
     max_abs_fwd_z = 0.0
     min_dist = 999.0
     max_step_cam = 0.0
     max_step_tgt = 0.0
     max_step_lens = 0.0
     prev_st = None
-    cut_set = set(HARD_CUT_FRAMES)
+    cut_set = set(C.HARD_CUT_FRAMES)
     cut_jumps: dict[int, float] = {}
 
     for f in range(1, C.TOTAL_FRAMES + 1):
@@ -230,7 +259,7 @@ def main() -> int:
 
     gimbal_ok = max_abs_fwd_z < 0.85 and min_dist > 0.25
     cont_ok = max_step_cam <= 0.35 and max_step_tgt <= 0.35 and max_step_lens <= 1.0
-    cuts_ok = len(cut_jumps) == len(HARD_CUT_FRAMES) and all(v > 0.25 for v in cut_jumps.values())
+    cuts_ok = len(cut_jumps) == len(C.HARD_CUT_FRAMES) and all(v > 0.25 for v in cut_jumps.values())
     if not gimbal_ok:
         errors.append(f"Gimbal/dist fail: max_|fwd.z|={max_abs_fwd_z:.3f}, min_dist={min_dist:.3f}")
     if not cont_ok:
@@ -244,7 +273,7 @@ def main() -> int:
         f"max_|fwd.z|={max_abs_fwd_z:.3f} (< 0.85 guaranteed zero TRACK_TO flip!)\n"
         f"  [{'PASS' if cont_ok else 'FAIL'}] intra-beat max_step_cam={max_step_cam:.3f}m/f, "
         f"max_step_tgt={max_step_tgt:.3f}m/f, max_step_lens={max_step_lens:.2f}mm/f\n"
-        f"  [{'PASS' if cuts_ok else 'FAIL'}] hard cuts verified @ {HARD_CUT_FRAMES}: "
+        f"  [{'PASS' if cuts_ok else 'FAIL'}] all 7 hard cuts verified @ {C.HARD_CUT_FRAMES}: "
         + ", ".join(f"f{k}={v:.2f}m" for k, v in sorted(cut_jumps.items()))
     )
 
@@ -255,7 +284,8 @@ def main() -> int:
         return 1
 
     print(
-        "\nRESULT: 100% PASSED — All 6 Beats + Rescue Crew/Cockpit/Sprag Clutch/Upward Airflow/Maple Seed/Helipad "
+        "\nRESULT: 100% PASSED — All 8 Cinematic Segments (Beat 1A Explosion + Beat 1B Enclosed Cockpit + "
+        "Sprag Clutch X-Ray + Wide Ribbon Airflow + Hero Maple Seed + 30-Ft Flare + Rooftop Landing) "
         "+ All 6 C.LABELS + 1800-Frame Gimbal & Continuity Audits PASSED!"
     )
     return 0

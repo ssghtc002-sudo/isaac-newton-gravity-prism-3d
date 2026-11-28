@@ -1,17 +1,19 @@
 """
-heli_env.py — Golden-Hour City Skyline, Sunset Sky Dome, Skyscraper Rooftop Helipad & V12 Lighting
-for Episode #5: "Why a Helicopter With a Dead Engine DOESN'T Fall Like a Rock" (60 fps, 1800 frames).
+heli_env.py — Photoreal Golden-Hour Curtain-Wall Glass Skyscrapers, Descending Cloud Parallax,
+Weathered Skyscraper Rooftop Helipad (Z = 0.90 m) with Safety Perimeter Netting & Landing Strobes,
+and V12 Cinematic Lighting for Episode #5 V2 Ultimate (60 fps, 1800 frames).
 
-Features:
-  - Procedural Golden-Hour Sunset World (`ShaderNodeTexSky` / rich amber-to-cobalt atmospheric dome)
-  - 28 sunlit glass-and-concrete city skyline towers (`Env_Skyline_Towers`) with warm reflective curtain walls,
-    glowing dusk office strips, aviation beacons & golden cloud banks (`Env_Sunset_Clouds`)
-  - Detailed Skyscraper Rooftop Helipad (`Env_Rooftop_Helipad`, Beats 5B & 6, deck strictly at Z = 0.90 m!)
-    with high-contrast yellow `H` aiming circle, 12 glowing green/amber perimeter beacons, safety net rails,
-    rooftop stairwell penthouse, and animated fluttering rescue windsock
-  - V12 Cinematic Lighting: warm low-elevation golden key sun (18 deg), cool cobalt sky rim bounce,
-    0.42 m Softbox Cockpit Eye Catchlight (`Light_Crew_EyeCatchlight`), and pulsing crimson `ENG OUT`
-    cockpit warning bounce light (`Light_Cockpit_CautionGlow`)
+Eliminates every "Lego city" flaw from the draft:
+  - Procedural **Curtain-Wall Glass Skyscraper Shaders**: reflective dark-blue & champagne-bronze
+    glass grids with dark steel mullions, subtle pane roughness variation, and randomized warm dusk
+    office windows (ZERO wide flat beige stripes!), plus stepped architectural crowns, spires & HVAC units!
+  - **Vertical Descent Cloud Parallax**: golden-lit sunset cloud strata animate upward via
+    `C.descent_parallax_z_at(f)` during Beats 3 & 4 so viewers physically FEEL the helicopter gliding down!
+  - **Weathered Concrete Skyscraper Rooftop Helipad (`Z = 0.90 m`)**: procedural concrete grime/roughness,
+    crisp yellow `H` aiming circle, angled perimeter safety-net frames, 12 pulsing green TLOF beacons +
+    4 white approach strobes, rooftop stairwell penthouse, radar mast, and animated striped rescue windsock!
+  - **V12 Lighting**: Warm golden-hour key sun + cool cobalt sky rim bounce + Beat 1A dorsal **Turbine Fire
+    Flash Point Light** + `0.42 m` Softbox Cockpit Eye Catchlight + pulsing crimson `ENG OUT` cockpit bounce!
 """
 from __future__ import annotations
 
@@ -45,7 +47,6 @@ def _new_bmesh_obj(
     no_shadow: bool = False,
 ) -> bpy.types.Object:
     mesh = bpy.data.meshes.new(name + "_Mesh")
-    # Blender 5.3.0 rule: append ALL materials BEFORE bm.to_mesh(mesh)!
     for m in mats:
         mesh.materials.append(m)
     bm.to_mesh(mesh)
@@ -111,8 +112,152 @@ def _make_pbr(
     return mat
 
 
+def _make_curtain_wall_mat(
+    name: str,
+    glass_rgb: tuple[float, float, float],
+    mullion_rgb: tuple[float, float, float],
+    warm_chance: float = 0.36,
+    scale_val: float = 1.65,
+) -> bpy.types.Material:
+    """
+    Photorealistic Procedural Skyscraper Curtain-Wall Shader:
+      - Uses 3D object coordinates mapped through `ShaderNodeTexBrick` (sharp vertical & horizontal
+        aluminum mullions framing reflective glass window panes) + subtle cell noise so random dusk
+        offices glow softly warm amber while adjacent glass reflects the golden sunset sky!
+      - Strictly uses Blender 5.3.0 safe `C.get_mix_sockets()`.
+    """
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    # Combine X+Y horizontally so both front (-Y) and side (+X/-X) facades show crisp window grids!
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Object"], sep.inputs["Vector"])
+    add_xy = nt.nodes.new("ShaderNodeMath")
+    add_xy.operation = "ADD"
+    nt.links.new(sep.outputs["X"], add_xy.inputs[0])
+    nt.links.new(sep.outputs["Y"], add_xy.inputs[1])
+
+    comb = nt.nodes.new("ShaderNodeCombineXYZ")
+    nt.links.new(add_xy.outputs["Value"], comb.inputs["X"])
+    nt.links.new(sep.outputs["Z"], comb.inputs["Y"])
+
+    brick = nt.nodes.new("ShaderNodeTexBrick")
+    brick.offset = 0.0
+    brick.inputs["Scale"].default_value = scale_val
+    brick.inputs["Mortar Size"].default_value = 0.065
+    brick.inputs["Mortar Smooth"].default_value = 0.05
+    brick.inputs["Brick Width"].default_value = 0.55
+    brick.inputs["Row Height"].default_value = 0.72
+    brick.inputs["Color1"].default_value = (*glass_rgb, 1.0)
+    brick.inputs["Color2"].default_value = (glass_rgb[0] * 0.65, glass_rgb[1] * 0.72, glass_rgb[2] * 0.85, 1.0)
+    brick.inputs["Mortar"].default_value = (*mullion_rgb, 1.0)
+    nt.links.new(comb.outputs["Vector"], brick.inputs["Vector"])
+
+    # Mortar mask (0 = glass pane, 1 = aluminum mullion frame)
+    inv_m = nt.nodes.new("ShaderNodeMath")
+    inv_m.operation = "SUBTRACT"
+    inv_m.inputs[0].default_value = 1.0
+    nt.links.new(brick.outputs["Fac"], inv_m.inputs[1])
+
+    # Metallic & Roughness: glossy reflective glass panes (R=0.07, M=0.72) vs matte dark mullions (R=0.45, M=0.85)
+    mix_r = nt.nodes.new("ShaderNodeMix")
+    mix_r.data_type = "FLOAT"
+    f_r, a_r, b_r = C.get_mix_sockets(mix_r)
+    a_r.default_value = 0.075
+    b_r.default_value = 0.48
+    nt.links.new(brick.outputs["Fac"], f_r)
+    nt.links.new(mix_r.outputs[0], bsdf.inputs["Roughness"])
+
+    bsdf.inputs["Metallic"].default_value = 0.76
+    if "Coat Weight" in bsdf.inputs:
+        bsdf.inputs["Coat Weight"].default_value = 0.65
+        bsdf.inputs["Coat Roughness"].default_value = 0.05
+    nt.links.new(brick.outputs["Color"], bsdf.inputs["Base Color"])
+
+    # Subtle randomized dusk office interior glow gated strictly inside glass panes (never on mullions!)
+    vor = nt.nodes.new("ShaderNodeTexVoronoi")
+    vor.feature = "F1"
+    vor.inputs["Scale"].default_value = scale_val * 1.4
+    vor.inputs["Randomness"].default_value = 0.05
+    nt.links.new(comb.outputs["Vector"], vor.inputs["Vector"])
+
+    gt_win = nt.nodes.new("ShaderNodeMath")
+    gt_win.operation = "GREATER_THAN"
+    gt_win.inputs[1].default_value = 1.0 - warm_chance
+    nt.links.new(vor.outputs["Distance"], gt_win.inputs[0])
+
+    mul_em = nt.nodes.new("ShaderNodeMath")
+    mul_em.operation = "MULTIPLY"
+    nt.links.new(gt_win.outputs["Value"], mul_em.inputs[0])
+    nt.links.new(inv_m.outputs["Value"], mul_em.inputs[1])
+
+    mul_str = nt.nodes.new("ShaderNodeMath")
+    mul_str.operation = "MULTIPLY"
+    mul_str.inputs[1].default_value = 0.85  # AgX-safe tasteful warm office glow
+    nt.links.new(mul_em.outputs["Value"], mul_str.inputs[0])
+
+    bsdf.inputs["Emission Color"].default_value = (1.00, 0.76, 0.42, 1.0)
+    nt.links.new(mul_str.outputs["Value"], bsdf.inputs["Emission Strength"])
+
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _make_weathered_asphalt_mat() -> bpy.types.Material:
+    """Procedural weathered skyscraper rooftop helipad concrete/asphalt with realistic roughness grime & bump."""
+    mat = bpy.data.materials.new("Mat_Helipad_WeatheredAsphalt")
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    n1 = nt.nodes.new("ShaderNodeTexNoise")
+    n1.inputs["Scale"].default_value = 3.8
+    n1.inputs["Detail"].default_value = 8.0
+    n1.inputs["Roughness"].default_value = 0.65
+    nt.links.new(tc.outputs["Object"], n1.inputs["Vector"])
+
+    n2 = nt.nodes.new("ShaderNodeTexNoise")
+    n2.inputs["Scale"].default_value = 26.0
+    n2.inputs["Detail"].default_value = 6.0
+    nt.links.new(tc.outputs["Object"], n2.inputs["Vector"])
+
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].position = 0.25
+    ramp.color_ramp.elements[0].color = (0.095, 0.105, 0.118, 1.0)
+    ramp.color_ramp.elements[1].position = 0.78
+    ramp.color_ramp.elements[1].color = (0.185, 0.195, 0.210, 1.0)
+    nt.links.new(n1.outputs["Fac"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+
+    mr_r = nt.nodes.new("ShaderNodeMapRange")
+    mr_r.clamp = True
+    mr_r.inputs["From Min"].default_value = 0.2
+    mr_r.inputs["From Max"].default_value = 0.8
+    mr_r.inputs["To Min"].default_value = 0.58
+    mr_r.inputs["To Max"].default_value = 0.88
+    nt.links.new(n1.outputs["Fac"], mr_r.inputs["Value"])
+    nt.links.new(mr_r.outputs["Result"], bsdf.inputs["Roughness"])
+
+    bump = nt.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.16
+    bump.inputs["Distance"].default_value = 0.008
+    nt.links.new(n2.outputs["Fac"], bump.inputs["Height"])
+    nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
 def _build_golden_hour_world() -> bpy.types.World:
-    """Rich procedural golden-hour sunset sky: warm amber horizon -> peach gold -> crisp cobalt zenith."""
+    """Rich cinematic golden-hour sunset sky dome: glowing amber horizon -> rose gold -> twilight azure zenith."""
     world = bpy.data.worlds.new("World_GoldenHour_Skyline")
     bpy.context.scene.world = world
     world.use_nodes = True
@@ -121,16 +266,15 @@ def _build_golden_hour_world() -> bpy.types.World:
 
     out = nt.nodes.new("ShaderNodeOutputWorld")
     bg = nt.nodes.new("ShaderNodeBackground")
-    bg.inputs["Strength"].default_value = 1.35
+    bg.inputs["Strength"].default_value = 1.45
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
 
-    # Vertical gradient Z in [-0.15 .. +0.65]
     mr = nt.nodes.new("ShaderNodeMapRange")
     mr.clamp = True
-    mr.inputs["From Min"].default_value = -0.10
+    mr.inputs["From Min"].default_value = -0.08
     mr.inputs["From Max"].default_value = 0.62
     mr.inputs["To Min"].default_value = 0.0
     mr.inputs["To Max"].default_value = 1.0
@@ -140,27 +284,26 @@ def _build_golden_hour_world() -> bpy.types.World:
     cr = ramp.color_ramp
     cr.interpolation = "B_SPLINE"
     cr.elements[0].position = 0.00
-    cr.elements[0].color = (0.18, 0.14, 0.16, 1.0)     # warm urban haze below horizon
-    cr.elements[1].position = 0.18
-    cr.elements[1].color = (1.00, 0.50, 0.22, 1.0)     # radiant golden-hour sunset horizon
-    e2 = cr.elements.new(0.36)
-    e2.color = (0.98, 0.68, 0.42, 1.0)                 # soft peach-gold mid-sky
-    e3 = cr.elements.new(0.62)
-    e3.color = (0.30, 0.50, 0.78, 1.0)                 # crisp golden-hour azure
+    cr.elements[0].color = (0.20, 0.13, 0.14, 1.0)
+    cr.elements[1].position = 0.16
+    cr.elements[1].color = (1.00, 0.46, 0.18, 1.0)
+    e2 = cr.elements.new(0.34)
+    e2.color = (0.98, 0.66, 0.38, 1.0)
+    e3 = cr.elements.new(0.60)
+    e3.color = (0.24, 0.44, 0.74, 1.0)
     e4 = cr.elements.new(1.00)
-    e4.color = (0.11, 0.24, 0.52, 1.0)                 # deep cobalt zenith
+    e4.color = (0.08, 0.18, 0.44, 1.0)
     nt.links.new(mr.outputs["Result"], ramp.inputs["Fac"])
 
-    # Warm sun-glow lobe in the sky (+X, +Y, low elevation)
     dot_sun = nt.nodes.new("ShaderNodeVectorMath")
     dot_sun.operation = "DOT_PRODUCT"
-    sun_dir = Vector((0.46, 0.84, 0.28)).normalized()
+    sun_dir = Vector((0.46, 0.85, 0.24)).normalized()
     dot_sun.inputs[1].default_value = (sun_dir.x, sun_dir.y, sun_dir.z)
     nt.links.new(tc.outputs["Generated"], dot_sun.inputs[0])
 
     mr_sun = nt.nodes.new("ShaderNodeMapRange")
     mr_sun.clamp = True
-    mr_sun.inputs["From Min"].default_value = 0.88
+    mr_sun.inputs["From Min"].default_value = 0.86
     mr_sun.inputs["From Max"].default_value = 0.998
     mr_sun.inputs["To Min"].default_value = 0.0
     mr_sun.inputs["To Max"].default_value = 1.0
@@ -168,13 +311,13 @@ def _build_golden_hour_world() -> bpy.types.World:
 
     pow_sun = nt.nodes.new("ShaderNodeMath")
     pow_sun.operation = "POWER"
-    pow_sun.inputs[1].default_value = 3.2
+    pow_sun.inputs[1].default_value = 3.0
     nt.links.new(mr_sun.outputs["Result"], pow_sun.inputs[0])
 
     mix_col = nt.nodes.new("ShaderNodeMix")
     mix_col.data_type = "RGBA"
     fac_s, col_a, col_b = C.get_mix_sockets(mix_col)
-    col_b.default_value = (1.00, 0.82, 0.50, 1.0)
+    col_b.default_value = (1.00, 0.84, 0.52, 1.0)
     nt.links.new(pow_sun.outputs["Value"], fac_s)
     nt.links.new(ramp.outputs["Color"], col_a)
     nt.links.new(mix_col.outputs[2], bg.inputs["Color"])
@@ -204,293 +347,346 @@ def _add_box_bm(
     tmp.free()
 
 
-def _build_skyline_towers(col: bpy.types.Collection) -> list[bpy.types.Object]:
-    """28 golden-hour glass & steel skyscrapers framing the sunset horizon (visible in all beats)."""
-    mat_glass_blue = _make_pbr("Mat_City_GlassBlue", (0.14, 0.24, 0.36), metallic=0.72, roughness=0.14, coat=0.6)
-    mat_glass_gold = _make_pbr("Mat_City_GlassGold", (0.34, 0.26, 0.20), metallic=0.68, roughness=0.16, coat=0.5)
-    mat_concrete = _make_pbr("Mat_City_Concrete", (0.28, 0.26, 0.25), metallic=0.05, roughness=0.72)
-    mat_win_glow = _make_pbr(
-        "Mat_City_WarmWin", (1.00, 0.78, 0.45), roughness=0.25,
-        emit_rgb=(1.00, 0.76, 0.40), emit_str=1.25,
+def _add_tube_bm(
+    bm: bmesh.types.BMesh,
+    p0: Vector,
+    p1: Vector,
+    r0: float,
+    r1: float,
+    mat_idx: int = 0,
+    segs: int = 10,
+) -> None:
+    seg = p1 - p0
+    L = seg.length
+    if L < 1e-5:
+        return
+    mid = 0.5 * (p0 + p1)
+    rm = seg.normalized().to_track_quat("Z", "Y").to_matrix().to_4x4()
+    res = bmesh.ops.create_cone(
+        bm, cap_ends=True, cap_tris=False, segments=segs,
+        radius1=r0, radius2=r1, depth=L,
+        matrix=Matrix.Translation(mid) @ rm,
     )
+    vs = set(res["verts"])
+    for f in bm.faces:
+        if all(v in vs for v in f.verts):
+            f.material_index = mat_idx
+
+
+def _build_skyline_towers(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
+    """28 Photoreal Architectural Curtain-Wall Glass Skyscrapers + Animated Descent-Parallax Sunset Clouds!"""
+    mat_glass_blue = _make_curtain_wall_mat("Mat_City_CurtainBlue", (0.09, 0.18, 0.30), (0.03, 0.04, 0.05), 0.34, 1.55)
+    mat_glass_gold = _make_curtain_wall_mat("Mat_City_CurtainBronze", (0.24, 0.18, 0.14), (0.05, 0.04, 0.04), 0.42, 1.75)
+    mat_glass_slate = _make_curtain_wall_mat("Mat_City_CurtainSlate", (0.12, 0.15, 0.20), (0.04, 0.04, 0.05), 0.28, 1.90)
+    mat_concrete = _make_pbr("Mat_City_CrownConcrete", (0.20, 0.20, 0.22), metallic=0.12, roughness=0.68)
     mat_beacon = _make_pbr(
-        "Mat_City_BeaconRed", (0.95, 0.14, 0.08), roughness=0.2,
-        emit_rgb=(1.00, 0.18, 0.10), emit_str=1.80,
+        "Mat_City_BeaconRed", (0.98, 0.14, 0.08), roughness=0.18,
+        emit_rgb=(1.00, 0.18, 0.08), emit_str=1.85,
     )
 
-    rng = random.Random(505)
+    rng = random.Random(5052)
     bm = bmesh.new()
 
-    # Foreground-mid skyline ring at Y in [+13..+42], leaving center corridor clear for helicopter flights
+    # Architectural metropolitan ring pushed nicely into cinematic midground/background (Y = +18..+54)
     tower_specs = [
-        (-16.0, 22.0, 4.2, 4.2, 24.0),
-        (-11.8, 18.5, 3.6, 3.4, 19.5),
-        (-8.4, 24.5, 3.8, 3.8, 28.0),
-        (-5.2, 28.0, 3.4, 3.4, 22.5),
-        (-2.2, 34.0, 4.0, 4.0, 30.0),
-        (1.6, 31.0, 3.5, 3.5, 25.5),
-        (5.4, 23.5, 3.8, 3.6, 27.0),
-        (9.2, 19.0, 3.6, 3.4, 21.0),
-        (13.2, 24.0, 4.2, 4.0, 26.5),
-        (17.5, 28.0, 4.6, 4.2, 23.0),
-        (-19.5, 32.0, 4.8, 4.5, 29.0),
-        (-13.6, 30.0, 3.8, 3.8, 31.5),
-        (-7.0, 36.0, 4.2, 4.0, 33.0),
-        (3.8, 38.0, 4.5, 4.2, 34.5),
-        (11.4, 34.0, 4.0, 4.0, 30.0),
-        (20.5, 36.0, 5.0, 4.6, 28.0),
-        # Lower mid-rise city deck beneath the skyline so there is no empty void
-        (-9.0, 14.5, 4.5, 3.2, 11.5),
-        (-4.5, 16.0, 4.0, 3.2, 10.2),
-        (4.8, 15.5, 4.2, 3.2, 11.8),
-        (9.8, 14.5, 4.6, 3.4, 10.6),
+        (-22.0, 30.0, 5.2, 5.0, 30.0),
+        (-16.5, 25.0, 4.4, 4.2, 26.0),
+        (-11.8, 22.0, 3.8, 3.8, 22.5),
+        (-7.6, 28.0, 4.2, 4.2, 31.5),
+        (-3.6, 36.0, 4.6, 4.4, 35.0),
+        (1.2, 34.0, 4.2, 4.2, 32.0),
+        (5.6, 26.5, 4.0, 4.0, 29.0),
+        (10.2, 22.5, 3.8, 3.6, 23.5),
+        (15.0, 27.0, 4.6, 4.2, 28.5),
+        (20.5, 32.0, 5.4, 4.8, 27.0),
+        (-25.0, 40.0, 5.8, 5.4, 37.0),
+        (-15.0, 38.0, 4.8, 4.6, 39.5),
+        (-8.8, 44.0, 5.2, 4.8, 42.0),
+        (3.8, 46.0, 5.4, 5.0, 43.0),
+        (12.6, 41.0, 4.8, 4.6, 38.0),
+        (23.5, 44.0, 5.8, 5.2, 35.0),
+        # Lower canyon mid-rise deck below horizon (never empty void!)
+        (-10.5, 19.5, 5.0, 3.6, 13.0),
+        (-4.8, 21.0, 4.6, 3.6, 12.2),
+        (4.8, 20.5, 4.8, 3.6, 13.4),
+        (10.8, 19.5, 5.0, 3.8, 12.6),
     ]
-    # Also add distant warm skyline silhouettes behind the camera (+Y negative) for Beat 1/5A reflections
-    for tx, ty, sx, sy, sh in tower_specs:
-        base_z = -17.0
-        cz = base_z + 0.5 * sh
-        mat_idx = 0 if rng.random() < 0.58 else 1
-        _add_box_bm(bm, (tx, ty, cz), (sx, sy, sh), mat_idx=mat_idx)
-        # Crown parapet / mechanical penthouse
-        _add_box_bm(bm, (tx, ty, base_z + sh + 0.45), (sx * 0.72, sy * 0.72, 0.90), mat_idx=2)
-        # Warm glowing golden-hour window bands across upper floors
-        for k in range(4):
-            wz = base_z + sh - 1.4 - k * 2.1
-            if wz > -4.0:
-                _add_box_bm(bm, (tx, ty - sy * 0.505, wz), (sx * 0.84, 0.04, 0.36), mat_idx=3)
-        # Rooftop aviation red warning beacon on tallest spires
-        if sh >= 24.0:
-            _add_box_bm(bm, (tx, ty, base_z + sh + 1.45), (0.14, 0.14, 1.30), mat_idx=2)
-            _add_box_bm(bm, (tx, ty, base_z + sh + 2.18), (0.28, 0.28, 0.28), mat_idx=4)
 
-    # Distant golden city ground plane far below (Z = -17 m)
-    _add_box_bm(bm, (0.0, 24.0, -17.4), (90.0, 70.0, 0.8), mat_idx=2)
+    for idx, (tx, ty, sx, sy, sh) in enumerate(tower_specs):
+        base_z = -21.0
+        g_idx = idx % 3
+        # Stepped modern skyscraper architecture (main shaft + mid setback + top penthouse crown!)
+        _add_box_bm(bm, (tx, ty, base_z + sh * 0.42), (sx, sy, sh * 0.84), mat_idx=g_idx, bevel_w=0.06)
+        setback_h = sh * 0.16
+        _add_box_bm(bm, (tx, ty, base_z + sh * 0.84 + setback_h * 0.5), (sx * 0.78, sy * 0.78, setback_h), mat_idx=g_idx, bevel_w=0.05)
+        roof_z = base_z + sh
+        # Architectural parapet rim + rooftop mechanical HVAC penthouse
+        _add_box_bm(bm, (tx, ty, roof_z + 0.22), (sx * 0.74, sy * 0.74, 0.44), mat_idx=3, bevel_w=0.04)
+        _add_box_bm(bm, (tx + rng.uniform(-0.3, 0.3), ty, roof_z + 0.80), (sx * 0.36, sy * 0.36, 0.85), mat_idx=3, bevel_w=0.04)
+        # Tall slender steel spire + red aviation warning beacon on taller towers
+        if sh >= 26.0:
+            spire_h = rng.uniform(2.6, 5.2)
+            _add_tube_bm(bm, Vector((tx, ty, roof_z + 1.15)), Vector((tx, ty, roof_z + 1.15 + spire_h)), 0.08, 0.025, mat_idx=3, segs=8)
+            _add_box_bm(bm, (tx, ty, roof_z + 1.25 + spire_h), (0.16, 0.16, 0.22), mat_idx=4, bevel_w=0.03)
 
-    towers_obj = _new_bmesh_obj(
-        "Env_Skyline_Towers", bm,
-        [mat_glass_blue, mat_glass_gold, mat_concrete, mat_win_glow, mat_beacon],
-        Matrix.Identity(4), col, smooth=False,
+    skyline_obj = _new_bmesh_obj(
+        "Env_Skyline_CurtainTowers",
+        bm,
+        [mat_glass_blue, mat_glass_gold, mat_glass_slate, mat_concrete, mat_beacon],
+        Matrix.Identity(4),
+        col,
+        smooth=False,
     )
 
-    # Soft golden-hour cloud puffs drifting far behind skyline
-    mat_cloud = _make_pbr("Mat_City_SunsetCloud", (1.00, 0.74, 0.52), roughness=0.92, emit_rgb=(1.00, 0.66, 0.38), emit_str=0.32)
+    # Multi-layer Sunlit Golden-Hour Cloud Strata — animated UPWARD via descent_parallax_z_at(f) in Beats 3 & 4!
+    mat_cloud = _make_pbr(
+        "Mat_Env_GoldenCloud", (0.98, 0.78, 0.58), roughness=0.92,
+        emit_rgb=(1.00, 0.70, 0.42), emit_str=0.38,
+    )
     bm_c = bmesh.new()
-    cloud_locs = [
-        (-14.0, 44.0, 12.5, (5.5, 2.2, 1.4)),
-        (-5.0, 48.0, 15.0, (6.8, 2.4, 1.6)),
-        (6.5, 45.0, 13.5, (6.0, 2.2, 1.5)),
-        (16.0, 46.0, 11.8, (5.2, 2.0, 1.3)),
+    cloud_specs = [
+        (-13.0, 26.0, 4.8, 5.2, 2.0, 0.72),
+        (-4.5, 31.0, 7.2, 6.0, 2.2, 0.80),
+        (5.5, 29.0, 5.4, 5.8, 2.0, 0.76),
+        (14.0, 34.0, 8.0, 6.4, 2.4, 0.82),
+        (-9.0, 22.0, 0.4, 4.8, 1.8, 0.65),
+        (8.5, 24.0, -1.8, 5.0, 1.9, 0.68),
+        (-2.0, 28.0, -4.6, 6.4, 2.2, 0.74),
     ]
-    for cx, cy, cz, sc in cloud_locs:
-        for dx, dz, rfac in ((-0.35, -0.1, 0.75), (0.0, 0.12, 1.0), (0.38, -0.06, 0.8)):
-            res = bmesh.ops.create_icosphere(
+    for cx, cy, cz, rx, ry, rz in cloud_specs:
+        # Multi-lobe organic cloud bank cluster
+        for dx, dy, dz, sc in ((0.0, 0.0, 0.0, 1.0), (-rx * 0.45, 0.4, -0.15, 0.72), (rx * 0.48, -0.3, -0.10, 0.68)):
+            bmesh.ops.create_icosphere(
                 bm_c, subdivisions=2, radius=1.0,
-                matrix=Matrix.Translation((cx + dx * sc[0], cy, cz + dz * sc[2]))
-                @ Matrix.Diagonal((sc[0] * 0.42 * rfac, sc[1] * rfac, sc[2] * rfac, 1.0)),
+                matrix=Matrix.Translation((cx + dx, cy + dy, cz + dz)) @ Matrix.Diagonal((rx * sc, ry * sc, rz * sc, 1.0)),
             )
-            vs = set(res["verts"])
-            for f in bm_c.faces:
-                if all(v in vs for v in f.verts):
-                    f.material_index = 0
+    for f in bm_c.faces:
+        f.material_index = 0
     clouds_obj = _new_bmesh_obj(
-        "Env_Sunset_Clouds", bm_c, [mat_cloud], Matrix.Identity(4), col, smooth=True, no_shadow=True,
+        "Env_Sunset_CloudStrata", bm_c, [mat_cloud], Matrix.Identity(4), col, smooth=True, no_shadow=True,
     )
-    return [towers_obj, clouds_obj]
+    for f in sorted(set(range(1, total_frames + 1, 15)) | {1, 570, 960, 1290, total_frames}):
+        clouds_obj.location = Vector((0.0, 0.0, C.descent_parallax_z_at(float(f))))
+        clouds_obj.keyframe_insert("location", frame=f)
+
+    return [skyline_obj, clouds_obj]
 
 
 def _build_rooftop_helipad(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
     """
-    Skyscraper Rooftop Helipad strictly at Z = 0.90 m (visible Beats 5B & 6, f=1451..1800).
-    Includes weathered concrete pad, crisp yellow `H` aiming circle, 12 glowing green/amber
-    perimeter beacons, corner windsock pole + fluttering orange/white windsock, and safety rail.
+    Weathered Concrete Skyscraper Rooftop Helipad (Beats 5B & 6, deck surface strictly at Z = 0.900 m!):
+      - Weathered procedural asphalt deck + crisp safety yellow `H` + dashed ring + perimeter safety netting
+      - 12 Pulsing Green TLOF Beacons + 4 White Approach Strobe Lights
+      - Rooftop Access Stairwell Bulkhead + HVAC Chiller + Radar/Comms Antenna Mast
+      - Animated Red/White Striped Rescue Windsock whipping violently during Beat 5B flare & settling!
     """
-    hx, hy, hz = C.STAGE["helipad_center"]  # (0.08, 0.45, 0.90)
+    hx, hy, hz = C.STAGE["helipad_center"]
     pad_r = float(C.STAGE["helipad_radius"])
 
-    mat_conc = _make_pbr("Mat_Pad_Concrete", (0.20, 0.21, 0.23), metallic=0.04, roughness=0.78)
-    mat_dark_trim = _make_pbr("Mat_Pad_DarkSteel", (0.08, 0.09, 0.11), metallic=0.75, roughness=0.38)
-    mat_yellow = _make_pbr(
-        "Mat_Pad_YellowPaint", (0.96, 0.74, 0.08), metallic=0.02, roughness=0.42,
-        emit_rgb=(1.00, 0.78, 0.12), emit_str=0.18,
-    )
-    mat_white_paint = _make_pbr("Mat_Pad_WhitePaint", (0.92, 0.93, 0.94), roughness=0.45)
-    mat_green_led = _make_pbr(
-        "Mat_Pad_GreenBeacon", (0.12, 0.95, 0.45), roughness=0.18,
-        emit_rgb=(0.15, 1.00, 0.50), emit_str=1.75,
-    )
-    mat_orange_sock = _make_pbr("Mat_Pad_WindsockOrange", (0.96, 0.28, 0.05), roughness=0.58)
+    mat_deck = _make_weathered_asphalt_mat()
+    mat_concrete = _make_pbr("Mat_Helipad_ConcreteWall", (0.28, 0.29, 0.31), roughness=0.78)
+    mat_steel = _make_pbr("Mat_Helipad_SteelNet", (0.48, 0.52, 0.56), metallic=0.82, roughness=0.34)
+    mat_yellow = _make_pbr("Mat_Helipad_SafetyYellow", (0.94, 0.72, 0.08), roughness=0.48)
+    mat_dark = _make_pbr("Mat_Helipad_DarkMetal", (0.06, 0.07, 0.08), metallic=0.75, roughness=0.38)
+    mat_orange = _make_pbr("Mat_Helipad_WindsockOrange", (0.96, 0.24, 0.04), roughness=0.58)
+    mat_white = _make_pbr("Mat_Helipad_WindsockWhite", (0.94, 0.95, 0.96), roughness=0.55)
+
+    # Pulsing Green TLOF Perimeter Beacons
+    mat_green_b = _make_pbr("Mat_Helipad_BeaconGreen", (0.10, 0.98, 0.48), roughness=0.16, emit_rgb=(0.12, 1.00, 0.52), emit_str=1.85)
+    # Pulsing White Approach Strobe Lights
+    mat_strobe = bpy.data.materials.new("Mat_Helipad_ApproachStrobe")
+    mat_strobe.use_nodes = True
+    bs_st = mat_strobe.node_tree.nodes["Principled BSDF"]
+    bs_st.inputs["Base Color"].default_value = (0.98, 0.99, 1.0, 1.0)
+    bs_st.inputs["Emission Color"].default_value = (0.95, 0.98, 1.0, 1.0)
+    for f in range(1451, total_frames + 1, 6):
+        pulse = 1.95 if ((f // 12) % 2 == 0) else 0.25
+        bs_st.inputs["Emission Strength"].default_value = pulse
+        bs_st.inputs["Emission Strength"].keyframe_insert("default_value", frame=f)
 
     bm = bmesh.new()
-    # 1. Skyscraper rooftop deck block (top face strictly at Z = hz = 0.90 m!)
-    _add_box_bm(bm, (hx, hy + 0.35, hz - 3.60), (6.40, 6.20, 7.20), mat_idx=0, bevel_w=0.04)
-    # Steel octagonal helipad rim collar flush with deck
-    res_pad = bmesh.ops.create_cone(
-        bm, cap_ends=True, cap_tris=False, segments=32,
-        radius1=pad_r + 0.14, radius2=pad_r + 0.10, depth=0.08,
-        matrix=Matrix.Translation((hx, hy, hz - 0.042)),
-    )
-    vset = set(res_pad["verts"])
-    for f in bm.faces:
-        if all(v in vset for v in f.verts):
-            f.material_index = 1
+    # 1. Skyscraper rooftop main structure & weathered helipad slab (TOP strictly at Z = hz = 0.900 m!)
+    _add_box_bm(bm, (hx, hy, hz - 7.05), (6.40, 6.00, 14.00), mat_idx=1, bevel_w=0.05)
+    _add_box_bm(bm, (hx, hy, hz - 0.05), (5.90, 5.50, 0.10), mat_idx=0, bevel_w=0.015)
 
-    # 2. High-contrast Yellow Aiming Circle (segmented flat ring at Z = hz + 0.004 m)
-    n_ring = 36
-    r_in, r_out = 1.38, 1.54
-    for i in range(n_ring):
-        a0 = 2.0 * math.pi * i / n_ring
-        a1 = 2.0 * math.pi * (i + 1) / n_ring
-        p0 = Vector((hx + r_in * math.cos(a0), hy + r_in * math.sin(a0), hz + 0.004))
-        p1 = Vector((hx + r_out * math.cos(a0), hy + r_out * math.sin(a0), hz + 0.004))
-        p2 = Vector((hx + r_out * math.cos(a1), hy + r_out * math.sin(a1), hz + 0.004))
-        p3 = Vector((hx + r_in * math.cos(a1), hy + r_in * math.sin(a1), hz + 0.004))
-        nf = bm.faces.new([bm.verts.new(p) for p in (p0, p1, p2, p3)])
-        nf.material_index = 2
+    # 2. Angled Metallic Safety Perimeter Netting Frames around all 4 rooftop edges!
+    for sx in (-1.0, +1.0):
+        _add_box_bm(bm, (hx + sx * 3.16, hy, hz + 0.08), (0.48, 5.40, 0.025), mat_idx=2, rot_deg=(0.0, sx * -14.0, 0.0))
+        for ky in range(-2, 3):
+            _add_tube_bm(
+                bm,
+                Vector((hx + sx * 2.92, hy + ky * 1.15, hz - 0.04)),
+                Vector((hx + sx * 3.38, hy + ky * 1.15, hz + 0.14)),
+                0.018, 0.018, mat_idx=4, segs=6,
+            )
+    for sy in (-1.0, +1.0):
+        _add_box_bm(bm, (hx, hy + sy * 2.94, hz + 0.08), (5.70, 0.46, 0.025), mat_idx=2, rot_deg=(sy * 14.0, 0.0, 0.0))
 
-    # 3. Bold Yellow "H" marking centered on helipad (Z = hz + 0.005 m)
-    _add_box_bm(bm, (hx - 0.50, hy, hz + 0.005), (0.20, 1.38, 0.006), mat_idx=2)
-    _add_box_bm(bm, (hx + 0.50, hy, hz + 0.005), (0.20, 1.38, 0.006), mat_idx=2)
-    _add_box_bm(bm, (hx, hy, hz + 0.005), (0.86, 0.22, 0.006), mat_idx=2)
+    # 3. High-Contrast Painted Yellow Touchdown Ring (radius 1.78 m) + Crisp Center `H` (flush at Z = hz + 0.002 m)
+    mark_z = hz + 0.0025
+    n_seg = 40
+    for k in range(n_seg):
+        a0 = 2.0 * math.pi * (k / float(n_seg))
+        a1 = 2.0 * math.pi * ((k + 1) / float(n_seg))
+        am = 0.5 * (a0 + a1)
+        seg_len = 2.0 * math.pi * 1.78 / float(n_seg) + 0.012
+        _add_box_bm(
+            bm,
+            (hx + math.cos(am) * 1.78, hy + math.sin(am) * 1.78, mark_z),
+            (0.11, seg_len, 0.004), mat_idx=3, rot_deg=(0.0, 0.0, math.degrees(am)),
+        )
+    _add_box_bm(bm, (hx - 0.44, hy, mark_z), (0.16, 1.30, 0.004), mat_idx=3)
+    _add_box_bm(bm, (hx + 0.44, hy, mark_z), (0.16, 1.30, 0.004), mat_idx=3)
+    _add_box_bm(bm, (hx, hy, mark_z), (0.88, 0.18, 0.004), mat_idx=3)
 
-    # 4. 12 Glowing Green Flush Perimeter Helipad Beacons
-    for i in range(12):
-        ang = 2.0 * math.pi * i / 12.0
-        bx = hx + (pad_r - 0.10) * math.cos(ang)
-        by = hy + (pad_r - 0.10) * math.sin(ang)
-        _add_box_bm(bm, (bx, by, hz + 0.024), (0.10, 0.10, 0.048), mat_idx=1, bevel_w=0.008)
-        _add_box_bm(bm, (bx, by, hz + 0.054), (0.068, 0.068, 0.026), mat_idx=4, bevel_w=0.004)
+    # 4. 12 Glowing Green TLOF Perimeter Light Housings + 4 Bright White Approach Strobe Units
+    for k in range(12):
+        ang = 2.0 * math.pi * (k / 12.0)
+        bx = hx + math.cos(ang) * (pad_r - 0.14)
+        by = hy + math.sin(ang) * (pad_r - 0.14)
+        _add_box_bm(bm, (bx, by, hz + 0.032), (0.13, 0.13, 0.064), mat_idx=4, bevel_w=0.01)
+        mat_l = 6 if (k % 3 == 0) else 5
+        _add_box_bm(bm, (bx, by, hz + 0.072), (0.09, 0.09, 0.044), mat_idx=mat_l, bevel_w=0.01)
 
-    # 5. Rear safety parapet + HVAC stairwell tucked cleanly behind pad (+Y rear-left)
-    _add_box_bm(bm, (hx - 2.15, hy + 2.65, hz + 0.55), (1.75, 1.15, 1.10), mat_idx=0, bevel_w=0.03)
-    _add_box_bm(bm, (hx + 2.45, hy + 2.35, hz + 0.20), (0.85, 0.85, 0.40), mat_idx=1, bevel_w=0.02)
-    # Windsock mast on far rear-right corner (never blocks hero sightline!)
-    pole_x, pole_y = hx + 2.25, hy + 1.85
-    _add_box_bm(bm, (pole_x, pole_y, hz + 0.90), (0.05, 0.05, 1.80), mat_idx=3)
+    # 5. Rooftop Architectural Equipment (kept cleanly outside the landing corridor!)
+    _add_box_bm(bm, (hx - 2.38, hy + 1.80, hz + 0.62), (1.15, 1.45, 1.24), mat_idx=1, bevel_w=0.03)
+    _add_box_bm(bm, (hx - 2.38, hy + 1.80, hz + 1.28), (1.22, 1.52, 0.08), mat_idx=4, bevel_w=0.015)
+    # Comms/weather radar mast on rear-left corner
+    _add_tube_bm(bm, Vector((hx - 2.45, hy + 2.15, hz + 1.30)), Vector((hx - 2.45, hy + 2.15, hz + 2.65)), 0.025, 0.014, mat_idx=2, segs=8)
+    # HVAC louver unit + windsock steel pole on far-right edge
+    _add_box_bm(bm, (hx + 2.46, hy + 1.95, hz + 0.36), (0.95, 0.90, 0.72), mat_idx=4, bevel_w=0.02)
+    _add_tube_bm(bm, Vector((hx + 2.42, hy - 0.45, hz)), Vector((hx + 2.42, hy - 0.45, hz + 1.76)), 0.028, 0.022, mat_idx=2, segs=10)
 
     pad_obj = _new_bmesh_obj(
-        "Env_Rooftop_Helipad", bm,
-        [mat_conc, mat_dark_trim, mat_yellow, mat_white_paint, mat_green_led],
-        Matrix.Identity(4), col, smooth=False,
+        "Env_Rooftop_Helipad",
+        bm,
+        [mat_deck, mat_concrete, mat_steel, mat_yellow, mat_dark, mat_green_b, mat_strobe],
+        Matrix.Identity(4),
+        col,
+        smooth=False,
     )
     _set_constant_hide(pad_obj, [(C.B5_EXTERIOR_START, total_frames)], total_frames)
 
-    # Animated striped orange/white windsock reacting strongly to Beat 5B/6 rotor downwash!
+    # 6. Animated Red-and-White Striped Rescue Windsock (whips hard in Beat 5B flare downwash, settles after landing!)
     bm_ws = bmesh.new()
-    n_seg = 5
-    for i in range(n_seg):
-        x0 = i * 0.13
-        r0 = 0.095 - i * 0.011
-        r1 = 0.095 - (i + 1) * 0.011
-        res_w = bmesh.ops.create_cone(
-            bm_ws, cap_ends=False, segments=14,
-            radius1=r0, radius2=r1, depth=0.13,
-            matrix=Matrix.Translation((x0 + 0.065, 0.0, 0.0))
-            @ Euler((0.0, math.radians(90.0), 0.0), "XYZ").to_matrix().to_4x4(),
-        )
-        vw = set(res_w["verts"])
-        for f in bm_ws.faces:
-            if all(v in vw for v in f.verts):
-                f.material_index = 0 if (i % 2 == 0) else 1
-
-    sock_obj = _new_bmesh_obj(
-        "Env_Helipad_Windsock", bm_ws, [mat_orange_sock, mat_white_paint],
-        Matrix.Translation((pole_x + 0.04, pole_y, hz + 1.72)), col, smooth=True,
+    for s in range(5):
+        x0, x1 = s * 0.145, (s + 1) * 0.145
+        r0, r1 = 0.095 - s * 0.011, 0.095 - (s + 1) * 0.011
+        _add_tube_bm(bm_ws, Vector((x0, 0.0, 0.0)), Vector((x1, 0.0, 0.0)), r0, r1, mat_idx=(s % 2), segs=12)
+    ws_obj = _new_bmesh_obj(
+        "Env_Helipad_Windsock",
+        bm_ws,
+        [mat_orange, mat_white],
+        Matrix.Translation((hx + 2.42, hy - 0.45, hz + 1.72)),
+        col,
+        smooth=True,
     )
-    _set_constant_hide(sock_obj, [(C.B5_EXTERIOR_START, total_frames)], total_frames)
-    for f in range(C.B5_EXTERIOR_START, total_frames + 1, 8):
-        wash = C.smoothstep(1460.0, 1545.0, float(f)) * (1.0 - 0.65 * C.smoothstep(1700.0, 1790.0, float(f)))
-        flutter = math.sin(f * 0.42) * (10.0 + 14.0 * wash)
-        droop = C.lerp(-28.0, -4.0, wash)
-        sock_obj.rotation_euler = Euler((0.0, math.radians(-droop), math.radians(-22.0 + flutter)), "XYZ")
-        sock_obj.keyframe_insert("rotation_euler", frame=f)
+    for f in range(C.B5_EXTERIOR_START, total_frames + 1, 5):
+        wash = 1.0 - C.smoothstep(1685.0, 1785.0, float(f))
+        pitch_deg = C.lerp(28.0, 4.0, wash) + (6.5 * wash + 1.5) * math.sin(f * 0.34)
+        yaw_deg = 22.0 + (12.0 * wash + 2.5) * math.cos(f * 0.26)
+        ws_obj.rotation_euler = Euler((0.0, math.radians(pitch_deg), math.radians(yaw_deg)), "XYZ")
+        ws_obj.keyframe_insert("rotation_euler", frame=f)
+    _set_constant_hide(ws_obj, [(C.B5_EXTERIOR_START, total_frames)], total_frames)
 
-    return [pad_obj, sock_obj]
+    return [pad_obj, ws_obj]
 
 
-def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, bpy.types.Object]:
-    """Golden-hour aviation sunlight + cool sky rim + V12 0.42m Softbox Cockpit Eye Catchlight."""
-    lights: dict[str, bpy.types.Object] = {}
+def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, Any]:
+    """V12 Golden-Hour Key Sun + Cool Cobalt Rim + Beat 1A Fire Flash + Cockpit Catchlight & Caution Glow."""
+    lights: dict[str, Any] = {}
 
-    # 1. Warm Golden-Hour Key Sun (18 deg low elevation so white-and-red rescue hull gleams!)
-    sun_d = bpy.data.lights.new("Light_GoldenSun_Data", type="SUN")
-    sun_d.energy = 3.2
-    sun_d.color = (1.00, 0.84, 0.64)
+    # 1. Warm Golden-Hour Low-Elevation Sun (17 deg elevation for long dramatic shadows & aircraft rim sheen!)
+    sun_d = bpy.data.lights.new("Light_GoldenHour_Sun_Data", type="SUN")
+    sun_d.energy = 4.6
+    sun_d.color = (1.00, 0.78, 0.52)
     sun_d.angle = math.radians(1.6)
-    sun_o = bpy.data.objects.new("Light_GoldenSun", sun_d)
-    sun_o.rotation_euler = Euler((math.radians(70.0), math.radians(-14.0), math.radians(-38.0)), "XYZ")
+    sun_o = bpy.data.objects.new("Light_GoldenHour_Sun", sun_d)
+    sun_o.rotation_euler = Euler((math.radians(73.0), math.radians(-16.0), math.radians(-30.0)), "XYZ")
     _link(sun_o, col)
     lights["sun"] = sun_o
 
-    # 2. Cool Cobalt Sky Rim Light (high-contrast aviation edge separation from opposite side!)
-    rim_d = bpy.data.lights.new("Light_SkyRim_Data", type="AREA")
+    # 2. Cool Twilight Sky Rim Light (gives razor-sharp cyan-cobalt edge separation on fuselage & blades!)
+    rim_d = bpy.data.lights.new("Light_SkyRim_Area_Data", type="AREA")
     rim_d.shape = "RECTANGLE"
-    rim_d.size = 4.2
-    rim_d.size_y = 2.6
-    rim_d.energy = 260.0
+    rim_d.size = 6.5
+    rim_d.size_y = 4.0
+    rim_d.energy = 420.0
     rim_d.color = (0.58, 0.80, 1.00)
-    rim_o = bpy.data.objects.new("Light_SkyRim", rim_d)
-    rim_o.location = Vector((-4.2, 3.6, 4.4))
-    rim_o.rotation_euler = (Vector((0.0, 0.0, 1.9)) - rim_o.location).to_track_quat("-Z", "Y").to_euler()
+    rim_o = bpy.data.objects.new("Light_SkyRim_Area", rim_d)
+    rim_o.location = Vector((-4.2, 4.6, 4.8))
+    rim_o.rotation_mode = "QUATERNION"
+    rim_o.rotation_quaternion = (Vector((0.0, 0.2, 1.8)) - rim_o.location).normalized().to_track_quat("-Z", "Y")
     _link(rim_o, col)
-    lights["sky_rim"] = rim_o
+    lights["rim"] = rim_o
 
-    # 3. Warm City Bounce Fill from below (illuminates helicopter belly & rooftop skids cleanly)
-    fill_d = bpy.data.lights.new("Light_CityBounce_Data", type="AREA")
-    fill_d.shape = "RECTANGLE"
-    fill_d.size = 4.8
-    fill_d.size_y = 3.2
-    fill_d.energy = 115.0
-    fill_d.color = (1.00, 0.72, 0.48)
-    fill_o = bpy.data.objects.new("Light_CityBounce", fill_d)
-    fill_o.location = Vector((1.8, -3.2, 0.2))
-    fill_o.rotation_euler = (Vector((0.0, 0.3, 1.85)) - fill_o.location).to_track_quat("-Z", "Y").to_euler()
-    _link(fill_o, col)
-    lights["city_bounce"] = fill_o
+    # 3. Beat 1A Dorsal Turbine Explosion Flash Point Light (illuminates fuselage & tail in fiery orange-amber!)
+    fire_d = bpy.data.lights.new("Light_B1A_TurbineFire_Data", type="POINT")
+    fire_d.color = (1.00, 0.42, 0.08)
+    fire_d.shadow_soft_size = 0.24
+    fire_o = bpy.data.objects.new("Light_B1A_TurbineFire", fire_d)
+    _link(fire_o, col)
+    for f in sorted(set(range(1, C.B1_EXTERIOR_END + 1, 2)) | {1, 18, 24, 40, C.B1_EXTERIOR_END, C.B1_COCKPIT_START}):
+        hpos, _ = C.heli_pose_at(float(min(f, C.B1_EXTERIOR_END)))
+        fire_o.location = Vector((hpos[0] + 0.08, hpos[1] + 0.36, hpos[2] + 0.34))
+        fire_o.keyframe_insert("location", frame=f)
+        if 18 <= f <= 85:
+            dt = float(f - 18)
+            burst = (1.0 if dt < 8.0 else math.exp(-0.06 * (dt - 8.0))) * (0.75 + 0.25 * math.sin(dt * 1.9))
+            fire_d.energy = 260.0 * burst
+        else:
+            fire_d.energy = 0.0
+        fire_d.keyframe_insert("energy", frame=f)
+    lights["turbine_fire"] = fire_o
 
-    # 4. V12 Softbox Cockpit Eye Catchlight (0.42 m AREA, NEVER tiny POINT! Beats 1 & 5A)
+    # 4. V12 Softbox Cockpit Eye Catchlight (0.42 m AREA aimed at crew eyes @ Z=1.38 m; Beats 1B & 5A!)
     eye_d = bpy.data.lights.new("Light_Crew_EyeCatchlight_Data", type="AREA")
-    eye_d.shape = "SQUARE"
+    eye_d.shape = "RECTANGLE"
     eye_d.size = 0.42
-    eye_d.energy = 54.0
-    eye_d.color = (1.00, 0.94, 0.86)
+    eye_d.size_y = 0.42
+    eye_d.color = (1.00, 0.92, 0.80)
+    eye_d.energy = 46.0
     if hasattr(eye_d, "diffuse_factor"):
-        eye_d.diffuse_factor = 0.22
+        eye_d.diffuse_factor = 0.16
     if hasattr(eye_d, "specular_factor"):
-        eye_d.specular_factor = 1.78
+        eye_d.specular_factor = 1.80
     eye_o = bpy.data.objects.new("Light_Crew_EyeCatchlight", eye_d)
-    eye_o.location = Vector((0.00, -0.92, 1.46))
-    eye_o.rotation_euler = (Vector((0.00, 0.34, float(C.CREW["pilot_eye_z"]))) - eye_o.location).to_track_quat("-Z", "Y").to_euler()
+    eye_o.location = Vector((0.0, -1.12, 1.48))
+    eye_o.rotation_mode = "QUATERNION"
+    eye_o.rotation_quaternion = (Vector((0.0, 0.34, 1.38)) - eye_o.location).normalized().to_track_quat("-Z", "Y")
     _link(eye_o, col)
-    _set_constant_hide(eye_o, [(1, 240), (1291, C.B5_COCKPIT_END)], total_frames)
+    _set_constant_hide(eye_o, [(C.B1_COCKPIT_START, 240), (1291, C.B5_COCKPIT_END)], total_frames)
     lights["eye_catchlight"] = eye_o
 
-    # 5. Flashing Crimson ENG OUT Cockpit Caution Light (Beat 1 urgent red face bounce!)
-    warn_d = bpy.data.lights.new("Light_Cockpit_CautionGlow_Data", type="AREA")
-    warn_d.shape = "RECTANGLE"
-    warn_d.size = 0.48
-    warn_d.size_y = 0.14
-    warn_d.color = (1.00, 0.12, 0.06)
+    # 5. Pulsing Crimson Cockpit `ENG OUT` Emergency Wash Light (washes pilots' faces & helmets in red alarm!)
+    warn_d = bpy.data.lights.new("Light_Cockpit_CautionGlow_Data", type="POINT")
+    warn_d.color = (1.00, 0.10, 0.05)
+    warn_d.shadow_soft_size = 0.22
     warn_o = bpy.data.objects.new("Light_Cockpit_CautionGlow", warn_d)
-    warn_o.location = Vector((0.00, -0.26, 1.15))
-    warn_o.rotation_euler = (Vector((0.00, 0.34, 1.38)) - warn_o.location).to_track_quat("-Z", "Y").to_euler()
+    warn_o.location = Vector((0.0, -0.32, 1.18))
     _link(warn_o, col)
-    _set_constant_hide(warn_o, [(1, 240), (1291, C.B5_COCKPIT_END)], total_frames)
-    for f in range(1, 241, 6):
-        pulse = 0.5 + 0.5 * math.sin((f - 14) * 0.42) if f >= 14 else 0.0
-        warn_d.energy = 2.0 + 18.0 * pulse
+    for f in range(C.B1_COCKPIT_START, 241, 4):
+        pulse = 0.30 + 0.70 * (0.5 + 0.5 * math.sin((f - 116) * 0.48))
+        warn_d.energy = 38.0 * pulse
         warn_d.keyframe_insert("energy", frame=f)
-    # Subdued steady amber-red instrument glow during Beat 5A final flare
-    warn_d.energy = 4.5
+    warn_d.energy = 0.0
+    warn_d.keyframe_insert("energy", frame=115)
+    warn_d.keyframe_insert("energy", frame=241)
+    # Warm golden-amber cockpit instrument glow during Beat 5A final flare!
+    warn_d.energy = 10.0
     warn_d.keyframe_insert("energy", frame=1291)
     warn_d.keyframe_insert("energy", frame=C.B5_COCKPIT_END)
+    warn_d.energy = 0.0
+    warn_d.keyframe_insert("energy", frame=C.B5_EXTERIOR_START)
     lights["caution_glow"] = warn_o
 
     return lights
 
 
 def build_heli_env(col: bpy.types.Collection, total_frames: int = C.TOTAL_FRAMES) -> dict[str, Any]:
+    """Build golden-hour world, curtain-wall glass skyscrapers, parallax clouds, rooftop helipad & V12 lighting."""
     world = _build_golden_hour_world()
-    skyline = _build_skyline_towers(col)
+    skyline = _build_skyline_towers(col, total_frames)
     helipad = _build_rooftop_helipad(col, total_frames)
     lights = _build_lighting(col, total_frames)
     return {

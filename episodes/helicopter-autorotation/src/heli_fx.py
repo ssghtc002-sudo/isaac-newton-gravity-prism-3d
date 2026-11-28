@@ -1,14 +1,20 @@
 """
-heli_fx.py — Open-Ended Additive Volumetric Airflow, Clutch Lock/Free Rings,
-Maple-Seed Helical Vortices, 30-Foot Flare Cushion Wash & Rooftop Touchdown FX
+heli_fx.py — Blockbuster Volumetric Engine Fire, Billowing Smoke, Clean 3D Upward Ribbon Arrows,
+Hero Maple-Seed Lift Swirl, 30-Ft Flare Air-Cushion & Helipad Ground-Effect Dust Wave (V2 Ultimate)
 for Episode #5: "Why a Helicopter With a Dead Engine DOESN'T Fall Like a Rock" (60 fps, 1800 frames).
 
-Strictly obeys AGENTS.md V12 & Blender 5.3.0 rules:
-  - Every volumetric beam, upward airflow streamline, helical vortex ribbon & flare wash ring uses
-    `cap_ends=False` / open-ended strips + AgX-safe `AddShader(Transparent, Emission * CameraRay * (1 - Backfacing))`
-    so zero flat end-caps or opaque pastel walls ever appear!
-  - Materials appended to `mesh.materials` BEFORE `bm.to_mesh(mesh)`.
-  - Blender 5.3.0 safe FCurves (`C.iter_action_fcurves`) & `C.get_mix_sockets`.
+Eliminates ALL draft clutter & obeys AGENTS.md V12 Section 3 strictly:
+  - Beat 1A (`18..115`): Procedural 3D **Turbulent Engine Compressor-Stall Fireball** (displaced icosphere
+    with `(1 - Facing)^p * 3D Noise` radial soft-edge falloff — ZERO flat bullseye rings!), curved 3D
+    **Tapered Metallic Spark Streams**, and a **Billowing Dark Charcoal Exhaust Smoke Plume** pouring out
+    of the dorsal turbine exhausts so the engine failure is 100% unmistakable in the first 1.5 seconds!
+  - Beat 2 (`345..560`): Glowing crimson **Shaft Seizure Stall Halo** + sparks around the frozen turbine!
+  - Beat 3 (`571..960`): Replaces messy spaghetti wires with **6 Wide, Clean Sculpted Translucent Emerald-Cyan
+    3D Ribbon Arrows with Crisp Arrowheads** streaming smoothly UP through the rotor disc + sleek kinetic ring!
+  - Beat 4 (`961..1290`): ONE clean golden-emerald helical ribbon trail on the enlarged Maple Seed + ONE
+    matching clean trail on the Rescue Helicopter (zero visual tangle!).
+  - Beat 5B & 6 (`1462..1790`): Dramatic glowing **30-Ft Flare Air-Cushion Shockwave Ring** + expanding
+    golden **Rooftop Ground-Effect Dust & Downwash Wave** sweeping across the weathered concrete deck!
 """
 from __future__ import annotations
 
@@ -31,30 +37,26 @@ def _link(obj: bpy.types.Object, col: bpy.types.Collection) -> bpy.types.Object:
     return obj
 
 
-def _new_bmesh_obj(
+def _new_fx_obj(
     name: str,
     bm: bmesh.types.BMesh,
-    mats: list[bpy.types.Material],
+    mat: bpy.types.Material,
     col: bpy.types.Collection,
     parent: bpy.types.Object | None = None,
     location: tuple[float, float, float] = (0.0, 0.0, 0.0),
-    smooth: bool = True,
 ) -> bpy.types.Object:
     mesh = bpy.data.meshes.new(name + "_Mesh")
-    for m in mats:
-        mesh.materials.append(m)
+    mesh.materials.append(mat)
     bm.to_mesh(mesh)
     bm.free()
-    if smooth:
-        for p in mesh.polygons:
-            p.use_smooth = True
+    for p in mesh.polygons:
+        p.use_smooth = True
     mesh.update()
     obj = bpy.data.objects.new(name, mesh)
     obj.location = Vector(location)
-    obj.rotation_mode = "XYZ"
-    obj.visible_shadow = False
     if parent is not None:
         obj.parent = parent
+    obj.visible_shadow = False
     _link(obj, col)
     return obj
 
@@ -84,152 +86,250 @@ def _key_visibility(objs: list[bpy.types.Object], windows: list[tuple[int, int]]
                         kp.interpolation = "CONSTANT"
 
 
-def _make_additive_glow_mat(
-    name: str,
-    rgb: tuple[float, float, float],
-    strength: float = 1.45,
-    fresnel_pow: float = 1.6,
-) -> bpy.types.Material:
-    """AgX-safe open-ended additive shader: Transparent + Emission * CameraRay * (1 - Backfacing) * soft Fresnel."""
-    mat = bpy.data.materials.new(name=name)
+def _make_additive_ribbon_mat(name: str, rgb: tuple[float, float, float], strength: float = 1.65) -> bpy.types.Material:
+    """Open-ended V12 additive optical shader: AddShader(Transparent, Emission * CameraRay * (1 - Backfacing))."""
+    mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nt = mat.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
 
-    lp = nt.nodes.new("ShaderNodeLightPath")
     geom = nt.nodes.new("ShaderNodeNewGeometry")
     inv_bf = nt.nodes.new("ShaderNodeMath")
     inv_bf.operation = "SUBTRACT"
     inv_bf.inputs[0].default_value = 1.0
     nt.links.new(geom.outputs["Backfacing"], inv_bf.inputs[1])
 
-    lw = nt.nodes.new("ShaderNodeLayerWeight")
-    lw.inputs["Blend"].default_value = 0.45
-    inv_fac = nt.nodes.new("ShaderNodeMath")
-    inv_fac.operation = "SUBTRACT"
-    inv_fac.inputs[0].default_value = 1.0
-    nt.links.new(lw.outputs["Facing"], inv_fac.inputs[1])
-
-    pow_edge = nt.nodes.new("ShaderNodeMath")
-    pow_edge.operation = "POWER"
-    pow_edge.inputs[1].default_value = fresnel_pow
-    nt.links.new(inv_fac.outputs["Value"], pow_edge.inputs[0])
-
-    # Keep gentle center core + soft silhouette falloff (0.28 + 0.72 * soft_edge)
-    mix_f = nt.nodes.new("ShaderNodeMix")
-    mix_f.data_type = "FLOAT"
-    f_fac, f_a, f_b = C.get_mix_sockets(mix_f)
-    f_a.default_value = 0.30
-    f_b.default_value = 1.00
-    nt.links.new(pow_edge.outputs["Value"], f_fac)
-
+    lp = nt.nodes.new("ShaderNodeLightPath")
     mul1 = nt.nodes.new("ShaderNodeMath")
     mul1.operation = "MULTIPLY"
-    nt.links.new(lp.outputs["Is Camera Ray"], mul1.inputs[0])
-    nt.links.new(inv_bf.outputs["Value"], mul1.inputs[1])
+    nt.links.new(inv_bf.outputs["Value"], mul1.inputs[0])
+    nt.links.new(lp.outputs["Is Camera Ray"], mul1.inputs[1])
 
     mul2 = nt.nodes.new("ShaderNodeMath")
     mul2.operation = "MULTIPLY"
+    mul2.inputs[1].default_value = min(1.90, strength)
     nt.links.new(mul1.outputs["Value"], mul2.inputs[0])
-    nt.links.new(mix_f.outputs[0], mul2.inputs[1])
-
-    mul3 = nt.nodes.new("ShaderNodeMath")
-    mul3.operation = "MULTIPLY"
-    mul3.inputs[1].default_value = min(1.95, strength)
-    nt.links.new(mul2.outputs["Value"], mul3.inputs[0])
 
     emit = nt.nodes.new("ShaderNodeEmission")
     emit.inputs["Color"].default_value = (*rgb, 1.0)
-    nt.links.new(mul3.outputs["Value"], emit.inputs["Strength"])
+    nt.links.new(mul2.outputs["Value"], emit.inputs["Strength"])
 
     transp = nt.nodes.new("ShaderNodeBsdfTransparent")
-    add = nt.nodes.new("ShaderNodeAddShader")
-    nt.links.new(transp.outputs["BSDF"], add.inputs[0])
-    nt.links.new(emit.outputs["Emission"], add.inputs[1])
-    nt.links.new(add.outputs["Shader"], out.inputs["Surface"])
+    add_s = nt.nodes.new("ShaderNodeAddShader")
+    nt.links.new(transp.outputs["BSDF"], add_s.inputs[0])
+    nt.links.new(emit.outputs["Emission"], add_s.inputs[1])
+    nt.links.new(add_s.outputs["Shader"], out.inputs["Surface"])
     return mat
 
 
-def _build_open_helix_tube_bm(
-    bm: bmesh.types.BMesh,
-    radius_fn,
-    z_start: float,
-    z_end: float,
-    turns: float,
-    phase_rad: float,
-    tube_r: float,
-    n_steps: int = 36,
-    n_ring: int = 8,
-    mat_idx: int = 0,
-) -> None:
-    """Create a smooth open-ended helical volumetric streamline tube (ZERO flat end caps!)."""
-    centers: list[Vector] = []
-    for i in range(n_steps + 1):
-        u = i / float(n_steps)
-        ang = phase_rad + turns * 2.0 * math.pi * u
-        r = radius_fn(u)
-        z = C.lerp(z_start, z_end, u)
-        centers.append(Vector((r * math.cos(ang), r * math.sin(ang), z)))
+def _make_turbulent_fireball_mat(name: str) -> bpy.types.Material:
+    """
+    V12 Section 3 Procedural 3D Turbulent Fireball (ZERO flat concentric bullseyes!):
+      - Local-space 3D Noise * pow(1 - Facing, 2.2) radial soft-edge falloff into fiery orange-yellow plasma!
+    """
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
 
-    rings: list[list[bmesh.types.BMVert]] = []
-    for i, c in enumerate(centers):
-        u = i / float(n_steps)
-        t_dir = (centers[min(n_steps, i + 1)] - centers[max(0, i - 1)]).normalized()
-        ref = Vector((0.0, 0.0, 1.0)) if abs(t_dir.z) < 0.92 else Vector((1.0, 0.0, 0.0))
-        n_vec = t_dir.cross(ref).normalized()
-        b_vec = t_dir.cross(n_vec).normalized()
-        # Taper cleanly to thin tip at ends so streamlines never show abrupt block cuts!
-        taper = math.sin(math.pi * C.clamp(u, 0.02, 0.98)) ** 0.55
-        rr = max(0.0025, tube_r * taper)
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    noise = nt.nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 4.2
+    noise.inputs["Detail"].default_value = 6.0
+    noise.inputs["Roughness"].default_value = 0.65
+    nt.links.new(tc.outputs["Object"], noise.inputs["Vector"])
+
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.45
+    inv_f = nt.nodes.new("ShaderNodeMath")
+    inv_f.operation = "SUBTRACT"
+    inv_f.inputs[0].default_value = 1.0
+    nt.links.new(lw.outputs["Facing"], inv_f.inputs[1])
+
+    pow_f = nt.nodes.new("ShaderNodeMath")
+    pow_f.operation = "POWER"
+    pow_f.inputs[1].default_value = 2.0
+    nt.links.new(inv_f.outputs["Value"], pow_f.inputs[0])
+
+    mul_n = nt.nodes.new("ShaderNodeMath")
+    mul_n.operation = "MULTIPLY"
+    nt.links.new(pow_f.outputs["Value"], mul_n.inputs[0])
+    nt.links.new(noise.outputs["Fac"], mul_n.inputs[1])
+
+    lp = nt.nodes.new("ShaderNodeLightPath")
+    mul_cam = nt.nodes.new("ShaderNodeMath")
+    mul_cam.operation = "MULTIPLY"
+    nt.links.new(mul_n.outputs["Value"], mul_cam.inputs[0])
+    nt.links.new(lp.outputs["Is Camera Ray"], mul_cam.inputs[1])
+
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    cr = ramp.color_ramp
+    cr.elements[0].position = 0.15
+    cr.elements[0].color = (0.95, 0.14, 0.02, 1.0)
+    cr.elements[1].position = 0.72
+    cr.elements[1].color = (1.00, 0.78, 0.18, 1.0)
+    nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+
+    mul_str = nt.nodes.new("ShaderNodeMath")
+    mul_str.operation = "MULTIPLY"
+    mul_str.inputs[1].default_value = 3.2
+    nt.links.new(mul_cam.outputs["Value"], mul_str.inputs[0])
+
+    emit = nt.nodes.new("ShaderNodeEmission")
+    nt.links.new(ramp.outputs["Color"], emit.inputs["Color"])
+    nt.links.new(mul_str.outputs["Value"], emit.inputs["Strength"])
+
+    transp = nt.nodes.new("ShaderNodeBsdfTransparent")
+    add_s = nt.nodes.new("ShaderNodeAddShader")
+    nt.links.new(transp.outputs["BSDF"], add_s.inputs[0])
+    nt.links.new(emit.outputs["Emission"], add_s.inputs[1])
+    nt.links.new(add_s.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def _make_dark_smoke_mat(name: str, opacity: float = 0.68) -> bpy.types.Material:
+    """Soft edge-faded dark charcoal engine-smoke plume shader (casts zero harsh solid shadows!)."""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.50
+    inv_f = nt.nodes.new("ShaderNodeMath")
+    inv_f.operation = "SUBTRACT"
+    inv_f.inputs[0].default_value = 1.0
+    nt.links.new(lw.outputs["Facing"], inv_f.inputs[1])
+
+    pow_f = nt.nodes.new("ShaderNodeMath")
+    pow_f.operation = "POWER"
+    pow_f.inputs[1].default_value = 1.8
+    nt.links.new(inv_f.outputs["Value"], pow_f.inputs[0])
+
+    mul = nt.nodes.new("ShaderNodeMath")
+    mul.operation = "MULTIPLY"
+    mul.inputs[1].default_value = opacity
+    nt.links.new(pow_f.outputs["Value"], mul.inputs[0])
+
+    lp = nt.nodes.new("ShaderNodeLightPath")
+    mul_cam = nt.nodes.new("ShaderNodeMath")
+    mul_cam.operation = "MULTIPLY"
+    nt.links.new(mul.outputs["Value"], mul_cam.inputs[0])
+    nt.links.new(lp.outputs["Is Camera Ray"], mul_cam.inputs[1])
+
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Base Color"].default_value = (0.045, 0.048, 0.055, 1.0)
+    bsdf.inputs["Roughness"].default_value = 0.96
+    transp = nt.nodes.new("ShaderNodeBsdfTransparent")
+
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    nt.links.new(mul_cam.outputs["Value"], mix.inputs["Fac"])
+    nt.links.new(transp.outputs["BSDF"], mix.inputs[1])
+    nt.links.new(bsdf.outputs["BSDF"], mix.inputs[2])
+    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
+def _add_open_ribbon_tube(
+    bm: bmesh.types.BMesh,
+    pts: list[Vector],
+    r_start: float,
+    r_end: float,
+    segs: int = 8,
+) -> None:
+    """Create a smooth open-ended tapered 3D tube (`cap_ends=False`) along polyline `pts`."""
+    if len(pts) < 2:
+        return
+    rings: list[list[Any]] = []
+    n_pts = len(pts)
+    for i, p in enumerate(pts):
+        u = i / float(max(1, n_pts - 1))
+        r = C.lerp(r_start, r_end, u)
+        if i == 0:
+            tan = (pts[1] - pts[0]).normalized()
+        elif i == n_pts - 1:
+            tan = (pts[-1] - pts[-2]).normalized()
+        else:
+            tan = (pts[i + 1] - pts[i - 1]).normalized()
+        up_ref = Vector((0.0, 0.0, 1.0)) if abs(tan.z) < 0.92 else Vector((1.0, 0.0, 0.0))
+        right = tan.cross(up_ref).normalized()
+        up = right.cross(tan).normalized()
         ring = []
-        for k in range(n_ring):
-            a = 2.0 * math.pi * k / n_ring
-            pt = c + (n_vec * math.cos(a) + b_vec * math.sin(a)) * rr
-            ring.append(bm.verts.new(pt))
+        for s in range(segs):
+            ang = 2.0 * math.pi * (s / float(segs))
+            v = p + (right * math.cos(ang) + up * math.sin(ang)) * r
+            ring.append(bm.verts.new(v))
         rings.append(ring)
 
-    for i in range(n_steps):
-        r0, r1 = rings[i], rings[i + 1]
-        for k in range(n_ring):
-            kn = (k + 1) % n_ring
-            nf = bm.faces.new((r0[k], r0[kn], r1[kn], r1[k]))
-            nf.material_index = mat_idx
-
-    # Add open-ended upward directional chevron collar near u=0.72 so upward airflow direction is unmistakable!
-    idx_c = int(n_steps * 0.72)
-    p_tip = centers[min(n_steps, idx_c + 2)]
-    p_base = centers[max(0, idx_c - 1)]
-    d_c = (p_tip - p_base).normalized()
-    mid_c = 0.5 * (p_tip + p_base)
-    rm_c = d_c.to_track_quat("Z", "Y").to_matrix().to_4x4()
-    res_c = bmesh.ops.create_cone(
-        bm, cap_ends=False, segments=10,
-        radius1=tube_r * 2.6, radius2=0.002, depth=max(0.05, (p_tip - p_base).length),
-        matrix=Matrix.Translation(mid_c) @ rm_c,
-    )
-    vs = set(res_c["verts"])
-    for f in bm.faces:
-        if all(v in vs for v in f.verts):
-            f.material_index = mat_idx
+    for r0, r1 in zip(rings, rings[1:]):
+        for s in range(segs):
+            ns = (s + 1) % segs
+            bm.faces.new([r0[s], r0[ns], r1[ns], r1[s]])
 
 
-def _build_open_ring_bm(
+def _add_wide_3d_ribbon_arrow(
     bm: bmesh.types.BMesh,
-    radius: float,
-    height: float,
-    segs: int = 40,
-    mat_idx: int = 0,
+    pts: list[Vector],
+    width: float,
+    head_len: float = 0.16,
+    head_w: float = 0.11,
 ) -> None:
-    """Open-ended cylindrical glow band (cap_ends=False, zero flat end-cap discs)."""
-    res = bmesh.ops.create_cone(
-        bm, cap_ends=False, segments=segs,
-        radius1=radius, radius2=radius * 1.04, depth=height,
-    )
-    vs = set(res["verts"])
-    for f in bm.faces:
-        if all(v in vs for v in f.verts):
-            f.material_index = mat_idx
+    """
+    Create a crisp, clean, double-sided sculpted 3D flat ribbon arrow with wide arrowhead
+    (100% readable on vertical phone screens — ZERO messy spaghetti wireframes!).
+    """
+    if len(pts) < 3:
+        return
+    n_pts = len(pts)
+    # Taper ribbon smoothly along body, then flare out for crisp arrowhead at final segment!
+    body_pts = pts[:-1]
+    left_v: list[Any] = []
+    right_v: list[Any] = []
+    for i, p in enumerate(body_pts):
+        u = i / float(max(1, len(body_pts) - 1))
+        if i == 0:
+            tan = (body_pts[1] - body_pts[0]).normalized()
+        elif i == len(body_pts) - 1:
+            tan = (pts[-1] - body_pts[-1]).normalized()
+        else:
+            tan = (body_pts[i + 1] - body_pts[i - 1]).normalized()
+        # Orient ribbon face roughly toward -Y camera so it reads wide & crisp!
+        cam_hint = Vector((0.0, -1.0, 0.15)).normalized()
+        side = tan.cross(cam_hint)
+        if side.length < 1e-4:
+            side = Vector((1.0, 0.0, 0.0))
+        else:
+            side.normalize()
+        hw = 0.5 * width * (0.45 + 0.55 * math.sin(math.pi * min(1.0, u * 0.85 + 0.15)))
+        left_v.append(bm.verts.new(p - side * hw))
+        right_v.append(bm.verts.new(p + side * hw))
+
+    for i in range(len(body_pts) - 1):
+        bm.faces.new([left_v[i], right_v[i], right_v[i + 1], left_v[i + 1]])
+
+    # Sculpted Arrowhead Triangle at tip!
+    p_base = body_pts[-1]
+    tip_dir = (pts[-1] - p_base).normalized()
+    cam_hint = Vector((0.0, -1.0, 0.15)).normalized()
+    side = tip_dir.cross(cam_hint)
+    side = side.normalized() if side.length > 1e-4 else Vector((1.0, 0.0, 0.0))
+    v_al = bm.verts.new(p_base - side * (0.5 * head_w))
+    v_ar = bm.verts.new(p_base + side * (0.5 * head_w))
+    v_tip = bm.verts.new(p_base + tip_dir * head_len)
+    bm.faces.new([v_al, v_ar, v_tip])
+
+
+def _add_ring_mesh(bm: bmesh.types.BMesh, radius: float, tube_r: float, z_off: float = 0.0, n_seg: int = 36) -> None:
+    pts = [
+        Vector((math.cos(2.0 * math.pi * (i / float(n_seg))) * radius,
+                math.sin(2.0 * math.pi * (i / float(n_seg))) * radius,
+                z_off))
+        for i in range(n_seg + 1)
+    ]
+    _add_open_ribbon_tube(bm, pts, tube_r, tube_r, segs=8)
 
 
 def build_heli_fx(
@@ -238,214 +338,213 @@ def build_heli_fx(
     maple_root: bpy.types.Object,
     total_frames: int = C.TOTAL_FRAMES,
 ) -> dict[str, Any]:
-    """Build all 6-beat open-ended additive FX strictly synced to `heli_contract.EV`."""
-    mat_emerald = _make_additive_glow_mat("Mat_FX_EmeraldAirflow", (0.12, 0.96, 0.68), strength=1.55, fresnel_pow=1.4)
-    mat_cyan = _make_additive_glow_mat("Mat_FX_CyanVortex", (0.14, 0.86, 1.00), strength=1.50, fresnel_pow=1.5)
-    mat_gold = _make_additive_glow_mat("Mat_FX_GoldFlywheel", (1.00, 0.78, 0.22), strength=1.65, fresnel_pow=1.6)
-    mat_crimson = _make_additive_glow_mat("Mat_FX_CrimsonLock", (1.00, 0.16, 0.08), strength=1.70, fresnel_pow=1.5)
-    mat_smoke = _make_additive_glow_mat("Mat_FX_SmokeWisp", (0.76, 0.56, 0.44), strength=0.42, fresnel_pow=2.2)
+    """Build all V2 Ultimate volumetric FX (Beat 1A Fire/Smoke, Beat 2 Stall Halo, Beat 3 Ribbon Arrows, Beat 4/5B/6)."""
+    mat_fire = _make_turbulent_fireball_mat("Mat_FX_TurbineFireball")
+    mat_spark = _make_additive_ribbon_mat("Mat_FX_TurbineSparks", (1.00, 0.72, 0.18), strength=1.88)
+    mat_smoke = _make_dark_smoke_mat("Mat_FX_DarkEngineSmoke", opacity=0.72)
+    mat_emerald = _make_additive_ribbon_mat("Mat_FX_EmeraldAirflow", (0.12, 0.98, 0.68), strength=1.72)
+    mat_gold = _make_additive_ribbon_mat("Mat_FX_KineticGold", (1.00, 0.78, 0.22), strength=1.68)
+    mat_crimson = _make_additive_ribbon_mat("Mat_FX_SeizeCrimson", (1.00, 0.20, 0.10), strength=1.85)
+    mat_cyan = _make_additive_ribbon_mat("Mat_FX_FlareCyan", (0.22, 0.90, 1.00), strength=1.62)
+    mat_dust = _make_additive_ribbon_mat("Mat_FX_GoldenDustWash", (1.00, 0.78, 0.44), strength=1.18)
 
-    fx_objs: dict[str, Any] = {}
+    fx: dict[str, Any] = {}
 
     # ------------------------------------------------------------------
-    # BEAT 1 (14..240): Turbine Failure Smoke Wisps Drifting Outside Cockpit
+    # 1. BEAT 1A (18..115): EXPLOSIVE TURBINE FIREBALL + SPARKS + BILLOWING BLACK SMOKE PLUME!
     # ------------------------------------------------------------------
+    # A. Procedural 3D Displaced Turbulent Fireball erupting from dorsal turbine exhausts!
+    bm_fb = bmesh.new()
+    bmesh.ops.create_icosphere(bm_fb, subdivisions=3, radius=0.22)
+    for v in bm_fb.verts:
+        p = v.co
+        disp = 1.0 + 0.30 * math.sin(p.x * 18.0 + 0.7) * math.cos(p.y * 16.0) + 0.22 * math.sin(p.z * 21.0)
+        v.co = p * disp
+    fire_obj = _new_fx_obj("FX_B1A_TurbineFireball", bm_fb, mat_fire, col, parent=heli_root, location=C.HELI_EXHAUST_LOCAL_POS)
+    for f in sorted(set(range(18, 86, 2)) | {18, 22, 28, 45, 85}):
+        dt = float(f - 18)
+        grow = C.smootherstep(18.0, 26.0, float(f))
+        fade = 1.0 - C.smoothstep(34.0, 82.0, float(f))
+        sc = max(0.001, (0.35 + 1.45 * grow) * (0.25 + 0.75 * fade))
+        fire_obj.scale = Vector((sc * 1.15, sc * 1.55, sc))
+        fire_obj.rotation_euler = Euler((dt * 0.14, dt * 0.18, dt * 0.11), "XYZ")
+        fire_obj.keyframe_insert("scale", frame=f)
+        fire_obj.keyframe_insert("rotation_euler", frame=f)
+    _key_visibility([fire_obj], [(18, 85)], total_frames)
+    fx["b1a_fireball"] = fire_obj
+
+    # B. Curved 3D Tapered Metallic Spark Streams blasting aft from the blown turbine!
+    bm_sp = bmesh.new()
+    for k in range(10):
+        ang = (k / 10.0) * 2.0 * math.pi
+        pts_s = []
+        for s in range(8):
+            u = s / 7.0
+            sx = math.cos(ang) * (0.06 + 0.42 * u)
+            sy = 0.05 + 0.95 * u
+            sz = math.sin(ang) * (0.05 + 0.28 * u) - 0.18 * (u * u)
+            pts_s.append(Vector((sx, sy, sz)))
+        _add_open_ribbon_tube(bm_sp, pts_s, 0.011, 0.002, segs=6)
+    sparks_obj = _new_fx_obj("FX_B1A_TurbineSparks", bm_sp, mat_spark, col, parent=heli_root, location=C.HELI_EXHAUST_LOCAL_POS)
+    for f in (18, 26, 40, 62, 85):
+        grow = C.smootherstep(18.0, 32.0, float(f))
+        fade = 1.0 - C.smoothstep(44.0, 85.0, float(f))
+        sc = max(0.001, grow * fade)
+        sparks_obj.scale = Vector((sc, sc * 1.25, sc))
+        sparks_obj.keyframe_insert("scale", frame=f)
+    _key_visibility([sparks_obj], [(18, 85)], total_frames)
+    fx["b1a_sparks"] = sparks_obj
+
+    # C. Billowing Dark Charcoal Exhaust Smoke Plume (7 streaming puffs trailing aft & rising!)
     smoke_objs: list[bpy.types.Object] = []
-    for i in range(4):
-        bm_s = bmesh.new()
-        res = bmesh.ops.create_icosphere(bm_s, subdivisions=2, radius=0.22 + 0.06 * i)
-        # Organic turbulent displacement so smoke never looks like flat spheres!
-        for v in res["verts"]:
-            n = 1.0 + 0.28 * math.sin(v.co.x * 11.0 + i) * math.cos(v.co.y * 9.0)
-            v.co *= n
-            v.co.y *= 1.8
-        so = _new_bmesh_obj(f"FX_B1_EngineSmoke_{i:02d}", bm_s, [mat_smoke], col, smooth=True)
-        smoke_objs.append(so)
-        _key_visibility([so], [(14, 240)], total_frames)
-        for f in range(14, 241, 8):
-            u = ((f - 14 + i * 24) % 96) / 96.0
-            so.location = Vector((0.88 + 0.35 * u + 0.12 * math.sin(u * 5.0 + i), 1.80 + 2.40 * u, 1.52 + 0.45 * u))
-            sc = 0.55 + 1.15 * u
-            so.scale = Vector((sc, sc, sc * 0.75))
-            so.keyframe_insert("location", frame=f)
-            so.keyframe_insert("scale", frame=f)
-    fx_objs["b1_smoke"] = smoke_objs
+    for k in range(7):
+        bm_sm = bmesh.new()
+        bmesh.ops.create_icosphere(bm_sm, subdivisions=2, radius=0.14 + 0.025 * k)
+        for v in bm_sm.verts:
+            p = v.co
+            v.co = p * (1.0 + 0.22 * math.sin(p.x * 12.0 + k) * math.cos(p.z * 11.0))
+        sm_o = _new_fx_obj(f"FX_B1A_EngineSmoke_{k:02d}", bm_sm, mat_smoke, col, parent=heli_root, location=C.HELI_EXHAUST_LOCAL_POS)
+        for f in range(18, C.B1_EXTERIOR_END + 1, 3):
+            phase = ((f - 18) * 0.045 + k / 7.0) % 1.0
+            ex, ey, ez = C.HELI_EXHAUST_LOCAL_POS
+            sm_o.location = Vector((
+                ex + 0.14 * math.sin(phase * 5.0 + k),
+                ey + 0.08 + phase * 1.55,
+                ez + 0.04 + phase * 0.42,
+            ))
+            sc = max(0.01, (0.35 + 1.45 * phase) * C.smoothstep(18.0, 28.0, float(f)) * (1.0 - 0.35 * phase))
+            sm_o.scale = Vector((sc, sc * 1.2, sc))
+            sm_o.keyframe_insert("location", frame=f)
+            sm_o.keyframe_insert("scale", frame=f)
+        smoke_objs.append(sm_o)
+    _key_visibility(smoke_objs, [(18, C.B1_EXTERIOR_END)], total_frames)
+    fx["b1a_smoke"] = smoke_objs
 
     # ------------------------------------------------------------------
-    # BEAT 2 (241..570): Seized Shaft Crimson Pulse Ring + Sprag Clutch Golden Freewheel Ring
+    # 2. BEAT 2 (345..558): SEIZED TURBINE CRIMSON STALL HALO
     # ------------------------------------------------------------------
-    bm_lock = bmesh.new()
-    _build_open_ring_bm(bm_lock, radius=0.092, height=0.036, segs=28, mat_idx=0)
-    lock_ring = _new_bmesh_obj(
-        "FX_B2_ShaftLockRing", bm_lock, [mat_crimson], col,
-        parent=heli_root, location=C.HELI_TURBINE_LOCAL_POS, smooth=True,
-    )
-    lock_ring.rotation_euler = Euler((math.radians(90.0), 0.0, 0.0), "XYZ")
-    _key_visibility([lock_ring], [(330, 565)], total_frames)
-    for f in range(330, 566, 8):
-        p = 0.92 + 0.20 * (0.5 + 0.5 * math.sin((f - 330) * 0.35))
-        lock_ring.scale = Vector((p, p, 1.0))
-        lock_ring.keyframe_insert("scale", frame=f)
-    fx_objs["b2_lock_ring"] = lock_ring
-
-    bm_free = bmesh.new()
-    _build_open_ring_bm(bm_free, radius=0.125, height=0.048, segs=36, mat_idx=0)
-    free_ring = _new_bmesh_obj(
-        "FX_B2_ClutchFreeRing", bm_free, [mat_gold], col,
-        parent=heli_root, location=C.HELI_CLUTCH_LOCAL_POS, smooth=True,
-    )
-    _key_visibility([free_ring], [(395, 568)], total_frames)
-    for f in range(395, 569, 6):
-        u = C.smootherstep(395.0, 445.0, float(f))
-        sc = C.lerp(0.65, 1.15, u) + 0.06 * math.sin((f - 395) * 0.25)
-        free_ring.scale = Vector((sc, sc, 1.0))
-        free_ring.rotation_euler = Euler((0.0, 0.0, (f - 395) * 0.14), "XYZ")
-        free_ring.keyframe_insert("scale", frame=f)
-        free_ring.keyframe_insert("rotation_euler", frame=f)
-    fx_objs["b2_free_ring"] = free_ring
+    bm_sz = bmesh.new()
+    _add_ring_mesh(bm_sz, 0.125, 0.013, 0.0, 28)
+    _add_ring_mesh(bm_sz, 0.175, 0.008, 0.0, 28)
+    seize_obj = _new_fx_obj("FX_B2_TurbineSeizeHalo", bm_sz, mat_crimson, col, parent=heli_root, location=C.HELI_TURBINE_LOCAL_POS)
+    seize_obj.rotation_euler = Euler((math.radians(90.0), 0.0, 0.0), "XYZ")
+    for f in (342, 355, 405, 535, 558):
+        pulse = C.smoothstep(342.0, 355.0, float(f)) * (1.0 - C.smoothstep(535.0, 558.0, float(f)))
+        sc = max(0.001, 0.85 + 0.25 * pulse)
+        seize_obj.scale = Vector((sc, sc, sc))
+        seize_obj.keyframe_insert("scale", frame=f)
+    _key_visibility([seize_obj], [(342, 558)], total_frames)
+    fx["b2_seize_halo"] = seize_obj
 
     # ------------------------------------------------------------------
-    # BEAT 3 (571..960): 10 Upward Emerald-Cyan Airflow Streamlines + Flywheel Kinetic Ring
+    # 3. BEAT 3 (571..960): 6 CLEAN WIDE 3D UPWARD EMERALD RIBBON ARROWS (ZERO SPAGHETTI!)
     # ------------------------------------------------------------------
-    bm_up = bmesh.new()
-    n_streams = 10
-    for i in range(n_streams):
-        ph = 2.0 * math.pi * i / n_streams
-        r_base = 0.36 + 0.54 * ((i % 3) / 2.0)
-        _build_open_helix_tube_bm(
-            bm_up,
-            radius_fn=lambda u, rb=r_base: rb * (1.08 - 0.16 * math.sin(math.pi * u)),
-            z_start=-0.68,
-            z_end=0.92,
-            turns=0.55,
-            phase_rad=ph,
-            tube_r=0.015,
-            n_steps=28,
-            n_ring=8,
-            mat_idx=0 if (i % 2 == 0) else 1,
-        )
-    up_streams = _new_bmesh_obj(
-        "FX_B3_UpwardAirflowStreams", bm_up, [mat_emerald, mat_cyan], col,
-        parent=heli_root, location=(0.0, 0.02, 0.32), smooth=True,
-    )
-    _key_visibility([up_streams], [(585, 960)], total_frames)
-    for f in range(585, 961, 4):
-        ff = float(f)
-        # Continuous upward surging cycle + swirl matching main rotor autorotation!
-        cyc = ((ff - 585.0) % 45.0) / 45.0
-        z_shift = C.lerp(-0.14, 0.16, cyc)
-        grow = C.smootherstep(585.0, 625.0, ff)
-        up_streams.location = Vector((0.0, 0.02, 0.32 + z_shift))
-        up_streams.rotation_euler = Euler((0.0, 0.0, (ff - 585.0) * 0.065), "XYZ")
-        up_streams.scale = Vector((grow, grow, grow))
-        up_streams.keyframe_insert("location", frame=f)
-        up_streams.keyframe_insert("rotation_euler", frame=f)
-        up_streams.keyframe_insert("scale", frame=f)
-    fx_objs["b3_upward_streams"] = up_streams
+    airflow_objs: list[bpy.types.Object] = []
+    # Organized symmetric columns left & right beneath the rotor blades (never tangling over the fuselage!)
+    arrow_cols = [
+        (-0.92, -0.10), (-0.64, 0.20), (-0.36, -0.26),
+        (+0.36, -0.26), (+0.64, 0.20), (+0.92, -0.10),
+    ]
+    for idx, (ax, ay) in enumerate(arrow_cols):
+        bm_ar = bmesh.new()
+        pts_a: list[Vector] = []
+        n_s = 12
+        for s in range(n_s):
+            u = s / float(n_s - 1)
+            z = -0.82 + u * 1.48
+            # Gentle aerodynamic curve bending cleanly into the spinning rotor disc!
+            swirl_x = ax + 0.12 * math.sin(u * math.pi) * (1.0 if ax >= 0 else -1.0)
+            swirl_y = ay - 0.10 * (u * u)
+            pts_a.append(Vector((swirl_x, swirl_y, z)))
+        _add_wide_3d_ribbon_arrow(bm_ar, pts_a, width=0.058, head_len=0.17, head_w=0.145)
+        ar_obj = _new_fx_obj(f"FX_B3_UpwardRibbonArrow_{idx:02d}", bm_ar, mat_emerald, col, parent=heli_root)
+        for f in range(571, 961, 4):
+            phase = ((f - 571) * 0.022 + (idx % 3) * 0.33) % 1.0
+            ar_obj.location = Vector((0.0, 0.0, -0.26 + phase * 0.56))
+            vis_env = math.sin(math.pi * phase) ** 0.45
+            sc = max(0.01, 0.72 + 0.32 * vis_env)
+            ar_obj.scale = Vector((sc, sc, sc))
+            ar_obj.keyframe_insert("location", frame=f)
+            ar_obj.keyframe_insert("scale", frame=f)
+        airflow_objs.append(ar_obj)
+    _key_visibility(airflow_objs, [(571, 960)], total_frames)
+    fx["b3_airflow_arrows"] = airflow_objs
 
-    # Glowing Golden-Cyan Kinetic Flywheel Ring around spinning rotor tips (Beat 3)
+    # Beat 3 Kinetic Flywheel Ring around rotor perimeter (charges up smoothly f=735..955!)
     bm_fw = bmesh.new()
-    _build_open_ring_bm(bm_fw, radius=C.HELI_ROTOR_RADIUS + 0.04, height=0.045, segs=48, mat_idx=0)
-    fw_ring = _new_bmesh_obj(
-        "FX_B3_FlywheelKineticRing", bm_fw, [mat_gold], col,
-        parent=heli_root, location=(0.0, 0.02, C.HELI_ROTOR_HUB_LOCAL_Z + 0.02), smooth=True,
-    )
-    _key_visibility([fw_ring], [(700, 960)], total_frames)
-    for f in range(700, 961, 6):
-        u = C.smootherstep(700.0, 760.0, float(f))
-        pulse = 1.0 + 0.03 * math.sin((f - 700) * 0.25)
-        fw_ring.scale = Vector((u * pulse, u * pulse, 1.0))
-        fw_ring.rotation_euler = Euler((0.0, 0.0, (f - 700) * 0.18), "XYZ")
-        fw_ring.keyframe_insert("scale", frame=f)
-        fw_ring.keyframe_insert("rotation_euler", frame=f)
-    fx_objs["b3_flywheel_ring"] = fw_ring
+    _add_ring_mesh(bm_fw, C.HELI_ROTOR_RADIUS * 0.97, 0.014, 0.0, 44)
+    fw_obj = _new_fx_obj("FX_B3_FlywheelRing", bm_fw, mat_gold, col, parent=heli_root, location=(0.0, 0.0, C.HELI_ROTOR_HUB_LOCAL_Z + 0.015))
+    for f in sorted(set(range(720, 961, 8)) | {720, 860, 960}):
+        pop = C.smootherstep(720.0, 810.0, float(f)) * (1.0 - C.smoothstep(938.0, 960.0, float(f)))
+        fw_obj.scale = Vector((max(0.001, pop), max(0.001, pop), max(0.001, pop)))
+        fw_obj.rotation_euler = Euler((0.0, 0.0, C.rotor_angle_rad_at(float(f)) * 0.5), "XYZ")
+        fw_obj.keyframe_insert("scale", frame=f)
+        fw_obj.keyframe_insert("rotation_euler", frame=f)
+    _key_visibility([fw_obj], [(720, 960)], total_frames)
+    fx["b3_flywheel_ring"] = fw_obj
 
     # ------------------------------------------------------------------
-    # BEAT 4 (961..1290): Matched Emerald Helical Vortices on Maple Seed (Left) & Rescue Rotor (Right)
+    # 4. BEAT 4 (961..1290): CLEAN MATCHING MAPLE-SEED & RESCUE-ROTOR LIFT SWIRLS!
     # ------------------------------------------------------------------
     bm_mv = bmesh.new()
-    for i in range(4):
-        _build_open_helix_tube_bm(
-            bm_mv,
-            radius_fn=lambda u: 0.34 + 0.12 * u,
-            z_start=-0.38,
-            z_end=0.38,
-            turns=1.15,
-            phase_rad=i * 0.5 * math.pi,
-            tube_r=0.011,
-            n_steps=28,
-            n_ring=8,
-            mat_idx=0,
-        )
-    maple_vortex = _new_bmesh_obj("FX_B4_MapleVortex", bm_mv, [mat_emerald], col, smooth=True)
-    _key_visibility([maple_vortex], [(965, 1290)], total_frames)
-    for f in range(965, 1291, 4):
-        mpos, _ = C.maple_seed_pose_at(float(f))
-        maple_vortex.location = Vector(mpos)
-        maple_vortex.rotation_euler = Euler((0.0, 0.0, math.radians((f - 965) * 6.5)), "XYZ")
-        maple_vortex.keyframe_insert("location", frame=f)
-        maple_vortex.keyframe_insert("rotation_euler", frame=f)
-    fx_objs["b4_maple_vortex"] = maple_vortex
+    pts_mv = [
+        Vector((math.cos(0.6 + (s / 24.0) * 3.8 * math.pi) * 0.58,
+                math.sin(0.6 + (s / 24.0) * 3.8 * math.pi) * 0.58,
+                -0.28 + (s / 24.0) * 0.58))
+        for s in range(25)
+    ]
+    _add_open_ribbon_tube(bm_mv, pts_mv, 0.007, 0.013, segs=6)
+    mv_obj = _new_fx_obj("FX_B4_MapleLiftSwirl", bm_mv, mat_gold, col, parent=maple_root)
+    _key_visibility([mv_obj], [(961, 1290)], total_frames)
+    fx["b4_maple_vortex"] = mv_obj
 
     bm_hv = bmesh.new()
-    for i in range(4):
-        _build_open_helix_tube_bm(
-            bm_hv,
-            radius_fn=lambda u: 0.72 + 0.20 * u,
-            z_start=-0.42,
-            z_end=0.46,
-            turns=0.95,
-            phase_rad=i * 0.5 * math.pi,
-            tube_r=0.014,
-            n_steps=28,
-            n_ring=8,
-            mat_idx=0,
-        )
-    heli_vortex = _new_bmesh_obj(
-        "FX_B4_HeliVortex", bm_hv, [mat_emerald], col,
-        parent=heli_root, location=(0.0, 0.02, C.HELI_ROTOR_HUB_LOCAL_Z), smooth=True,
-    )
-    _key_visibility([heli_vortex], [(965, 1290)], total_frames)
-    for f in range(965, 1291, 4):
-        heli_vortex.rotation_euler = Euler((0.0, 0.0, math.radians((f - 965) * 6.5)), "XYZ")
-        heli_vortex.keyframe_insert("rotation_euler", frame=f)
-    fx_objs["b4_heli_vortex"] = heli_vortex
+    pts_hv = [
+        Vector((math.cos(0.4 + (s / 28.0) * 3.4 * math.pi) * 1.16,
+                math.sin(0.4 + (s / 28.0) * 3.4 * math.pi) * 1.16,
+                -0.14 + (s / 28.0) * 0.62))
+        for s in range(29)
+    ]
+    _add_open_ribbon_tube(bm_hv, pts_hv, 0.009, 0.016, segs=6)
+    hv_obj = _new_fx_obj("FX_B4_HeliLiftSwirl", bm_hv, mat_emerald, col, parent=heli_root)
+    for f in (961, 1125, 1290):
+        hv_obj.rotation_euler = Euler((0.0, 0.0, C.rotor_angle_rad_at(float(f)) * 0.30), "XYZ")
+        hv_obj.keyframe_insert("rotation_euler", frame=f)
+    _key_visibility([hv_obj], [(961, 1290)], total_frames)
+    fx["b4_heli_vortex"] = hv_obj
 
     # ------------------------------------------------------------------
-    # BEAT 5B (1451..1580): Dramatic 30-Foot Flare Downwash Cushion Ring
+    # 5. BEAT 5B (1462..1580): 30-FOOT FLARE DOWNWASH AIR-CUSHION SHOCKWAVE RING
     # ------------------------------------------------------------------
     bm_fl = bmesh.new()
-    _build_open_ring_bm(bm_fl, radius=1.18, height=0.14, segs=48, mat_idx=0)
-    _build_open_ring_bm(bm_fl, radius=0.78, height=0.10, segs=40, mat_idx=1)
-    flare_wash = _new_bmesh_obj("FX_B5B_FlareCushionRing", bm_fl, [mat_gold, mat_cyan], col, smooth=True)
-    _key_visibility([flare_wash], [(1460, 1580)], total_frames)
-    for f in range(1460, 1581, 3):
-        ff = float(f)
-        hpos, _ = C.heli_pose_at(ff)
-        cyc = ((ff - 1460.0) % 36.0) / 36.0
-        flare_wash.location = Vector((hpos[0], hpos[1], C.lerp(hpos[2] + 0.15, float(C.STAGE["helipad_z"]) + 0.08, cyc)))
-        sc = C.lerp(0.72, 1.48, cyc)
-        flare_wash.scale = Vector((sc, sc, 1.0 - 0.35 * cyc))
-        flare_wash.keyframe_insert("location", frame=f)
-        flare_wash.keyframe_insert("scale", frame=f)
-    fx_objs["b5b_flare_wash"] = flare_wash
+    _add_ring_mesh(bm_fl, 1.06, 0.022, 0.0, 44)
+    _add_ring_mesh(bm_fl, 0.72, 0.014, -0.16, 36)
+    flare_obj = _new_fx_obj("FX_B5B_FlareCushionRing", bm_fl, mat_cyan, col, parent=heli_root, location=(0.0, 0.0, -0.20))
+    for f in sorted(set(range(1462, 1581, 4)) | {1462, 1522, 1580}):
+        u = C.smootherstep(1462.0, 1565.0, float(f))
+        sc = max(0.01, 0.55 + 0.80 * u)
+        flare_obj.location = Vector((0.0, 0.0, C.lerp(-0.14, -0.58, u)))
+        flare_obj.scale = Vector((sc, sc, max(0.01, 1.0 - 0.30 * u)))
+        flare_obj.keyframe_insert("location", frame=f)
+        flare_obj.keyframe_insert("scale", frame=f)
+    _key_visibility([flare_obj], [(1462, 1580)], total_frames)
+    fx["b5b_flare_cushion"] = flare_obj
 
     # ------------------------------------------------------------------
-    # BEAT 6 (1581..1800): Gentle Rooftop Helipad Touchdown Wash Shimmer Ring
+    # 6. BEAT 6 (1630..1785): EXPANDING GOLDEN GROUND-EFFECT ROOFTOP DUST WAVE!
     # ------------------------------------------------------------------
+    hx, hy, hz = C.STAGE["helipad_center"]
     bm_td = bmesh.new()
-    _build_open_ring_bm(bm_td, radius=1.35, height=0.07, segs=48, mat_idx=0)
-    td_wash = _new_bmesh_obj(
-        "FX_B6_TouchdownWash", bm_td, [mat_gold], col,
-        location=(float(C.STAGE["helipad_center"][0]), float(C.STAGE["helipad_center"][1]), float(C.STAGE["helipad_z"]) + 0.05),
-        smooth=True,
-    )
-    _key_visibility([td_wash], [(1645, 1775)], total_frames)
-    for f in range(1645, 1776, 4):
-        u = C.smootherstep(1645.0, 1765.0, float(f))
-        sc = C.lerp(0.55, 1.68, u)
-        td_wash.scale = Vector((sc, sc, max(0.08, 1.0 - 0.85 * u)))
-        td_wash.keyframe_insert("scale", frame=f)
-    fx_objs["b6_touchdown_wash"] = td_wash
+    _add_ring_mesh(bm_td, 1.15, 0.024, 0.04, 48)
+    _add_ring_mesh(bm_td, 1.55, 0.014, 0.06, 48)
+    td_obj = _new_fx_obj("FX_B6_TouchdownDustWave", bm_td, mat_dust, col, parent=None, location=(hx, hy, hz + 0.02))
+    for f in sorted(set(range(1630, 1786, 4)) | {1630, 1685, 1785}):
+        u = C.smootherstep(1630.0, 1775.0, float(f))
+        sc = max(0.01, 0.65 + 1.15 * u)
+        fade = 1.0 - C.smoothstep(1715.0, 1785.0, float(f))
+        td_obj.scale = Vector((sc, sc, max(0.001, fade)))
+        td_obj.keyframe_insert("scale", frame=f)
+    _key_visibility([td_obj], [(1630, 1785)], total_frames)
+    fx["b6_touchdown_wash"] = td_obj
 
-    return fx_objs
+    return fx
