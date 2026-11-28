@@ -191,23 +191,23 @@ def _motion_fx(f: float) -> tuple[Vec3, Vec3, float]:
 # ==============================================================================
 # 6-BEAT CAMERA CHOREOGRAPHY (9:16 Portrait, Continuously Moving, Zero Gimbal Flip)
 # ==============================================================================
-# Beat 1 (1..220): Dramatic night-sky tracking sweep under gliding 172-ft bomber + ground radar dish
+# Beat 1 (1..220): Inside Enemy Radar Command Room looking over blank console & through window at sunlit B-2
 _B1_CAM_KFS: list[tuple[float, Vec3]] = [
-    (1.0, (-0.34, -4.35, 1.54)),
-    (75.0, (-0.12, -4.12, 1.58)),
-    (150.0, (0.10, -3.92, 1.60)),
-    (220.0, (0.24, -3.76, 1.62)),
+    (1.0, (-0.26, -4.25, 1.62)),
+    (75.0, (-0.08, -4.08, 1.64)),
+    (150.0, (0.08, -3.96, 1.65)),
+    (220.0, (0.18, -3.86, 1.66)),
 ]
 _B1_TGT_KFS: list[tuple[float, Vec3]] = [
-    (1.0, (-0.22, 0.16, 1.72)),
-    (75.0, (-0.06, 0.10, 1.70)),
-    (150.0, (0.08, 0.04, 1.68)),
-    (220.0, (0.18, 0.00, 1.66)),
+    (1.0, (-0.12, 0.28, 1.82)),
+    (75.0, (-0.02, 0.22, 1.80)),
+    (150.0, (0.06, 0.16, 1.79)),
+    (220.0, (0.12, 0.10, 1.78)),
 ]
 _B1_LENS_KFS: list[tuple[float, float]] = [
     (1.0, 24.0),
-    (120.0, 25.0),
-    (220.0, 26.0),
+    (120.0, 24.8),
+    (220.0, 25.5),
 ]
 
 # Beat 2 (221..540, hard cut @ 221): Stacked vertical contrast — Conv Jet (top) vs Stealth Wing (bottom)
@@ -266,35 +266,35 @@ _B4_LENS_KFS: list[tuple[float, float]] = [
     (1320.0, 39.0),
 ]
 
-# Beat 5 (1321..1560, hard cut @ 1321): Clean Studio CAD Blueprint dual optical comparison rigs
+# Beat 5 (1321..1560, hard cut @ 1321): Main-Scene Daylight Real-Jet 90-deg vs 33-deg Deflection Explainer
 _B5_CAM_KFS: list[tuple[float, Vec3]] = [
-    (1321.0, (-0.14, -3.76, 1.84)),
-    (1440.0, (-0.10, -3.60, 1.84)),
-    (1560.0, (-0.06, -3.44, 1.84)),
+    (1321.0, (-0.22, -4.38, 1.90)),
+    (1440.0, (-0.14, -4.20, 1.90)),
+    (1560.0, (-0.06, -4.04, 1.90)),
 ]
 _B5_TGT_KFS: list[tuple[float, Vec3]] = [
-    (1321.0, (-0.12, 0.00, 1.82)),
-    (1560.0, (-0.08, 0.00, 1.82)),
+    (1321.0, (-0.14, 0.08, 1.88)),
+    (1560.0, (-0.08, 0.08, 1.88)),
 ]
 _B5_LENS_KFS: list[tuple[float, float]] = [
-    (1321.0, 25.0),
-    (1560.0, 26.5),
+    (1321.0, 24.5),
+    (1560.0, 26.0),
 ]
 
-# Beat 6 (1561..1800, hard cut @ 1561): Moonlight bomber overhead + sweeping foreground tactical radar scope
+# Beat 6 (1561..1800, hard cut @ 1561): Inside Enemy Radar Command Room console blip + sunlit B-2 outside window
 _B6_CAM_KFS: list[tuple[float, Vec3]] = [
-    (1561.0, (-0.34, -3.72, 1.56)),
-    (1680.0, (-0.12, -3.46, 1.66)),
-    (1800.0, (0.10, -3.22, 1.74)),
+    (1561.0, (-0.26, -3.64, 1.62)),
+    (1680.0, (-0.08, -3.40, 1.68)),
+    (1800.0, (0.08, -3.18, 1.74)),
 ]
 _B6_TGT_KFS: list[tuple[float, Vec3]] = [
-    (1561.0, (-0.02, 0.00, 1.82)),
-    (1680.0, (0.01, 0.00, 1.80)),
-    (1800.0, (0.04, 0.00, 1.78)),
+    (1561.0, (-0.02, 0.14, 1.86)),
+    (1680.0, (0.01, 0.12, 1.84)),
+    (1800.0, (0.04, 0.10, 1.82)),
 ]
 _B6_LENS_KFS: list[tuple[float, float]] = [
-    (1561.0, 25.0),
-    (1800.0, 26.5),
+    (1561.0, 24.5),
+    (1800.0, 26.0),
 ]
 
 

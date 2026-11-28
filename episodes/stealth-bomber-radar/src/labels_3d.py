@@ -249,10 +249,10 @@ def _target_world_pos(key: str, f: float) -> tuple[float, float, float]:
         return (bx, by, bz + 0.04)
     if key == "tilted_mirror":
         fx, fy, fz = C.STAGE["b5_bot_facet_pos"]
-        return (fx, fy, fz + 0.08)
+        return (fx - 0.14, fy - 0.06, fz + 0.08)
     if key == "bumblebee_size":
         sx, sy, sz = C.STAGE["b6_scope_pos"]
-        return (sx + 0.08, sy - 0.02, sz + 0.04)
+        return (sx + 0.075, sy - 0.02, sz + 0.04)
     raise KeyError(f"Unknown label key: {key}")
 
 
@@ -318,10 +318,10 @@ def _unproject_ndc_pure(
 
 
 def _plaque_padding(size_ref: float) -> tuple[float, float, float, float]:
-    pad_r = max(0.046, size_ref * 0.74)
-    pad_l = pad_r + 0.062
-    pad_y_top = max(0.028, size_ref * 0.50)
-    pad_y_bot = max(0.034, size_ref * 0.58)
+    pad_r = max(0.072, size_ref * 1.15)
+    pad_l = pad_r + 0.064
+    pad_y_top = max(0.032, size_ref * 0.56)
+    pad_y_bot = max(0.038, size_ref * 0.64)
     return pad_l, pad_r, pad_y_top, pad_y_bot
 
 
@@ -827,24 +827,29 @@ def _make_plaque_group(
     _link_obj(tobj, col)
 
     bpy.context.view_layer.update()
-    xs = [v[0] for v in tobj.bound_box]
-    ys = [v[1] for v in tobj.bound_box]
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    eval_obj = tobj.evaluated_get(depsgraph)
+    xs = [v[0] for v in eval_obj.bound_box]
+    ys = [v[1] for v in eval_obj.bound_box]
     min_x, max_x = min(xs), max(xs)
     min_y, max_y = min(ys), max(ys)
 
-    text_w = max_x - min_x
-    text_h = max_y - min_y
-    if text_w < 1e-4 or text_h < 1e-4:
-        est_hw, est_hh = _est_plaque_half_dims_ref(body, char_h_ndc)
-        text_w = est_hw * 1.4
-        text_h = est_hh * 1.3
+    measured_w = max_x - min_x
+    measured_h = max_y - min_y
+    est_hw, est_hh = _est_plaque_half_dims_ref(body, char_h_ndc)
+    pad_l, pad_r, pad_y_top, pad_y_bot = _plaque_padding(size_ref)
+    est_text_w = max(0.02, 2.0 * est_hw - pad_l - pad_r)
+    est_text_h = max(0.02, 2.0 * est_hh - pad_y_top - pad_y_bot)
+
+    text_w = max(measured_w, est_text_w * 1.08)
+    text_h = max(measured_h, est_text_h)
+    if measured_w < 1e-4 or measured_h < 1e-4:
         min_x, max_x = -0.5 * text_w, 0.5 * text_w
         min_y, max_y = -0.5 * text_h, 0.5 * text_h
 
     text_cx = 0.5 * (min_x + max_x)
     text_cy = 0.5 * (min_y + max_y)
 
-    pad_l, pad_r, pad_y_top, pad_y_bot = _plaque_padding(size_ref)
     plaque_w = text_w + pad_l + pad_r
     plaque_h = text_h + pad_y_top + pad_y_bot
     plaque_thick = 0.0085

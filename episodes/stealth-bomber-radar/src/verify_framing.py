@@ -88,6 +88,7 @@ def main() -> int:
         )
         _check_point(errors, f"B1_f{f:03d}_BomberCore", bpos, st, 0.85, -0.35, 0.65)
         _check_point(errors, f"B1_f{f:03d}_RadarDish", tuple(C.STAGE["radar_dish_b1"]), st, 0.90, -0.45, 0.45)
+        _check_point(errors, f"B1_f{f:03d}_CmdConsole", tuple(C.STAGE["b1_console_scope_pos"]), st, 0.85, -0.45, 0.25)
 
     # 2. BEAT 2 DENSE AUDIT (221..540)
     print("\n[BEAT 2 — Radar Contrast: Conventional Jet vs Faceted Stealth Wing (221..540)]")
@@ -136,20 +137,21 @@ def main() -> int:
         _check_point(errors, f"B4_f{f:04d}_RCSBee", tuple(C.STAGE["rcs_bee_pos"]), st, 0.85, -0.40, 0.55)
 
     # 5. BEAT 5 DENSE AUDIT (1321..1560)
-    print("\n[BEAT 5 — Studio CAD Blueprint: 90-Deg Mirror vs Tilted Stealth Facets (1321..1560)]")
+    print("\n[BEAT 5 — Main-Scene Daylight Explainer: Real Conv Jet 90-Deg vs Real B-2 33-Deg (1321..1560)]")
     for f in (1321, 1365, 1445, 1560):
         st = camera_state_at(float(f), include_motion_fx=True)
+        cpos, _ = C.conv_jet_pose_at(float(f))
+        bpos, _ = C.bomber_pose_at(float(f))
         print(
             f"  f={f:04d} | cam=({st['cam_pos'][0]:+.2f},{st['cam_pos'][1]:+.2f},{st['cam_pos'][2]:+.2f}) "
             f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f}"
         )
-        _check_point(errors, f"B5_f{f:04d}_TopMirror", tuple(C.STAGE["b5_top_mirror_pos"]), st, 0.85, -0.10, 0.60)
-        _check_point(errors, f"B5_f{f:04d}_TopEmit", tuple(C.STAGE["b5_top_emitter_pos"]), st, 0.85, -0.10, 0.60)
-        _check_point(errors, f"B5_f{f:04d}_BotFacet", tuple(C.STAGE["b5_bot_facet_pos"]), st, 0.85, -0.45, 0.20)
-        _check_point(errors, f"B5_f{f:04d}_BotEmit", tuple(C.STAGE["b5_bot_emitter_pos"]), st, 0.85, -0.45, 0.20)
+        _check_point(errors, f"B5_f{f:04d}_RealConvJet", cpos, st, 0.85, -0.10, 0.60)
+        _check_point(errors, f"B5_f{f:04d}_RealStealthB2", bpos, st, 0.85, -0.45, 0.20)
+        _check_point(errors, f"B5_f{f:04d}_RadarDish", tuple(C.STAGE["radar_dish_b5"]), st, 0.92, -0.40, 0.40)
 
     # 6. BEAT 6 DENSE AUDIT (1561..1800)
-    print("\n[BEAT 6 — Moonlight Banking Finale + Solitary Bumblebee Radar Scope (1561..1800)]")
+    print("\n[BEAT 6 — Enemy Radar Command Room Payoff + Sunlit B-2 Outside Window (1561..1800)]")
     for f in (1561, 1600, 1695, 1800):
         st = camera_state_at(float(f), include_motion_fx=True)
         bpos, _ = C.bomber_pose_at(float(f))
@@ -157,8 +159,8 @@ def main() -> int:
             f"  f={f:04d} | cam=({st['cam_pos'][0]:+.2f},{st['cam_pos'][1]:+.2f},{st['cam_pos'][2]:+.2f}) "
             f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f}"
         )
-        _check_point(errors, f"B6_f{f:04d}_BomberMoon", bpos, st, 0.85, 0.00, 0.65)
-        _check_point(errors, f"B6_f{f:04d}_RadarScope", tuple(C.STAGE["b6_scope_pos"]), st, 0.85, -0.42, 0.25)
+        _check_point(errors, f"B6_f{f:04d}_BomberDaylight", bpos, st, 0.85, 0.00, 0.65)
+        _check_point(errors, f"B6_f{f:04d}_CmdRadarScope", tuple(C.STAGE["b6_scope_pos"]), st, 0.85, -0.45, 0.25)
 
     # 7. ALL C.LABELS ANCHOR SAFE-ZONE AUDIT (NDC Y >= -0.45)
     print("\n[3D LABELS SAFE-ZONE AUDIT (C.LABELS, NDC Y >= -0.45)]")

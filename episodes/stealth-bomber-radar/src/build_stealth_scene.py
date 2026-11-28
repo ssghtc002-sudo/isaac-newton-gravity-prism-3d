@@ -199,13 +199,13 @@ def build_master_scene(
     col_cam = _make_collection("04_Cinema_Camera")
     col_labels = _make_collection("05_3D_Labels")
 
-    print("[Scene 1/5] Building Night Airspace, Parabolic Radar Station, CAD Blueprint & Lights...", flush=True)
+    print("[Scene 1/5] Building Daylight Sky, Enemy Radar Command Room, Radar Tower & Lights...", flush=True)
     env_res = radar_env.build_radar_env(col_env, TOTAL_FRAMES)
 
-    print("[Scene 2/5] Building 172-ft Stealth Bomber, Local-Space X-Ray S-Ducts, Turbines & Conv Jet...", flush=True)
+    print("[Scene 2/5] Building Sculpted 172-ft B-2 Stealth Bomber, S-Ducts, Titanium Turbines & Lofted Conv Jet...", flush=True)
     air_res = stealth_aircraft_asset.build_stealth_aircraft(col_aircraft, TOTAL_FRAMES)
 
-    print("[Scene 3/5] Building Radar Beams, Trapped RF Wave, RAM Honeycomb, 3D Bumblebee & Radar Scope...", flush=True)
+    print("[Scene 3/5] Building Sleek Radar Waves, Command Console Scopes, RAM Honeycomb, Bumblebee & Beat 5 Arrows...", flush=True)
     fx_res = radar_fx.build_radar_fx(col_fx, air_res["bomber_root"], TOTAL_FRAMES)
 
     print("[Scene 4/5] Building 6-Beat Cinema Camera & Exact DOF Rig...", flush=True)
