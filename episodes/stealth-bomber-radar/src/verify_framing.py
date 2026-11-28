@@ -122,8 +122,8 @@ def main() -> int:
             f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f} dof={'PASS' if fs_ok else 'FAIL'}"
         )
         _check_point(errors, f"B3_f{f:03d}_IntakeLip", (cx - 0.14, cy - 0.10, cz + 0.08), st, 0.85, -0.40, 0.55)
-        _check_point(errors, f"B3_f{f:03d}_SDuctCore", (cx - 0.08, cy, cz), st, 0.85, -0.40, 0.55)
-        _check_point(errors, f"B3_f{f:03d}_TurbineFan", (cx - 0.14, cy + 0.18, cz - 0.04), st, 0.85, -0.42, 0.55)
+        _check_point(errors, f"B3_f{f:03d}_SDuctCore", (cx - 0.08, cy, cz + 0.04), st, 0.85, -0.40, 0.55)
+        _check_point(errors, f"B3_f{f:03d}_TurbineFan", (cx - 0.14, cy + 0.18, cz + 0.032), st, 0.85, -0.42, 0.55)
 
     # 4. BEAT 4 DENSE AUDIT (961..1320)
     print("\n[BEAT 4 — RAM Honeycomb Absorption & 0.001 m^2 Bumblebee RCS Shrink (961..1320)]")

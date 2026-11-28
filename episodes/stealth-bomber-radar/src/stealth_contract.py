@@ -78,28 +78,28 @@ STAGE: dict[str, Any] = {
     "floor_x_span": 24.0,
     "floor_y_span": 20.0,
     # Outdoor military radar emitter tower (Beats 1, 2 & 5)
-    "radar_dish_b1": (-0.98, 1.05, 1.38),
-    "radar_dish_b2": (-1.38, 0.15, 1.95),
-    "radar_dish_b5": (-1.32, 0.08, 1.84),
-    # Enemy Radar Command Room console anchors (Beats 1 & 6)
-    "b1_console_scope_pos": (0.44, -1.25, 1.12),
-    "b6_scope_pos": (0.00, -0.82, 1.16),
+    "radar_dish_b1": (-0.96, 1.08, 1.42),
+    "radar_dish_b2": (-1.36, 0.15, 1.95),
+    "radar_dish_b5": (-1.32, 0.08, 1.86),
+    # Enemy Radar Command Room console anchors (Beats 1 & 6 — elevated cleanly above desk bolster!)
+    "b1_console_scope_pos": (0.48, -1.22, 1.18),
+    "b6_scope_pos": (0.00, -0.86, 1.18),
     "b6_scope_radius": 0.36,
     # Beat 2 vertical split comparison heights
-    "b2_conv_pos": (0.16, 0.22, 2.74),
-    "b2_stealth_pos": (0.16, 0.08, 1.40),
+    "b2_conv_pos": (0.16, 0.20, 2.72),
+    "b2_stealth_pos": (0.16, 0.08, 1.42),
     # Beat 3 & 4 macro stage center
     "macro_center": (0.00, 0.00, 1.85),
-    "sduct_intake_local": (-0.25, -0.20, 0.068),
-    "sduct_turbine_local": (-0.27, +0.26, -0.018),
+    "sduct_intake_local": (-0.25, -0.22, 0.062),
+    "sduct_turbine_local": (-0.25, +0.22, 0.032),
     # Beat 4 RAM macro tile & bumblebee RCS showcase
     "ram_tile_pos": (-0.08, 0.00, 1.85),
     "rcs_bee_pos": (0.20, -0.04, 1.86),
     # Beat 5 Main-Scene Daylight Explainer: Real Conv Jet (90-deg tail) vs Real B-2 (33-deg wing)
-    "b5_top_mirror_pos": (0.34, 0.08, 2.48),    # Real Conv Jet 90-deg tail reflector
-    "b5_top_emitter_pos": (-0.98, 0.08, 2.48),  # Incoming wave origin from left radar
-    "b5_bot_facet_pos": (0.30, 0.06, 1.28),     # Real B-2 Stealth Bomber 33-deg tilted wing
-    "b5_bot_emitter_pos": (-0.98, 0.06, 1.28),  # Incoming wave origin from left radar
+    "b5_top_mirror_pos": (0.34, 0.08, 2.50),    # Real Conv Jet 90-deg tail reflector
+    "b5_top_emitter_pos": (-0.98, 0.08, 2.50),  # Incoming wave origin from left radar
+    "b5_bot_facet_pos": (0.30, 0.06, 1.32),     # Real B-2 Stealth Bomber 33-deg tilted wing
+    "b5_bot_emitter_pos": (-0.98, 0.06, 1.32),  # Incoming wave origin from left radar
 }
 
 # ==============================================================================
@@ -108,10 +108,10 @@ STAGE: dict[str, Any] = {
 BOMBER: dict[str, Any] = {
     "wingspan_m": 3.20,          # Scaled 172-ft B-2 Spirit flying wing
     "chord_m": 1.32,             # Nose to center W-sawtooth trailing apex
-    "thickness_m": 0.20,         # Central blended fuselage lifting body height
+    "thickness_m": 0.22,         # Central blended fuselage lifting body height
     "sweep_deg": 33.0,           # Authentic B-2 33-degree leading-edge sweep
-    "duct_radius_m": 0.060,      # Internal serpentine S-duct bore radius
-    "fan_radius_m": 0.056,       # Buried spinning titanium compressor fan radius
+    "duct_radius_m": 0.056,      # Internal serpentine S-duct bore radius
+    "fan_radius_m": 0.052,       # Buried spinning titanium compressor fan radius
 }
 
 CONV_JET: dict[str, Any] = {
@@ -202,72 +202,76 @@ def bomber_pose_at(f: float) -> tuple[tuple[float, float, float], tuple[float, f
     """
     Return `(location_xyz, euler_deg_xyz)` for `Stealth_Bomber_Root` across all 6 beats.
     Local bomber convention: Nose points toward `-Y` (forward), wings span along `X`, dorsal `+Z`.
+    NOTE: With camera at `Y < 0` looking toward `+Y`, POSITIVE `rx` (`+20..+34 deg`) tilts the
+    bomber's sculpted dorsal `+Z` top toward the camera so the cockpit, gold windows, dorsal
+    intakes, spine hump, and chine highlights are prominently visible!
     """
     if f <= 220.0:
-        # Beat 1: Seen through the wide armored Enemy Command Room window soaring in bright daylight sky!
+        # Beat 1: Dynamic cinematic swooping entry! B-2 banks aggressively into frame from upper-left
+        # toward center-right, showing off its full 3D dorsal cockpit, intakes & chined wings!
         u = smootherstep(1.0, 220.0, f)
         pos = (
-            lerp(-0.46, 0.36, u),
-            lerp(0.95, 0.58, u),
-            lerp(2.44, 2.34, u),
+            lerp(-0.52, 0.34, u),
+            lerp(1.18, 0.42, u),
+            lerp(2.52, 2.26, u),
         )
         rot_deg = (
-            lerp(-22.0, -18.0, u),   # Shows iconic sculpted flying-wing dorsal planform clearly
-            lerp(-20.0, -12.0, u),
-            lerp(-32.0, -22.0, u),
+            lerp(+28.0, +23.0, u),   # Positive rx tilts 3D dorsal cockpit & intakes toward camera!
+            lerp(+22.0, +10.0, u),   # Dramatic banking turn into the camera
+            lerp(-38.0, -20.0, u),   # Nose angled forward-right toward camera
         )
         return pos, rot_deg
 
     if f <= 540.0:
-        # Beat 2: Lower-half flying wing cruising smoothly in sunlit sky opposite conventional jet
+        # Beat 2: Lower-half flying wing banking smoothly in sunlit sky opposite conventional jet
         u = smootherstep(221.0, 540.0, f)
         bx, by, bz = STAGE["b2_stealth_pos"]
         pos = (bx + lerp(-0.14, 0.16, u), by, bz + 0.04 * math.sin(u * math.pi))
-        rot_deg = (-24.0, -16.0 + 4.0 * u, -26.0 + 10.0 * u)
+        rot_deg = (+24.0, +14.0 - 4.0 * u, -28.0 + 10.0 * u)
         return pos, rot_deg
 
     if f <= 960.0:
-        # Beat 3: Stabilized dorsal macro pose exposing left/right S-shaped intake ducts & titanium fans
+        # Beat 3: Dorsal macro pose tilted toward camera (+32..+36 deg) exposing internal S-ducts & turbines
         u = smootherstep(541.0, 960.0, f)
         cx, cy, cz = STAGE["macro_center"]
-        pos = (cx + 0.14, cy + 0.02, cz)
+        pos = (cx + 0.12, cy + 0.04, cz - 0.02)
         rot_deg = (
-            lerp(-38.0, -46.0, u),
-            lerp(10.0, 16.0, u),
-            lerp(-18.0, -6.0, u),
+            lerp(+30.0, +36.0, u),   # Positive rx shows dorsal intake mouths -> S-ducts -> fans cleanly!
+            lerp(-8.0, -14.0, u),
+            lerp(-16.0, -6.0, u),
         )
         return pos, rot_deg
 
     if f <= 1320.0:
-        # Beat 4: Bomber glides upper-left in bright sunlit sky behind RAM tile & Bumblebee RCS reveal
+        # Beat 4: Bomber banks upper-left in bright sunlit sky behind RAM tile & Bumblebee RCS reveal
         u = smootherstep(961.0, 1320.0, f)
         pos = (lerp(-0.62, -0.46, u), 0.92, lerp(2.38, 2.44, u))
-        rot_deg = (-26.0, -18.0, -32.0 + 8.0 * u)
+        rot_deg = (+25.0, +16.0, -32.0 + 8.0 * u)
         return pos, rot_deg
 
     if f <= 1560.0:
-        # Beat 5: MAIN-SCENE DAYLIGHT EXPLAINER! Real B-2 angled cleanly in lower half showing
-        # razor-sharp 33-deg tilted stealth wing facet deflecting incoming radar wave UP & AWAY!
+        # Beat 5: MAIN-SCENE DAYLIGHT EXPLAINER! Real B-2 banked in lower half showing sculpted
+        # 3D dorsal fuselage & razor-sharp 33-deg tilted stealth wing deflecting radar wave UP & AWAY!
         u = smootherstep(1321.0, 1560.0, f)
         fx, fy, fz = STAGE["b5_bot_facet_pos"]
         pos = (fx + lerp(-0.04, 0.05, u), fy, fz + 0.02 * math.sin(u * math.pi))
         rot_deg = (
-            lerp(-26.0, -22.0, u),   # Shows sleek tilted faceted upper wing + sharp leading edge
-            lerp(-22.0, -18.0, u),   # Tilted toward incoming left radar wave so deflection reads instantly
-            lerp(-62.0, -54.0, u),   # Side-3/4 profile facing left radar dish
+            lerp(+24.0, +21.0, u),   # Positive rx shows 3D dorsal fuselage, cockpit & tilted wing facets!
+            lerp(+18.0, +14.0, u),   # Banked toward incoming left radar wave so deflection reads instantly
+            lerp(-54.0, -46.0, u),   # 3/4 profile facing left radar dish
         )
         return pos, rot_deg
 
     # Beat 6: Seen through the Enemy Command Room panoramic window banking majestically in bright daylight!
     u = smootherstep(1561.0, 1800.0, f)
     pos = (
-        lerp(-0.56, 0.48, u),
-        lerp(1.10, 0.72, u),
-        lerp(2.74, 2.58, u),
+        lerp(-0.54, 0.46, u),
+        lerp(1.05, 0.65, u),
+        lerp(2.68, 2.52, u),
     )
     rot_deg = (
-        lerp(-24.0, -18.0, u),
-        lerp(-24.0, -10.0, u),
+        lerp(+26.0, +21.0, u),       # Positive rx shows full 3D dorsal cockpit, intakes & wing planform!
+        lerp(+22.0, +10.0, u),
         lerp(-36.0, -18.0, u),
     )
     return pos, rot_deg
@@ -276,19 +280,20 @@ def bomber_pose_at(f: float) -> tuple[tuple[float, float, float], tuple[float, f
 def conv_jet_pose_at(f: float) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
     """
     Conventional Jet pose across Beat 2 (aerial contrast) AND Beat 5 (main-scene 90-deg tail echo explainer).
+    Uses positive rx/ry banking so the camera sees the sculpted upper wings, winglets, cockpit & vertical tail!
     """
     if f <= 540.0:
         u = smootherstep(221.0, 540.0, f)
         cx, cy, cz = STAGE["b2_conv_pos"]
         pos = (cx + lerp(-0.16, 0.14, u), cy, cz - 0.03 * math.sin(u * math.pi))
-        rot_deg = (-12.0, -10.0 + 3.0 * u, -24.0 + 8.0 * u)
+        rot_deg = (+16.0, +12.0 - 4.0 * u, -52.0 + 10.0 * u)
         return pos, rot_deg
 
-    # Beat 5 (1321..1560): Clean side-3/4 profile exposing tall 90-deg vertical tail fin to incoming left radar
+    # Beat 5 (1321..1560): Clean side-3/4 profile exposing tall 90-deg vertical tail fin & upper wings
     u = smootherstep(1321.0, 1560.0, f)
     mx, my, mz = STAGE["b5_top_mirror_pos"]
     pos = (mx + lerp(-0.04, 0.05, u), my, mz + 0.02 * math.sin(u * math.pi))
-    rot_deg = (-8.0, -6.0, lerp(-76.0, -68.0, u))
+    rot_deg = (+14.0, +10.0, lerp(-68.0, -60.0, u))
     return pos, rot_deg
 
 

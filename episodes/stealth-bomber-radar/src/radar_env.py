@@ -1,22 +1,22 @@
 """
-Environment, Daylight Sky, Enemy Radar Command Room & Lighting Rig for Episode #4:
-"How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar" (60 fps, 1800 frames).
+Environment, Vibrant Daylight Sky, 3D Cumulus Cloud Banks, Enemy Radar Command Room & Lighting Rig
+for Episode #4: "How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar" (60 fps, 1800 frames).
 
-Daylight Hollywood-VFX & Enemy Bunker Edition:
-  1. Bright Cinematic High-Altitude Daylight Sky World (rich azure zenith -> sunlit horizon haze
-     + procedural sunlit white cumulus cloud billows) so dark charcoal stealth facets pop at >8:1 contrast!
-  2. Architectural Enemy Air-Defense Radar Command Room (`Env_EnemyCommandRoom`, Beats 1 & 6):
-     - Dark armored steel bunker interior framing a wide unobstructed panoramic observation window
-     - Full-width sloped military radar tracking console desk with backlit telemetry side-monitors,
-       illuminated red/amber/green tactical switches, rotary gain dials, trackball, and a seated
-       Enemy Radar Operator silhouette with military comms headset tracking the airspace!
-  3. Sunlit Outdoor Military Parabolic Radar Tower (Beats 1, 2 & 5):
-     - Concrete bunker pad, weathered military steel azimuth turret, hydraulic elevation actuators,
-       side comms mast with aviation beacon, perforated metallic parabolic dish, 8 radial back-ribs,
-       tubular rim ring, and 3-leg tripod RF waveguide feed-horn!
-  4. Sunlit Distant Mountain Ridge & Cloud Horizon Deck (Beats 1, 2, 5 & 6) for true outdoor aviation depth.
-  5. Crisp Golden-White Daylight SUN Key + Cool Sky Fill + Rim + Command Bunker Practicals
-     (anti-glare `visible_glossy = False` on broad fill lights so radar scope stays 100% reflection-free!).
+Daylight Hollywood-VFX & Enemy Bunker Edition (V2):
+  1. High-Chromaticity AgX-Calibrated Cobalt/Azure Daylight Sky World + Procedural Cirrus Strands
+     (eliminates washed-out grey AgX sky so the sky renders rich aviation blue!).
+  2. Real 3D Sculpted Sunlit Cumulus Cloud Banks (`Env_3DCumulusClouds`, Beats 1, 2, 5 & 6) floating
+     at multiple depths (`Y = 5.2..9.5m`) for true Hollywood aerial parallax behind the jets!
+  3. Architectural Enemy Air-Defense Radar Command Room (`Env_EnemyCommandRoom`, Beats 1 & 6):
+     - Full-depth console cabinet extending down to `Z = -0.75m` (ZERO grey gap at bottom of frame!)
+     - Low-profile console sill (`Z = 0.82m`) & wrist bolster (`Z = 0.80m`) so the Beat 1 & Beat 6
+       green PPI radar scopes (`Z = 1.18m`) stand 100% unobstructed (ZERO bars cutting across scopes!)
+     - Wide panoramic armored bunker window + backlit telemetry screens + illuminated tactical buttons
+     - Sculpted Military Air-Defense Radar Officer (`Env_EnemyOperator`) wearing a peaked military
+       visor cap, uniform collar/epaulets, and tactical over-ear comms headset + boom mic!
+  4. Sunlit Outdoor Military Parabolic Radar Tower (`Env_GroundRadar_Root`, Beats 1, 2 & 5).
+  5. Dramatic Multi-Peak Sunlit Mountain Range (`Env_DaylightRidge`, Beats 1 & 6).
+  6. Crisp Golden-White Daylight SUN Key + Cool Sky Rim + Anti-Glare Front Fill (`visible_glossy = False`).
 
 Strictly obeys AGENTS.md V12 & Blender 5.3.0 rules (iter_action_fcurves, get_mix_sockets,
 materials appended before bm.to_mesh).
@@ -144,13 +144,13 @@ def _add_strut(
 
 
 # ==============================================================================
-# 1. BRIGHT HIGH-ALTITUDE DAYLIGHT SKY WORLD + SUNLIT CUMULUS CLOUDS
+# 1. VIBRANT AGX-CALIBRATED COBALT-AZURE DAYLIGHT SKY WORLD
 # ==============================================================================
 def _setup_world(total_frames: int) -> bpy.types.World:
     """
-    Bright cinematic high-altitude daylight sky with warm sunlit horizon haze,
-    rich aviation azure mid-sky, deep blue zenith, and layered sunlit white cumulus clouds.
-    Gives >8:1 silhouette contrast for the dark charcoal B-2 Stealth Bomber!
+    High-chromaticity deep aviation blue sky calibrated specifically for `AgX - Punchy`.
+    Maps the horizon-to-zenith gradient tightly across `Generated.Z in [0.42..0.64]` so the camera
+    sees rich cobalt/azure blue with crisp white high-altitude cirrus bands (never washed-out grey!).
     """
     _ = total_frames
     world = bpy.data.worlds.new("World_DaylightAviationSky")
@@ -166,74 +166,50 @@ def _setup_world(total_frames: int) -> bpy.types.World:
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     nt.links.new(tc.outputs["Generated"], sep.inputs["Vector"])
 
-    # Vertical sky gradient (Generated Z: ~0.48 horizon -> 0.58 mid-sky -> 0.85 zenith)
+    # Tight vertical sky gradient tuned to camera view band (Generated Z: 0.43 horizon -> 0.64 zenith)
     sky_ramp = nt.nodes.new("ShaderNodeValToRGB")
-    sky_ramp.color_ramp.elements[0].position = 0.36
-    sky_ramp.color_ramp.elements[0].color = (0.34, 0.50, 0.68, 1.0)   # Lower atmospheric mist
-    e_hor = sky_ramp.color_ramp.elements.new(0.49)
-    e_hor.color = (0.64, 0.82, 0.98, 1.0)                               # Sunlit bright horizon haze
-    e_mid = sky_ramp.color_ramp.elements.new(0.62)
-    e_mid.color = (0.16, 0.46, 0.86, 1.0)                               # Crisp aviation azure sky
-    sky_ramp.color_ramp.elements[-1].position = 0.86
-    sky_ramp.color_ramp.elements[-1].color = (0.04, 0.18, 0.50, 1.0)    # High-altitude royal blue
+    sky_ramp.color_ramp.elements[0].position = 0.38
+    sky_ramp.color_ramp.elements[0].color = (0.16, 0.38, 0.72, 1.0)   # Lower horizon blue
+    e_hor = sky_ramp.color_ramp.elements.new(0.46)
+    e_hor.color = (0.18, 0.48, 0.88, 1.0)                             # Crisp sunlit azure horizon
+    e_mid = sky_ramp.color_ramp.elements.new(0.54)
+    e_mid.color = (0.03, 0.20, 0.64, 1.0)                             # Rich saturated aviation blue
+    sky_ramp.color_ramp.elements[-1].position = 0.66
+    sky_ramp.color_ramp.elements[-1].color = (0.008, 0.06, 0.34, 1.0) # Deep stratospheric cobalt
     nt.links.new(sep.outputs["Z"], sky_ramp.inputs["Fac"])
 
-    # Layered sunlit cumulus cloud billows (stretched horizontally for natural sky strata)
+    # Crisp high-contrast cirrus cloud wisps (high threshold so sky stays 75% rich blue!)
     mapping = nt.nodes.new("ShaderNodeMapping")
-    mapping.inputs["Scale"].default_value = (1.6, 1.6, 4.2)
+    mapping.inputs["Scale"].default_value = (2.4, 2.4, 8.5)
     nt.links.new(tc.outputs["Generated"], mapping.inputs["Vector"])
 
     noise_c = nt.nodes.new("ShaderNodeTexNoise")
-    noise_c.inputs["Scale"].default_value = 3.2
-    noise_c.inputs["Detail"].default_value = 8.0
-    noise_c.inputs["Roughness"].default_value = 0.58
+    noise_c.inputs["Scale"].default_value = 3.8
+    noise_c.inputs["Detail"].default_value = 7.0
+    noise_c.inputs["Roughness"].default_value = 0.55
     nt.links.new(mapping.outputs["Vector"], noise_c.inputs["Vector"])
 
     cloud_ramp = nt.nodes.new("ShaderNodeValToRGB")
-    cloud_ramp.color_ramp.elements[0].position = 0.50
+    cloud_ramp.color_ramp.elements[0].position = 0.62
     cloud_ramp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
-    cloud_ramp.color_ramp.elements[1].position = 0.76
+    cloud_ramp.color_ramp.elements[1].position = 0.84
     cloud_ramp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1.0)
     nt.links.new(noise_c.outputs["Fac"], cloud_ramp.inputs["Fac"])
 
-    # Keep clouds strongest near mid-lower sky band (Z in 0.44..0.72)
-    band_lo = nt.nodes.new("ShaderNodeMapRange")
-    band_lo.clamp = True
-    band_lo.inputs["From Min"].default_value = 0.42
-    band_lo.inputs["From Max"].default_value = 0.52
-    nt.links.new(sep.outputs["Z"], band_lo.inputs["Value"])
-
-    band_hi = nt.nodes.new("ShaderNodeMapRange")
-    band_hi.clamp = True
-    band_hi.inputs["From Min"].default_value = 0.76
-    band_hi.inputs["From Max"].default_value = 0.56
-    nt.links.new(sep.outputs["Z"], band_hi.inputs["Value"])
-
-    band_mul = nt.nodes.new("ShaderNodeMath")
-    band_mul.operation = "MULTIPLY"
-    nt.links.new(band_lo.outputs["Result"], band_mul.inputs[0])
-    nt.links.new(band_hi.outputs["Result"], band_mul.inputs[1])
-
-    cloud_mask = nt.nodes.new("ShaderNodeMath")
-    cloud_mask.operation = "MULTIPLY"
-    nt.links.new(cloud_ramp.outputs["Color"], cloud_mask.inputs[0])
-    nt.links.new(band_mul.outputs[0], cloud_mask.inputs[1])
-
     cloud_soft = nt.nodes.new("ShaderNodeMath")
     cloud_soft.operation = "MULTIPLY"
-    cloud_soft.inputs[1].default_value = 0.72
-    nt.links.new(cloud_mask.outputs[0], cloud_soft.inputs[0])
+    cloud_soft.inputs[1].default_value = 0.45
+    nt.links.new(cloud_ramp.outputs["Color"], cloud_soft.inputs[0])
 
-    # Blend sunlit warm-white cumulus clouds cleanly over azure sky
     mix_sky = nt.nodes.new("ShaderNodeMix")
     mix_sky.data_type = "RGBA"
     fac_s, col_a, col_b = C.get_mix_sockets(mix_sky)
     nt.links.new(cloud_soft.outputs[0], fac_s)
     nt.links.new(sky_ramp.outputs["Color"], col_a)
-    col_b.default_value = (0.94, 0.96, 0.99, 1.0)
+    col_b.default_value = (0.92, 0.96, 1.00, 1.0)
 
     nt.links.new(mix_sky.outputs[2], bg.inputs["Color"])
-    bg.inputs["Strength"].default_value = 1.18
+    bg.inputs["Strength"].default_value = 0.96
     nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
     return world
 
@@ -264,6 +240,54 @@ def _mat_solid(
     return mat
 
 
+def _mat_cumulus_cloud() -> bpy.types.Material:
+    """Sunlit 3D cumulus cloud shader: warm ivory sunlit top + soft sky-blue underside shadow."""
+    mat = bpy.data.materials.new("Mat_Env_3DCumulus")
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+
+    geom = nt.nodes.new("ShaderNodeNewGeometry")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(geom.outputs["Normal"], sep.inputs["Vector"])
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    noise = nt.nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 2.4
+    noise.inputs["Detail"].default_value = 6.0
+    nt.links.new(tc.outputs["Object"], noise.inputs["Vector"])
+
+    # Normal.Z (-1..+1) -> top sunlit white-ivory, bottom cool sky-blue shadow
+    nz_map = nt.nodes.new("ShaderNodeMapRange")
+    nz_map.clamp = True
+    nz_map.inputs["From Min"].default_value = -0.45
+    nz_map.inputs["From Max"].default_value = 0.65
+    nt.links.new(sep.outputs["Z"], nz_map.inputs["Value"])
+
+    mix_c = nt.nodes.new("ShaderNodeMix")
+    mix_c.data_type = "RGBA"
+    fac, ca, cb = C.get_mix_sockets(mix_c)
+    nt.links.new(nz_map.outputs["Result"], fac)
+    ca.default_value = (0.34, 0.48, 0.68, 1.0)   # Cool blue cloud base shadow
+    cb.default_value = (0.96, 0.97, 1.00, 1.0)   # Bright sunlit cumulus crown
+
+    bump = nt.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.28
+    nt.links.new(noise.outputs["Fac"], bump.inputs["Height"])
+
+    nt.links.new(mix_c.outputs[2], bsdf.inputs["Base Color"])
+    bsdf.inputs["Roughness"].default_value = 0.85
+    if "Subsurface Weight" in bsdf.inputs:
+        bsdf.inputs["Subsurface Weight"].default_value = 0.35
+    bsdf.inputs["Emission Color"].default_value = (0.88, 0.94, 1.00, 1.0)
+    bsdf.inputs["Emission Strength"].default_value = 0.22
+    nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
 def _mat_radar_dish_mesh() -> bpy.types.Material:
     """Realistic sunlit military perforated aluminum-titanium radar reflector dish material."""
     mat = bpy.data.materials.new("Mat_Env_RadarDishMesh")
@@ -290,8 +314,8 @@ def _mat_radar_dish_mesh() -> bpy.types.Material:
     mix_c.data_type = "RGBA"
     fac, ca, cb = C.get_mix_sockets(mix_c)
     nt.links.new(grid.outputs["Result"], fac)
-    ca.default_value = (0.48, 0.54, 0.60, 1.0)  # Sunlit brushed aluminum wire rib
-    cb.default_value = (0.18, 0.22, 0.27, 1.0)  # Perforated mesh aperture
+    ca.default_value = (0.52, 0.58, 0.65, 1.0)
+    cb.default_value = (0.18, 0.22, 0.27, 1.0)
 
     bump = nt.nodes.new("ShaderNodeBump")
     bump.inputs["Strength"].default_value = 0.30
@@ -300,7 +324,7 @@ def _mat_radar_dish_mesh() -> bpy.types.Material:
 
     nt.links.new(mix_c.outputs[2], bsdf.inputs["Base Color"])
     bsdf.inputs["Metallic"].default_value = 0.86
-    bsdf.inputs["Roughness"].default_value = 0.28
+    bsdf.inputs["Roughness"].default_value = 0.26
     nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
@@ -341,7 +365,7 @@ def _mat_tactical_screen(name: str, accent_col: tuple[float, float, float]) -> b
 
 
 def _mat_terrain_ridge() -> bpy.types.Material:
-    """Sunlit atmospheric mountain terrain / military ridge horizon."""
+    """Sunlit atmospheric mountain terrain with snow-kissed sunlit ridges & deep slate valleys."""
     mat = bpy.data.materials.new("Mat_Env_DaylightRidge")
     mat.use_nodes = True
     nt = mat.node_tree
@@ -351,23 +375,23 @@ def _mat_terrain_ridge() -> bpy.types.Material:
 
     tc = nt.nodes.new("ShaderNodeTexCoord")
     noise = nt.nodes.new("ShaderNodeTexNoise")
-    noise.inputs["Scale"].default_value = 1.8
-    noise.inputs["Detail"].default_value = 6.0
+    noise.inputs["Scale"].default_value = 2.2
+    noise.inputs["Detail"].default_value = 7.0
     nt.links.new(tc.outputs["Object"], noise.inputs["Vector"])
 
     mix_c = nt.nodes.new("ShaderNodeMix")
     mix_c.data_type = "RGBA"
     fac, ca, cb = C.get_mix_sockets(mix_c)
     nt.links.new(noise.outputs["Fac"], fac)
-    ca.default_value = (0.14, 0.21, 0.28, 1.0)  # Atmospheric blue-slate mountain shadow
-    cb.default_value = (0.28, 0.34, 0.36, 1.0)  # Sunlit dry ridge rock/scrub
+    ca.default_value = (0.10, 0.18, 0.30, 1.0)  # Deep atmospheric blue-slate mountain shadow
+    cb.default_value = (0.34, 0.40, 0.46, 1.0)  # Sunlit granite ridge peak
 
     bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.35
+    bump.inputs["Strength"].default_value = 0.45
     nt.links.new(noise.outputs["Fac"], bump.inputs["Height"])
 
     nt.links.new(mix_c.outputs[2], bsdf.inputs["Base Color"])
-    bsdf.inputs["Roughness"].default_value = 0.88
+    bsdf.inputs["Roughness"].default_value = 0.86
     nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
@@ -380,146 +404,164 @@ def _build_enemy_command_room(col: bpy.types.Collection, total_frames: int) -> l
     """
     Dark steel Enemy Air-Defense Radar Command Room framing a wide unobstructed panoramic
     armored observation window looking out into the bright sunlit daylight sky!
-    - Sloped military radar console desk spanning lower foreground (safely above subtitle zone)
-    - Backlit side telemetry monitors, illuminated amber/green/crimson control switches, rotary knobs
-    - Armored side window pillars & overhead steel ceiling bulkhead (ZERO center mullion!)
-    - Seated Enemy Radar Operator silhouette (uniform shoulders + head + military headset) on right side
-      watching the radar scope as the invisible stealth bomber glides right outside the window!
+    - Full-height lower console cabinet (`Z = -0.75..+0.82m`) so ZERO grey gap ever appears at bottom of frame!
+    - Low-profile window sill (`Z = 0.82m`) & wrist bolster (`Z = 0.80m`) so the Beat 1 & Beat 6
+      radar scopes (`Z = 1.18m`) stand 100% ABOVE the console deck (ZERO horizontal bars cutting scopes!)
+    - Seated Military Air-Defense Radar Officer (`Env_EnemyOperator`) with peaked military visor cap,
+      uniform collar & shoulder epaulets, and twin-earcup tactical comms headset + boom mic!
     """
-    mat_bunker = _mat_solid("Mat_Cmd_BunkerSteel", (0.045, 0.055, 0.070), metallic=0.78, roughness=0.42, spec_ior=0.32)
-    mat_desk = _mat_solid("Mat_Cmd_ConsoleDesk", (0.060, 0.072, 0.088), metallic=0.68, roughness=0.38, spec_ior=0.25)
+    mat_bunker = _mat_solid("Mat_Cmd_BunkerSteel", (0.040, 0.050, 0.065), metallic=0.78, roughness=0.40, spec_ior=0.32)
+    mat_desk = _mat_solid("Mat_Cmd_ConsoleDesk", (0.052, 0.064, 0.080), metallic=0.68, roughness=0.38, spec_ior=0.25)
     mat_trim = _mat_solid("Mat_Cmd_BezelTrim", (0.14, 0.17, 0.21), metallic=0.88, roughness=0.28)
     mat_scr_grn = _mat_tactical_screen("Mat_Cmd_SideScreenGrn", (0.06, 0.92, 0.56))
     mat_scr_amb = _mat_tactical_screen("Mat_Cmd_SideScreenAmb", (1.00, 0.62, 0.10))
     mat_led_grn = _mat_solid("Mat_Cmd_LedGrn", (0.08, 0.95, 0.45), 0.1, 0.25, (0.08, 0.95, 0.45), 1.75)
     mat_led_amb = _mat_solid("Mat_Cmd_LedAmb", (1.00, 0.64, 0.08), 0.1, 0.25, (1.00, 0.64, 0.08), 1.80)
     mat_led_red = _mat_solid("Mat_Cmd_LedRed", (1.00, 0.18, 0.08), 0.1, 0.25, (1.00, 0.18, 0.08), 1.85)
-    mat_op_suit = _mat_solid("Mat_Cmd_OperatorSuit", (0.032, 0.042, 0.038), metallic=0.06, roughness=0.78, spec_ior=0.18)
-    mat_op_skin = _mat_solid("Mat_Cmd_OperatorSkin", (0.28, 0.20, 0.16), metallic=0.02, roughness=0.58, spec_ior=0.25)
+    mat_op_suit = _mat_solid("Mat_Cmd_OperatorSuit", (0.035, 0.048, 0.042), metallic=0.08, roughness=0.72, spec_ior=0.20)
+    mat_op_skin = _mat_solid("Mat_Cmd_OperatorSkin", (0.36, 0.26, 0.20), metallic=0.02, roughness=0.52, spec_ior=0.25)
+    mat_op_cap = _mat_solid("Mat_Cmd_OperatorCap", (0.025, 0.035, 0.032), metallic=0.15, roughness=0.48, spec_ior=0.30)
 
     mats = [
         mat_bunker, mat_desk, mat_trim, mat_scr_grn, mat_scr_amb,
-        mat_led_grn, mat_led_amb, mat_led_red, mat_op_suit, mat_op_skin,
+        mat_led_grn, mat_led_amb, mat_led_red, mat_op_suit, mat_op_skin, mat_op_cap,
     ]
 
     room_root = bpy.data.objects.new("Env_EnemyCommandRoom_Root", None)
     col.objects.link(room_root)
 
-    # --- A. Armored Bunker Window Frame, Side Bulkheads & Ceiling Lintel (Zero Center Mullion!) ---
+    # --- A. Wide Panoramic Armored Bunker Window Frame (Zero Center Mullion!) ---
     bm_room = bmesh.new()
-    # Left & Right heavy angled armored window pillars framing 9:16 portrait edges cleanly in Beats 1 & 6
-    _add_box(bm_room, (-1.31, -1.08, 2.12), (0.30, 0.45, 3.28), mat_index=0, bevel_w=0.020)
-    _add_box(bm_room, (+1.31, -1.08, 2.12), (0.30, 0.45, 3.28), mat_index=0, bevel_w=0.020)
-    # Inner chamfered metallic window jamb trim (frames portrait edges without crowding Beat 1 sky/aircraft)
-    _add_box(bm_room, (-1.14, -1.02, 2.14), (0.045, 0.24, 2.40), mat_index=2, bevel_w=0.008)
-    _add_box(bm_room, (+1.14, -1.02, 2.14), (0.045, 0.24, 2.40), mat_index=2, bevel_w=0.008)
+    # Left & Right heavy angled armored window pillars framing outer portrait edges
+    _add_box(bm_room, (-1.42, -1.08, 2.15), (0.30, 0.45, 3.35), mat_index=0, bevel_w=0.020)
+    _add_box(bm_room, (+1.42, -1.08, 2.15), (0.30, 0.45, 3.35), mat_index=0, bevel_w=0.020)
+    # Inner chamfered metallic window jamb trim
+    _add_box(bm_room, (-1.25, -1.02, 2.15), (0.045, 0.24, 2.50), mat_index=2, bevel_w=0.008)
+    _add_box(bm_room, (+1.25, -1.02, 2.15), (0.045, 0.24, 2.50), mat_index=2, bevel_w=0.008)
     # Overhead armored bunker ceiling header beam (frames top of window cleanly)
-    _add_box(bm_room, (0.0, -1.18, 3.52), (3.25, 1.35, 0.44), mat_index=0, bevel_w=0.024)
-    _add_box(bm_room, (0.0, -0.96, 3.28), (2.42, 0.14, 0.055), mat_index=2, bevel_w=0.008)
-    # Dim red/amber overhead tactical bunker status strips on left & right corners
-    _add_box(bm_room, (-0.88, -1.05, 3.26), (0.26, 0.04, 0.024), mat_index=7)
-    _add_box(bm_room, (+0.88, -1.05, 3.26), (0.26, 0.04, 0.024), mat_index=6)
-    # Armored lower window sill shelf spanning behind console
-    _add_box(bm_room, (0.0, -0.82, 0.94), (3.10, 0.56, 0.14), mat_index=0, bevel_w=0.015)
+    _add_box(bm_room, (0.0, -1.18, 3.62), (3.40, 1.35, 0.42), mat_index=0, bevel_w=0.024)
+    _add_box(bm_room, (0.0, -0.96, 3.39), (2.60, 0.14, 0.050), mat_index=2, bevel_w=0.008)
+    # Red/amber overhead tactical bunker status strips on top left & right corners
+    _add_box(bm_room, (-0.92, -1.05, 3.37), (0.28, 0.04, 0.022), mat_index=7)
+    _add_box(bm_room, (+0.92, -1.05, 3.37), (0.28, 0.04, 0.022), mat_index=6)
+    # Low-profile armored window sill shelf (Z = 0.80, safely below radar scopes!)
+    _add_box(bm_room, (0.0, -0.82, 0.80), (3.20, 0.52, 0.12), mat_index=0, bevel_w=0.014)
 
-    # --- B. Full-Width Sloped Military Radar Tracking Console Desk ---
-    # Main console cabinet base
-    _add_box(bm_room, (0.0, -1.10, 0.52), (2.95, 0.88, 0.78), mat_index=1, bevel_w=0.018)
-    # Angled control fascia panel facing the camera/operator (tilted 26 deg toward camera)
-    _add_box(bm_room, (0.0, -1.08, 1.02), (2.82, 0.62, 0.14), mat_index=1, bevel_w=0.014, rot_deg=(-26.0, 0.0, 0.0))
-    # Protective steel wrist-rest bolster bar along front console edge
-    _add_box(bm_room, (0.0, -1.42, 0.88), (2.86, 0.12, 0.09), mat_index=2, bevel_w=0.020)
+    # --- B. Full-Depth Military Radar Tracking Console Desk (Extends to Z=-0.75m: ZERO Bottom Gap!) ---
+    _add_box(bm_room, (0.0, -1.12, 0.02), (3.10, 0.90, 1.56), mat_index=1, bevel_w=0.018)
+    # Flat horizontal instrument deck shelf at Z = 0.83m (never tilts up in front of radar scopes!)
+    _add_box(bm_room, (0.0, -1.12, 0.83), (3.00, 0.82, 0.08), mat_index=1, bevel_w=0.012)
+    # Protective steel wrist-rest bolster bar along front console edge at Z = 0.82m (safely below scopes!)
+    _add_box(bm_room, (0.0, -1.50, 0.82), (2.96, 0.10, 0.075), mat_index=2, bevel_w=0.016)
 
-    # Left & Right low-profile angled tactical telemetry monitors flanking central radar scope
-    # Positioned low (top Z ~ 1.21) so outdoor Beat 1 military radar tower stands 100% unobstructed!
+    # Left & Right low-profile angled tactical telemetry monitors on outer console wings
     for side, scr_idx in ((-1.0, 3), (+1.0, 4)):
-        mx = side * 0.84
+        mx = side * 0.90
         _add_box(
-            bm_room, (mx, -0.94, 1.09), (0.44, 0.13, 0.24),
-            mat_index=0, bevel_w=0.010, rot_deg=(-20.0, 0.0, -side * 18.0),
+            bm_room, (mx, -0.98, 1.00), (0.42, 0.12, 0.22),
+            mat_index=0, bevel_w=0.010, rot_deg=(-18.0, 0.0, -side * 18.0),
         )
         _add_box(
-            bm_room, (mx - side * 0.014, -1.00, 1.09), (0.37, 0.02, 0.18),
-            mat_index=scr_idx, rot_deg=(-20.0, 0.0, -side * 18.0),
+            bm_room, (mx - side * 0.014, -1.04, 1.00), (0.35, 0.02, 0.16),
+            mat_index=scr_idx, rot_deg=(-18.0, 0.0, -side * 18.0),
         )
 
     # Tactile rows of backlit military console pushbuttons (green / amber / red) & rotary dials
-    for bx_off in (-0.98, -0.88, -0.78, -0.68, -0.58, 0.56, 0.66, 0.76, 0.86, 0.96):
-        led_i = 7 if abs(bx_off) > 0.90 else (6 if abs(bx_off) > 0.72 else 5)
-        _add_box(bm_room, (bx_off, -1.24, 0.965), (0.046, 0.032, 0.018), mat_index=led_i, rot_deg=(-26.0, 0.0, 0.0))
-        _add_box(bm_room, (bx_off, -1.32, 0.925), (0.042, 0.028, 0.015), mat_index=2, rot_deg=(-26.0, 0.0, 0.0))
-
-    # Rotary azimuth/gain knobs on left and right console shoulders
-    for kx in (-0.52, -0.44, 0.44, 0.52):
-        res_k = bmesh.ops.create_cone(
-            bm_room, cap_ends=True, cap_tris=False, segments=14,
-            radius1=0.024, radius2=0.020, depth=0.034,
-            matrix=Matrix.Translation((kx, -1.30, 0.945))
-            @ Euler((math.radians(-26.0), 0.0, 0.0), "XYZ").to_matrix().to_4x4(),
-        )
-        kv = set(res_k["verts"])
-        for fk in bm_room.faces:
-            if all(v in kv for v in fk.verts):
-                fk.material_index = 2
+    for bx_off in (-1.02, -0.90, -0.78, -0.66, -0.54, -0.42, -0.30, -0.18, 0.82, 0.94):
+        led_i = 7 if abs(bx_off) > 0.88 else (6 if abs(bx_off) > 0.60 else 5)
+        _add_box(bm_room, (bx_off, -1.32, 0.875), (0.048, 0.034, 0.018), mat_index=led_i)
+        _add_box(bm_room, (bx_off, -1.40, 0.872), (0.044, 0.028, 0.015), mat_index=2)
 
     room_obj = _mesh_from_bm("Env_EnemyCommandRoom", bm_room, mats, col, parent=room_root, smooth=False)
-    # Visible in Beat 1 (looking past bunker console out at daylight sky) AND Beat 6 (command room payoff!)
     _key_visibility(room_obj, [(1, 220), (1561, total_frames)], total_frames)
 
-    # --- C. Seated Enemy Radar Operator Silhouette (Beat 6 Right Foreground Edge) ---
-    # Framed cleanly inside right edge (X=+0.62, Y=-1.42, Z=0.96 -> NDC X ~ +0.72..+0.84) with
-    # military comms headset watching central radar scope as invisible stealth bomber glides outside!
+    # --- C. Sculpted Military Air-Defense Radar Officer (Peaked Visor Cap + Epaulets + Headset!) ---
     bm_op = bmesh.new()
-    # Torso / tactical flight-jacket shoulders
+    # Uniform jacket torso + tailored shoulders
     res_t = bmesh.ops.create_icosphere(
-        bm_op, subdivisions=2, radius=1.0,
-        matrix=Matrix.Translation((0.0, 0.0, 0.0)) @ Matrix.Diagonal((0.23, 0.14, 0.27, 1.0)),
+        bm_op, subdivisions=3, radius=1.0,
+        matrix=Matrix.Translation((0.0, 0.0, -0.02)) @ Matrix.Diagonal((0.23, 0.14, 0.26, 1.0)),
     )
     tv = set(res_t["verts"])
     for ft in bm_op.faces:
         if all(v in tv for v in ft.verts):
             ft.material_index = 8
-    # Neck + Head turned slightly left toward central radar console
+    # Structured military uniform collar & gold-trimmed shoulder epaulets
+    _add_box(bm_op, (-0.01, 0.01, 0.21), (0.14, 0.12, 0.05), mat_index=10, bevel_w=0.008)
+    for sx in (-1.0, +1.0):
+        _add_box(
+            bm_op, (sx * 0.15, 0.0, 0.17), (0.11, 0.07, 0.018),
+            mat_index=10, bevel_w=0.004, rot_deg=(0.0, sx * 18.0, 0.0),
+        )
+        # Gold officer rank bar on each shoulder epaulet
+        _add_box(
+            bm_op, (sx * 0.18, 0.0, 0.182), (0.032, 0.045, 0.008),
+            mat_index=6, rot_deg=(0.0, sx * 18.0, 0.0),
+        )
+
+    # Sculpted neck + head turned slightly left toward radar scope
     res_h = bmesh.ops.create_icosphere(
         bm_op, subdivisions=3, radius=1.0,
-        matrix=Matrix.Translation((-0.02, 0.03, 0.32)) @ Matrix.Diagonal((0.096, 0.110, 0.125, 1.0)),
+        matrix=Matrix.Translation((-0.02, 0.03, 0.32)) @ Matrix.Diagonal((0.094, 0.106, 0.118, 1.0)),
     )
     hv = set(res_h["verts"])
     for fh in bm_op.faces:
         if all(v in hv for v in fh.verts):
             fh.material_index = 9
-    # Military tactical headset earcups + headband + boom mic
+
+    # Military Officer Peaked Visor Cap / Tactical Beret Crown + Front Visor Brim + Gold Badge!
+    # Cap band around forehead
+    res_cb = bmesh.ops.create_cone(
+        bm_op, cap_ends=True, cap_tris=False, segments=24,
+        radius1=0.098, radius2=0.104, depth=0.042,
+        matrix=Matrix.Translation((-0.02, 0.032, 0.392))
+        @ Euler((math.radians(8.0), math.radians(-4.0), 0.0), "XYZ").to_matrix().to_4x4(),
+    )
+    cbv = set(res_cb["verts"])
+    for fcb in bm_op.faces:
+        if all(v in cbv for v in fcb.verts):
+            fcb.material_index = 10
+    # Peaked flare crown of military officer cap
+    res_cc = bmesh.ops.create_cone(
+        bm_op, cap_ends=True, cap_tris=False, segments=24,
+        radius1=0.104, radius2=0.132, depth=0.048,
+        matrix=Matrix.Translation((-0.02, 0.040, 0.432))
+        @ Euler((math.radians(14.0), math.radians(-5.0), 0.0), "XYZ").to_matrix().to_4x4()
+        @ Matrix.Diagonal((0.96, 1.10, 1.0, 1.0)),
+    )
+    ccv = set(res_cc["verts"])
+    for fcc in bm_op.faces:
+        if all(v in ccv for v in fcc.verts):
+            fcc.material_index = 8
+    # Front visor brim projecting forward toward console
+    _add_box(
+        bm_op, (-0.025, 0.118, 0.378), (0.145, 0.095, 0.012),
+        mat_index=10, bevel_w=0.004, rot_deg=(-22.0, 0.0, 6.0),
+    )
+
+    # Twin-earcup tactical military comms headset + headband + boom mic
     for sx in (-1.0, +1.0):
         res_ec = bmesh.ops.create_cone(
             bm_op, cap_ends=True, cap_tris=False, segments=16,
             radius1=0.044, radius2=0.038, depth=0.036,
-            matrix=Matrix.Translation((-0.02 + sx * 0.102, 0.03, 0.32))
+            matrix=Matrix.Translation((-0.02 + sx * 0.100, 0.03, 0.32))
             @ Euler((0.0, math.radians(90.0), 0.0), "XYZ").to_matrix().to_4x4(),
         )
         ev = set(res_ec["verts"])
         for fe in bm_op.faces:
             if all(v in ev for v in fe.verts):
                 fe.material_index = 0
-    # Headset arch over crown
-    for k in range(8):
-        a0 = math.radians(15.0 + k * 18.75)
-        a1 = math.radians(15.0 + (k + 1) * 18.75)
-        p0 = Vector((-0.02 + 0.108 * math.cos(a0), 0.03, 0.32 + 0.134 * math.sin(a0)))
-        p1 = Vector((-0.02 + 0.108 * math.cos(a1), 0.03, 0.32 + 0.134 * math.sin(a1)))
-        _add_strut(bm_op, p0, p1, 0.012, mat_index=0, segs=8)
-    # Boom microphone extending forward-left
-    _add_strut(bm_op, Vector((-0.115, 0.04, 0.30)), Vector((-0.075, 0.15, 0.27)), 0.006, mat_index=2, segs=6)
+    _add_strut(bm_op, Vector((-0.115, 0.04, 0.30)), Vector((-0.070, 0.15, 0.27)), 0.006, mat_index=2, segs=6)
 
     op_obj = _mesh_from_bm(
         "Env_EnemyOperator", bm_op, mats, col,
-        location=(0.62, -1.42, 0.96),
+        location=(0.64, -1.42, 0.90),
         rotation=(0.0, 0.0, math.radians(28.0)),
         parent=room_root,
         smooth=True,
     )
     _key_visibility(op_obj, [(1561, total_frames)], total_frames)
 
-    # Subtle operator head-turn animation in Beat 6 looking from scope up toward window!
     for f in (1561, 1650, 1730, total_frames):
         u = C.smootherstep(1561.0, float(total_frames), float(f))
         op_obj.rotation_euler = Euler((math.radians(C.lerp(-4.0, 6.0, u)), 0.0, math.radians(C.lerp(32.0, 20.0, u))), "XYZ")
@@ -529,7 +571,50 @@ def _build_enemy_command_room(col: bpy.types.Collection, total_frames: int) -> l
 
 
 # ==============================================================================
-# 3. OUTDOOR SUNLIT MILITARY PARABOLIC RADAR TOWER (BEATS 1, 2 & 5)
+# 3. REAL 3D SCULPTED SUNLIT CUMULUS CLOUD BANKS (AERIAL PARALLAX!)
+# ==============================================================================
+def _build_3d_cumulus_clouds(col: bpy.types.Collection, total_frames: int) -> bpy.types.Object:
+    """
+    Build real 3D sunlit cumulus cloud banks at multiple depths (`Y = 5.4..9.2m`)
+    so the bright blue daylight sky has true volumetric-look cloud billows & parallax!
+    """
+    mat_cloud = _mat_cumulus_cloud()
+    bm = bmesh.new()
+
+    cloud_clusters = [
+        # (cx, cy, cz, base_scale_x, base_scale_y, base_scale_z)
+        (-2.20, 6.20, 2.85, 0.85, 0.42, 0.38),
+        (-1.45, 6.35, 3.05, 0.65, 0.38, 0.44),
+        (-2.85, 6.40, 2.72, 0.62, 0.36, 0.32),
+        (+1.85, 5.80, 2.45, 0.92, 0.44, 0.40),
+        (+2.55, 5.95, 2.68, 0.72, 0.40, 0.46),
+        (+1.20, 6.10, 2.38, 0.58, 0.35, 0.30),
+        (-0.25, 7.80, 3.45, 1.10, 0.48, 0.42),
+        (+0.55, 7.95, 3.62, 0.82, 0.44, 0.48),
+        (-1.05, 7.90, 3.32, 0.74, 0.40, 0.34),
+        (-2.60, 5.50, 1.65, 0.78, 0.36, 0.28),
+        (+2.40, 5.60, 1.72, 0.82, 0.38, 0.30),
+    ]
+    for cx, cy, cz, sx, sy, sz in cloud_clusters:
+        m = Matrix.Translation((cx, cy, cz)) @ Matrix.Diagonal((sx, sy, sz, 1.0))
+        bmesh.ops.create_icosphere(bm, subdivisions=3, radius=1.0, matrix=m)
+        # Add 2 overlapping puff lobes per cluster for organic cumulus silhouette
+        for dx, dz, sc in ((-0.48 * sx, -0.10 * sz, 0.68), (+0.52 * sx, +0.08 * sz, 0.74)):
+            m_sub = Matrix.Translation((cx + dx, cy - 0.08, cz + dz)) @ Matrix.Diagonal((sx * sc, sy * sc, sz * sc, 1.0))
+            bmesh.ops.create_icosphere(bm, subdivisions=2, radius=1.0, matrix=m_sub)
+
+    for f in bm.faces:
+        f.material_index = 0
+
+    clouds_obj = _mesh_from_bm("Env_3DCumulusClouds", bm, [mat_cloud], col, smooth=True)
+    clouds_obj.visible_shadow = False
+    # Visible across all outdoor daylight sky beats (Beats 1, 2, 5 & 6)
+    _key_visibility(clouds_obj, [(1, 540), (1321, total_frames)], total_frames)
+    return clouds_obj
+
+
+# ==============================================================================
+# 4. OUTDOOR SUNLIT MILITARY PARABOLIC RADAR TOWER (BEATS 1, 2 & 5)
 # ==============================================================================
 def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) -> bpy.types.Object:
     """
@@ -595,7 +680,6 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
         "Env_RadarPedestal", bm_base, [mat_steel, mat_dish, mat_cyan, mat_warn, mat_concrete], col, parent=root
     )
 
-    # Ribbed Parabolic Reflector Dish + Outer Rim + 3-Leg Tripod Feed-Horn
     bm_dish = bmesh.new()
     segs = 36
     rings = 10
@@ -689,7 +773,7 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
             dish_obj.rotation_euler = aim.to_track_quat("Z", "Y").to_euler("XYZ")
         else:
             root.location = b5_pos
-            tz = C.lerp(2.48, 1.28, C.smootherstep(1380.0, 1440.0, float(f)))
+            tz = C.lerp(2.50, 1.32, C.smootherstep(1375.0, 1435.0, float(f)))
             aim = (Vector((0.30, 0.08, tz)) - (b5_pos + Vector((0.0, 0.0, 0.14)))).normalized()
             dish_obj.rotation_euler = aim.to_track_quat("Z", "Y").to_euler("XYZ")
         root.keyframe_insert("location", frame=f)
@@ -703,7 +787,6 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
                     if int(round(kp.co.x)) in (220, 540, 1320):
                         kp.interpolation = "CONSTANT"
 
-    # Active in Beat 1 (outside bunker window), Beat 2 (aerial contrast) AND Beat 5 (main-scene explainer!)
     for obj_v in (base_obj, dish_obj):
         _key_visibility(obj_v, [(1, 540), (1321, 1560)], total_frames)
 
@@ -711,49 +794,49 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
 
 
 # ==============================================================================
-# 4. SUNLIT DISTANT MOUNTAIN HORIZON & MILITARY PLATEAU (NO BLUE GRID WALL!)
+# 5. DRAMATIC SUNLIT MOUNTAIN RANGE HORIZON (BEATS 1 & 6)
 # ==============================================================================
 def _build_daylight_horizon(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
-    """Sunlit atmospheric mountain ridge & military plateau visible through bunker window & aerial beats."""
+    """
+    Sculpted sunlit mountain peaks along the distant horizon (`Y = 3.5..14.0m`) with a low
+    valley floor (`Z = 0.35m`) so no flat grey horizontal line ever cuts behind the radar scope!
+    """
     mat_ridge = _mat_terrain_ridge()
-    mat_pad_ground = _mat_solid("Mat_Env_BasePlateau", (0.22, 0.25, 0.24), metallic=0.05, roughness=0.88)
 
     bm = bmesh.new()
-    nx, ny = 24, 10
+    nx, ny = 32, 12
     verts: list[list[bmesh.types.BMVert]] = []
     for iy in range(ny):
         ty = iy / (ny - 1)
-        y = C.lerp(0.60, 14.0, ty)
+        y = C.lerp(2.60, 14.0, ty)
         row = []
         for ix in range(nx):
             tx = (ix / (nx - 1)) * 2.0 - 1.0
-            x = tx * 14.0
-            # Gentle hillside base near radar tower rising into scenic distant mountain silhouette
-            hill = 0.0
-            if ty > 0.22:
-                ridge_env = C.smoothstep(0.22, 0.72, ty)
-                hill = ridge_env * (
-                    0.95 * math.sin(x * 0.42 + 0.6) ** 2
-                    + 0.55 * math.cos(x * 0.85 - 0.4) ** 2
-                    + 0.35 * ty
-                )
-            z = 0.78 - 0.18 * ty + hill
+            x = tx * 13.0
+            ridge_env = C.smoothstep(0.10, 0.65, ty)
+            # Carve a natural low central valley behind the Beat 6 radar scope, with tall mountain peaks flanking left/right
+            valley_dip = 0.35 + 0.65 * C.smoothstep(0.45, 2.20, abs(x))
+            hill = ridge_env * valley_dip * (
+                1.25 * math.sin(x * 0.48 + 0.7) ** 2
+                + 0.72 * math.cos(x * 0.92 - 0.3) ** 2
+                + 0.35 * ty
+            )
+            z = 0.32 + hill
             row.append(bm.verts.new((x, y, z)))
         verts.append(row)
 
     for iy in range(ny - 1):
         for ix in range(nx - 1):
             f_face = bm.faces.new((verts[iy][ix], verts[iy][ix + 1], verts[iy + 1][ix + 1], verts[iy + 1][ix]))
-            f_face.material_index = 0 if iy >= 2 else 1
+            f_face.material_index = 0
 
-    ridge_obj = _mesh_from_bm("Env_DaylightRidge", bm, [mat_ridge, mat_pad_ground], col, smooth=True)
-    # Visible in Beats 1 & 6 (outside panoramic bunker window); Beats 2 & 5 are high altitude above clouds
+    ridge_obj = _mesh_from_bm("Env_DaylightRidge", bm, [mat_ridge], col, smooth=True)
     _key_visibility(ridge_obj, [(1, 220), (1561, total_frames)], total_frames)
     return [ridge_obj]
 
 
 # ==============================================================================
-# 5. BRIGHT CINEMATIC DAYLIGHT SUN + SKY FILL + ANTI-GLARE BUNKER PRACTICALS
+# 6. BRIGHT CINEMATIC DAYLIGHT SUN + SKY FILL + ANTI-GLARE BUNKER PRACTICALS
 # ==============================================================================
 def _add_area_light(
     name: str,
@@ -786,15 +869,13 @@ def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, b
     """
     Crisp Golden-White Daylight SUN Key + Cool Azure Sky Rim + Anti-Glare Front Fill
     + Moody Enemy Command Room Console Practicals.
-    Sets `visible_glossy = False` on broad front fill light so ZERO rectangular white light boxes
-    ever reflect on the radar scope glass!
     """
     sun_data = bpy.data.lights.new("Light_Daylight_SunKey", type="SUN")
     sun_data.color = (1.00, 0.95, 0.86)
-    sun_data.energy = 4.2
-    sun_data.angle = math.radians(2.4)
+    sun_data.energy = 4.5
+    sun_data.angle = math.radians(2.2)
     l_sun = bpy.data.objects.new("Light_Daylight_SunKey", sun_data)
-    l_sun.location = Vector((4.0, -2.5, 6.5))
+    l_sun.location = Vector((4.2, -2.8, 6.4))
     sun_aim = (Vector((0.0, 0.2, 1.8)) - l_sun.location).normalized()
     l_sun.rotation_euler = sun_aim.to_track_quat("-Z", "Y").to_euler("XYZ")
     col.objects.link(l_sun)
@@ -802,26 +883,25 @@ def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, b
     l_rim = _add_area_light(
         "Light_SkyRim_Top", col,
         location=(2.8, 1.6, 5.4), target=(0.0, 0.0, 1.95),
-        color=(0.76, 0.90, 1.00), energy=640.0, size=2.6, size_y=1.8,
+        color=(0.72, 0.88, 1.00), energy=680.0, size=2.6, size_y=1.8,
         glossy_vis=True,
     )
     l_fill = _add_area_light(
         "Light_SkyFill_AntiGlare", col,
         location=(-1.0, -4.6, 2.2), target=(0.0, 0.0, 1.85),
-        color=(0.82, 0.91, 1.00), energy=280.0, size=3.2, size_y=2.4,
-        glossy_vis=False,  # Prevents ugly white square reflections on radar CRT scope!
+        color=(0.80, 0.90, 1.00), energy=290.0, size=3.2, size_y=2.4,
+        glossy_vis=False,
     )
     l_macro = _add_area_light(
         "Light_MacroPrecision_Key", col,
         location=(0.95, -1.65, 2.85), target=(0.0, 0.0, 1.85),
-        color=(0.98, 0.97, 0.94), energy=190.0, size=0.95, size_y=0.70,
+        color=(0.98, 0.97, 0.94), energy=200.0, size=0.95, size_y=0.70,
         glossy_vis=True,
     )
-    # Subtle green-amber interior practical lighting the Enemy Command Room desk & operator
     l_bunker = _add_area_light(
         "Light_CmdBunker_DeskGlow", col,
-        location=(0.15, -1.35, 1.65), target=(0.20, -1.10, 0.95),
-        color=(0.24, 0.92, 0.64), energy=22.0, size=0.85, size_y=0.45,
+        location=(0.20, -1.55, 1.55), target=(0.30, -1.20, 0.95),
+        color=(0.24, 0.92, 0.64), energy=28.0, size=0.95, size_y=0.50,
         glossy_vis=False,
     )
 
@@ -829,11 +909,11 @@ def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, b
     for f in key_frames:
         is_bunker = (f <= 220) or (f >= 1561)
         is_macro = 541 <= f <= 1320
-        l_sun.data.energy = 4.6 if not is_macro else 3.2
-        l_rim.data.energy = 680.0 if not is_macro else 520.0
-        l_fill.data.energy = 240.0 if is_bunker else (310.0 if not is_macro else 210.0)
-        l_macro.data.energy = 210.0 if is_macro else 0.0
-        l_bunker.data.energy = 26.0 if is_bunker else 0.0
+        l_sun.data.energy = 4.8 if not is_macro else 3.4
+        l_rim.data.energy = 700.0 if not is_macro else 540.0
+        l_fill.data.energy = 250.0 if is_bunker else (320.0 if not is_macro else 220.0)
+        l_macro.data.energy = 215.0 if is_macro else 0.0
+        l_bunker.data.energy = 32.0 if is_bunker else 0.0
         for lo in (l_sun, l_rim, l_fill, l_macro, l_bunker):
             lo.data.keyframe_insert("energy", frame=f)
 
@@ -847,15 +927,17 @@ def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, b
 
 
 def build_radar_env(col: bpy.types.Collection, total_frames: int = C.TOTAL_FRAMES) -> dict[str, Any]:
-    """Assemble daylight sky world, Enemy Radar Command Room, outdoor radar tower, mountain horizon & lights."""
+    """Assemble vibrant daylight sky, 3D cumulus clouds, Enemy Radar Command Room, radar tower, horizon & lights."""
     world = _setup_world(total_frames)
     cmd_room = _build_enemy_command_room(col, total_frames)
+    clouds_3d = _build_3d_cumulus_clouds(col, total_frames)
     radar_station = _build_ground_radar_station(col, total_frames)
     horizon_objs = _build_daylight_horizon(col, total_frames)
     lights = _build_lighting(col, total_frames)
     return {
         "world": world,
         "command_room": cmd_room,
+        "clouds_3d": clouds_3d,
         "radar_station": radar_station,
         "horizon_objs": horizon_objs,
         "lights": lights,

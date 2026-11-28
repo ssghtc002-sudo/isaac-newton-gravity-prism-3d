@@ -322,7 +322,7 @@ def _build_beat1_blank_monitor(col: bpy.types.Collection, total_frames: int) -> 
     mat_grid = _mat_solid_glow("Mat_B1Mon_Grid", (0.06, 0.96, 0.64), (0.06, 0.96, 0.64), 1.65)
     mat_wedge, _ = _mat_additive_beam("Mat_B1Mon_Sweep", (0.08, 0.98, 0.64), strength=0.85, fresnel_pow=0.5)
 
-    # Hooded console bezel + anti-glare recessed matte phosphor dial (zero white reflections!)
+    # Hooded console bezel + mounting pedestal + anti-glare recessed matte phosphor dial
     bm_m = bmesh.new()
     bmesh.ops.create_cone(
         bm_m, cap_ends=True, cap_tris=False, segments=40,
@@ -334,6 +334,11 @@ def _build_beat1_blank_monitor(col: bpy.types.Collection, total_frames: int) -> 
         bm_m, cap_ends=False, cap_tris=False, segments=40,
         radius1=r_sc * 1.07, radius2=r_sc * 1.04, depth=0.032,
         matrix=Matrix.Translation((0.0, 0.0, 0.014)),
+    )
+    # Angled military console pedestal base anchoring monitor cleanly to console deck
+    bmesh.ops.create_cube(
+        bm_m, size=1.0,
+        matrix=Matrix.Translation((0.0, -0.14, -0.11)) @ Matrix.Diagonal((0.22, 0.24, 0.16, 1.0)),
     )
     for fm in bm_m.faces:
         fm.material_index = 0
@@ -400,46 +405,57 @@ def _build_beat1_blank_monitor(col: bpy.types.Collection, total_frames: int) -> 
 
 
 # ==============================================================================
-# 3. BEAT 1 & 2: SLEEK VOLUMETRIC RADAR WAVES (ZERO WING CLIPPING!)
+# 3. BEAT 1 & 2: SLEEK VOLUMETRIC RADAR WAVES & DEFLECTION BURST (ZERO CLIPPING!)
 # ==============================================================================
 def _build_beats12_radar_optics(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
     objs: list[bpy.types.Object] = []
-    # Much sleeker, feathered volumetric cones so they look like real EM energy waves in bright daylight!
-    mat_cyan, gain_cyan = _mat_additive_beam("Mat_FX_RadarCyan", (0.04, 0.88, 1.00), strength=0.34, fresnel_pow=2.4)
-    mat_defl, gain_defl = _mat_additive_beam("Mat_FX_RadarDeflect", (0.10, 0.95, 1.00), strength=0.38, fresnel_pow=2.2)
+    mat_cyan, gain_cyan = _mat_additive_beam("Mat_FX_RadarCyan", (0.04, 0.88, 1.00), strength=0.40, fresnel_pow=2.2)
+    mat_defl, gain_defl = _mat_additive_beam("Mat_FX_RadarDeflect", (0.10, 0.96, 1.00), strength=0.44, fresnel_pow=2.0)
     mat_red, gain_red = _mat_additive_beam("Mat_FX_RadarCrimsonEcho", (1.00, 0.14, 0.06), strength=0.68, fresnel_pow=1.8)
-    mat_ring_c = _mat_solid_glow("Mat_FX_WaveRingCyan", (0.06, 0.92, 1.00), (0.06, 0.92, 1.00), 1.90)
+    mat_ring_c = _mat_solid_glow("Mat_FX_WaveRingCyan", (0.06, 0.92, 1.00), (0.06, 0.92, 1.00), 1.92)
     mat_ring_r = _mat_solid_glow("Mat_FX_WaveRingRed", (1.00, 0.16, 0.06), (1.00, 0.16, 0.06), 1.98)
 
-    # --- BEAT 1: Outdoor radar dish -> stops CLEANLY at bomber lower-front chine -> bounces away into sky ---
+    # --- BEAT 1: Outdoor radar dish -> hits B-2 chined leading edge -> ricochets dynamically into upper sky! ---
     dish1 = Vector(C.STAGE["radar_dish_b1"]) + Vector((0.06, 0.0, 0.28))
-    # Precisely at lower-front leading edge of B-2 in Beat 1 (ZERO penetration through the hull!)
-    hit1 = Vector((-0.24, 0.62, 2.24))
-    sky_away = Vector((1.75, 0.95, 3.35))
+    hit1 = Vector((-0.20, 0.56, 2.28))
+    sky_away = Vector((1.65, 0.85, 3.32))
 
     b1_in = _make_beam_obj("FX_B1_RadarInCone", dish1, hit1, 0.025, 0.13, mat_cyan, col)
-    b1_out = _make_beam_obj("FX_B1_RadarDeflectCone", hit1, sky_away, 0.045, 0.24, mat_defl, col)
-    _key_visibility(b1_in, [(18, 220)], total_frames)
-    _key_visibility(b1_out, [(64, 220)], total_frames)
+    b1_out = _make_beam_obj("FX_B1_RadarDeflectCone", hit1, sky_away, 0.048, 0.25, mat_defl, col)
+    _key_visibility(b1_in, [(12, 220)], total_frames)
+    _key_visibility(b1_out, [(34, 220)], total_frames)
     objs.extend([b1_in, b1_out])
 
+    # Pulsing cyan chine deflection shock ring at the wing bounce point!
+    burst1 = _mesh_from_bm(
+        "FX_B1_ChineDeflectBurst", _make_torus_bm(0.14, 0.006, major_seg=32, minor_seg=8),
+        [mat_ring_c], col, location=(hit1.x, hit1.y, hit1.z),
+        rotation=(math.radians(52.0), math.radians(-24.0), 0.0),
+    )
+    _key_visibility(burst1, [(34, 220)], total_frames)
+    for f in range(34, 221, 3):
+        p = 0.75 + 0.40 * abs(math.sin((f - 34) * 0.24))
+        burst1.scale = (p, p, p)
+        burst1.keyframe_insert("scale", frame=f)
+    objs.append(burst1)
+
     for ri in range(3):
-        ring_in = _mesh_from_bm(f"FX_B1_InRing_{ri}", _make_torus_bm(0.12, 0.0048), [mat_ring_c], col)
-        ring_out = _mesh_from_bm(f"FX_B1_OutRing_{ri}", _make_torus_bm(0.15, 0.0052), [mat_ring_c], col)
-        _key_visibility(ring_in, [(18, 220)], total_frames)
-        _key_visibility(ring_out, [(66, 220)], total_frames)
+        ring_in = _mesh_from_bm(f"FX_B1_InRing_{ri}", _make_torus_bm(0.12, 0.0052), [mat_ring_c], col)
+        ring_out = _mesh_from_bm(f"FX_B1_OutRing_{ri}", _make_torus_bm(0.15, 0.0056), [mat_ring_c], col)
+        _key_visibility(ring_in, [(12, 220)], total_frames)
+        _key_visibility(ring_out, [(36, 220)], total_frames)
         ring_in.rotation_euler = (hit1 - dish1).normalized().to_track_quat("Z", "Y").to_euler("XYZ")
         ring_out.rotation_euler = (sky_away - hit1).normalized().to_track_quat("Z", "Y").to_euler("XYZ")
-        for f in range(18, 221, 3):
-            ph = ((f - 18 + ri * 24) % 72) / 72.0
+        for f in range(12, 221, 3):
+            ph = ((f - 12 + ri * 22) % 66) / 66.0
             ring_in.location = dish1.lerp(hit1, ph)
-            sc = C.lerp(0.28, 1.15, ph)
+            sc = C.lerp(0.30, 1.18, ph)
             ring_in.scale = (sc, sc, 1.0)
             ring_in.keyframe_insert("location", frame=f)
             ring_in.keyframe_insert("scale", frame=f)
 
-            if f >= 66:
-                ph2 = ((f - 66 + ri * 24) % 72) / 72.0
+            if f >= 36:
+                ph2 = ((f - 36 + ri * 22) % 66) / 66.0
                 ring_out.location = hit1.lerp(sky_away, ph2)
                 sc2 = C.lerp(0.45, 1.65, ph2)
                 ring_out.scale = (sc2, sc2, 1.0)
@@ -823,73 +839,87 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
 # ==============================================================================
 def _build_beat5_mainscene_arrows(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
     """
-    Replaces the confusing abstract blue-grid sticks!
     Explains radar scattering DIRECTLY ON THE REAL JETS in bright daylight sky:
-      - TOP (Real Conventional Jet): Incoming cyan 3D arrow hits its 90-degree vertical tail fin
-        (highlighted with a glowing crimson 90° right-angle bracket!) -> BOLD RED 3D RETURN ARROW
+      - TOP (Real Conventional Jet): Incoming cyan 3D arrow hits its 90-degree vertical tail/fuselage
+        (highlighted with a pulsing crimson echo burst ring!) -> BOLD RED 3D RETURN ARROW
         bounces 100% STRAIGHT BACK into the ground radar dish!
       - BOTTOM (Real B-2 Stealth Bomber): Incoming cyan 3D arrow hits its 33-degree tilted stealth
-        wing facet (highlighted with a glowing cyan deflection angle arc!) -> BOLD CYAN 3D DEFLECTED
-        ARROW bounces SHARPLY UP & AWAY into the open sunlit sky!
+        wing facet (highlighted with a glowing tilted mirror plane & gold angle arc!) -> BOLD
+        GOLDEN-CYAN 3D DEFLECTED ARROW ricochets SHARPLY AWAY into open sky!
+    All 4 arrows are visible right from frame 1322 so the comparison reads instantly!
     """
     objs: list[bpy.types.Object] = []
-    mat_cyan = _mat_solid_glow("Mat_B5_ArrowCyan", (0.04, 0.90, 1.00), (0.04, 0.90, 1.00), 1.90)
+    mat_cyan = _mat_solid_glow("Mat_B5_ArrowCyan", (0.04, 0.90, 1.00), (0.04, 0.90, 1.00), 1.92)
     mat_red = _mat_solid_glow("Mat_B5_ArrowRed", (1.00, 0.14, 0.06), (1.00, 0.14, 0.06), 1.98)
-    mat_gold = _mat_solid_glow("Mat_B5_AngleArc", (1.00, 0.80, 0.10), (1.00, 0.80, 0.10), 1.85)
+    mat_gold = _mat_solid_glow("Mat_B5_ArrowGold", (1.00, 0.82, 0.12), (1.00, 0.82, 0.12), 1.95)
+    mat_facet, _ = _mat_additive_beam("Mat_B5_FacetMirror", (0.12, 0.96, 1.00), strength=0.65, fresnel_pow=1.2)
 
     dish5 = Vector(C.STAGE["radar_dish_b5"]) + Vector((0.20, 0.0, 0.12))
-    top_hit = Vector(C.STAGE["b5_top_mirror_pos"]) + Vector((-0.18, -0.06, 0.14))   # Hits jet vertical tail/fuselage
-    bot_hit = Vector(C.STAGE["b5_bot_facet_pos"]) + Vector((-0.26, -0.08, 0.04))    # Hits B-2 33-deg leading edge
-    bot_sky = bot_hit + Vector((-0.18, 0.0, 0.82))                                  # Ricochets high into open sky!
+    top_hit = Vector(C.STAGE["b5_top_mirror_pos"]) + Vector((-0.14, -0.08, 0.06))
+    bot_hit = Vector(C.STAGE["b5_bot_facet_pos"]) + Vector((-0.24, -0.10, 0.08))
+    # Ricochets sharply down-right / forward-right into open sky away from the dish AND clear of top jet!
+    bot_sky = bot_hit + Vector((0.92, -0.10, -0.58))
 
-    # --- TOP (Real Conv Jet): Cyan incoming arrow -> Crimson 90-deg bracket -> Bold RED return arrow ---
+    # --- TOP (Real Conv Jet): Cyan incoming arrow -> Crimson echo ring -> Bold RED return arrow ---
     arr_top_in = _make_3d_arrow_obj(
-        "FX_B5_TopArrowIn", dish5 + Vector((0.0, 0.0, 0.14)), top_hit + Vector((0.0, 0.0, 0.06)),
-        shaft_r=0.015, head_r=0.042, head_len=0.11, mat=mat_cyan, col=col,
+        "FX_B5_TopArrowIn", dish5 + Vector((0.0, 0.0, 0.14)), top_hit + Vector((0.0, 0.0, 0.05)),
+        shaft_r=0.016, head_r=0.045, head_len=0.12, mat=mat_cyan, col=col,
     )
     arr_top_ret = _make_3d_arrow_obj(
-        "FX_B5_TopArrowEchoBack", top_hit + Vector((0.0, 0.0, -0.08)), dish5 + Vector((0.04, 0.0, -0.02)),
-        shaft_r=0.024, head_r=0.062, head_len=0.15, mat=mat_red, col=col,
+        "FX_B5_TopArrowEchoBack", top_hit + Vector((0.0, 0.0, -0.07)), dish5 + Vector((0.04, 0.0, -0.02)),
+        shaft_r=0.026, head_r=0.066, head_len=0.16, mat=mat_red, col=col,
     )
-    _key_visibility(arr_top_in, [(1325, 1560)], total_frames)
-    _key_visibility(arr_top_ret, [(1358, 1560)], total_frames)
+    _key_visibility(arr_top_in, [(1322, 1560)], total_frames)
+    _key_visibility(arr_top_ret, [(1326, 1560)], total_frames)
     objs.extend([arr_top_in, arr_top_ret])
 
-    # Crisp glowing crimson 90-degree right-angle corner symbol right at the jet's vertical tail junction!
-    bm_90 = bmesh.new()
-    bmesh.ops.create_cube(bm_90, size=1.0, matrix=Matrix.Translation((0.0, 0.0, 0.09)) @ Matrix.Diagonal((0.014, 0.014, 0.18, 1.0)))
-    bmesh.ops.create_cube(bm_90, size=1.0, matrix=Matrix.Translation((-0.09, 0.0, 0.0)) @ Matrix.Diagonal((0.18, 0.014, 0.014, 1.0)))
-    bmesh.ops.create_cube(bm_90, size=1.0, matrix=Matrix.Translation((-0.055, 0.0, 0.055)) @ Matrix.Diagonal((0.010, 0.010, 0.11, 1.0)))
-    bmesh.ops.create_cube(bm_90, size=1.0, matrix=Matrix.Translation((-0.028, 0.0, 0.105)) @ Matrix.Diagonal((0.065, 0.010, 0.010, 1.0)))
-    for f9 in bm_90.faces:
-        f9.material_index = 0
-    sym90 = _mesh_from_bm(
-        "FX_B5_Jet90DegSymbol", bm_90, [mat_red], col,
-        location=(top_hit.x + 0.08, top_hit.y - 0.10, top_hit.z - 0.02), smooth=False,
+    # Pulsing crimson radar-return shock ring at the Conventional Jet bounce point (replaces awkward stick chair!)
+    echo_ring = _mesh_from_bm(
+        "FX_B5_JetEchoRing", _make_torus_bm(0.16, 0.007, major_seg=32, minor_seg=8),
+        [mat_red], col, location=(top_hit.x, top_hit.y - 0.05, top_hit.z),
+        rotation=(math.radians(78.0), math.radians(-18.0), 0.0),
     )
-    _key_visibility(sym90, [(1350, 1560)], total_frames)
-    objs.append(sym90)
+    _key_visibility(echo_ring, [(1326, 1560)], total_frames)
+    for f in range(1326, 1561, 3):
+        p = 0.82 + 0.35 * abs(math.sin((f - 1326) * 0.22))
+        echo_ring.scale = (p, p, p)
+        echo_ring.keyframe_insert("scale", frame=f)
+    objs.append(echo_ring)
 
-    # --- BOTTOM (Real B-2 Stealth Bomber): Cyan incoming arrow -> 33-deg arc -> Bold CYAN arrow UP into sky ---
+    # --- BOTTOM (Real B-2 Stealth Bomber): Cyan incoming arrow -> Tilted Mirror Plate -> Bold GOLD-CYAN arrow AWAY! ---
     arr_bot_in = _make_3d_arrow_obj(
-        "FX_B5_BotArrowIn", dish5 + Vector((0.0, 0.0, -0.14)), bot_hit,
-        shaft_r=0.015, head_r=0.042, head_len=0.11, mat=mat_cyan, col=col,
+        "FX_B5_BotArrowIn", dish5 + Vector((0.0, 0.0, -0.10)), bot_hit,
+        shaft_r=0.016, head_r=0.045, head_len=0.12, mat=mat_cyan, col=col,
     )
     arr_bot_out = _make_3d_arrow_obj(
         "FX_B5_BotArrowDeflectUp", bot_hit, bot_sky,
-        shaft_r=0.022, head_r=0.058, head_len=0.14, mat=mat_cyan, col=col,
+        shaft_r=0.026, head_r=0.066, head_len=0.16, mat=mat_gold, col=col,
     )
-    _key_visibility(arr_bot_in, [(1385, 1560)], total_frames)
-    _key_visibility(arr_bot_out, [(1428, 1560)], total_frames)
+    _key_visibility(arr_bot_in, [(1322, 1560)], total_frames)
+    _key_visibility(arr_bot_out, [(1328, 1560)], total_frames)
     objs.extend([arr_bot_in, arr_bot_out])
+
+    # Glowing 33-deg tilted mirror facet plate + gold rim sitting flush along B-2 leading edge chine!
+    bm_fp = bmesh.new()
+    bmesh.ops.create_cube(bm_fp, size=1.0, matrix=Matrix.Diagonal((0.36, 0.16, 0.008, 1.0)))
+    for f_fp in bm_fp.faces:
+        f_fp.material_index = 0
+    facet_plate = _mesh_from_bm(
+        "FX_B5_TiltedFacetPlate", bm_fp, [mat_facet], col,
+        location=(bot_hit.x + 0.04, bot_hit.y - 0.04, bot_hit.z + 0.01),
+        rotation=(math.radians(24.0), math.radians(-28.0), math.radians(-38.0)),
+        smooth=False,
+    )
+    _key_visibility(facet_plate, [(1325, 1560)], total_frames)
+    objs.append(facet_plate)
 
     # Crisp glowing gold reflection-angle arc right at the B-2 wing bounce vertex!
     bm_arc = bmesh.new()
     arc_r = 0.20
     n_arc = 14
     for k in range(n_arc):
-        a0 = math.radians(105.0 + k * (95.0 / n_arc))
-        a1 = math.radians(105.0 + (k + 1) * (95.0 / n_arc))
+        a0 = math.radians(175.0 + k * (135.0 / n_arc))
+        a1 = math.radians(175.0 + (k + 1) * (135.0 / n_arc))
         p0 = Vector((arc_r * math.cos(a0), 0.0, arc_r * math.sin(a0)))
         p1 = Vector((arc_r * math.cos(a1), 0.0, arc_r * math.sin(a1)))
         seg = p1 - p0
@@ -897,7 +927,7 @@ def _build_beat5_mainscene_arrows(col: bpy.types.Collection, total_frames: int) 
         rot_m = seg.normalized().to_track_quat("Z", "Y").to_matrix().to_4x4()
         bmesh.ops.create_cone(
             bm_arc, cap_ends=True, cap_tris=False, segments=8,
-            radius1=0.008, radius2=0.008, depth=seg.length + 0.006,
+            radius1=0.009, radius2=0.009, depth=seg.length + 0.006,
             matrix=Matrix.Translation(mid) @ rot_m,
         )
     for fa in bm_arc.faces:
@@ -906,24 +936,24 @@ def _build_beat5_mainscene_arrows(col: bpy.types.Collection, total_frames: int) 
         "FX_B5_StealthAngleArc", bm_arc, [mat_gold], col,
         location=(bot_hit.x, bot_hit.y - 0.08, bot_hit.z), smooth=True,
     )
-    _key_visibility(arc_obj, [(1428, 1560)], total_frames)
+    _key_visibility(arc_obj, [(1328, 1560)], total_frames)
     objs.append(arc_obj)
 
     # Animated traveling glowing RF energy pulse orbs sliding cleanly along all 4 arrow paths!
     for tag, p0, p1, f_start, mat_dot in (
-        ("TopIn", dish5 + Vector((0.0, 0.0, 0.14)), top_hit + Vector((0.0, 0.0, 0.06)), 1328, mat_cyan),
-        ("TopEcho", top_hit + Vector((0.0, 0.0, -0.08)), dish5 + Vector((0.04, 0.0, -0.02)), 1360, mat_red),
-        ("BotIn", dish5 + Vector((0.0, 0.0, -0.14)), bot_hit, 1388, mat_cyan),
-        ("BotOut", bot_hit, bot_sky, 1430, mat_cyan),
+        ("TopIn", dish5 + Vector((0.0, 0.0, 0.14)), top_hit + Vector((0.0, 0.0, 0.05)), 1322, mat_cyan),
+        ("TopEcho", top_hit + Vector((0.0, 0.0, -0.07)), dish5 + Vector((0.04, 0.0, -0.02)), 1328, mat_red),
+        ("BotIn", dish5 + Vector((0.0, 0.0, -0.10)), bot_hit, 1324, mat_cyan),
+        ("BotOut", bot_hit, bot_sky, 1330, mat_gold),
     ):
         bm_d = bmesh.new()
-        bmesh.ops.create_icosphere(bm_d, subdivisions=2, radius=0.032)
+        bmesh.ops.create_icosphere(bm_d, subdivisions=2, radius=0.034)
         for fd in bm_d.faces:
             fd.material_index = 0
         dot = _mesh_from_bm(f"FX_B5_Pulse_{tag}", bm_d, [mat_dot], col)
         _key_visibility(dot, [(f_start, 1560)], total_frames)
         for f in range(f_start, 1561, 3):
-            ph = ((f - f_start) % 44) / 44.0
+            ph = ((f - f_start) % 40) / 40.0
             dot.location = p0.lerp(p1, ph)
             dot.keyframe_insert("location", frame=f)
         objs.append(dot)

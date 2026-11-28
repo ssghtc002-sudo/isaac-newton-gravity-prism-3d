@@ -2,28 +2,27 @@
 Photoreal Aerospace Stealth Bomber & Conventional Jet Assets for Episode #4:
 "How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar" (60 fps, 1800 frames).
 
-Daylight Hollywood-VFX Edition:
+Daylight Hollywood-VFX Edition (V2):
   1. Hero 172-ft B-2 Spirit Flying-Wing Stealth Bomber (`Stealth_Bomber_Root`, 1:15 scale = 3.20m span):
-     - High-resolution smooth blended lifting-body dorsal fuselage tapering cleanly into crisp 33-deg
-       chined leading edges & authentic 5-chevron W-sawtooth trailing edges
-     - Daylight-calibrated satin-matte military graphite-charcoal RAM carbon-composite shader with
-       fine aerospace panel seams (Scale=22.0), subtle radar-tape weathering, and clearcoat sun glint
-     - Flush 4-pane gold-ITO stealth cockpit windshield (Shadow Ray bypass) + dark canopy mullions
-     - Contoured serrated dorsal intake cowls (using the SAME X-ray shader so Beat 3 dissolves them
-       cleanly without floating bricks!) + recessed ceramic-titanium dorsal exhaust channels
-     - Local-Space `ShaderNodeTexCoord.Object` X-Ray Cutaway Skin: hollow electric-cyan Fresnel
-       (`AddShader(Transparent, Emission * CameraRay * (1 - Backfacing) * pow(Facing, 3.8))`)
-     - Twin deep **Ribbed Serpentine S-Shaped Air Intake Ducts** + twin detailed **Multi-Stage
-       Machined Titanium Turbofans** (gunmetal fan shroud casing, 20 twisted silver blades, pointed
-       spinner cone, compressor stator rings — ZERO blocky orange cylinders!)
-     - Active across ALL 6 beats (including Beat 5 main-scene daylight tilted-facet explainer!)
+     - High-resolution sculpted blended lifting-body dorsal fuselage (`rx > 0` dorsal-facing camera banking!)
+       tapering into razor-sharp 33-deg chined leading edges & 5-chevron W-sawtooth trailing edges
+     - Multi-tone military stealth materials:
+       * Satin-matte charcoal-graphite RAM carbon-composite skin with true 2D planform aerospace panel seams
+         (ZERO 3D topographic contour crack lines!)
+       * Lighter titanium-slate leading-edge chine trim & sawtooth trailing-edge radar-absorbing border
+       * Low-observable USAF tactical gray wing walkway & fuselage stencil markings
+       * Flush 4-pane gold-ITO stealth cockpit windshield with dark raised canopy frame mullions
+       * 3D hooded serrated dorsal air-intake scoops with recessed dark intake cavities
+       * Recessed brushed-titanium dorsal exhaust troughs with twin splitter vanes (zero orange blocks!)
+     - Universal Local-Space `ShaderNodeTexCoord.Object` X-Ray Cutaway wrapper applied to ALL hull materials
+       (`mat_ram`, `mat_chine`, `mat_marking`, `mat_glass`, `mat_exhaust`, `mat_cavity`) so Beat 3 dissolves
+       the entire dorsal skin into hollow electric-cyan Fresnel with ZERO floating grey strips or orange blocks!
+     - Twin internal **Ribbed Serpentine S-Shaped Air Intake Ducts** + twin detailed **Multi-Stage
+       Machined Titanium Turbofans** nested 100% inside the dorsal engine bay (never poking below the wing!)
   2. Photoreal Lofted Conventional Jet (`Conv_Jet_Root`, active in Beats 2 & 5):
-     - True multi-station aerodynamic lofted fuselage (pointed ogive radome nose -> cockpit brow ->
-       cylindrical cabin -> tapered APU tailcone) with brushed silver aluminum + navy livery stripe
-     - Contoured wrap-around dark cockpit windshield, cabin window band, tapered swept airfoil wings
-       with blended winglets, realistic hollow-inlet underwing turbofans with visible metallic fan
-       spinners & exhaust nozzles, and a tall 90-degree swept vertical tail fin with animated crimson
-       radar-echo Fresnel flare!
+     - Smooth multi-station aerodynamic lofted fuselage, wrap-around cockpit windshield, navy livery stripe,
+       cabin windows, swept tapered airfoil wings + canted winglets, hollow-inlet underwing turbofans with
+       front metallic fan spinners, and tall 90-degree vertical tail fin with crimson radar-echo Fresnel flare.
 
 Strictly obeys AGENTS.md V12 & Blender 5.3.0 rules (iter_action_fcurves, get_mix_sockets,
 materials appended before bm.to_mesh, Local-Space TexCoord.Object).
@@ -105,94 +104,22 @@ def _mesh_from_bm(
 
 
 # ==============================================================================
-# MATERIALS (DAYLIGHT RAM CHARCOAL + LOCAL-SPACE X-RAY + AEROSPACE TITANIUM)
+# UNIVERSAL LOCAL-SPACE X-RAY CUTAWAY NODE BUILDER (ZERO FLOATING OPAQUE PIECES!)
 # ==============================================================================
-def _mat_stealth_ram_xray(root_obj: bpy.types.Object) -> tuple[bpy.types.Material, Any, Any]:
+def _attach_local_xray_cutaway(
+    nt: bpy.types.NodeTree,
+    solid_bsdf_socket: Any,
+    out_node: bpy.types.Node,
+    root_obj: bpy.types.Object,
+) -> tuple[Any, Any]:
     """
-    Daylight-calibrated military satin-matte graphite-charcoal RAM carbon-composite skin with fine
-    realistic aerospace panel seams (Scale=22.0, zero blocky diamonds!) and smooth Local-Space
-    `ShaderNodeTexCoord.Object` hollow electric-cyan Fresnel X-ray cutaway transition in Beat 3.
+    Wraps any solid aircraft BSDF socket with the Beat 3 Local-Space `TexCoord.Object`
+    hollow electric-cyan Fresnel X-ray cutaway (`AddShader(Transparent, Emission*Cam*(1-Back)*pow(Facing,3.8))`).
+    Returns `(xray_mix_val, scan_y_val)` so all hull materials dissolve in perfect lockstep!
     """
-    mat = bpy.data.materials.new("Mat_Stealth_RAM_XRay")
-    mat.use_nodes = True
-    nt = mat.node_tree
-    nt.nodes.clear()
-    out = nt.nodes.new("ShaderNodeOutputMaterial")
-
     tc = nt.nodes.new("ShaderNodeTexCoord")
     tc.object = root_obj
 
-    noise_micro = nt.nodes.new("ShaderNodeTexNoise")
-    noise_micro.inputs["Scale"].default_value = 95.0
-    noise_micro.inputs["Detail"].default_value = 8.0
-    noise_micro.inputs["Roughness"].default_value = 0.62
-    nt.links.new(tc.outputs["Object"], noise_micro.inputs["Vector"])
-
-    noise_wear = nt.nodes.new("ShaderNodeTexNoise")
-    noise_wear.inputs["Scale"].default_value = 5.5
-    noise_wear.inputs["Detail"].default_value = 4.0
-    noise_wear.inputs["Roughness"].default_value = 0.55
-    nt.links.new(tc.outputs["Object"], noise_wear.inputs["Vector"])
-
-    # Fine realistic aerospace stealth panel seams (Scale=22 instead of oversized 6.2!)
-    vor_panel = nt.nodes.new("ShaderNodeTexVoronoi")
-    vor_panel.feature = "DISTANCE_TO_EDGE"
-    vor_panel.inputs["Scale"].default_value = 22.0
-    vor_panel.inputs["Randomness"].default_value = 0.04
-    nt.links.new(tc.outputs["Object"], vor_panel.inputs["Vector"])
-
-    panel_edge = nt.nodes.new("ShaderNodeMapRange")
-    panel_edge.clamp = True
-    panel_edge.inputs["From Min"].default_value = 0.008
-    panel_edge.inputs["From Max"].default_value = 0.028
-    nt.links.new(vor_panel.outputs["Distance"], panel_edge.inputs["Value"])
-
-    bump_grain = nt.nodes.new("ShaderNodeBump")
-    bump_grain.inputs["Strength"].default_value = 0.045
-    bump_grain.inputs["Distance"].default_value = 0.002
-    nt.links.new(noise_micro.outputs["Fac"], bump_grain.inputs["Height"])
-
-    bump_panel = nt.nodes.new("ShaderNodeBump")
-    bump_panel.inputs["Strength"].default_value = 0.10
-    bump_panel.inputs["Distance"].default_value = 0.003
-    nt.links.new(panel_edge.outputs["Result"], bump_panel.inputs["Height"])
-    nt.links.new(bump_grain.outputs["Normal"], bump_panel.inputs["Normal"])
-
-    # Authentic B-2 daylight charcoal-graphite slate (catches golden sun & blue sky bounce clearly!)
-    mix_wear = nt.nodes.new("ShaderNodeMix")
-    mix_wear.data_type = "RGBA"
-    fw, wa, wb = C.get_mix_sockets(mix_wear)
-    nt.links.new(noise_wear.outputs["Fac"], fw)
-    wa.default_value = (0.064, 0.072, 0.086, 1.0)
-    wb.default_value = (0.104, 0.116, 0.136, 1.0)
-
-    mix_base = nt.nodes.new("ShaderNodeMix")
-    mix_base.data_type = "RGBA"
-    fb, ba, bb = C.get_mix_sockets(mix_base)
-    nt.links.new(panel_edge.outputs["Result"], fb)
-    ba.default_value = (0.036, 0.042, 0.052, 1.0)  # Subtle dark stealth tape seam
-    nt.links.new(mix_wear.outputs[2], bb)
-
-    rough_map = nt.nodes.new("ShaderNodeMapRange")
-    rough_map.clamp = True
-    rough_map.inputs["From Min"].default_value = 0.25
-    rough_map.inputs["From Max"].default_value = 0.78
-    rough_map.inputs["To Min"].default_value = 0.28
-    rough_map.inputs["To Max"].default_value = 0.46
-    nt.links.new(noise_wear.outputs["Fac"], rough_map.inputs["Value"])
-
-    bsdf_ram = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    nt.links.new(mix_base.outputs[2], bsdf_ram.inputs["Base Color"])
-    bsdf_ram.inputs["Metallic"].default_value = 0.36
-    nt.links.new(rough_map.outputs["Result"], bsdf_ram.inputs["Roughness"])
-    if "Specular IOR Level" in bsdf_ram.inputs:
-        bsdf_ram.inputs["Specular IOR Level"].default_value = 0.56
-    if "Coat Weight" in bsdf_ram.inputs:
-        bsdf_ram.inputs["Coat Weight"].default_value = 0.26
-        bsdf_ram.inputs["Coat Roughness"].default_value = 0.22
-    nt.links.new(bump_panel.outputs["Normal"], bsdf_ram.inputs["Normal"])
-
-    # Local-space X-ray sweep mask along bomber chord Y (-0.72 .. +0.62)
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     nt.links.new(tc.outputs["Object"], sep.inputs["Vector"])
 
@@ -221,8 +148,8 @@ def _mat_stealth_ram_xray(root_obj: bpy.types.Object) -> tuple[bpy.types.Materia
 
     bay_mask = nt.nodes.new("ShaderNodeMapRange")
     bay_mask.clamp = True
-    bay_mask.inputs["From Min"].default_value = 0.80
-    bay_mask.inputs["From Max"].default_value = 0.54
+    bay_mask.inputs["From Min"].default_value = 0.85
+    bay_mask.inputs["From Max"].default_value = 0.52
     nt.links.new(abs_x.outputs[0], bay_mask.inputs["Value"])
 
     m1 = nt.nodes.new("ShaderNodeMath")
@@ -250,7 +177,6 @@ def _mat_stealth_ram_xray(root_obj: bpy.types.Object) -> tuple[bpy.types.Materia
     nt.links.new(scan_ring.outputs["Result"], scan_ring_active.inputs[0])
     nt.links.new(xray_mix_val.outputs[0], scan_ring_active.inputs[1])
 
-    # Hollow Fresnel X-Ray Shader (AGENTS.md V12: AddShader(Transparent, Emission*Cam*(1-Back)*pow(Facing,3.8)))
     lp = nt.nodes.new("ShaderNodeLightPath")
     geom = nt.nodes.new("ShaderNodeNewGeometry")
     lw = nt.nodes.new("ShaderNodeLayerWeight")
@@ -273,12 +199,12 @@ def _mat_stealth_ram_xray(root_obj: bpy.types.Object) -> tuple[bpy.types.Materia
 
     fres_str = nt.nodes.new("ShaderNodeMath")
     fres_str.operation = "MULTIPLY"
-    fres_str.inputs[1].default_value = 1.65
+    fres_str.inputs[1].default_value = 1.60
     nt.links.new(fres_pow.outputs[0], fres_str.inputs[0])
 
     ring_boost = nt.nodes.new("ShaderNodeMath")
     ring_boost.operation = "MULTIPLY"
-    ring_boost.inputs[1].default_value = 1.95
+    ring_boost.inputs[1].default_value = 1.90
     nt.links.new(scan_ring_active.outputs[0], ring_boost.inputs[0])
 
     tot_emit = nt.nodes.new("ShaderNodeMath")
@@ -307,7 +233,7 @@ def _mat_stealth_ram_xray(root_obj: bpy.types.Object) -> tuple[bpy.types.Materia
 
     mix_main = nt.nodes.new("ShaderNodeMixShader")
     nt.links.new(eff_xray.outputs[0], mix_main.inputs["Fac"])
-    nt.links.new(bsdf_ram.outputs["BSDF"], mix_main.inputs[1])
+    nt.links.new(solid_bsdf_socket, mix_main.inputs[1])
     nt.links.new(add_xray.outputs["Shader"], mix_main.inputs[2])
 
     mix_sh = nt.nodes.new("ShaderNodeMixShader")
@@ -315,35 +241,121 @@ def _mat_stealth_ram_xray(root_obj: bpy.types.Object) -> tuple[bpy.types.Materia
     nt.links.new(mix_main.outputs["Shader"], mix_sh.inputs[1])
     nt.links.new(transp.outputs["BSDF"], mix_sh.inputs[2])
 
-    nt.links.new(mix_sh.outputs["Shader"], out.inputs["Surface"])
-    return mat, xray_mix_val, scan_y_val
+    nt.links.new(mix_sh.outputs["Shader"], out_node.inputs["Surface"])
+    return xray_mix_val, scan_y_val
 
 
-def _mat_cockpit_glass() -> bpy.types.Material:
-    """Gold-tinted stealth ITO cockpit glass with mandatory Shadow Ray -> Transparent BSDF bypass."""
-    mat = bpy.data.materials.new("Mat_Stealth_CockpitGlass")
+# ==============================================================================
+# MATERIALS (2D PLANFORM RAM PANELS + CHINE TRIM + X-RAY SAFE HULL SHADERS)
+# ==============================================================================
+def _mat_stealth_ram_xray(
+    root_obj: bpy.types.Object,
+    xray_controls: list[tuple[Any, Any]],
+) -> bpy.types.Material:
+    """
+    Daylight-calibrated satin-matte military graphite-charcoal RAM carbon-composite skin.
+    Uses 2D planform projection (`Z * 0.0`) for aerospace panel seams so curved 3D wing surfaces
+    NEVER suffer from 3D Voronoi topographic contour crack lines!
+    """
+    mat = bpy.data.materials.new("Mat_Stealth_RAM_XRay")
     mat.use_nodes = True
     nt = mat.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
-    lp = nt.nodes.new("ShaderNodeLightPath")
-    transp = nt.nodes.new("ShaderNodeBsdfTransparent")
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    tc.object = root_obj
+
+    # Flatten Z to 0.0 for panel grid so panel seams follow 2D wing planform (zero contour rings!)
+    flat_2d = nt.nodes.new("ShaderNodeVectorMath")
+    flat_2d.operation = "MULTIPLY"
+    flat_2d.inputs[1].default_value = (1.0, 1.0, 0.0)
+    nt.links.new(tc.outputs["Object"], flat_2d.inputs[0])
+
+    # Rotate 2D coordinates 33 deg to align aerospace RAM panels with B-2 leading-edge sweep!
+    rot_2d = nt.nodes.new("ShaderNodeMapping")
+    rot_2d.inputs["Rotation"].default_value = (0.0, 0.0, math.radians(33.0))
+    rot_2d.inputs["Scale"].default_value = (4.8, 7.2, 1.0)
+    nt.links.new(flat_2d.outputs["Vector"], rot_2d.inputs["Vector"])
+
+    brick = nt.nodes.new("ShaderNodeTexBrick")
+    brick.offset = 0.5
+    brick.inputs["Scale"].default_value = 1.0
+    brick.inputs["Mortar Size"].default_value = 0.012
+    brick.inputs["Mortar Smooth"].default_value = 0.004
+    brick.inputs["Bias"].default_value = 0.0
+    brick.inputs["Color1"].default_value = (0.072, 0.082, 0.098, 1.0)   # Charcoal stealth tile A
+    brick.inputs["Color2"].default_value = (0.092, 0.104, 0.124, 1.0)   # Graphite stealth tile B
+    brick.inputs["Mortar"].default_value = (0.032, 0.038, 0.046, 1.0)   # Fine dark radar-tape seam
+    nt.links.new(rot_2d.outputs["Vector"], brick.inputs["Vector"])
+
+    noise_micro = nt.nodes.new("ShaderNodeTexNoise")
+    noise_micro.inputs["Scale"].default_value = 95.0
+    noise_micro.inputs["Detail"].default_value = 8.0
+    noise_micro.inputs["Roughness"].default_value = 0.60
+    nt.links.new(tc.outputs["Object"], noise_micro.inputs["Vector"])
+
+    bump_seam = nt.nodes.new("ShaderNodeBump")
+    bump_seam.inputs["Strength"].default_value = 0.08
+    bump_seam.inputs["Distance"].default_value = 0.002
+    nt.links.new(brick.outputs["Fac"], bump_seam.inputs["Height"])
+
+    bump_grain = nt.nodes.new("ShaderNodeBump")
+    bump_grain.inputs["Strength"].default_value = 0.035
+    bump_grain.inputs["Distance"].default_value = 0.0015
+    nt.links.new(noise_micro.outputs["Fac"], bump_grain.inputs["Height"])
+    nt.links.new(bump_seam.outputs["Normal"], bump_grain.inputs["Normal"])
+
+    bsdf_ram = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    nt.links.new(brick.outputs["Color"], bsdf_ram.inputs["Base Color"])
+    bsdf_ram.inputs["Metallic"].default_value = 0.38
+    bsdf_ram.inputs["Roughness"].default_value = 0.32
+    if "Specular IOR Level" in bsdf_ram.inputs:
+        bsdf_ram.inputs["Specular IOR Level"].default_value = 0.58
+    if "Coat Weight" in bsdf_ram.inputs:
+        bsdf_ram.inputs["Coat Weight"].default_value = 0.30
+        bsdf_ram.inputs["Coat Roughness"].default_value = 0.18
+    nt.links.new(bump_grain.outputs["Normal"], bsdf_ram.inputs["Normal"])
+
+    xm, sy = _attach_local_xray_cutaway(nt, bsdf_ram.outputs["BSDF"], out, root_obj)
+    xray_controls.append((xm, sy))
+    return mat
+
+
+def _mat_stealth_hull_zone(
+    name: str,
+    base_col: tuple[float, float, float],
+    metallic: float,
+    roughness: float,
+    root_obj: bpy.types.Object,
+    xray_controls: list[tuple[Any, Any]],
+    coat: float = 0.25,
+    emit_col: tuple[float, float, float] | None = None,
+    emit_str: float = 0.0,
+) -> bpy.types.Material:
+    """
+    X-Ray-wrapped military aerospace material for leading-edge chine trim, USAF tactical markings,
+    cockpit glass, intake cavities, and titanium exhaust troughs so ZERO floating opaque pieces remain in Beat 3!
+    """
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
 
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf.inputs["Base Color"].default_value = (0.32, 0.22, 0.08, 1.0)
-    bsdf.inputs["Metallic"].default_value = 0.78
-    bsdf.inputs["Roughness"].default_value = 0.05
-    if "Transmission Weight" in bsdf.inputs:
-        bsdf.inputs["Transmission Weight"].default_value = 0.22
+    bsdf.inputs["Base Color"].default_value = (*base_col, 1.0)
+    bsdf.inputs["Metallic"].default_value = metallic
+    bsdf.inputs["Roughness"].default_value = roughness
     if "Coat Weight" in bsdf.inputs:
-        bsdf.inputs["Coat Weight"].default_value = 0.80
-        bsdf.inputs["Coat Roughness"].default_value = 0.02
+        bsdf.inputs["Coat Weight"].default_value = coat
+        bsdf.inputs["Coat Roughness"].default_value = 0.12
+    if emit_col is not None and emit_str > 0.0:
+        bsdf.inputs["Emission Color"].default_value = (*emit_col, 1.0)
+        bsdf.inputs["Emission Strength"].default_value = emit_str
 
-    mix_sh = nt.nodes.new("ShaderNodeMixShader")
-    nt.links.new(lp.outputs["Is Shadow Ray"], mix_sh.inputs["Fac"])
-    nt.links.new(bsdf.outputs["BSDF"], mix_sh.inputs[1])
-    nt.links.new(transp.outputs["BSDF"], mix_sh.inputs[2])
-    nt.links.new(mix_sh.outputs["Shader"], out.inputs["Surface"])
+    xm, sy = _attach_local_xray_cutaway(nt, bsdf.outputs["BSDF"], out, root_obj)
+    xray_controls.append((xm, sy))
     return mat
 
 
@@ -403,33 +415,20 @@ def _mat_titanium_fan() -> bpy.types.Material:
     mat = bpy.data.materials.new("Mat_Stealth_TitaniumFan")
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (0.82, 0.86, 0.92, 1.0)
+    bsdf.inputs["Base Color"].default_value = (0.84, 0.88, 0.94, 1.0)
     bsdf.inputs["Metallic"].default_value = 0.96
-    bsdf.inputs["Roughness"].default_value = 0.16
+    bsdf.inputs["Roughness"].default_value = 0.15
     return mat
 
 
 def _mat_engine_casing() -> bpy.types.Material:
-    """Dark machined gunmetal-titanium turbofan engine barrel & stator shroud (zero ugly orange block!)."""
+    """Dark machined gunmetal-titanium turbofan engine barrel & stator shroud."""
     mat = bpy.data.materials.new("Mat_Stealth_EngineCasing")
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (0.16, 0.19, 0.24, 1.0)
+    bsdf.inputs["Base Color"].default_value = (0.18, 0.22, 0.27, 1.0)
     bsdf.inputs["Metallic"].default_value = 0.90
-    bsdf.inputs["Roughness"].default_value = 0.28
-    return mat
-
-
-def _mat_exhaust_trough() -> bpy.types.Material:
-    """Heat-shielded dark sintered titanium exhaust deck with subtle muted amber core."""
-    mat = bpy.data.materials.new("Mat_Stealth_ExhaustTrough")
-    mat.use_nodes = True
-    bsdf = mat.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (0.12, 0.13, 0.16, 1.0)
-    bsdf.inputs["Metallic"].default_value = 0.92
-    bsdf.inputs["Roughness"].default_value = 0.24
-    bsdf.inputs["Emission Color"].default_value = (1.00, 0.42, 0.08, 1.0)
-    bsdf.inputs["Emission Strength"].default_value = 0.65
+    bsdf.inputs["Roughness"].default_value = 0.26
     return mat
 
 
@@ -519,33 +518,34 @@ def _b2_planform_y(x_abs: float) -> tuple[float, float]:
 
 
 def _b2_airfoil_z(x_abs: float, u_chord: float) -> tuple[float, float]:
-    """Return `(z_top, z_bot)` sleek blended lifting-body flying-wing airfoil + contoured dorsal intakes."""
+    """Return `(z_top, z_bot)` pronounced sculpted 3D lifting-body fuselage + twin dorsal intake nacelles."""
     half_span = 0.5 * float(C.BOMBER["wingspan_m"])
     span_t = min(1.0, x_abs / half_span)
 
-    center_hump = math.exp(-((x_abs / 0.38) ** 2)) * 0.135
-    wing_thick = C.lerp(0.058, 0.011, span_t ** 0.85)
+    # Strong central crew/avionics spine hump so 3D form reads unmistakably from every angle
+    center_hump = math.exp(-((x_abs / 0.36) ** 2)) * 0.162
+    wing_thick = C.lerp(0.064, 0.012, span_t ** 0.82)
     total_h = center_hump + wing_thick
 
-    if u_chord <= 0.32:
-        prof = (u_chord / 0.32) ** 0.65
+    if u_chord <= 0.30:
+        prof = (u_chord / 0.30) ** 0.62
     else:
-        prof = ((1.0 - u_chord) / 0.68) ** 0.85
+        prof = ((1.0 - u_chord) / 0.70) ** 0.82
 
     z_top = total_h * prof
-    z_bot = -(0.020 + 0.034 * math.exp(-((x_abs / 0.44) ** 2))) * (math.sin(math.pi * u_chord) ** 0.72)
+    z_bot = -(0.022 + 0.036 * math.exp(-((x_abs / 0.44) ** 2))) * (math.sin(math.pi * u_chord) ** 0.72)
 
-    # Sleek cockpit canopy blister rise
-    if x_abs < 0.18 and 0.12 < u_chord < 0.44:
-        cx = max(0.0, 1.0 - (x_abs / 0.18) ** 2)
-        cu = math.sin(math.pi * (u_chord - 0.12) / 0.32)
-        z_top += 0.042 * cx * cu
+    # Sculpted cockpit flight-deck brow rise
+    if x_abs < 0.19 and 0.10 < u_chord < 0.45:
+        cx = max(0.0, 1.0 - (x_abs / 0.19) ** 2)
+        cu = math.sin(math.pi * (u_chord - 0.10) / 0.35)
+        z_top += 0.052 * cx * cu
 
-    # Smoothly blended dorsal twin intake nacelle fairings (integrated right into hull — zero floating bricks!)
-    if 0.17 < x_abs < 0.35 and 0.28 < u_chord < 0.74:
-        nx = math.sin(math.pi * (x_abs - 0.17) / 0.18)
-        nu = math.sin(math.pi * (u_chord - 0.28) / 0.46) ** 0.7
-        z_top += 0.046 * nx * nu
+    # Pronounced twin dorsal air-intake nacelle humps (X in 0.17..0.37)
+    if 0.16 < x_abs < 0.37 and 0.24 < u_chord < 0.76:
+        nx = math.sin(math.pi * (x_abs - 0.16) / 0.21)
+        nu = math.sin(math.pi * (u_chord - 0.24) / 0.52) ** 0.68
+        z_top += 0.062 * nx * nu
 
     return z_top, z_bot
 
@@ -553,23 +553,30 @@ def _b2_airfoil_z(x_abs: float, u_chord: float) -> tuple[float, float]:
 def _build_stealth_hull_mesh(
     col: bpy.types.Collection,
     root: bpy.types.Object,
-    mat_ram: bpy.types.Material,
-    mat_glass: bpy.types.Material,
-    mat_exhaust: bpy.types.Material,
-    mat_nav_red: bpy.types.Material,
-    mat_nav_grn: bpy.types.Material,
+    mats: list[bpy.types.Material],
 ) -> bpy.types.Object:
-    """Build high-resolution sculpted B-2 Spirit flying-wing hull with integrated dorsal nacelles & canopy."""
+    """
+    Build high-resolution sculpted B-2 Spirit flying-wing hull with:
+      - mat 0: Main satin-matte charcoal RAM composite tiles
+      - mat 1: 4-pane metallic gold-ITO stealth cockpit windshield
+      - mat 2: Brushed dark titanium dorsal exhaust deck
+      - mat 3: Port red wingtip navigation beacon
+      - mat 4: Starboard green wingtip navigation beacon
+      - mat 5: Lighter titanium-slate leading-edge chine & sawtooth edge radar trim
+      - mat 6: Low-observable USAF tactical gray wing walkway & fuselage insignia markings
+      - mat 7: Deep dark intake scoop cavities
+    All structural materials (0, 1, 2, 5, 6, 7) are wrapped with `_attach_local_xray_cutaway`!
+    """
     bm = bmesh.new()
 
     pos_xs = [
-        0.00, 0.04, 0.09, 0.14, 0.18, 0.23, 0.28, 0.32, 0.37, 0.44,
-        0.52, 0.62, 0.74, 0.85, 0.96, 1.12, 1.28, 1.48, 1.56, 1.60,
+        0.00, 0.03, 0.07, 0.11, 0.15, 0.18, 0.22, 0.26, 0.30, 0.35, 0.42,
+        0.50, 0.62, 0.74, 0.86, 0.96, 1.12, 1.28, 1.48, 1.56, 1.60,
     ]
     xs = sorted(set([-x for x in pos_xs] + pos_xs))
     us = [
-        0.00, 0.04, 0.09, 0.15, 0.21, 0.27, 0.33, 0.40,
-        0.48, 0.56, 0.64, 0.72, 0.80, 0.88, 0.95, 1.00,
+        0.00, 0.04, 0.085, 0.14, 0.20, 0.26, 0.31, 0.38,
+        0.46, 0.54, 0.62, 0.70, 0.78, 0.86, 0.92, 0.96, 1.00,
     ]
     n_x = len(xs)
     n_u = len(us)
@@ -596,18 +603,28 @@ def _build_stealth_hull_mesh(
 
     for ix in range(n_x - 1):
         xm = 0.5 * (xs[ix] + xs[ix + 1])
+        ax = abs(xm)
         for iu in range(n_u - 1):
             um = 0.5 * (us[iu] + us[iu + 1])
             vt = (top_grid[ix][iu], top_grid[ix + 1][iu], top_grid[ix + 1][iu + 1], top_grid[ix][iu + 1])
             if len(set(vt)) >= 3:
                 try:
                     f_t = bm.faces.new(vt)
-                    # Flush 4-pane gold-ITO stealth cockpit windshield (keep thin RAM center mullion!)
-                    if 0.016 < abs(xm) < 0.142 and 0.145 < um < 0.295:
+                    # 1. Flush 4-pane gold-ITO stealth cockpit windshield (with center & side RAM frame mullions!)
+                    if (0.018 < ax < 0.068 or 0.082 < ax < 0.145) and 0.14 < um < 0.28:
                         f_t.material_index = 1
-                    # Flush dorsal recessed titanium exhaust trough channels behind engine nacelles
-                    elif 0.21 < abs(xm) < 0.31 and 0.72 < um < 0.87:
+                    # 2. Dark recessed dorsal intake mouth scoop at front of twin nacelles
+                    elif 0.18 < ax < 0.34 and 0.25 < um < 0.34:
+                        f_t.material_index = 7
+                    # 3. Recessed dark brushed-titanium dorsal exhaust troughs behind engine nacelles
+                    elif 0.19 < ax < 0.33 and 0.72 < um < 0.88:
                         f_t.material_index = 2
+                    # 4. Lighter titanium-slate leading-edge chine & trailing W-sawtooth edge radar trim
+                    elif um < 0.082 or um > 0.935:
+                        f_t.material_index = 5
+                    # 5. Low-observable USAF tactical gray wing insignia & maintenance walkway bands
+                    elif (0.52 < ax < 0.72 and 0.42 < um < 0.56) or (ax < 0.035 and 0.45 < um < 0.72):
+                        f_t.material_index = 6
                     else:
                         f_t.material_index = 0
                 except ValueError:
@@ -616,7 +633,7 @@ def _build_stealth_hull_mesh(
             if len(set(vb)) >= 3:
                 try:
                     f_b = bm.faces.new(vb)
-                    f_b.material_index = 0
+                    f_b.material_index = 5 if (um < 0.082 or um > 0.935) else 0
                 except ValueError:
                     pass
 
@@ -629,14 +646,38 @@ def _build_stealth_hull_mesh(
             ]))
             if len(uniq) >= 3:
                 try:
-                    bm.faces.new(uniq if ix_tip == n_x - 1 else uniq[::-1]).material_index = 0
+                    bm.faces.new(uniq if ix_tip == n_x - 1 else uniq[::-1]).material_index = 5
                 except ValueError:
                     pass
+
+    # Sculpted 3D Dorsal Serrated Intake Hoods & Exhaust Splitter Vanes (part of hull mesh so they X-ray cleanly!)
+    for side in (-1.0, +1.0):
+        # Raised angular stealth intake cowl hood over each dorsal air scoop
+        hood_m = (
+            Matrix.Translation((side * 0.25, -0.14, 0.142))
+            @ Euler((math.radians(8.0), side * math.radians(10.0), side * math.radians(-14.0)), "XYZ").to_matrix().to_4x4()
+            @ Matrix.Diagonal((0.14, 0.22, 0.032, 1.0))
+        )
+        res_hd = bmesh.ops.create_cube(bm, size=1.0, matrix=hood_m)
+        hd_v = set(res_hd["verts"])
+        for fh in bm.faces:
+            if all(v in hd_v for v in fh.verts):
+                fh.material_index = 5
+        # Dark recessed intake cavity plate right under the hood front
+        cav_m = (
+            Matrix.Translation((side * 0.25, -0.24, 0.122))
+            @ Matrix.Diagonal((0.12, 0.025, 0.028, 1.0))
+        )
+        res_cv = bmesh.ops.create_cube(bm, size=1.0, matrix=cav_m)
+        cv_v = set(res_cv["verts"])
+        for fc in bm.faces:
+            if all(v in cv_v for v in fc.verts):
+                fc.material_index = 7
 
     # Wingtip navigation beacons (Port=-X ruby red, Starboard=+X emerald green)
     for side in (-1.0, +1.0):
         nav_m = Matrix.Translation((side * 1.585, 0.42, 0.008))
-        res_nav = bmesh.ops.create_icosphere(bm, subdivisions=2, radius=0.013, matrix=nav_m)
+        res_nav = bmesh.ops.create_icosphere(bm, subdivisions=2, radius=0.014, matrix=nav_m)
         nv = set(res_nav["verts"])
         nav_midx = 3 if side < 0 else 4
         for fn in bm.faces:
@@ -646,14 +687,13 @@ def _build_stealth_hull_mesh(
     hull_obj = _mesh_from_bm(
         "Stealth_Bomber_Hull",
         bm,
-        [mat_ram, mat_glass, mat_exhaust, mat_nav_red, mat_nav_grn],
+        mats,
         col,
         parent=root,
-        smooth=True,  # Sleek organic blended lifting body!
+        smooth=True,
     )
-    # Add Edge Split modifier so sharp 33-deg leading/trailing chines stay razor-crisp while dorsal hump stays silky!
     es = hull_obj.modifiers.new("StealthEdgeSplit", type="EDGE_SPLIT")
-    es.split_angle = math.radians(34.0)
+    es.split_angle = math.radians(32.0)
     return hull_obj
 
 
@@ -667,13 +707,12 @@ def _build_serpentine_sducts_and_turbines(
 ) -> dict[str, Any]:
     """
     Build twin deeply buried **ribbed serpentine S-shaped intake ducts** + twin detailed
-    **multi-stage machined titanium turbofans** (dark gunmetal casing, 20 twisted titanium blades,
-    pointed nose spinner, internal stator rings — ZERO ugly orange rectangles!).
+    **multi-stage machined titanium turbofans** nested 100% inside the dorsal fuselage bay
+    (`z in [+0.024..+0.072]` — NEVER poking below the bottom of the wing!).
     """
     mat_duct = _mat_sduct_xray_wall()
     mat_fan = _mat_titanium_fan()
     mat_casing = _mat_engine_casing()
-    mat_core_glow = _mat_exhaust_trough()
 
     ducts: list[bpy.types.Object] = []
     fans: list[bpy.types.Object] = []
@@ -685,9 +724,10 @@ def _build_serpentine_sducts_and_turbines(
         n_steps = 32
         for i in range(n_steps + 1):
             t = i / n_steps
-            y = C.lerp(-0.26, +0.34, t)
-            x = side * (0.24 + 0.088 * math.sin(math.pi * t) - 0.048 * math.sin(2.0 * math.pi * t))
-            z = 0.068 - 0.088 * C.smootherstep(0.08, 0.72, t) + 0.024 * math.sin(2.0 * math.pi * t)
+            y = C.lerp(-0.24, +0.26, t)
+            x = side * (0.24 + 0.082 * math.sin(math.pi * t) - 0.044 * math.sin(2.0 * math.pi * t))
+            # Stays safely inside dorsal fuselage thickness (z in +0.026 .. +0.074)
+            z = 0.074 - 0.046 * C.smootherstep(0.05, 0.85, t) + 0.014 * math.sin(2.0 * math.pi * t)
             pts.append(Vector((x, y, z)))
 
         bm_d = bmesh.new()
@@ -699,10 +739,9 @@ def _build_serpentine_sducts_and_turbines(
             up_ref = Vector((0.0, 0.0, 1.0))
             side_v = t_vec.cross(up_ref).normalized()
             up_v = side_v.cross(t_vec).normalized()
-            # Subtle structural circumferential rib swell every 4 steps
-            rib = 1.06 if (i % 4 == 0 and 0 < i < n_steps) else 1.0
-            rx = r_duct * rib * C.lerp(1.28, 0.98, i / n_steps)
-            rz = r_duct * rib * C.lerp(0.72, 0.98, i / n_steps)
+            rib = 1.05 if (i % 4 == 0 and 0 < i < n_steps) else 1.0
+            rx = r_duct * rib * C.lerp(1.14, 0.96, i / n_steps)
+            rz = r_duct * rib * C.lerp(0.66, 0.88, i / n_steps)
             row = []
             for j in range(n_ring):
                 a = 2.0 * math.pi * j / n_ring
@@ -716,14 +755,14 @@ def _build_serpentine_sducts_and_turbines(
                 f_d = bm_d.faces.new((rings_v[i][j], rings_v[i][jn], rings_v[i + 1][jn], rings_v[i + 1][j]))
                 f_d.material_index = 0
 
-        # Sculpted metallic intake lip collar right at front mouth (pts[0])
+        # Flush metallic intake lip collar at dorsal scoop entrance
         p0 = pts[0]
         t0 = (pts[1] - pts[0]).normalized()
         rot0 = t0.to_track_quat("Z", "Y").to_matrix().to_4x4()
         res_lip = bmesh.ops.create_cone(
             bm_d, cap_ends=False, cap_tris=False, segments=20,
-            radius1=r_duct * 1.15, radius2=r_duct * 1.08, depth=0.036,
-            matrix=Matrix.Translation(p0) @ rot0 @ Matrix.Diagonal((1.18, 0.72, 1.0, 1.0)),
+            radius1=r_duct * 1.08, radius2=r_duct * 1.02, depth=0.028,
+            matrix=Matrix.Translation(p0) @ rot0 @ Matrix.Diagonal((1.14, 0.66, 1.0, 1.0)),
         )
         lip_vs = set(res_lip["verts"])
         for fl in bm_d.faces:
@@ -737,46 +776,33 @@ def _build_serpentine_sducts_and_turbines(
         _key_visibility(duct_obj, [(541, 960)], total_frames)
         ducts.append(duct_obj)
 
-        # --- Detailed Multi-Stage Machined Titanium Turbofan Engine ---
-        fan_pos = pts[-3]
+        # --- Detailed Multi-Stage Machined Titanium Turbofan Engine (Nested Inside Dorsal Bay!) ---
+        fan_pos = pts[-2]
         r_fan = float(C.BOMBER["fan_radius_m"])
 
-        # Static machined gunmetal turbofan nacelle barrel + compressor stator flanges
         bm_shroud = bmesh.new()
         rot_y90 = Euler((math.radians(90.0), 0.0, 0.0), "XYZ").to_matrix().to_4x4()
-        # Outer engine casing barrel (hollow open front so spinning silver blades gleam clearly!)
-        res_cas = bmesh.ops.create_cone(
+        bmesh.ops.create_cone(
             bm_shroud, cap_ends=False, cap_tris=False, segments=24,
-            radius1=r_fan * 1.16, radius2=r_fan * 0.96, depth=0.17,
-            matrix=Matrix.Translation((0.0, 0.075, 0.0)) @ rot_y90,
+            radius1=r_fan * 1.12, radius2=r_fan * 0.94, depth=0.14,
+            matrix=Matrix.Translation((0.0, 0.060, 0.0)) @ rot_y90,
         )
-        bmesh.ops.solidify(bm_shroud, geom=list(bm_shroud.faces), thickness=0.008)
+        bmesh.ops.solidify(bm_shroud, geom=list(bm_shroud.faces), thickness=0.007)
         for fc in bm_shroud.faces:
             fc.material_index = 0
-        # Two external machined structural flange rings around engine casing
-        for y_fl in (0.015, 0.095):
+        for y_fl in (0.012, 0.082):
             res_fl = bmesh.ops.create_cone(
                 bm_shroud, cap_ends=False, cap_tris=False, segments=24,
-                radius1=r_fan * 1.23, radius2=r_fan * 1.23, depth=0.012,
+                radius1=r_fan * 1.18, radius2=r_fan * 1.18, depth=0.010,
                 matrix=Matrix.Translation((0.0, y_fl, 0.0)) @ rot_y90,
             )
             fv_s = set(res_fl["verts"])
             for ff in bm_shroud.faces:
                 if all(v in fv_s for v in ff.verts):
                     ff.material_index = 1
-        # Subtle recessed aft turbine exhaust cone inside back of barrel
-        res_ex = bmesh.ops.create_cone(
-            bm_shroud, cap_ends=True, cap_tris=False, segments=18,
-            radius1=r_fan * 0.62, radius2=r_fan * 0.24, depth=0.06,
-            matrix=Matrix.Translation((0.0, 0.155, 0.0)) @ rot_y90,
-        )
-        ex_vs = set(res_ex["verts"])
-        for fe in bm_shroud.faces:
-            if all(v in ex_vs for v in fe.verts):
-                fe.material_index = 2
 
         shroud_obj = _mesh_from_bm(
-            f"Stealth_EngineCasing_{tag}", bm_shroud, [mat_casing, mat_fan, mat_core_glow],
+            f"Stealth_EngineCasing_{tag}", bm_shroud, [mat_casing, mat_fan],
             col, parent=root, location=(fan_pos.x, fan_pos.y, fan_pos.z), smooth=True,
         )
         _key_visibility(shroud_obj, [(541, 960)], total_frames)
@@ -786,13 +812,13 @@ def _build_serpentine_sducts_and_turbines(
         bm_f = bmesh.new()
         bmesh.ops.create_cone(
             bm_f, cap_ends=True, cap_tris=False, segments=20,
-            radius1=r_fan * 0.30, radius2=0.003, depth=0.056,
-            matrix=Matrix.Translation((0.0, -0.020, 0.0)) @ Euler((math.radians(-90.0), 0.0, 0.0), "XYZ").to_matrix().to_4x4(),
+            radius1=r_fan * 0.30, radius2=0.003, depth=0.050,
+            matrix=Matrix.Translation((0.0, -0.018, 0.0)) @ Euler((math.radians(-90.0), 0.0, 0.0), "XYZ").to_matrix().to_4x4(),
         )
         bmesh.ops.create_cone(
             bm_f, cap_ends=True, cap_tris=False, segments=20,
-            radius1=r_fan * 0.32, radius2=r_fan * 0.30, depth=0.045,
-            matrix=Matrix.Translation((0.0, 0.015, 0.0)) @ rot_y90,
+            radius1=r_fan * 0.32, radius2=r_fan * 0.30, depth=0.040,
+            matrix=Matrix.Translation((0.0, 0.012, 0.0)) @ rot_y90,
         )
         n_blades = 20
         for bi in range(n_blades):
@@ -803,7 +829,7 @@ def _build_serpentine_sducts_and_turbines(
                 bm_rot
                 @ Matrix.Translation((0.0, 0.0, r_fan * 0.62))
                 @ twist
-                @ Matrix.Diagonal((0.008, 0.022, r_fan * 0.72, 1.0))
+                @ Matrix.Diagonal((0.007, 0.020, r_fan * 0.70, 1.0))
             )
             bmesh.ops.create_cube(bm_f, size=1.0, matrix=blade_m)
         for fb in bm_f.faces:
@@ -870,12 +896,12 @@ def _airfoil_loop(
 
 def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dict[str, Any]:
     """
-    Completely rebuilt photoreal aerodynamic Conventional Jet (active in Beat 2 AND Beat 5!):
-    - True smooth multi-station lofted fuselage (sharp pointed ogive nose -> sculpted cockpit brow ->
-      cylindrical fuselage -> streamlined APU tailcone — ZERO backwards nose cone!)
-    - Brushed aerospace aluminum hull + military/airline deep navy livery stripe + dark cockpit glass
+    Photoreal aerodynamic Conventional Jet (active in Beat 2 AND Beat 5!):
+    - Smooth multi-station lofted fuselage (sharp pointed ogive nose -> sculpted cockpit brow ->
+      cylindrical fuselage -> streamlined APU tailcone)
+    - Brushed aerospace aluminum hull + deep navy livery stripe + dark cockpit glass
     - Swept tapered airfoil wings with canted blended winglets
-    - Realistic hollow-inlet underwing twin turbofan nacelles with machined front fan spinners
+    - Hollow-inlet underwing twin turbofan nacelles with machined front fan spinners
     - Tall swept 90-degree vertical tail fin & horizontal stabilizers (glows blazing crimson on radar!)
     """
     mat_silver, echo_s = _mat_conv_jet_echo("Mat_ConvJet_Silver", (0.76, 0.80, 0.85), metallic=0.84, roughness=0.22)
@@ -894,19 +920,17 @@ def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dic
 
     bm = bmesh.new()
 
-    # 1. Smooth Multi-Station Lofted Fuselage along Y (Nose at -0.82 -> Tail at +0.78)
     stations = [
-        # (y, rx, rz, z_center)
-        (-0.82, 0.006, 0.006, -0.018),  # Sharp pointed ogive nose tip
-        (-0.77, 0.036, 0.034, -0.016),  # Radome nose cone
-        (-0.70, 0.064, 0.060, -0.010),  # Forward nose
-        (-0.60, 0.084, 0.082, -0.002),  # Cockpit windshield brow
-        (-0.46, 0.092, 0.094,  0.000),  # Forward fuselage full cross-section
-        (-0.10, 0.092, 0.094,  0.000),  # Mid cabin
-        (+0.34, 0.092, 0.094,  0.000),  # Aft cabin
-        (+0.54, 0.074, 0.078,  0.008),  # Aft fuselage taper
-        (+0.68, 0.044, 0.048,  0.018),  # Tailcone
-        (+0.78, 0.014, 0.016,  0.024),  # APU exhaust tip
+        (-0.82, 0.006, 0.006, -0.018),
+        (-0.77, 0.036, 0.034, -0.016),
+        (-0.70, 0.064, 0.060, -0.010),
+        (-0.60, 0.084, 0.082, -0.002),
+        (-0.46, 0.092, 0.094,  0.000),
+        (-0.10, 0.092, 0.094,  0.000),
+        (+0.34, 0.092, 0.094,  0.000),
+        (+0.54, 0.074, 0.078,  0.008),
+        (+0.68, 0.044, 0.048,  0.018),
+        (+0.78, 0.014, 0.016,  0.024),
     ]
     n_seg = 28
     rings: list[list[bmesh.types.BMVert]] = []
@@ -924,40 +948,31 @@ def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dic
             f = bm.faces.new((rings[si][s], rings[si][sn], rings[si + 1][sn], rings[si + 1][s]))
             ang_m = (s + 0.5) * 2.0 * math.pi / n_seg
             sin_a = math.sin(ang_m)
-            # Wrap-around dark cockpit windshield glass on upper front nose brow!
             if -0.71 < ym < -0.58 and sin_a > 0.28 and abs(math.cos(ang_m)) < 0.88:
                 f.material_index = 2
-            # Sleek navy-blue livery cheatline along mid-lower fuselage flank
             elif -0.56 < ym < +0.62 and -0.22 < sin_a < 0.06:
                 f.material_index = 1
-            # Subtle dark cabin window stripe above navy line
             elif -0.44 < ym < +0.36 and 0.14 < sin_a < 0.28:
                 f.material_index = 2
             else:
                 f.material_index = 0
 
-    # Cap nose tip & tailcone cleanly
     bm.faces.new(rings[0][::-1]).material_index = 0
     bm.faces.new(rings[-1]).material_index = 0
 
-    # 2. Swept Tapered Airfoil Main Wings + Canted Blended Winglets + Horizontal Stabilizers
     for side in (-1.0, +1.0):
-        # Main swept wing (root -> mid-span -> tip)
         root_sec = _airfoil_loop(side * 0.075, 0.02, -0.026, chord=0.34, thick=0.044)
         tip_sec = _airfoil_loop(side * 0.72, 0.26, +0.024, chord=0.11, thick=0.016)
         _add_lofted_wing(bm, root_sec if side > 0 else root_sec[::-1], tip_sec if side > 0 else tip_sec[::-1], mat_index=0)
 
-        # Canted blended winglet rising cleanly off wingtip
         wl_base = _airfoil_loop(side * 0.72, 0.26, +0.024, chord=0.105, thick=0.014, is_vertical=True)
         wl_top = _airfoil_loop(side * 0.755, 0.31, +0.135, chord=0.058, thick=0.009, is_vertical=True)
         _add_lofted_wing(bm, wl_base, wl_top, mat_index=1)
 
-        # Swept horizontal tail stabilizer
         h_root = _airfoil_loop(side * 0.045, 0.60, 0.028, chord=0.19, thick=0.024)
         h_tip = _airfoil_loop(side * 0.31, 0.72, 0.044, chord=0.08, thick=0.011)
         _add_lofted_wing(bm, h_root if side > 0 else h_root[::-1], h_tip if side > 0 else h_tip[::-1], mat_index=0)
 
-        # Contoured underwing engine pylon strut
         pyl_m = Matrix.Translation((side * 0.27, 0.00, -0.056)) @ Matrix.Diagonal((0.024, 0.22, 0.072, 1.0))
         res_p = bmesh.ops.create_cube(bm, size=1.0, matrix=pyl_m)
         pv = set(res_p["verts"])
@@ -965,7 +980,6 @@ def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dic
             if all(v in pv for v in fp.verts):
                 fp.material_index = 0
 
-        # Realistic Hollow-Inlet Underwing Turbofan Nacelle + Visible Front Fan Spinner + Core Exhaust!
         nx, ny, nz = side * 0.27, -0.04, -0.108
         rot_90 = Euler((math.radians(90.0), 0.0, 0.0), "XYZ").to_matrix().to_4x4()
         res_nac = bmesh.ops.create_cone(
@@ -979,7 +993,6 @@ def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dic
             fn.material_index = 0
         bmesh.ops.solidify(bm, geom=n_faces, thickness=0.008)
 
-        # Dark shadowed intake interior + gleaming silver metallic front fan spinner cone!
         res_int = bmesh.ops.create_cone(
             bm, cap_ends=True, cap_tris=False, segments=20,
             radius1=0.049, radius2=0.049, depth=0.016,
@@ -999,7 +1012,6 @@ def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dic
         for fsp in bm.faces:
             if all(v in spv for v in fsp.verts):
                 fsp.material_index = 3
-        # Metallic aft core exhaust nozzle
         res_nozz = bmesh.ops.create_cone(
             bm, cap_ends=True, cap_tris=False, segments=18,
             radius1=0.036, radius2=0.022, depth=0.09,
@@ -1010,68 +1022,100 @@ def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dic
             if all(v in nzv for v in fnz.verts):
                 fnz.material_index = 3
 
-    # 3. Tall Swept 90-Degree Vertical Tail Stabilizer Fin (Major Radar Corner Reflector!)
-    v_root = _airfoil_loop(0.0, 0.56, 0.065, chord=0.31, thick=0.032, is_vertical=True)
-    v_top = _airfoil_loop(0.0, 0.72, 0.425, chord=0.14, thick=0.016, is_vertical=True)
-    _add_lofted_wing(bm, v_root, v_top, mat_index=1)
+    v_base = _airfoil_loop(0.0, 0.52, 0.065, chord=0.28, thick=0.032, is_vertical=True)
+    v_top = _airfoil_loop(0.0, 0.72, 0.420, chord=0.11, thick=0.016, is_vertical=True)
+    _add_lofted_wing(bm, v_base, v_top, mat_index=1)
 
     jet_obj = _mesh_from_bm(
-        "Conv_Jet_Mesh", bm, [mat_silver, mat_navy, mat_dark, mat_fan], col, parent=root, smooth=True
+        "Conv_Jet_Body", bm, [mat_silver, mat_navy, mat_dark, mat_fan], col, parent=root, smooth=True
     )
-    es = jet_obj.modifiers.new("JetEdgeSplit", type="EDGE_SPLIT")
-    es.split_angle = math.radians(38.0)
+    es_j = jet_obj.modifiers.new("ConvJetEdgeSplit", type="EDGE_SPLIT")
+    es_j.split_angle = math.radians(40.0)
 
-    # Visible in BOTH Beat 2 (aerial contrast) AND Beat 5 (main-scene 90-deg tail explainer!)
     _key_visibility(jet_obj, [(221, 540), (1321, 1560)], total_frames)
 
-    cut_prev = {220, 540, 1320}
-    frames = sorted(
-        set(range(221, 541, 4)) | set(range(1321, 1561, 4)) | {221, 540, 1321, 1560}
+    cut_prev = {c - 1 for c in C.HARD_CUT_FRAMES}
+    key_frames = sorted(
+        set(range(221, 541, 4))
+        | set(range(1321, 1561, 4))
+        | {220, 221, 540, 541, 1320, 1321, 1560}
     )
-    for f in frames:
+    for f in key_frames:
         pos, rot_deg = C.conv_jet_pose_at(float(f))
         root.location = Vector(pos)
         root.rotation_euler = Euler(tuple(math.radians(a) for a in rot_deg), "XYZ")
         root.keyframe_insert("location", frame=f)
         root.keyframe_insert("rotation_euler", frame=f)
 
-        if f <= 540:
-            flare = C.smoothstep(285.0, 322.0, float(f)) * (0.72 + 0.28 * math.sin((f - 285.0) * 0.22))
+        if 221 <= f <= 540:
+            hit_w = C.smootherstep(295.0, 325.0, float(f)) * (1.0 - C.smootherstep(515.0, 540.0, float(f)))
+            pulse = 1.15 + 0.42 * math.sin((f - 318) * 0.35)
+        elif 1321 <= f <= 1560:
+            hit_w = C.smootherstep(1335.0, 1365.0, float(f)) * (1.0 - C.smootherstep(1535.0, 1560.0, float(f)))
+            pulse = 1.05 + 0.35 * math.sin((f - 1350) * 0.30)
         else:
-            flare = C.smoothstep(1340.0, 1372.0, float(f)) * (0.75 + 0.25 * math.sin((f - 1340.0) * 0.22))
+            hit_w = 0.0
+            pulse = 0.0
+
         for ev in (echo_s, echo_n):
-            ev.outputs[0].default_value = 1.55 * flare
+            ev.outputs[0].default_value = hit_w * pulse
             ev.outputs[0].keyframe_insert("default_value", frame=f)
 
-    ad = getattr(root, "animation_data", None)
-    if ad and ad.action:
-        for fc in C.iter_action_fcurves(ad.action):
+    ad_j = getattr(root, "animation_data", None)
+    if ad_j and ad_j.action:
+        for fc in C.iter_action_fcurves(ad_j.action):
             for kp in fc.keyframe_points:
                 if int(round(kp.co.x)) in cut_prev:
                     kp.interpolation = "CONSTANT"
 
-    return {"root": root, "mesh": jet_obj, "echo_val": echo_s}
+    return {"root": root, "body": jet_obj}
 
 
-def build_stealth_aircraft(col: bpy.types.Collection, total_frames: int = C.TOTAL_FRAMES) -> dict[str, Any]:
-    """Assemble Hero 172-ft Stealth Bomber (all 6 beats!) + Photoreal Conventional Jet (Beats 2 & 5)."""
+# ==============================================================================
+# MASTER ENTRY POINT
+# ==============================================================================
+def build_stealth_aircraft(
+    col: bpy.types.Collection,
+    total_frames: int = C.TOTAL_FRAMES,
+) -> dict[str, Any]:
+    """Build and keyframe the hero B-2 Stealth Bomber, S-ducts, titanium turbofans, and Conventional Jet."""
     root = bpy.data.objects.new("Stealth_Bomber_Root", None)
     root.empty_display_type = "PLAIN_AXES"
     col.objects.link(root)
 
-    mat_ram, xray_mix_val, scan_y_val = _mat_stealth_ram_xray(root)
-    mat_glass = _mat_cockpit_glass()
-    mat_exhaust = _mat_exhaust_trough()
+    xray_controls: list[tuple[Any, Any]] = []
+    mat_ram = _mat_stealth_ram_xray(root, xray_controls)
+    mat_glass = _mat_stealth_hull_zone(
+        "Mat_Stealth_CockpitGlass", (0.42, 0.28, 0.08), metallic=0.82, roughness=0.06,
+        root_obj=root, xray_controls=xray_controls, coat=0.85,
+        emit_col=(1.00, 0.72, 0.18), emit_str=0.22,
+    )
+    mat_exhaust = _mat_stealth_hull_zone(
+        "Mat_Stealth_ExhaustTrough", (0.14, 0.16, 0.20), metallic=0.90, roughness=0.24,
+        root_obj=root, xray_controls=xray_controls, coat=0.15,
+    )
     mat_nav_red = _mat_nav_light("Mat_Stealth_NavRed", (1.00, 0.12, 0.06), 1.90)
     mat_nav_grn = _mat_nav_light("Mat_Stealth_NavGreen", (0.10, 1.00, 0.34), 1.90)
+    mat_chine = _mat_stealth_hull_zone(
+        "Mat_Stealth_ChineTrim", (0.15, 0.17, 0.21), metallic=0.52, roughness=0.26,
+        root_obj=root, xray_controls=xray_controls, coat=0.35,
+    )
+    mat_marking = _mat_stealth_hull_zone(
+        "Mat_Stealth_TacticalMark", (0.20, 0.23, 0.27), metallic=0.35, roughness=0.34,
+        root_obj=root, xray_controls=xray_controls, coat=0.20,
+    )
+    mat_cavity = _mat_stealth_hull_zone(
+        "Mat_Stealth_IntakeCavity", (0.012, 0.015, 0.020), metallic=0.25, roughness=0.65,
+        root_obj=root, xray_controls=xray_controls, coat=0.05,
+    )
 
     hull_obj = _build_stealth_hull_mesh(
-        col, root, mat_ram, mat_glass, mat_exhaust, mat_nav_red, mat_nav_grn
+        col, root,
+        [mat_ram, mat_glass, mat_exhaust, mat_nav_red, mat_nav_grn, mat_chine, mat_marking, mat_cavity],
     )
     internals = _build_serpentine_sducts_and_turbines(col, root, total_frames)
     conv_jet = _build_conventional_jet(col, total_frames)
 
-    # Bomber stays visible across ALL 6 beats (including Beat 5 main-scene daylight explainer!)
     _key_visibility(hull_obj, [(1, total_frames)], total_frames)
 
     cut_prev = {c - 1 for c in C.HARD_CUT_FRAMES}
@@ -1085,10 +1129,12 @@ def build_stealth_aircraft(col: bpy.types.Collection, total_frames: int = C.TOTA
 
         xw = C.xray_skin_weight(float(f))
         sp = C.xray_scan_progress(float(f))
-        xray_mix_val.outputs[0].default_value = xw
-        xray_mix_val.outputs[0].keyframe_insert("default_value", frame=f)
-        scan_y_val.outputs[0].default_value = C.lerp(-0.72, +0.62, sp)
-        scan_y_val.outputs[0].keyframe_insert("default_value", frame=f)
+        sy_v = C.lerp(-0.72, +0.62, sp)
+        for xm_node, sy_node in xray_controls:
+            xm_node.outputs[0].default_value = xw
+            xm_node.outputs[0].keyframe_insert("default_value", frame=f)
+            sy_node.outputs[0].default_value = sy_v
+            sy_node.outputs[0].keyframe_insert("default_value", frame=f)
 
     ad = getattr(root, "animation_data", None)
     if ad and ad.action:

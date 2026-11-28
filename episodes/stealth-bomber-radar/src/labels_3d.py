@@ -90,7 +90,7 @@ _LABEL_SPECS: dict[str, dict[str, Any]] = {
     "tilted_mirror": {
         "char_h_ndc": 0.036,
         "theme": "cyan",
-        "attach_norm": (+0.22, -0.50),
+        "attach_norm": (-0.16, -0.50),
     },
     "bumblebee_size": {
         "char_h_ndc": 0.036,
@@ -249,7 +249,7 @@ def _target_world_pos(key: str, f: float) -> tuple[float, float, float]:
         return (bx, by, bz + 0.04)
     if key == "tilted_mirror":
         fx, fy, fz = C.STAGE["b5_bot_facet_pos"]
-        return (fx - 0.14, fy - 0.06, fz + 0.08)
+        return (fx - 0.24, fy - 0.08, fz + 0.08)
     if key == "bumblebee_size":
         sx, sy, sz = C.STAGE["b6_scope_pos"]
         return (sx + 0.075, sy - 0.02, sz + 0.04)
@@ -265,7 +265,7 @@ def _plaque_ndc_center(key: str, f: float, st: dict[str, Any]) -> tuple[float, f
         "s_ducts": (0.00, +0.58),
         "ram_coating": (-0.10, +0.58),
         "rcs_blip": (0.00, +0.58),
-        "tilted_mirror": (0.00, +0.60),
+        "tilted_mirror": (-0.24, +0.60),
         "bumblebee_size": (-0.18, +0.62),
     }
     if key not in centers:
