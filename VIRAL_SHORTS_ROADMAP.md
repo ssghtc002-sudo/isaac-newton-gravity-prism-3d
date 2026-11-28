@@ -12,7 +12,7 @@ Permanent studio memory for the next 30 YouTube Shorts. Every episode follows [A
 | 2 | `underwater-bullets` | Why Bullets Stop Dead Just 3 Feet Underwater | ✅ 4K (`underwater-bullets-4k`) |
 | 3 | `bulletproof-vest-myth` | Why Bulletproof Vests DON'T Send You Flying Backward | ✅ 4K (`bulletproof-vest-myth-4k`) |
 | 4 | `stealth-bomber-radar` | How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar | ✅ 4K (`stealth-bomber-radar-4k`) |
-| 5 | `helicopter-autorotation` | Why a Helicopter With a Dead Engine DOESN'T Fall Like a Rock | ⬜ TODO |
+| 5 | `helicopter-autorotation` | Why a Helicopter With a Dead Engine DOESN'T Fall Like a Rock | 🟡 IN PROGRESS |
 | 6 | `knuckle-crack` | What Actually Happens When You Crack Your Knuckles | ⬜ TODO |
 | 7 | `painkiller-pain` | How a Painkiller "Knows" Where Your Pain Is | ⬜ TODO |
 | 8 | `braces-bone` | How Braces Drag Your Teeth Through Solid Bone | ⬜ TODO |
