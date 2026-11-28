@@ -106,10 +106,10 @@ STAGE: dict[str, Any] = {
 # Widened to X = +/-0.40 m for zero shoulder/arm crossover + clean physical stick/collective grips!
 CREW: dict[str, Any] = {
     "pilot_pos": (0.40, 0.34, 0.00),
-    "pilot_yaw_deg": 180.0,
+    "pilot_yaw_deg": 0.0,
     "pilot_eye_z": 1.38,
     "copilot_pos": (-0.40, 0.34, 0.00),
-    "copilot_yaw_deg": 180.0,
+    "copilot_yaw_deg": 0.0,
     "copilot_eye_z": 1.38,
 }
 

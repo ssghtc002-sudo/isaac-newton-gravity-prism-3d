@@ -399,8 +399,8 @@ def _pose_arms_fk(
             pb_tw.keyframe_insert("rotation_quaternion", frame=frame)
     mc.apply_arm_with_clavicle(rig, "L", ua_l, la_l, frame=frame)
     mc.apply_arm_with_clavicle(rig, "R", ua_r, la_r, frame=frame)
-    mc.apply_hand_gesture(rig, "L", hand_l, frame=frame)
-    mc.apply_hand_gesture(rig, "R", hand_r, frame=frame)
+    mc.apply_hand_gesture(rig, "L", hand_l.lower(), frame=frame)
+    mc.apply_hand_gesture(rig, "R", hand_r.lower(), frame=frame)
 
 
 def _attach_to_bone(obj: bpy.types.Object, rig: bpy.types.Object, bone_name: str) -> None:
@@ -430,17 +430,18 @@ def _build_flight_harness_and_collar(
     sc = rig.matrix_world @ rig.pose.bones["spine03"].head
     bm = bmesh.new()
 
-    # High zipped Nomex collar band hiding neckline cleanly
-    _add_box_bm(bm, (sc.x, sc.y - 0.015, sc.z + 0.135), (0.145, 0.135, 0.068), mat_idx=3, bevel_w=0.016)
-    # Two shoulder harness webbing straps descending across chest to center quick-release buckle!
+    # High zipped Nomex collar band + sternum flight-suit placket clearly OUTSIDE chest mesh
+    _add_box_bm(bm, (sc.x, sc.y - 0.045, sc.z + 0.168), (0.164, 0.155, 0.104), mat_idx=3, bevel_w=0.016)
+    _add_box_bm(bm, (sc.x, sc.y - 0.148, sc.z + 0.078), (0.155, 0.056, 0.175), mat_idx=3, bevel_w=0.012)
+    # Two shoulder harness webbing straps (-8 deg tilts top forward matching chest slope, never sinking into torso!)
     for sx in (-1.0, +1.0):
-        _add_box_bm(bm, (sc.x + sx * 0.092, sc.y - 0.105, sc.z + 0.01), (0.044, 0.018, 0.26), mat_idx=0, bevel_w=0.004, rot_deg=(6.0, 0.0, sx * -10.0))
+        _add_box_bm(bm, (sc.x + sx * 0.095, sc.y - 0.148, sc.z + 0.015), (0.046, 0.022, 0.27), mat_idx=0, bevel_w=0.004, rot_deg=(-8.0, 0.0, sx * -10.0))
         # High-visibility rescue crimson shoulder tab
-        _add_box_bm(bm, (sc.x + sx * 0.135, sc.y - 0.04, sc.z + 0.125), (0.062, 0.042, 0.014), mat_idx=2, bevel_w=0.003)
+        _add_box_bm(bm, (sc.x + sx * 0.135, sc.y - 0.075, sc.z + 0.138), (0.064, 0.044, 0.016), mat_idx=2, bevel_w=0.003)
     # Center circular aviation rotary quick-release harness buckle
-    _add_box_bm(bm, (sc.x, sc.y - 0.118, sc.z - 0.10), (0.066, 0.024, 0.066), mat_idx=1, bevel_w=0.010)
+    _add_box_bm(bm, (sc.x, sc.y - 0.170, sc.z - 0.095), (0.068, 0.026, 0.068), mat_idx=1, bevel_w=0.010)
     # Rescue chest name badge patch
-    _add_box_bm(bm, (sc.x + 0.095, sc.y - 0.112, sc.z + 0.06), (0.056, 0.008, 0.024), mat_idx=2, bevel_w=0.002)
+    _add_box_bm(bm, (sc.x + 0.096, sc.y - 0.168, sc.z + 0.06), (0.058, 0.012, 0.026), mat_idx=2, bevel_w=0.002)
 
     h_obj = _new_bmesh_obj(name, bm, [mat_strap, mat_metal, mat_red, mat_navy], Matrix.Identity(4), col, smooth=True)
     _attach_to_bone(h_obj, rig, "spine03")
@@ -461,13 +462,13 @@ def _build_rescue_helmet(
 
     bpy.context.view_layer.update()
     hc = rig.matrix_world @ rig.pose.bones["head"].head
-    cz = hc.z + 0.112
-    cy = hc.y + 0.022
+    cz = hc.z + 0.098
+    cy = hc.y + 0.006
     bm = bmesh.new()
 
     bmesh.ops.create_uvsphere(
         bm, u_segments=24, v_segments=16, radius=1.0,
-        matrix=Matrix.Translation((hc.x, cy, cz)) @ Matrix.Diagonal((0.106, 0.118, 0.108, 1.0)),
+        matrix=Matrix.Translation((hc.x, cy, cz)) @ Matrix.Diagonal((0.104, 0.116, 0.104, 1.0)),
     )
     del_faces = []
     for f in bm.faces:
@@ -482,17 +483,17 @@ def _build_rescue_helmet(
         bmesh.ops.delete(bm, geom=del_faces, context="FACES")
 
     # Raised curved dark glossy visor housing (catches red ENG OUT reflections!)
-    _add_box_bm(bm, (hc.x, cy - 0.095, cz + 0.044), (0.148, 0.048, 0.046), mat_idx=2, bevel_w=0.012, rot_deg=(-20.0, 0.0, 0.0))
+    _add_box_bm(bm, (hc.x, cy - 0.095, cz + 0.042), (0.144, 0.046, 0.044), mat_idx=2, bevel_w=0.012, rot_deg=(-20.0, 0.0, 0.0))
 
-    # Padded comms earcups + flexible boom microphone curving to mouth corner
+    # Padded comms earcups + flexible boom microphone curving cleanly to mouth corner (below eyes!)
     for sx in (-1.0, +1.0):
-        _add_box_bm(bm, (hc.x + sx * 0.102, cy - 0.004, hc.z + 0.072), (0.030, 0.068, 0.082), mat_idx=3, bevel_w=0.008)
-    p0 = Vector((hc.x - 0.098, cy - 0.018, hc.z + 0.060))
-    p1 = Vector((hc.x - 0.075, cy - 0.118, hc.z + 0.038))
-    p2 = Vector((hc.x - 0.024, cy - 0.125, hc.z + 0.036))
-    _add_strut_bm(bm, p0, p1, 0.0045, mat_idx=3, segs=8)
-    _add_strut_bm(bm, p1, p2, 0.0045, mat_idx=3, segs=8)
-    _add_box_bm(bm, (p2.x, p2.y, p2.z), (0.022, 0.016, 0.016), mat_idx=3, bevel_w=0.004)
+        _add_box_bm(bm, (hc.x + sx * 0.100, cy - 0.004, hc.z + 0.062), (0.028, 0.066, 0.078), mat_idx=3, bevel_w=0.008)
+    p0 = Vector((hc.x - 0.096, cy - 0.018, hc.z + 0.026))
+    p1 = Vector((hc.x - 0.076, cy - 0.108, hc.z - 0.002))
+    p2 = Vector((hc.x - 0.030, cy - 0.118, hc.z - 0.006))
+    _add_strut_bm(bm, p0, p1, 0.0042, mat_idx=3, segs=8)
+    _add_strut_bm(bm, p1, p2, 0.0042, mat_idx=3, segs=8)
+    _add_box_bm(bm, (p2.x, p2.y, p2.z), (0.020, 0.015, 0.015), mat_idx=3, bevel_w=0.004)
 
     h_obj = _new_bmesh_obj(name, bm, [mat_w, mat_r, mat_v, mat_b], Matrix.Identity(4), col, smooth=True)
     _attach_to_bone(h_obj, rig, "head")
@@ -571,18 +572,18 @@ def _build_cockpit_set(col: bpy.types.Collection, total_frames: int) -> dict[str
         _add_box_bm(bm, (sx, 0.56, 0.96), (0.44, 0.10, 0.88), mat_idx=2, bevel_w=0.016, rot_deg=(-7.0, 0.0, 0.0))
         _add_box_bm(bm, (sx, 0.59, 1.44), (0.26, 0.10, 0.22), mat_idx=0, bevel_w=0.012)
 
-    # 5. Sculpted Dark Instrument Glare-Shield + Dual MFDs + Pulsing `ENG OUT` Strip + Dial Housing!
-    _add_box_bm(bm, (0.0, -0.36, 0.94), (1.58, 0.36, 0.22), mat_idx=0, bevel_w=0.018, rot_deg=(8.0, 0.0, 0.0))
-    # Dual Glowing Aviation MFD Displays (left & right of center tachometer)
-    _add_box_bm(bm, (-0.42, -0.22, 0.96), (0.30, 0.04, 0.18), mat_idx=4, bevel_w=0.006, rot_deg=(12.0, 0.0, 0.0))
-    _add_box_bm(bm, (0.42, -0.22, 0.96), (0.30, 0.04, 0.18), mat_idx=4, bevel_w=0.006, rot_deg=(12.0, 0.0, 0.0))
-    # Prominent Pulsing Crimson `ENG OUT / MASTER CAUTION` Annunciator Bar right on top of glare-shield!
-    _add_box_bm(bm, (0.0, -0.32, 1.075), (0.38, 0.06, 0.048), mat_idx=5, bevel_w=0.008)
+    # 5. Sleek Low-Profile Instrument Glare-Shield + Forward-Facing Dual MFDs + Pulsing `ENG OUT` Strip + Dial Housing!
+    _add_box_bm(bm, (0.0, -0.21, 0.885), (1.58, 0.24, 0.15), mat_idx=0, bevel_w=0.016, rot_deg=(8.0, 0.0, 0.0))
+    # Dual Glowing Aviation MFD Displays flush on front -Y instrument face (100% visible to camera!)
+    _add_box_bm(bm, (-0.42, -0.345, 0.900), (0.28, 0.025, 0.12), mat_idx=4, bevel_w=0.005, rot_deg=(12.0, 0.0, 0.0))
+    _add_box_bm(bm, (0.42, -0.345, 0.900), (0.28, 0.025, 0.12), mat_idx=4, bevel_w=0.005, rot_deg=(12.0, 0.0, 0.0))
+    # Prominent Pulsing Crimson `ENG OUT / MASTER CAUTION` Annunciator Bar right on top of cowl crest!
+    _add_box_bm(bm, (0.0, -0.29, 0.985), (0.36, 0.055, 0.044), mat_idx=5, bevel_w=0.008)
     # Recessed circular bezel housing for the Live Physical 3D Dual-Tachometer Gauge (facing -Y/+Z toward camera!)
-    _add_box_bm(bm, (0.0, -0.24, 0.98), (0.22, 0.07, 0.18), mat_idx=7, bevel_w=0.010, rot_deg=(14.0, 0.0, 0.0))
+    _add_box_bm(bm, (0.0, -0.340, 0.905), (0.20, 0.035, 0.14), mat_idx=7, bevel_w=0.008, rot_deg=(14.0, 0.0, 0.0))
     # Green RPM Arc & Red Warning Arc strips on the 3D Tachometer Dial face
-    _add_box_bm(bm, (0.055, -0.275, 1.02), (0.055, 0.012, 0.020), mat_idx=4, bevel_w=0.002)
-    _add_box_bm(bm, (-0.055, -0.275, 0.95), (0.055, 0.012, 0.020), mat_idx=5, bevel_w=0.002)
+    _add_box_bm(bm, (0.052, -0.362, 0.940), (0.052, 0.010, 0.018), mat_idx=4, bevel_w=0.002)
+    _add_box_bm(bm, (-0.052, -0.362, 0.875), (0.052, 0.010, 0.018), mat_idx=5, bevel_w=0.002)
 
     cockpit_obj = _new_bmesh_obj(
         "Char_Heli_CockpitFrame",
@@ -601,14 +602,14 @@ def _build_cockpit_set(col: bpy.types.Collection, total_frames: int) -> dict[str
 
     # 7. LIVE ANIMATED 3D DUAL-TACHOMETER NEEDLES (`ENG` crashes 100% -> 0% in Beat 1B; `ROTOR` stays green!)
     bm_n_eng = bmesh.new()
-    _add_box_bm(bm_n_eng, (0.0, -0.006, 0.032), (0.010, 0.008, 0.068), mat_idx=0, bevel_w=0.002)
+    _add_box_bm(bm_n_eng, (0.0, -0.006, 0.028), (0.009, 0.008, 0.058), mat_idx=0, bevel_w=0.002)
     needle_eng = _new_bmesh_obj(
-        "Char_Heli_Needle_ENG", bm_n_eng, [mat_warn], Matrix.Translation((0.0, -0.285, 0.985)), col, smooth=True, no_shadow=True,
+        "Char_Heli_Needle_ENG", bm_n_eng, [mat_warn], Matrix.Translation((0.0, -0.368, 0.905)), col, smooth=True, no_shadow=True,
     )
     bm_n_rot = bmesh.new()
-    _add_box_bm(bm_n_rot, (0.0, -0.010, 0.030), (0.009, 0.008, 0.064), mat_idx=0, bevel_w=0.002)
+    _add_box_bm(bm_n_rot, (0.0, -0.010, 0.026), (0.008, 0.008, 0.054), mat_idx=0, bevel_w=0.002)
     needle_rot = _new_bmesh_obj(
-        "Char_Heli_Needle_ROTOR", bm_n_rot, [mat_mfd], Matrix.Translation((0.0, -0.290, 0.985)), col, smooth=True, no_shadow=True,
+        "Char_Heli_Needle_ROTOR", bm_n_rot, [mat_mfd], Matrix.Translation((0.0, -0.372, 0.905)), col, smooth=True, no_shadow=True,
     )
     for f in sorted(set(range(C.B1_COCKPIT_START, 241, 3)) | set(range(1291, C.B5_COCKPIT_END + 1, 5)) | {116, 240, 1291, C.B5_COCKPIT_END}):
         # Map 0..100% -> +75 deg (left red zone) .. -65 deg (right green zone) around Y axis!
@@ -621,9 +622,9 @@ def _build_cockpit_set(col: bpy.types.Collection, total_frames: int) -> dict[str
 
     # 8. Beat 5A Glowing 3D Radar Altimeter Bar (visibly drops as roof approaches from 125 ft -> 32 ft!)
     bm_alt = bmesh.new()
-    _add_box_bm(bm_alt, (0.0, 0.0, 0.065), (0.028, 0.012, 0.130), mat_idx=0, bevel_w=0.003)
+    _add_box_bm(bm_alt, (0.0, 0.0, 0.055), (0.026, 0.012, 0.110), mat_idx=0, bevel_w=0.003)
     alt_bar = _new_bmesh_obj(
-        "Char_Heli_RadarAltBar", bm_alt, [mat_cyan], Matrix.Translation((-0.20, -0.285, 0.92)), col, smooth=True, no_shadow=True,
+        "Char_Heli_RadarAltBar", bm_alt, [mat_cyan], Matrix.Translation((-0.20, -0.366, 0.845)), col, smooth=True, no_shadow=True,
     )
     for f in range(1291, C.B5_COCKPIT_END + 1, 5):
         frac = C.clamp(C.radar_alt_ft_at(float(f)) / 130.0, 0.12, 1.0)
@@ -702,12 +703,11 @@ def _animate_pilot(rig: bpy.types.Object) -> None:
                 eye_pitch = -6.0
 
             _pose_seated_body(rig, torso_fwd, -5.0, head_pitch, head_yaw, frame=f)
-            # ZERO crossover! Left arm stays cleanly at Pilot's left hip/collective (X=+0.12..+0.30)!
-            ua_l = (C.lerp(24.0, 14.0, slam_u), C.lerp(-6.0, -4.0, slam_u), C.lerp(-8.0, -6.0, slam_u))
-            la_l = (C.lerp(42.0, 16.0, slam_u), 0.0, 0.0)
-            # Right arm cleanly forward-down gripping center-right Cyclic Stick (X=+0.40)!
-            ua_r = (26.0, 4.0, 8.0)
-            la_r = (48.0, 0.0, -8.0)
+            # Left arm reaches down-forward onto center-right Cyclic Stick (Z~1.02); Right arm slams Collective!
+            ua_l = (-14.0, 32.0, -14.0)
+            la_l = (-34.0, 8.0, -22.0)
+            ua_r = (C.lerp(-18.0, -10.0, slam_u), -32.0, 12.0)
+            la_r = (C.lerp(-32.0, -18.0, slam_u), -6.0, 16.0)
             _pose_arms_fk(rig, ua_l, la_l, ua_r, la_r, "FIST", "FIST", frame=f)
 
             # Deeply furrowed emergency brows + tense gasping/calling-out jaw!
@@ -722,12 +722,11 @@ def _animate_pilot(rig: bpy.types.Object) -> None:
             head_yaw = C.lerp(-3.0, -8.0, relief_u)
             _pose_seated_body(rig, torso_fwd, -4.0, head_pitch, head_yaw, frame=f)
 
-            # Left hand firmly HAULS collective pitch lever UP for 30-ft flare!
-            ua_l = (C.lerp(15.0, 38.0, pull_u), C.lerp(-4.0, -8.0, pull_u), -6.0)
-            la_l = (C.lerp(18.0, 62.0, pull_u), 0.0, 0.0)
-            # Right hand pulls cyclic gently aft for nose-up flare
-            ua_r = (C.lerp(24.0, 18.0, pull_u), 5.0, 8.0)
-            la_r = (C.lerp(46.0, 58.0, pull_u), 0.0, -6.0)
+            # Left hand holds & flares cyclic aft; Right hand firmly HAULS collective lever UP for 30-ft flare!
+            ua_l = (C.lerp(-14.0, -12.0, pull_u), 32.0, -14.0)
+            la_l = (C.lerp(-34.0, -40.0, pull_u), 8.0, -22.0)
+            ua_r = (C.lerp(-10.0, -24.0, pull_u), -32.0, 12.0)
+            la_r = (C.lerp(-20.0, -42.0, pull_u), -6.0, 16.0)
             _pose_arms_fk(rig, ua_l, la_l, ua_r, la_r, "FIST", "FIST", frame=f)
 
             # Gritty laser focus -> authentic relieved exhale & half-smile!
@@ -749,17 +748,17 @@ def _animate_copilot(rig: bpy.types.Object) -> None:
     for f in kfs:
         ff = float(f)
         if f <= 240:
-            pt_u = C.smootherstep(138.0, 182.0, ff)
+            pt_u = C.smootherstep(122.0, 158.0, ff)
             head_yaw = C.lerp(18.0, 8.0, pt_u)
             head_pitch = C.lerp(7.0, 11.0, pt_u)
             _pose_seated_body(rig, 9.5, 6.0, head_pitch, head_yaw, frame=f)
 
-            # Left arm braces outward/forward on left glare-shield (ZERO crossover!)
-            ua_l = (24.0, -10.0, -10.0)
-            la_l = (46.0, 0.0, 6.0)
-            # Right arm points decisively FORWARD-DOWN toward the rooftop helipad (strictly stays X < -0.18!)
-            ua_r = (C.lerp(24.0, 42.0, pt_u), C.lerp(6.0, 2.0, pt_u), C.lerp(6.0, 4.0, pt_u))
-            la_r = (C.lerp(46.0, 22.0, pt_u), 0.0, -4.0)
+            # Left arm tucked comfortably down onto CoPilot's side-console / instrument brace (Z~1.01)
+            ua_l = (-14.0, 32.0, -12.0)
+            la_l = (-34.0, 6.0, -18.0)
+            # Right arm points decisively FORWARD toward rooftop helipad ahead
+            ua_r = (C.lerp(-20.0, -44.0, pt_u), -24.0, C.lerp(12.0, 22.0, pt_u))
+            la_r = (C.lerp(-36.0, -14.0, pt_u), 0.0, C.lerp(14.0, 10.0, pt_u))
             _pose_arms_fk(rig, ua_l, la_l, ua_r, la_r, "FIST", "POINT", frame=f)
 
             jaw = 7.5 + 3.0 * math.sin((ff - 116.0) * 0.28)
@@ -770,10 +769,10 @@ def _animate_copilot(rig: bpy.types.Object) -> None:
             head_pitch = 4.0 + 4.5 * math.sin(math.pi * relief_u)
             _pose_seated_body(rig, 7.0, 8.0, head_pitch, C.lerp(14.0, 20.0, relief_u), frame=f)
 
-            ua_l = (24.0, -8.0, -10.0)
-            la_l = (44.0, 0.0, 6.0)
-            ua_r = (26.0, 4.0, 6.0)
-            la_r = (50.0, 0.0, -4.0)
+            ua_l = (-14.0, 32.0, -12.0)
+            la_l = (-34.0, 6.0, -18.0)
+            ua_r = (-16.0, -30.0, 14.0)
+            la_r = (-36.0, -6.0, 16.0)
             _pose_arms_fk(rig, ua_l, la_l, ua_r, la_r, "OPEN", "FIST", frame=f)
 
             jaw = C.lerp(7.0, 1.5, relief_u) if call_u > 0.1 else 2.5
@@ -788,22 +787,76 @@ def _animate_copilot(rig: bpy.types.Object) -> None:
             )
 
 
+def _build_aviator_cfg(height_m: float, iris_rgb: tuple[float, float, float]) -> dict[str, Any]:
+    """V12 verified MakeHuman config for rescue aviators."""
+    return {
+        "gender": 1.0,
+        "age": 0.56,
+        "muscle": 0.62,
+        "weight": 0.46,
+        "height": 0.58,
+        "caucasian": 1.0,
+        "african": 0.0,
+        "asian": 0.0,
+        "target_height_m": float(height_m),
+        "skin_assets": ["middleage_caucasian_male.mhmat", "old_caucasian_male.mhmat"],
+        "eyebrow_assets": ["eyebrow002.mhclo", "eyebrow003.mhclo", "eyebrow001.mhclo"],
+        "hair_assets": ["short04.mhclo", "short02.mhclo", "short01.mhclo"],
+        "hair_tint_rgb": (0.10, 0.08, 0.06),
+        "hair_tint_fac": 0.70,
+        "hair_value_boost": 0.72,
+        "hair_roughness": 0.30,
+        "brow_tint_fac": 0.60,
+        "iris_major_rgb": iris_rgb,
+        "iris_minor_rgb": (iris_rgb[0] * 0.45, iris_rgb[1] * 0.45, iris_rgb[2] * 0.45),
+        "shirt_assets": ["mindfront_lusekofta.mhclo"],
+        "pants_assets": ["mindfront_male_trousers_2.mhclo", "mindfront_male_trousers_1.mhclo"],
+        "shoe_assets": ["toigo_ankle_boots_male.mhclo", "punkduck_medieval_boots.mhclo"],
+    }
+
+
+def _spawn_aviator(
+    name: str,
+    col: bpy.types.Collection,
+    location: tuple[float, float, float],
+    yaw_deg: float,
+    height_m: float,
+    iris_color: tuple[float, float, float],
+) -> tuple[bpy.types.Object, bpy.types.Object, dict[str, bpy.types.Object]]:
+    cfg = _build_aviator_cfg(height_m=height_m, iris_rgb=iris_color)
+    # Shift floor_z down -0.335 m so seated pelvis sits cleanly in bucket seat & Pilot helmet clears Z=1.65 m roof deck
+    res = mc.create_realistic_scientist(
+        name=name,
+        floor_z=float(location[2]) - 0.335,
+        start_xy=(float(location[0]), float(location[1])),
+        yaw_deg=float(yaw_deg),
+        cfg=cfg,
+    )
+    rig: bpy.types.Object = res["rig"]
+    body: bpy.types.Object = res["body"]
+    equipped: dict[str, bpy.types.Object] = res["equipped"]
+    _link(rig, col)
+    _link(body, col)
+    for o in equipped.values():
+        if o is not None:
+            _link(o, col)
+    bpy.context.view_layer.update()
+    return rig, body, equipped
+
+
 def build_characters(col: bpy.types.Collection, total_frames: int = C.TOTAL_FRAMES) -> dict[str, Any]:
     """Build enclosed 1:1 Rescue Cockpit + 2 Photoreal 4K MPFB2 Rescue Aviators in Matte Nomex Flight Suits."""
     cockpit = _build_cockpit_set(col, total_frames)
 
     # 1. Pilot (Right Seat PIC, X = +0.40 m, facing -Y)
     px, py, pz = C.CREW["pilot_pos"]
-    pilot_rig, pilot_body, pilot_eq = mc.build_mpfb_character(
+    pilot_rig, pilot_body, pilot_eq = _spawn_aviator(
         name="Heli_Pilot",
-        collection=col,
+        col=col,
         location=(px, py, pz),
         yaw_deg=float(C.CREW["pilot_yaw_deg"]),
         height_m=1.78,
-        hair_preset="short_neat",
         iris_color=(0.18, 0.36, 0.54),
-        shirt_color=(0.045, 0.068, 0.118),
-        pants_color=(0.045, 0.068, 0.118),
     )
     _enforce_v12_eyes(pilot_eq)
     _override_flight_suit_wardrobe(pilot_eq, "Pilot")
@@ -814,16 +867,13 @@ def build_characters(col: bpy.types.Collection, total_frames: int = C.TOTAL_FRAM
 
     # 2. Co-Pilot (Left Seat, X = -0.40 m, facing -Y)
     cx, cy, cz = C.CREW["copilot_pos"]
-    copilot_rig, copilot_body, copilot_eq = mc.build_mpfb_character(
+    copilot_rig, copilot_body, copilot_eq = _spawn_aviator(
         name="Heli_CoPilot",
-        collection=col,
+        col=col,
         location=(cx, cy, cz),
         yaw_deg=float(C.CREW["copilot_yaw_deg"]),
         height_m=1.75,
-        hair_preset="short_neat",
         iris_color=(0.38, 0.28, 0.14),
-        shirt_color=(0.045, 0.068, 0.118),
-        pants_color=(0.045, 0.068, 0.118),
     )
     _enforce_v12_eyes(copilot_eq)
     _override_flight_suit_wardrobe(copilot_eq, "CoPilot")
