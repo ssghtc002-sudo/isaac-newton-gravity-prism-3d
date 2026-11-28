@@ -1,6 +1,22 @@
-# AGENTS.md — 3D Science & Action Short Production Playbook (V11 Viral Shorts Standard)
+# AGENTS.md — 3D Science & Action Short Production Playbook (V12 Viral Shorts Standard)
 
-Mandatory engineering standards learned and verified across **Scientist #9 (Isaac Newton)**, **Scientist #10 (Benjamin Franklin)**, **How Stitches Work V2**, and **How a Grenade Works (Rajinikanth Swag Cut)**. Every agent working on 3D scenes, characters, shaders, audio, framing, or cloud rendering MUST follow these rules from Frame 1.
+Mandatory engineering & creative standards verified across **Episode #1–#16 (`fighter-jet-ejection`, `falling-elevator`)** plus a **10-Short empirical breakdown of `@zackdfilms`** (`8R9-se0PJmQ`, `XlN1Ms4T6NU`, `RwYfQpbhpi0`, `1Tdmv3pWopU`, `2QIBEpASFJQ`, `IBstPhjKTJs`, `UjhTobLcDio`, `ZQob0-WKtR0`, `COyHk-qhq8k`, `wavxRZZNgaQ`). Every agent working on scripts, voiceover, camera, shaders, 3D graphics, subtitles, or Modal 4K rendering MUST follow V12 from Frame 1.
+
+---
+
+## 0. `@zackdfilms` Viral Craft Blueprint (Mandatory Script, Graphics, Camera & Audio Formula)
+Apply this proven 10-Short formula to every new episode:
+- **Script & Voiceover Cadence (`85–125 words` for `30s`, `~2.8–3.3 words/sec`)**:
+  - **Sentence 1 In-Medias-Res Hook (`0–3s`)**: Jump straight into action or a concrete premise (`"If you go through..."`, `"He shot the pistol..."`, `"You strap..."`). Zero greetings or intros.
+  - **Cause-and-Effect Escalation**: Use tight 8–12 word beats connected by crisp pivots (`"But..."`, `"Instead..."`, `"So..."`, `"Now..."`) toward a twist, engineering loophole, malfunction, or dark origin payoff. Match voiceover POV to **2nd-person `"you/your"`** for explainer/survival guides and **3rd-person past** for real events.
+  - **Calm Deadpan Authority**: Deliver narration smoothly, neutrally, and clearly (`edge-tts`) with **zero dead air** — let calm voice contrast against high-stakes action, layered with crisp action-synced **Foley SFX** (clicks, fractures, snaps, sub-drops).
+- **Camera & Motion Grammar (`cinema_camera.py`)**:
+  - **Never Static**: Keep camera motion continuous — action-locked projectile/mechanism tracking, shallow-DOF macro close-ups (`f/2.8–4.0` on pure visual macro beats; widen to `f/7.1+` whenever floating 3D labels are onscreen!), fast whip-pans / match cuts, and clear juxtaposition between tight macro detail and wide context shots.
+- **Clean Stylized Backdrops, Rim Lighting & Minimal Visual Cues (`*_env.py`, `labels_3d.py`)**:
+  - **Two Backdrop Modes**: (a) Clean **Blue/Cyan Studio Blueprint + Grid Floor** for inventions/mechanics, or (b) **Dark Moody Architectural Interior** lit by strong practicals + cool cyan/blue **Rim Light** so hero geometry pops at high contrast.
+  - **Clean Minimal 3D Diagrams**: Prefer glowing Fresnel highlights, cutaways, directional 3D arrows, and **ultra-short `1–3 word` callouts** over wordy plaques.
+- **Lower-Third Punch Captions (`subtitles/subtitles.ass`)**:
+  - Burned-in **1–4 word chunks** synced to narration cadence, bold clean sans-serif white with crisp dark outline (no bulky boxes), centered **~70–75% down** (`NDC Y ≈ -0.45 .. -0.58`) safely above Shorts bottom UI chrome, with selective amber/crimson highlights on high-stakes numbers/words.
 
 ---
 
@@ -72,8 +88,8 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
   - Use `edge-tts` studio neural voices (e.g., `en-US-BrianNeural` narrator, `en-GB-ThomasNeural` / `en-GB-RyanNeural` / period-appropriate accents) instead of sped-up `1.44x` Kokoro int8.
 - **Zero Word Truncation**:
   - Never hard-slice (`[:max_samples]`) speech arrays to fit a beat. Use natural comma phrasing (avoid mid-line `!`/`.` silence pauses) + adaptive gentle `ffmpeg atempo` (`<= 1.12x`) + generously sized `timeline.json` beat windows.
-- **Broadcast Mix Targets**:
-  - Vocal-pocket EQ cut on BGM (`250–3500 Hz`), `-9.5 dB` sidechain BGM ducking under narration, `-14.0 LUFS` integrated loudness, true peak `<= -1.5 dBFS`.
+- **Broadcast Mix & 4K Audio Targets**:
+  - Master at **`48000 Hz` stereo**, vocal-pocket EQ cut on BGM (`250–3500 Hz`), `-9.5 dB` sidechain BGM ducking under narration, `-14.0 LUFS` integrated loudness, true peak `<= -1.5 dBFS`, encoded in final MP4 as **`AAC 320 kbps` @ `48 kHz`** (`-b:a 320k -ar 48000`).
   - Always verify generated `master_audio.wav` durations against `voice_manifest.json` and `subtitles/subtitles.ass` karaoke timings.
 
 ---
@@ -83,9 +99,9 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
   - All **NEW YouTube Shorts** MUST default to **`60 fps`** (`FPS = 60`, `TOTAL_FRAMES = 1800` for `30.0s`) — ultra-smooth buttery motion on `60Hz/120Hz` mobile displays AND unlocks YouTube's highest **4K 60fps high-bitrate codec tier** (~50% higher bitrate for razor-sharp explosions, X-ray rotations, and fast action!).
 - **Unified Studio Episodes Architecture (Zero Repeated Modal Secret Setup!)**:
   - Place all new shorts inside `ssghtc002-sudo/isaac-newton-gravity-prism-3d/episodes/<episode-name>/` and render via the shared workflow `.github/workflows/render-episode-4k.yml` (`-f episode=<episode-name> -f workers=10 -f samples=16 -f upscale_4k=true`), which automatically reuses the repo's already-configured `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` and publishes directly to GitHub Release tag `<episode-name>-4k` (`https://github.com/ssghtc002-sudo/isaac-newton-gravity-prism-3d/releases/download/<episode-name>-4k/<safe_name>_4k.mp4`).
-- **Default Pipeline = Modal 10-GPU Parallel Render (`4K 60fps`)**:
-  - Render native **Full HD (`1080×1920`, `scale=100%`, `60 fps`, Cycles OPTIX + GPU OIDN)** across `10` parallel Modal GPUs (note: increase Modal chunk timeout if needed for `1800` frames).
-  - Export **True 4K (`2160×3840`, `60 fps`)** Lanczos ARRI-Alexa finished MP4 (`libx264`, `High@L5.2` for full 4K@60fps compliance, `CRF 15`, `yuv420p`, `AAC 192k`, `-movflags +faststart` for instant mobile/Reels/Shorts playback).
+- **Default Pipeline = Modal 10-GPU Parallel Render (`Blender 5.3.0`, `4K 60fps`)**:
+  - Render native **Full HD (`1080×1920`, `scale=100%`, `60 fps`, Blender `5.3.0` Cycles OPTIX + GPU OIDN)** across `10` parallel Modal GPUs (note: use `iter_action_fcurves()` for Blender 5.x Slotted Actions and skip `inputs[0..1]` when indexing `ShaderNodeMix` `VALUE` sockets).
+  - Export **True 4K (`2160×3840`, `60 fps`)** Lanczos ARRI-Alexa finished MP4 (`libx264`, `High@L5.2` for full 4K@60fps compliance, `CRF 15`, `yuv420p`, `AAC 320k @ 48 kHz`, `-movflags +faststart` for instant mobile/Reels/Shorts playback).
 - **Tightened ARRI-Alexa Bloom & Warm Container Cache**:
   - Use `scale=2160:3840:flags=lanczos` (NEVER invalid `:accurate_rnd=1` option!).
   - Highlight bloom: `eq=brightness=-0.52:contrast=2.8,gblur=sigma=22` blended with `screen:all_opacity=0.20` (1080p: `sigma=12`, `opacity=0.22`).
