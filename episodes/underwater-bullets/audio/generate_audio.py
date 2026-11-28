@@ -68,21 +68,23 @@ LIMITER_CEILING_DBFS: float = -1.62
 LIMITER_CEILING_LIN: float = 10.0 ** (LIMITER_CEILING_DBFS / 20.0)
 MAX_TRUE_PEAK_DBFS: float = -1.50
 
-VOICE_GAIN: float = 1.24
-BGM_GAIN: float = 0.56
-SFX_GAIN: float = 0.80
+VOICE_GAIN: float = 1.22
+BGM_GAIN: float = 0.50
+SFX_GAIN: float = 1.08
 
 BGM_DUCK_DB: float = -9.5
-SFX_BED_DUCK_DB: float = -3.0
-SFX_REST_DUCK_DB: float = -1.5
+SFX_BED_DUCK_DB: float = -1.8
+SFX_REST_DUCK_DB: float = -0.8
 SFX_MID_BAND_HZ: tuple[float, float] = (250.0, 3800.0)
 RUMBLE_HP_HZ: float = 28.0
 
 KEY_TRANSIENT_EVENTS: tuple[str, ...] = (
+    "b1_bullet_start",   # f=10
     "b1_bullet_stop",    # f=135
     "b2_muzzle_fire",    # f=248
     "b2_water_entry",    # f=300
     "b4_shatter_burst",  # f=1055
+    "b5_race_start",     # f=1285
     "b5_fast_stop",      # f=1410
 )
 
@@ -225,10 +227,12 @@ def apply_smart_ducking(
     ev_guard = np.zeros(TOTAL_SAMPLES, dtype=np.float32)
     for ev_key in KEY_TRANSIENT_EVENTS:
         c_idx = int(round((float(C.EV[ev_key]) / float(C.FPS)) * SR))
-        w0 = max(0, c_idx - int(round(0.025 * SR)))
-        w1 = min(TOTAL_SAMPLES, c_idx + int(round(0.140 * SR)))
+        w0 = max(0, c_idx - int(round(0.030 * SR)))
+        w1 = min(TOTAL_SAMPLES, c_idx + int(round(0.360 * SR)))
         if w1 > w0:
             ev_guard[w0:w1] = 1.0
+    # Also guard opening frame-4 underwater gunshot (0.04..0.42s)
+    ev_guard[int(round(0.04 * SR)) : int(round(0.42 * SR))] = 1.0
     ev_guard = smooth_envelope(ev_guard, attack_ms=4.0, release_ms=90.0)
 
     transient_guard = np.maximum(
