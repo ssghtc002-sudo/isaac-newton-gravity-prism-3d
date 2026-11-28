@@ -12,36 +12,36 @@ Style: Default,DejaVu Sans,66,&H0038C8FF,&H00FFFFFF,&H00080A10,&H96000000,-1,0,0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.08,0:00:00.84,Default,,0,0,0,,{\kf18}When {\kf8}a {\kf50}helicopter's
-Dialogue: 0,0:00:00.84,0:00:01.80,Default,,0,0,0,,{\1c&H004258FF&\kf27}engine{\1c&H0038C8FF&} {\kf36}explodes\N{\1c&H004258FF&\kf33}mid-air,{\1c&H0038C8FF&}
-Dialogue: 0,0:00:01.80,0:00:02.65,Default,,0,0,0,,{\kf13}the {\1c&H00FFE633&\kf22}pilot{\1c&H0038C8FF&} {\kf50}immediately
-Dialogue: 0,0:00:02.65,0:00:03.28,Default,,0,0,0,,{\1c&H004258FF&\kf23}slams{\1c&H0038C8FF&} {\kf18}this {\1c&H00FFE633&\kf22}lever{\1c&H0038C8FF&}
-Dialogue: 0,0:00:03.28,0:00:03.88,Default,,0,0,0,,{\kf36}straight {\kf24}down.
-Dialogue: 0,0:00:04.05,0:00:04.90,Default,,0,0,0,,{\kf36}Inside {\kf18}the {\1c&H00FFE633&\kf31}rotor{\1c&H0038C8FF&}
-Dialogue: 0,0:00:04.90,0:00:05.99,Default,,0,0,0,,{\kf24}sits {\kf11}a {\1c&H00FFE633&\kf74}bicycle-style{\1c&H0038C8FF&}
-Dialogue: 0,0:00:05.99,0:00:07.02,Default,,0,0,0,,{\1c&H00FFE633&\kf36}clutch{\1c&H0038C8FF&} {\kf24}that {\1c&H00FFE633&\kf43}unlocks{\1c&H0038C8FF&}
-Dialogue: 0,0:00:07.02,0:00:07.57,Default,,0,0,0,,{\kf18}the {\1c&H00FFE633&\kf37}blades{\1c&H0038C8FF&}
-Dialogue: 0,0:00:07.57,0:00:08.12,Default,,0,0,0,,{\kf12}so {\kf18}the {\1c&H004258FF&\kf25}dead{\1c&H0038C8FF&}
-Dialogue: 0,0:00:08.12,0:00:09.35,Default,,0,0,0,,{\1c&H004258FF&\kf37}engine{\1c&H0038C8FF&} {\kf24}can't\N{\1c&H004258FF&\kf30}brake{\1c&H0038C8FF&} {\kf32}them.
-Dialogue: 0,0:00:09.55,0:00:10.34,Default,,0,0,0,,{\kf13}As {\kf20}the {\kf46}chopper
-Dialogue: 0,0:00:10.34,0:00:11.28,Default,,0,0,0,,{\kf40}glides {\kf34}down, {\1c&H00FFE633&\kf20}air{\1c&H0038C8FF&}
-Dialogue: 0,0:00:11.28,0:00:12.28,Default,,0,0,0,,{\kf40}rushes {\kf13}up {\kf47}through
-Dialogue: 0,0:00:12.28,0:00:12.95,Default,,0,0,0,,{\kf20}the {\1c&H00FFE633&\kf47}blades,{\1c&H0038C8FF&}
-Dialogue: 0,0:00:12.95,0:00:14.01,Default,,0,0,0,,{\kf53}spinning {\kf27}them {\kf26}like
-Dialogue: 0,0:00:14.01,0:00:14.86,Default,,0,0,0,,{\kf12}a {\1c&H00FFE633&\kf27}wind{\1c&H0038C8FF&} {\1c&H00FFE633&\kf46}turbine{\1c&H0038C8FF&}
-Dialogue: 0,0:00:14.86,0:00:15.80,Default,,0,0,0,,{\kf13}to {\kf33}store {\1c&H00FFE633&\kf48}energy.{\1c&H0038C8FF&}
-Dialogue: 0,0:00:16.00,0:00:16.49,Default,,0,0,0,,{\kf12}It {\kf37}copies
-Dialogue: 0,0:00:16.49,0:00:17.34,Default,,0,0,0,,{\kf11}a {\kf43}falling {\1c&H00FFE633&\kf31}maple{\1c&H0038C8FF&}
-Dialogue: 0,0:00:17.34,0:00:18.46,Default,,0,0,0,,{\1c&H00FFE633&\kf32}seed,{\1c&H0038C8FF&} {\kf43}trading {\kf37}height
-Dialogue: 0,0:00:18.46,0:00:19.44,Default,,0,0,0,,{\kf18}for {\kf49}spinning {\kf31}speed
-Dialogue: 0,0:00:19.44,0:00:20.06,Default,,0,0,0,,{\kf12}so {\kf19}the {\1c&H00FFE633&\kf31}pilot{\1c&H0038C8FF&}
-Dialogue: 0,0:00:20.06,0:00:21.30,Default,,0,0,0,,{\kf31}stays {\kf12}in {\kf31}total {\kf50}control.
-Dialogue: 0,0:00:21.50,0:00:22.26,Default,,0,0,0,,{\1c&H004258FF&\kf46}Thirty{\1c&H0038C8FF&} {\kf30}feet
-Dialogue: 0,0:00:22.26,0:00:23.26,Default,,0,0,0,,{\kf38}above {\kf23}the {\kf39}roof,
-Dialogue: 0,0:00:23.26,0:00:24.24,Default,,0,0,0,,{\kf23}the {\1c&H00FFE633&\kf38}pilot{\1c&H0038C8FF&} {\kf37}pulls
-Dialogue: 0,0:00:24.24,0:00:25.23,Default,,0,0,0,,{\kf15}up {\kf23}for {\kf23}one {\1c&H004258FF&\kf38}final{\1c&H0038C8FF&}
-Dialogue: 0,0:00:25.23,0:00:26.15,Default,,0,0,0,,{\1c&H004258FF&\kf38}burst{\1c&H0038C8FF&} {\kf15}of {\1c&H00FFE633&\kf39}lift.{\1c&H0038C8FF&}
-Dialogue: 0,0:00:26.35,0:00:27.17,Default,,0,0,0,,{\kf23}That {\kf35}stored {\1c&H00FFE633&\kf24}spin{\1c&H0038C8FF&}
-Dialogue: 0,0:00:27.17,0:00:28.05,Default,,0,0,0,,{\kf47}cushions {\kf18}the {\1c&H004258FF&\kf23}drop{\1c&H0038C8FF&}
-Dialogue: 0,0:00:28.05,0:00:28.81,Default,,0,0,0,,{\kf23}into {\kf11}a {\1c&H00FFE633&\kf42}smooth,{\1c&H0038C8FF&}
-Dialogue: 0,0:00:28.81,0:00:29.82,Default,,0,0,0,,{\1c&H004258FF&\kf53}powerless{\1c&H0038C8FF&} {\1c&H00FFE633&\kf48}landing.{\1c&H0038C8FF&}
+Dialogue: 0,0:00:00.08,0:00:00.68,Default,,0,0,0,,{\kf5}When {\kf2}a {\kf53}helicopter's
+Dialogue: 0,0:00:00.68,0:00:01.68,Default,,0,0,0,,{\1c&H004258FF&\kf24}engine{\1c&H0038C8FF&} {\kf39}explodes\N{\1c&H004258FF&\kf37}mid-air,{\1c&H0038C8FF&}
+Dialogue: 0,0:00:01.72,0:00:02.49,Default,,0,0,0,,{\kf7}the {\1c&H00FFE633&\kf30}pilot{\1c&H0038C8FF&} {\kf40}immediately
+Dialogue: 0,0:00:02.50,0:00:03.20,Default,,0,0,0,,{\1c&H004258FF&\kf36}slams{\1c&H0038C8FF&} {\kf11}this {\1c&H00FFE633&\kf23}lever{\1c&H0038C8FF&}
+Dialogue: 0,0:00:03.21,0:00:03.73,Default,,0,0,0,,{\kf23}straight {\kf29}down.
+Dialogue: 0,0:00:04.05,0:00:04.76,Default,,0,0,0,,{\kf32}Inside {\kf9}the {\1c&H00FFE633&\kf30}rotor{\1c&H0038C8FF&}
+Dialogue: 0,0:00:04.77,0:00:05.96,Default,,0,0,0,,{\kf30}sits {\kf6}a {\1c&H00FFE633&\kf83}bicycle-style{\1c&H0038C8FF&}
+Dialogue: 0,0:00:05.97,0:00:06.97,Default,,0,0,0,,{\1c&H00FFE633&\kf35}clutch{\1c&H0038C8FF&} {\kf18}that {\1c&H00FFE633&\kf47}unlocks{\1c&H0038C8FF&}
+Dialogue: 0,0:00:06.98,0:00:07.47,Default,,0,0,0,,{\kf10}the {\1c&H00FFE633&\kf39}blades{\1c&H0038C8FF&}
+Dialogue: 0,0:00:07.48,0:00:07.99,Default,,0,0,0,,{\kf15}so {\kf13}the {\1c&H004258FF&\kf23}dead{\1c&H0038C8FF&}
+Dialogue: 0,0:00:08.00,0:00:09.05,Default,,0,0,0,,{\1c&H004258FF&\kf26}engine{\1c&H0038C8FF&} {\kf29}can't\N{\1c&H004258FF&\kf24}brake{\1c&H0038C8FF&} {\kf26}them.
+Dialogue: 0,0:00:09.55,0:00:10.10,Default,,0,0,0,,{\kf9}As {\kf9}the {\kf37}chopper
+Dialogue: 0,0:00:10.11,0:00:11.08,Default,,0,0,0,,{\kf39}glides {\kf40}down, {\1c&H00FFE633&\kf18}air{\1c&H0038C8FF&}
+Dialogue: 0,0:00:11.09,0:00:11.71,Default,,0,0,0,,{\kf37}rushes {\kf13}up {\kf12}through
+Dialogue: 0,0:00:11.73,0:00:12.22,Default,,0,0,0,,{\kf9}the {\1c&H00FFE633&\kf40}blades,{\1c&H0038C8FF&}
+Dialogue: 0,0:00:12.27,0:00:12.93,Default,,0,0,0,,{\kf34}spinning {\kf14}them {\kf18}like
+Dialogue: 0,0:00:12.95,0:00:13.80,Default,,0,0,0,,{\kf5}a {\1c&H00FFE633&\kf31}wind{\1c&H0038C8FF&} {\1c&H00FFE633&\kf49}turbine{\1c&H0038C8FF&}
+Dialogue: 0,0:00:13.81,0:00:14.79,Default,,0,0,0,,{\kf14}to {\kf41}store {\1c&H00FFE633&\kf43}energy.{\1c&H0038C8FF&}
+Dialogue: 0,0:00:16.00,0:00:16.42,Default,,0,0,0,,{\kf4}It {\kf38}copies
+Dialogue: 0,0:00:16.43,0:00:17.11,Default,,0,0,0,,{\kf6}a {\kf36}falling {\1c&H00FFE633&\kf26}maple{\1c&H0038C8FF&}
+Dialogue: 0,0:00:17.12,0:00:18.19,Default,,0,0,0,,{\1c&H00FFE633&\kf36}seed,{\1c&H0038C8FF&} {\kf35}trading {\kf36}height
+Dialogue: 0,0:00:18.20,0:00:19.05,Default,,0,0,0,,{\kf14}for {\kf35}spinning {\kf36}speed
+Dialogue: 0,0:00:19.12,0:00:19.75,Default,,0,0,0,,{\kf16}so {\kf8}the {\1c&H00FFE633&\kf39}pilot{\1c&H0038C8FF&}
+Dialogue: 0,0:00:19.76,0:00:21.09,Default,,0,0,0,,{\kf34}stays {\kf18}in {\kf29}total {\kf52}control.
+Dialogue: 0,0:00:21.50,0:00:21.94,Default,,0,0,0,,{\1c&H004258FF&\kf20}Thirty{\1c&H0038C8FF&} {\kf24}feet
+Dialogue: 0,0:00:21.96,0:00:22.59,Default,,0,0,0,,{\kf23}above {\kf9}the {\kf31}roof,
+Dialogue: 0,0:00:22.61,0:00:23.40,Default,,0,0,0,,{\kf11}the {\1c&H00FFE633&\kf43}pilot{\1c&H0038C8FF&} {\kf25}pulls
+Dialogue: 0,0:00:23.41,0:00:24.35,Default,,0,0,0,,{\kf11}up {\kf19}for {\kf24}one {\1c&H004258FF&\kf40}final{\1c&H0038C8FF&}
+Dialogue: 0,0:00:24.36,0:00:25.13,Default,,0,0,0,,{\1c&H004258FF&\kf31}burst{\1c&H0038C8FF&} {\kf7}of {\1c&H00FFE633&\kf39}lift.{\1c&H0038C8FF&}
+Dialogue: 0,0:00:26.35,0:00:27.09,Default,,0,0,0,,{\kf10}That {\kf31}stored {\1c&H00FFE633&\kf33}spin{\1c&H0038C8FF&}
+Dialogue: 0,0:00:27.10,0:00:27.88,Default,,0,0,0,,{\kf38}cushions {\kf10}the {\1c&H004258FF&\kf30}drop{\1c&H0038C8FF&}
+Dialogue: 0,0:00:27.89,0:00:28.66,Default,,0,0,0,,{\kf25}into {\kf7}a {\1c&H00FFE633&\kf45}smooth,{\1c&H0038C8FF&}
+Dialogue: 0,0:00:28.72,0:00:29.68,Default,,0,0,0,,{\1c&H004258FF&\kf52}powerless{\1c&H0038C8FF&} {\1c&H00FFE633&\kf44}landing.{\1c&H0038C8FF&}
