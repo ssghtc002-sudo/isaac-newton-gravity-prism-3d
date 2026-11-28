@@ -31,11 +31,12 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
 - **2-Zone Brushed-Metallic Face + Dark Extrusion Shader**:
   - Use Object-Space `|N.z|` separation (`> 0.85` = crisp pure-white/satin-gold/cyan face, side bevel/extrusion = dark obsidian-bronze metallic) — do NOT rely on `LayerWeight.Facing` alone (renders as `< 0.3 px` invisible rim).
   - Keep emission strength AgX-safe (`1.35–2.10`, NEVER `5.0+` which clips to white under `AgX - Punchy` and triggers FFmpeg bloom blow-out).
-- **Thin Bevel + Dark Keyline Backing + Native Unicode Glyphs**:
-  - Keep extrusion shallow (`0.004–0.0055m`) and bevel subtle (`0.0005–0.0007m`) so glyphs don't bloat.
+- **Razor-Sharp Bevel, Letter Spacing & Glyph Clarity (`zero fat/blurry text`)**:
+  - Use crisp readable glyph scale (`char_h_ndc >= 0.032–0.042`), ultra-subtle bevel (`bevel_depth <= 0.00025m` / `size_ref * 0.0025`, shallow extrusion `0.0018–0.0030m`), and airy tracking (`space_character = 1.08–1.12`) so letters never puff, merge, or turn blurry under denoising/upscaling.
+  - Omit bloated thick `Keyline` meshes (`offset <= 0.015` max if needed) when text already sits on a high-contrast dark obsidian backing plaque (`>15:1` contrast).
   - Use `DejaVuSans-Bold.ttf` (bundled in `subtitles/fonts/`) with real math typography (`·`, `₁`, `₂`, `²`, `−`, `×`, `→`, `ε`, `Φ`, `ρ`). Verify every glyph exists in the font before rendering.
 - **Exact DOF Focus Plane & Zero Hand / Subtitle Overlap**:
-  - Place floating 3D labels on the **exact camera DOF focus plane** and cleanly clear of both gesturing hands AND bottom karaoke subtitles (`NDC Y >= -0.45`).
+  - Place floating 3D labels strictly on the **exact camera DOF focus plane (`focus_dist ± 0.15m`)** — NEVER push plaques far in front of the focus plane where lens bokeh blurs small text! When placing foreground UI callouts, keep `fstop >= 7.1` so labels and hero remain simultaneously razor-sharp, and clear of hands & subtitles (`NDC Y >= -0.45`).
 
 ---
 
@@ -106,9 +107,10 @@ Never push blind to Modal 4K — always run full QA first:
 2. `python3 src/verify_framing.py` (**100% PASSED** across all 6 beats + gimbal audit).
 3. Live `ffmpeg` 0.2s 4K filter-graph validation with bundled `subtitles/subtitles.ass` & `subtitles/fonts/`.
 4. Audio LUFS (`-14.0 ± 0.15 LUFS`) / True Peak (`<= -1.5 dBFS`) / duration / zero-truncation audit.
-5. **Local Blender 4.2 Cycles Visual Inspection (`/tmp/blender/blender`, `scale=35%`, `samples=6`)**:
-   - Render all 6 representative beat frames **PLUS a dense consecutive frame sequence of Beat 1's viral hook** (to verify character acting, hand/mouth prop contact, swag timing, and zero clipping).
-   - Visually inspect **EVERY rendered frame with `view_file`**, fix any visual flaw immediately, re-verify, and ONLY THEN push & trigger the 10-GPU Modal 4K render!
+5. **720p HD Full-Quality Cycles Visual Inspection on Modal (`Blender 5.3.0`, `scale=67%` → `>= 720p HD`, `samples=16`, OPTIX + GPU OIDN)**:
+   - NEVER rely on low-res `35%–45%` previews for final sign-off — always render QA verification frames at **`scale >= 67%` (`724×1286`, true `720p+` HD)** with **`samples >= 16` full quality** so every 3D text glyph edge, face/eye catchlight, shader detail, and contact seam is clearly caught.
+   - Render all 6 representative beat frames **PLUS a dense consecutive frame sequence of Beat 1's viral hook** (to verify acting, prop contact, swag timing, crisp readable text, and zero clipping).
+   - Visually inspect **EVERY rendered HD frame with `read_file`**, fix any text blur or visual flaw immediately, re-verify at `720p` full quality, and ONLY THEN push & trigger the 10-GPU Modal 4K render!
 
 ---
 
