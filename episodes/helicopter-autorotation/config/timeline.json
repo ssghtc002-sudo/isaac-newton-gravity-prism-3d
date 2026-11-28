@@ -1,0 +1,265 @@
+{
+  "episode": "helicopter-autorotation",
+  "title": "Why a Helicopter With a Dead Engine DOESN'T Fall Like a Rock",
+  "duration": 30.0,
+  "fps": 60,
+  "totalFrames": 1800,
+  "resolution": [1080, 1920],
+  "audio": {
+    "masterPath": "audio/output/master_audio.wav",
+    "manifestPath": "audio/output/voice_manifest.json",
+    "srtPath": "subtitles/subtitles.srt",
+    "assPath": "subtitles/subtitles.ass",
+    "sampleRate": 48000,
+    "channels": 2,
+    "targetLufs": -14.0,
+    "truePeakDbfs": -1.5,
+    "aacBitrate": "320k",
+    "sfxGain": 1.12,
+    "transientGuardMs": 360
+  },
+  "speakers": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "lang": "en-us",
+      "speed": 1.0,
+      "pan": 0.0
+    }
+  },
+  "beats": [
+    {
+      "id": "B1_HOOK",
+      "name": "Cockpit Engine Failure: Master Caution & Collective Slam Down",
+      "startFrame": 1,
+      "endFrame": 240,
+      "start": 0.0,
+      "end": 4.0,
+      "callout": "ENGINE DEAD"
+    },
+    {
+      "id": "B2_CLUTCH",
+      "name": "Rotor Mast X-Ray: Freewheeling Sprag Clutch Decouples Dead Engine",
+      "startFrame": 241,
+      "endFrame": 570,
+      "start": 4.0,
+      "end": 9.5,
+      "callout": "SPRAG CLUTCH"
+    },
+    {
+      "id": "B3_AIRFLOW",
+      "name": "Upward Airflow Windmill: Emerald Streamlines Spin Rotor Flywheel",
+      "startFrame": 571,
+      "endFrame": 960,
+      "start": 9.5,
+      "end": 16.0,
+      "callout": "UPWARD AIRFLOW"
+    },
+    {
+      "id": "B4_MAPLE",
+      "name": "Maple Seed Physics: Side-by-Side 3D Samara & Rescue Rotor Glide",
+      "startFrame": 961,
+      "endFrame": 1290,
+      "start": 16.0,
+      "end": 21.5,
+      "callout": "MAPLE SEED LIFT"
+    },
+    {
+      "id": "B5_FLARE",
+      "name": "1:1 Cockpit Collective Pull & 30-Foot Exterior Nose-Up Flare",
+      "startFrame": 1291,
+      "endFrame": 1580,
+      "start": 21.5,
+      "end": 26.3333,
+      "callout": "30 FT FLARE"
+    },
+    {
+      "id": "B6_LANDING",
+      "name": "Rooftop Helipad Touchdown: Smooth Zero-Engine Landing Payoff",
+      "startFrame": 1581,
+      "endFrame": 1800,
+      "start": 26.3333,
+      "end": 30.0,
+      "callout": "ZERO ENGINE"
+    }
+  ],
+  "narration_lines": [
+    {
+      "id": "L1",
+      "beat": "B1_HOOK",
+      "speaker": "narrator",
+      "t0": 0.08,
+      "t1": 3.88,
+      "text": "When a helicopter's engine dies mid-air, the pilot slams this lever straight down."
+    },
+    {
+      "id": "L2",
+      "beat": "B2_CLUTCH",
+      "speaker": "narrator",
+      "t0": 4.05,
+      "t1": 9.35,
+      "text": "Inside the rotor sits a bicycle-style clutch that unlocks the blades so the dead engine can't brake them."
+    },
+    {
+      "id": "L3",
+      "beat": "B3_AIRFLOW",
+      "speaker": "narrator",
+      "t0": 9.55,
+      "t1": 15.80,
+      "text": "As the chopper glides down, air rushes up through the blades, spinning them like a wind turbine to store energy."
+    },
+    {
+      "id": "L4",
+      "beat": "B4_MAPLE",
+      "speaker": "narrator",
+      "t0": 16.00,
+      "t1": 21.30,
+      "text": "It copies a falling maple seed, trading height for spinning speed so the pilot stays in total control."
+    },
+    {
+      "id": "L5",
+      "beat": "B5_FLARE",
+      "speaker": "narrator",
+      "t0": 21.50,
+      "t1": 26.15,
+      "text": "Thirty feet above the roof, the pilot pulls up for one final burst of lift."
+    },
+    {
+      "id": "L6",
+      "beat": "B6_LANDING",
+      "speaker": "narrator",
+      "t0": 26.35,
+      "t1": 29.82,
+      "text": "That stored spin cushions the drop into a smooth, powerless landing."
+    }
+  ],
+  "sfx_cues": [
+    {
+      "ev": "b1_engine_flameout",
+      "beat": "B1_HOOK",
+      "frame": 14,
+      "t": 0.2333,
+      "type": "turbine_flameout_spool_down",
+      "pan": 0.0
+    },
+    {
+      "ev": "b1_caution_alarm",
+      "beat": "B1_HOOK",
+      "frame": 42,
+      "t": 0.70,
+      "type": "cockpit_master_caution_beeps",
+      "pan": -0.20
+    },
+    {
+      "ev": "b1_collective_slam",
+      "beat": "B1_HOOK",
+      "frame": 120,
+      "t": 2.00,
+      "type": "collective_lever_mechanical_slam",
+      "pan": 0.25
+    },
+    {
+      "ev": "b2_xray_sweep",
+      "beat": "B2_CLUTCH",
+      "frame": 270,
+      "t": 4.50,
+      "type": "xray_scan_harmonic_sweep",
+      "pan": 0.0
+    },
+    {
+      "ev": "b2_shaft_seize",
+      "beat": "B2_CLUTCH",
+      "frame": 340,
+      "t": 5.6667,
+      "type": "engine_shaft_seize_clunk",
+      "pan": -0.15
+    },
+    {
+      "ev": "b2_sprag_unlock",
+      "beat": "B2_CLUTCH",
+      "frame": 415,
+      "t": 6.9167,
+      "type": "sprag_clutch_bicycle_ratchet",
+      "pan": 0.15
+    },
+    {
+      "ev": "b3_airflow_surge",
+      "beat": "B3_AIRFLOW",
+      "frame": 605,
+      "t": 10.0833,
+      "type": "upward_airflow_rush_whoosh",
+      "pan": 0.0
+    },
+    {
+      "ev": "b3_rotor_windmill",
+      "beat": "B3_AIRFLOW",
+      "frame": 740,
+      "t": 12.3333,
+      "type": "rotor_blade_slap_windmill",
+      "pan": 0.10
+    },
+    {
+      "ev": "b3_flywheel_charge",
+      "beat": "B3_AIRFLOW",
+      "frame": 865,
+      "t": 14.4167,
+      "type": "kinetic_flywheel_harmonic_rise",
+      "pan": 0.0
+    },
+    {
+      "ev": "b4_maple_spin",
+      "beat": "B4_MAPLE",
+      "frame": 995,
+      "t": 16.5833,
+      "type": "maple_seed_flutter_whirl",
+      "pan": -0.35
+    },
+    {
+      "ev": "b4_vortex_sync",
+      "beat": "B4_MAPLE",
+      "frame": 1125,
+      "t": 18.75,
+      "type": "autorotation_vortex_pulse",
+      "pan": 0.25
+    },
+    {
+      "ev": "b5_cockpit_pull",
+      "beat": "B5_FLARE",
+      "frame": 1350,
+      "t": 22.50,
+      "type": "collective_pull_ratchet_click",
+      "pan": 0.20
+    },
+    {
+      "ev": "b5_flare_bite",
+      "beat": "B5_FLARE",
+      "frame": 1465,
+      "t": 24.4167,
+      "type": "flare_blade_bite_air_thump",
+      "pan": 0.0
+    },
+    {
+      "ev": "b5_cushion_wash",
+      "beat": "B5_FLARE",
+      "frame": 1525,
+      "t": 25.4167,
+      "type": "downwash_cushion_sub_boom",
+      "pan": 0.0
+    },
+    {
+      "ev": "b6_skid_touchdown",
+      "beat": "B6_LANDING",
+      "frame": 1685,
+      "t": 28.0833,
+      "type": "helipad_skid_touchdown_thud",
+      "pan": 0.0
+    },
+    {
+      "ev": "b6_rotor_coast",
+      "beat": "B6_LANDING",
+      "frame": 1735,
+      "t": 28.9167,
+      "type": "coasting_blade_freewheel_fade",
+      "pan": 0.0
+    }
+  ]
+}
