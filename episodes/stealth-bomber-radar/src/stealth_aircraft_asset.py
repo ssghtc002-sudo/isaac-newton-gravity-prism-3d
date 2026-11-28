@@ -284,9 +284,9 @@ def _mat_stealth_ram_xray(
     brick.inputs["Mortar Size"].default_value = 0.012
     brick.inputs["Mortar Smooth"].default_value = 0.004
     brick.inputs["Bias"].default_value = 0.0
-    brick.inputs["Color1"].default_value = (0.072, 0.082, 0.098, 1.0)   # Charcoal stealth tile A
-    brick.inputs["Color2"].default_value = (0.092, 0.104, 0.124, 1.0)   # Graphite stealth tile B
-    brick.inputs["Mortar"].default_value = (0.032, 0.038, 0.046, 1.0)   # Fine dark radar-tape seam
+    brick.inputs["Color1"].default_value = (0.095, 0.112, 0.136, 1.0)   # Sunlit USAF B-2 gunmetal-slate tile A
+    brick.inputs["Color2"].default_value = (0.122, 0.142, 0.170, 1.0)   # Sunlit USAF B-2 graphite-blue tile B
+    brick.inputs["Mortar"].default_value = (0.042, 0.050, 0.062, 1.0)   # Crisp dark RAM radar-tape seam
     nt.links.new(rot_2d.outputs["Vector"], brick.inputs["Vector"])
 
     noise_micro = nt.nodes.new("ShaderNodeTexNoise")
@@ -308,13 +308,13 @@ def _mat_stealth_ram_xray(
 
     bsdf_ram = nt.nodes.new("ShaderNodeBsdfPrincipled")
     nt.links.new(brick.outputs["Color"], bsdf_ram.inputs["Base Color"])
-    bsdf_ram.inputs["Metallic"].default_value = 0.38
-    bsdf_ram.inputs["Roughness"].default_value = 0.32
+    bsdf_ram.inputs["Metallic"].default_value = 0.44
+    bsdf_ram.inputs["Roughness"].default_value = 0.28
     if "Specular IOR Level" in bsdf_ram.inputs:
-        bsdf_ram.inputs["Specular IOR Level"].default_value = 0.58
+        bsdf_ram.inputs["Specular IOR Level"].default_value = 0.66
     if "Coat Weight" in bsdf_ram.inputs:
-        bsdf_ram.inputs["Coat Weight"].default_value = 0.30
-        bsdf_ram.inputs["Coat Roughness"].default_value = 0.18
+        bsdf_ram.inputs["Coat Weight"].default_value = 0.36
+        bsdf_ram.inputs["Coat Roughness"].default_value = 0.14
     nt.links.new(bump_grain.outputs["Normal"], bsdf_ram.inputs["Normal"])
 
     xm, sy = _attach_local_xray_cutaway(nt, bsdf_ram.outputs["BSDF"], out, root_obj)
@@ -522,30 +522,36 @@ def _b2_airfoil_z(x_abs: float, u_chord: float) -> tuple[float, float]:
     half_span = 0.5 * float(C.BOMBER["wingspan_m"])
     span_t = min(1.0, x_abs / half_span)
 
-    # Strong central crew/avionics spine hump so 3D form reads unmistakably from every angle
-    center_hump = math.exp(-((x_abs / 0.36) ** 2)) * 0.162
-    wing_thick = C.lerp(0.064, 0.012, span_t ** 0.82)
+    # Pronounced sculpted B-2 hawk-beak dorsal spine & crew deck (matches USAF reference photos!)
+    center_hump = math.exp(-((x_abs / 0.34) ** 2)) * 0.188
+    wing_thick = C.lerp(0.068, 0.013, span_t ** 0.80)
     total_h = center_hump + wing_thick
 
-    if u_chord <= 0.30:
-        prof = (u_chord / 0.30) ** 0.62
+    if u_chord <= 0.28:
+        prof = (u_chord / 0.28) ** 0.56
     else:
-        prof = ((1.0 - u_chord) / 0.70) ** 0.82
+        prof = ((1.0 - u_chord) / 0.72) ** 0.80
 
     z_top = total_h * prof
-    z_bot = -(0.022 + 0.036 * math.exp(-((x_abs / 0.44) ** 2))) * (math.sin(math.pi * u_chord) ** 0.72)
+    z_bot = -(0.024 + 0.042 * math.exp(-((x_abs / 0.44) ** 2))) * (math.sin(math.pi * u_chord) ** 0.72)
 
-    # Sculpted cockpit flight-deck brow rise
-    if x_abs < 0.19 and 0.10 < u_chord < 0.45:
-        cx = max(0.0, 1.0 - (x_abs / 0.19) ** 2)
-        cu = math.sin(math.pi * (u_chord - 0.10) / 0.35)
-        z_top += 0.052 * cx * cu
+    # Prominent bulbous hawk-beak cockpit brow dome (4 curved wrap-around windows sit on this brow!)
+    if x_abs < 0.20 and 0.08 < u_chord < 0.44:
+        cx = max(0.0, 1.0 - (x_abs / 0.20) ** 2)
+        cu = math.sin(math.pi * (u_chord - 0.08) / 0.36)
+        z_top += 0.064 * cx * cu
 
-    # Pronounced twin dorsal air-intake nacelle humps (X in 0.17..0.37)
-    if 0.16 < x_abs < 0.37 and 0.24 < u_chord < 0.76:
-        nx = math.sin(math.pi * (x_abs - 0.16) / 0.21)
-        nu = math.sin(math.pi * (u_chord - 0.24) / 0.52) ** 0.68
-        z_top += 0.062 * nx * nu
+    # Pronounced twin dorsal engine nacelle fairings (X in 0.16..0.38)
+    if 0.15 < x_abs < 0.38 and 0.22 < u_chord < 0.78:
+        nx = math.sin(math.pi * (x_abs - 0.15) / 0.23)
+        nu = math.sin(math.pi * (u_chord - 0.22) / 0.56) ** 0.64
+        z_top += 0.072 * nx * nu
+
+    # Recessed dark exhaust troughs aft of twin dorsal nacelles (distinct channel dip like photo 2!)
+    if 0.18 < x_abs < 0.33 and 0.72 < u_chord < 0.90:
+        ex = math.sin(math.pi * (x_abs - 0.18) / 0.15)
+        eu = math.sin(math.pi * (u_chord - 0.72) / 0.18)
+        z_top -= 0.024 * ex * eu
 
     return z_top, z_bot
 
@@ -650,29 +656,103 @@ def _build_stealth_hull_mesh(
                 except ValueError:
                     pass
 
-    # Sculpted 3D Dorsal Serrated Intake Hoods & Exhaust Splitter Vanes (part of hull mesh so they X-ray cleanly!)
+    # Sculpted 3D Dorsal Serrated W-Lip Intake Hoods, Exhaust Splitter Vanes,
+    # Red Military Intake Warning Triangles, USAF Walkway Hatch Lines & Outer Split Elevons!
     for side in (-1.0, +1.0):
-        # Raised angular stealth intake cowl hood over each dorsal air scoop
+        # 1. Raised angular serrated W-lip stealth intake cowl hood over each dorsal air scoop
         hood_m = (
-            Matrix.Translation((side * 0.25, -0.14, 0.142))
-            @ Euler((math.radians(8.0), side * math.radians(10.0), side * math.radians(-14.0)), "XYZ").to_matrix().to_4x4()
-            @ Matrix.Diagonal((0.14, 0.22, 0.032, 1.0))
+            Matrix.Translation((side * 0.25, -0.14, 0.160))
+            @ Euler((math.radians(9.0), side * math.radians(10.0), side * math.radians(-16.0)), "XYZ").to_matrix().to_4x4()
+            @ Matrix.Diagonal((0.15, 0.24, 0.034, 1.0))
         )
         res_hd = bmesh.ops.create_cube(bm, size=1.0, matrix=hood_m)
         hd_v = set(res_hd["verts"])
         for fh in bm.faces:
             if all(v in hd_v for v in fh.verts):
                 fh.material_index = 5
-        # Dark recessed intake cavity plate right under the hood front
+
+        # Serrated secondary intake boundary-layer splitter tooth
+        tooth_m = (
+            Matrix.Translation((side * 0.25, -0.255, 0.146))
+            @ Euler((math.radians(6.0), 0.0, math.radians(45.0)), "XYZ").to_matrix().to_4x4()
+            @ Matrix.Diagonal((0.082, 0.082, 0.018, 1.0))
+        )
+        res_th = bmesh.ops.create_cube(bm, size=1.0, matrix=tooth_m)
+        th_v = set(res_th["verts"])
+        for fth in bm.faces:
+            if all(v in th_v for v in fth.verts):
+                fth.material_index = 5
+
+        # 2. Deep dark recessed intake mouth cavity right under the serrated hood front
         cav_m = (
-            Matrix.Translation((side * 0.25, -0.24, 0.122))
-            @ Matrix.Diagonal((0.12, 0.025, 0.028, 1.0))
+            Matrix.Translation((side * 0.25, -0.245, 0.136))
+            @ Matrix.Diagonal((0.126, 0.028, 0.030, 1.0))
         )
         res_cv = bmesh.ops.create_cube(bm, size=1.0, matrix=cav_m)
         cv_v = set(res_cv["verts"])
         for fc in bm.faces:
             if all(v in cv_v for v in fc.verts):
                 fc.material_index = 7
+
+        # 3. Recessed dorsal exhaust trough splitter vanes (dark heat-tinted titanium)
+        for v_off in (-0.026, +0.026):
+            vane_m = (
+                Matrix.Translation((side * (0.255 + v_off), 0.25, 0.072))
+                @ Matrix.Diagonal((0.010, 0.18, 0.022, 1.0))
+            )
+            res_vn = bmesh.ops.create_cube(bm, size=1.0, matrix=vane_m)
+            vn_v = set(res_vn["verts"])
+            for fvn in bm.faces:
+                if all(v in vn_v for v in fvn.verts):
+                    fvn.material_index = 2
+
+        # 4. Iconic USAF Red Military Intake Warning Triangles (matches reference photo 1!)
+        for wx, wy, wz, wrz in (
+            (side * 0.25, -0.02, 0.180, side * 12.0),
+            (side * 0.15, -0.22, 0.194, side * -18.0),
+        ):
+            tri_m = (
+                Matrix.Translation((wx, wy, wz))
+                @ Euler((math.radians(8.0), side * math.radians(14.0), math.radians(wrz)), "XYZ").to_matrix().to_4x4()
+            )
+            res_tr = bmesh.ops.create_cone(
+                bm, cap_ends=True, cap_tris=False, segments=3,
+                radius1=0.026, radius2=0.026, depth=0.005, matrix=tri_m,
+            )
+            tr_v = set(res_tr["verts"])
+            for ftr in bm.faces:
+                if all(v in tr_v for v in ftr.verts):
+                    ftr.material_index = 8
+
+        # 5. Crisp USAF Light-Grey Dorsal Walkway & Maintenance Stencil Border Strips (matches photos 1 & 2!)
+        for sx0, sy0, sx1, sy1, z_lift in (
+            (side * 0.44, -0.18, side * 1.38, 0.42, 0.012),
+            (side * 0.48, +0.18, side * 1.18, 0.46, 0.010),
+            (side * 0.09, -0.34, side * 0.09, 0.12, 0.010),
+        ):
+            p0 = Vector((sx0, sy0, _b2_airfoil_z(abs(sx0), 0.36)[0] + z_lift))
+            p1 = Vector((sx1, sy1, _b2_airfoil_z(abs(sx1), 0.46)[0] + z_lift))
+            seg = p1 - p0
+            mid = 0.5 * (p0 + p1)
+            rot_m = seg.normalized().to_track_quat("Y", "Z").to_matrix().to_4x4()
+            st_m = Matrix.Translation(mid) @ rot_m @ Matrix.Diagonal((0.014, seg.length, 0.004, 1.0))
+            res_st = bmesh.ops.create_cube(bm, size=1.0, matrix=st_m)
+            st_v = set(res_st["verts"])
+            for fst in bm.faces:
+                if all(v in st_v for v in fst.verts):
+                    fst.material_index = 6
+
+        # 6. Outer Split Trailing-Edge Elevons & Wingtip Drag-Rudder Clamshells (matches photo 1!)
+        elev_m = (
+            Matrix.Translation((side * 1.24, 0.45, 0.012))
+            @ Euler((0.0, 0.0, side * math.radians(28.0)), "XYZ").to_matrix().to_4x4()
+            @ Matrix.Diagonal((0.46, 0.072, 0.014, 1.0))
+        )
+        res_el = bmesh.ops.create_cube(bm, size=1.0, matrix=elev_m)
+        el_v = set(res_el["verts"])
+        for fel in bm.faces:
+            if all(v in el_v for v in fel.verts):
+                fel.material_index = 2
 
     # Wingtip navigation beacons (Port=-X ruby red, Starboard=+X emerald green)
     for side in (-1.0, +1.0):
@@ -1032,13 +1112,13 @@ def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dic
     es_j = jet_obj.modifiers.new("ConvJetEdgeSplit", type="EDGE_SPLIT")
     es_j.split_angle = math.radians(40.0)
 
-    _key_visibility(jet_obj, [(221, 540), (1321, 1560)], total_frames)
+    _key_visibility(jet_obj, [(221, 540), (C.B5_SHOWDOWN_START, 1560)], total_frames)
 
     cut_prev = {c - 1 for c in C.HARD_CUT_FRAMES}
     key_frames = sorted(
         set(range(221, 541, 4))
-        | set(range(1321, 1561, 4))
-        | {220, 221, 540, 541, 1320, 1321, 1560}
+        | set(range(C.B5_SHOWDOWN_START, 1561, 4))
+        | {220, 221, 540, 541, C.B5_COCKPIT_END, C.B5_SHOWDOWN_START, 1560}
     )
     for f in key_frames:
         pos, rot_deg = C.conv_jet_pose_at(float(f))
@@ -1050,9 +1130,11 @@ def _build_conventional_jet(col: bpy.types.Collection, total_frames: int) -> dic
         if 221 <= f <= 540:
             hit_w = C.smootherstep(295.0, 325.0, float(f)) * (1.0 - C.smootherstep(515.0, 540.0, float(f)))
             pulse = 1.15 + 0.42 * math.sin((f - 318) * 0.35)
-        elif 1321 <= f <= 1560:
-            hit_w = C.smootherstep(1335.0, 1365.0, float(f)) * (1.0 - C.smootherstep(1535.0, 1560.0, float(f)))
-            pulse = 1.05 + 0.35 * math.sin((f - 1350) * 0.30)
+        elif C.B5_SHOWDOWN_START <= f <= 1560:
+            hit_w = C.smootherstep(float(C.B5_SHOWDOWN_START) + 6.0, float(C.B5_SHOWDOWN_START) + 26.0, float(f)) * (
+                1.0 - C.smootherstep(1540.0, 1560.0, float(f))
+            )
+            pulse = 1.10 + 0.36 * math.sin((f - C.B5_SHOWDOWN_START) * 0.32)
         else:
             hit_w = 0.0
             pulse = 0.0
@@ -1085,38 +1167,82 @@ def build_stealth_aircraft(
 
     xray_controls: list[tuple[Any, Any]] = []
     mat_ram = _mat_stealth_ram_xray(root, xray_controls)
+    # Gleaming sunlit silver-gold wrap-around 4-pane B-2 cockpit windshield (matches USAF reference photo 2!)
     mat_glass = _mat_stealth_hull_zone(
-        "Mat_Stealth_CockpitGlass", (0.42, 0.28, 0.08), metallic=0.82, roughness=0.06,
-        root_obj=root, xray_controls=xray_controls, coat=0.85,
-        emit_col=(1.00, 0.72, 0.18), emit_str=0.22,
+        "Mat_Stealth_CockpitGlass", (0.76, 0.72, 0.56), metallic=0.90, roughness=0.04,
+        root_obj=root, xray_controls=xray_controls, coat=1.00,
+        emit_col=(1.00, 0.90, 0.62), emit_str=0.38,
     )
     mat_exhaust = _mat_stealth_hull_zone(
-        "Mat_Stealth_ExhaustTrough", (0.14, 0.16, 0.20), metallic=0.90, roughness=0.24,
-        root_obj=root, xray_controls=xray_controls, coat=0.15,
+        "Mat_Stealth_ExhaustTrough", (0.045, 0.052, 0.064), metallic=0.88, roughness=0.22,
+        root_obj=root, xray_controls=xray_controls, coat=0.22,
     )
     mat_nav_red = _mat_nav_light("Mat_Stealth_NavRed", (1.00, 0.12, 0.06), 1.90)
     mat_nav_grn = _mat_nav_light("Mat_Stealth_NavGreen", (0.10, 1.00, 0.34), 1.90)
     mat_chine = _mat_stealth_hull_zone(
-        "Mat_Stealth_ChineTrim", (0.15, 0.17, 0.21), metallic=0.52, roughness=0.26,
-        root_obj=root, xray_controls=xray_controls, coat=0.35,
+        "Mat_Stealth_ChineTrim", (0.20, 0.23, 0.28), metallic=0.58, roughness=0.24,
+        root_obj=root, xray_controls=xray_controls, coat=0.38,
     )
+    # Crisp light-grey USAF walkway outlines & hatch markings (matches both USAF photos!)
     mat_marking = _mat_stealth_hull_zone(
-        "Mat_Stealth_TacticalMark", (0.20, 0.23, 0.27), metallic=0.35, roughness=0.34,
-        root_obj=root, xray_controls=xray_controls, coat=0.20,
+        "Mat_Stealth_TacticalMark", (0.46, 0.50, 0.54), metallic=0.25, roughness=0.36,
+        root_obj=root, xray_controls=xray_controls, coat=0.18,
     )
     mat_cavity = _mat_stealth_hull_zone(
-        "Mat_Stealth_IntakeCavity", (0.012, 0.015, 0.020), metallic=0.25, roughness=0.65,
+        "Mat_Stealth_IntakeCavity", (0.010, 0.013, 0.018), metallic=0.25, roughness=0.65,
         root_obj=root, xray_controls=xray_controls, coat=0.05,
+    )
+    mat_warn_red = _mat_stealth_hull_zone(
+        "Mat_Stealth_IntakeWarnRed", (0.78, 0.08, 0.06), metallic=0.12, roughness=0.38,
+        root_obj=root, xray_controls=xray_controls, coat=0.20,
+        emit_col=(0.85, 0.10, 0.06), emit_str=0.18,
     )
 
     hull_obj = _build_stealth_hull_mesh(
         col, root,
-        [mat_ram, mat_glass, mat_exhaust, mat_nav_red, mat_nav_grn, mat_chine, mat_marking, mat_cavity],
+        [mat_ram, mat_glass, mat_exhaust, mat_nav_red, mat_nav_grn, mat_chine, mat_marking, mat_cavity, mat_warn_red],
     )
     internals = _build_serpentine_sducts_and_turbines(col, root, total_frames)
     conv_jet = _build_conventional_jet(col, total_frames)
 
-    _key_visibility(hull_obj, [(1, total_frames)], total_frames)
+    # Beat 6 Chilling Payoff Twist: Twin Belly Weapons-Bay Doors cracking open + subtle amber bay glow (`1665..1800`)!
+    mat_bay_door = _mat_engine_casing()
+    mat_bay_glow = _mat_nav_light("Mat_Stealth_BombBayGlow", (1.00, 0.36, 0.06), 1.45)
+    bay_objs: list[bpy.types.Object] = []
+    for side in (-1.0, +1.0):
+        bm_door = bmesh.new()
+        bmesh.ops.create_cube(
+            bm_door, size=1.0,
+            matrix=Matrix.Translation((-side * 0.08, 0.0, -0.008)) @ Matrix.Diagonal((0.16, 0.44, 0.016, 1.0)),
+        )
+        for fd in bm_door.faces:
+            fd.material_index = 0
+        door_obj = _mesh_from_bm(
+            f"Stealth_BombBay_Door_{'L' if side < 0 else 'R'}",
+            bm_door, [mat_bay_door], col,
+            location=(side * 0.16, 0.04, -0.056), parent=root, smooth=False,
+        )
+        _key_visibility(door_obj, [(1650, total_frames)], total_frames)
+        for f in range(1650, total_frames + 1, 5):
+            op = C.bomb_bay_open_t(float(f))
+            door_obj.rotation_euler = Euler((0.0, side * math.radians(78.0 * op), 0.0), "XYZ")
+            door_obj.keyframe_insert("rotation_euler", frame=f)
+        bay_objs.append(door_obj)
+
+    bm_bg = bmesh.new()
+    bmesh.ops.create_cube(bm_bg, size=1.0, matrix=Matrix.Diagonal((0.26, 0.38, 0.014, 1.0)))
+    for fbg in bm_bg.faces:
+        fbg.material_index = 0
+    bay_glow_obj = _mesh_from_bm(
+        "Stealth_BombBay_Glow", bm_bg, [mat_bay_glow], col,
+        location=(0.0, 0.04, -0.048), parent=root, smooth=False,
+    )
+    bay_glow_obj.visible_shadow = False
+    _key_visibility(bay_glow_obj, [(1670, total_frames)], total_frames)
+    bay_objs.append(bay_glow_obj)
+
+    # Hide outdoor B-2 hull during Beat 5A (1321..1430) 1:1 Pilot Cockpit Close-Up!
+    _key_visibility(hull_obj, [(1, 1320), (C.B5_SHOWDOWN_START, total_frames)], total_frames)
 
     cut_prev = {c - 1 for c in C.HARD_CUT_FRAMES}
     key_frames = sorted(set(range(1, total_frames + 1, 4)) | set(C.HARD_CUT_FRAMES) | cut_prev | {total_frames})
@@ -1146,6 +1272,7 @@ def build_stealth_aircraft(
     return {
         "bomber_root": root,
         "bomber_hull": hull_obj,
+        "bomb_bay": bay_objs,
         "sducts": internals["ducts"],
         "turbines": internals["fans"],
         "conv_jet": conv_jet,

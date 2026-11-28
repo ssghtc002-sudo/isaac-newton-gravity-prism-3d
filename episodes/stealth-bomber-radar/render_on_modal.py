@@ -231,9 +231,26 @@ def build_full_hd_short(
     ep_dir = f"{repo_root}/{EPISODE_SUBDIR}"
     os.chdir(ep_dir)
 
-    # Safety net: if master_audio.wav or subtitles.ass wasn't pre-generated before push,
-    # synthesize full Edge-TTS + SFX + BGM master & synced ASS karaoke on the fly!
-    if not Path("audio/output/master_audio.wav").is_file() or not Path("subtitles/subtitles.ass").is_file():
+    # Safety net: if master_audio.wav/subtitles.ass is missing OR timeline.json narration changed,
+    # synthesize fresh Edge-TTS + SFX + BGM master & synced ASS karaoke automatically!
+    need_audio_rebuild = (
+        not Path("audio/output/master_audio.wav").is_file()
+        or not Path("subtitles/subtitles.ass").is_file()
+        or not Path("audio/output/voice_manifest.json").is_file()
+    )
+    if not need_audio_rebuild:
+        import json as _json
+        try:
+            _tl = _json.loads(Path("config/timeline.json").read_text(encoding="utf-8"))
+            _vm = _json.loads(Path("audio/output/voice_manifest.json").read_text(encoding="utf-8"))
+            _tl_texts = [ln["text"] for ln in _tl.get("narration_lines", [])]
+            _vm_texts = [ln["text"] for ln in _vm.get("lines", [])]
+            if _tl_texts != _vm_texts:
+                need_audio_rebuild = True
+                print("[Modal Cloud Coordinator] Detected updated storyline in timeline.json -> rebuilding audio & subtitles...", flush=True)
+        except Exception:
+            need_audio_rebuild = True
+    if need_audio_rebuild:
         print("[Modal Cloud Coordinator] Generating master_audio.wav & synced subtitles.ass on the fly...", flush=True)
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-q", "numpy", "scipy", "soundfile", "edge-tts"],

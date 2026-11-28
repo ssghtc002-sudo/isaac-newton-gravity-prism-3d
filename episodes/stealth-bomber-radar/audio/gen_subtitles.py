@@ -56,12 +56,12 @@ CYAN_POP_HEX = "&H00FFE633&"     # Electric Cyan (#33E6FF)
 CRIMSON_POP_HEX = "&H004258FF&"  # Alert Crimson-Orange (#FF5842)
 
 CYAN_POWER_WORDS = {
-    "172-foot", "radar", "stealth", "origami", "sideways",
-    "s-shaped", "tunnels", "carbon", "tilted", "scattering",
+    "radar", "b-2", "angled", "facets", "sideways",
+    "s-shaped", "tunnels", "carbon", "cockpit", "pilot", "deflecting",
 }
 CRIMSON_POWER_WORDS = {
-    "eighty", "tons", "shrinks", "bumblebee", "hidden",
-    "trapped", "dies", "swallows", "heat", "sci-fi", "already", "gone",
+    "nothing", "missile", "lock", "hidden", "trap", "die",
+    "swallows", "heat", "eighty-ton", "bumblebee", "speck", "already", "overhead",
 }
 
 MIN_CARD_WORDS = 2

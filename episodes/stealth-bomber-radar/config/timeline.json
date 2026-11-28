@@ -15,7 +15,7 @@
     "targetLufs": -14.0,
     "truePeakDbfs": -1.5,
     "aacBitrate": "320k",
-    "sfxGain": 1.10,
+    "sfxGain": 1.12,
     "transientGuardMs": 360
   },
   "speakers": {
@@ -29,52 +29,52 @@
   "beats": [
     {
       "id": "B1_HOOK",
-      "name": "Hook: 172-Foot Flying Wing Glides Past Blank Radar",
+      "name": "Bunker Ambush: Enemy Crew Spots B-2 Outside, Screen Shows Nothing",
       "startFrame": 1,
       "endFrame": 220,
       "start": 0.0,
       "end": 3.6667,
-      "callout": "172 FT WING"
+      "callout": "0 TARGETS"
     },
     {
       "id": "B2_FACETS",
-      "name": "Radar Contrast: Conventional Jet Echo vs Faceted Deflection",
+      "name": "Intercept Action: Normal Jet Missile Lock vs B-2 33-Deg Facets",
       "startFrame": 221,
       "endFrame": 540,
       "start": 3.6667,
       "end": 9.0,
-      "callout": "FACETED DEFLECTION"
+      "callout": "33° DEFLECTION"
     },
     {
       "id": "B3_SDUCTS",
-      "name": "Macro X-Ray: Serpentine S-Ducts Hiding Spinning Turbines",
+      "name": "Banking Macro X-Ray: Serpentine S-Ducts Hiding Spinning Turbines",
       "startFrame": 541,
       "endFrame": 960,
       "start": 9.0,
       "end": 16.0,
-      "callout": "S-SHAPED DUCTS"
+      "callout": "HIDDEN TURBINES"
     },
     {
       "id": "B4_RAM_BEE",
-      "name": "RAM Absorption & 0.001 m² Bumblebee RCS Shrink",
+      "name": "Carbon RAM Heat Trap & 0.001 m² Bumblebee Implosion",
       "startFrame": 961,
       "endFrame": 1320,
       "start": 16.0,
       "end": 22.0,
-      "callout": "RAM COATING / 0.001 m² BLIP"
+      "callout": "HEAT ABSORPTION / 0.001 m² BLIP"
     },
     {
       "id": "B5_BLUEPRINT",
-      "name": "Studio CAD Blueprint: Regular Mirror vs Tilted Facets",
+      "name": "Stealth Pilot Cockpit Action & SAM Radar Deflection Showdown",
       "startFrame": 1321,
       "endFrame": 1560,
       "start": 22.0,
       "end": 26.0,
-      "callout": "TILTED FACETS"
+      "callout": "MISSILE BLIND"
     },
     {
       "id": "B6_FINAL",
-      "name": "Moonlight Finale: Lone Bumblebee Speck on Radar Scope",
+      "name": "Bunker Payoff Twist: Tiny Bumblebee Speck as B-2 Looms Overhead",
       "startFrame": 1561,
       "endFrame": 1800,
       "start": 26.0,
@@ -89,7 +89,7 @@
       "speaker": "narrator",
       "t0": 0.08,
       "t1": 3.58,
-      "text": "This 172-foot bomber weighs eighty tons, yet on radar it shrinks to a bumblebee."
+      "text": "An enemy radar crew sees a giant bomber outside, yet their screen shows nothing."
     },
     {
       "id": "L2",
@@ -97,7 +97,7 @@
       "speaker": "narrator",
       "t0": 3.75,
       "t1": 8.88,
-      "text": "Normal jets bounce radar straight back, but stealth wings use flat origami angles that deflect waves sideways."
+      "text": "Normal jets reflect radar straight back for a missile lock, but this B-2 uses angled facets to bounce waves sideways."
     },
     {
       "id": "L3",
@@ -105,7 +105,7 @@
       "speaker": "narrator",
       "t0": 9.08,
       "t1": 15.82,
-      "text": "Even the engines stay hidden, deep S-shaped air tunnels bury the spinning metal blades so radar gets trapped and dies inside."
+      "text": "Even its spinning metal turbines stay hidden, buried deep inside curved S-shaped tunnels that trap radar pulses until they die."
     },
     {
       "id": "L4",
@@ -113,7 +113,7 @@
       "speaker": "narrator",
       "t0": 16.02,
       "t1": 21.82,
-      "text": "Then its dark carbon skin swallows leftover waves as tiny heat, shrinking the echo to a bumblebee."
+      "text": "Then its carbon skin swallows leftover waves as tiny heat, shrinking an eighty-ton jet into a bumblebee."
     },
     {
       "id": "L5",
@@ -121,7 +121,7 @@
       "speaker": "narrator",
       "t0": 22.02,
       "t1": 25.88,
-      "text": "It isn't sci-fi cloaking, just tilted mirrors scattering every pulse away from the dish."
+      "text": "Inside the cockpit, the pilot glides past missile radar, deflecting every pulse away."
     },
     {
       "id": "L6",
@@ -129,7 +129,7 @@
       "speaker": "narrator",
       "t0": 26.08,
       "t1": 29.85,
-      "text": "So by the time enemies finally spot it, the bomber is already gone."
+      "text": "By the time enemies spot that tiny speck, the bomber is already overhead."
     }
   ],
   "sfx_cues": [

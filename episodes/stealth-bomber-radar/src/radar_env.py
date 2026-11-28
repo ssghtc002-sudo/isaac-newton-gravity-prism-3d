@@ -418,13 +418,10 @@ def _build_enemy_command_room(col: bpy.types.Collection, total_frames: int) -> l
     mat_led_grn = _mat_solid("Mat_Cmd_LedGrn", (0.08, 0.95, 0.45), 0.1, 0.25, (0.08, 0.95, 0.45), 1.75)
     mat_led_amb = _mat_solid("Mat_Cmd_LedAmb", (1.00, 0.64, 0.08), 0.1, 0.25, (1.00, 0.64, 0.08), 1.80)
     mat_led_red = _mat_solid("Mat_Cmd_LedRed", (1.00, 0.18, 0.08), 0.1, 0.25, (1.00, 0.18, 0.08), 1.85)
-    mat_op_suit = _mat_solid("Mat_Cmd_OperatorSuit", (0.035, 0.048, 0.042), metallic=0.08, roughness=0.72, spec_ior=0.20)
-    mat_op_skin = _mat_solid("Mat_Cmd_OperatorSkin", (0.36, 0.26, 0.20), metallic=0.02, roughness=0.52, spec_ior=0.25)
-    mat_op_cap = _mat_solid("Mat_Cmd_OperatorCap", (0.025, 0.035, 0.032), metallic=0.15, roughness=0.48, spec_ior=0.30)
 
     mats = [
         mat_bunker, mat_desk, mat_trim, mat_scr_grn, mat_scr_amb,
-        mat_led_grn, mat_led_amb, mat_led_red, mat_op_suit, mat_op_skin, mat_op_cap,
+        mat_led_grn, mat_led_amb, mat_led_red,
     ]
 
     room_root = bpy.data.objects.new("Env_EnemyCommandRoom_Root", None)
@@ -474,100 +471,7 @@ def _build_enemy_command_room(col: bpy.types.Collection, total_frames: int) -> l
 
     room_obj = _mesh_from_bm("Env_EnemyCommandRoom", bm_room, mats, col, parent=room_root, smooth=False)
     _key_visibility(room_obj, [(1, 220), (1561, total_frames)], total_frames)
-
-    # --- C. Sculpted Military Air-Defense Radar Officer (Peaked Visor Cap + Epaulets + Headset!) ---
-    bm_op = bmesh.new()
-    # Uniform jacket torso + tailored shoulders
-    res_t = bmesh.ops.create_icosphere(
-        bm_op, subdivisions=3, radius=1.0,
-        matrix=Matrix.Translation((0.0, 0.0, -0.02)) @ Matrix.Diagonal((0.23, 0.14, 0.26, 1.0)),
-    )
-    tv = set(res_t["verts"])
-    for ft in bm_op.faces:
-        if all(v in tv for v in ft.verts):
-            ft.material_index = 8
-    # Structured military uniform collar & gold-trimmed shoulder epaulets
-    _add_box(bm_op, (-0.01, 0.01, 0.21), (0.14, 0.12, 0.05), mat_index=10, bevel_w=0.008)
-    for sx in (-1.0, +1.0):
-        _add_box(
-            bm_op, (sx * 0.15, 0.0, 0.17), (0.11, 0.07, 0.018),
-            mat_index=10, bevel_w=0.004, rot_deg=(0.0, sx * 18.0, 0.0),
-        )
-        # Gold officer rank bar on each shoulder epaulet
-        _add_box(
-            bm_op, (sx * 0.18, 0.0, 0.182), (0.032, 0.045, 0.008),
-            mat_index=6, rot_deg=(0.0, sx * 18.0, 0.0),
-        )
-
-    # Sculpted neck + head turned slightly left toward radar scope
-    res_h = bmesh.ops.create_icosphere(
-        bm_op, subdivisions=3, radius=1.0,
-        matrix=Matrix.Translation((-0.02, 0.03, 0.32)) @ Matrix.Diagonal((0.094, 0.106, 0.118, 1.0)),
-    )
-    hv = set(res_h["verts"])
-    for fh in bm_op.faces:
-        if all(v in hv for v in fh.verts):
-            fh.material_index = 9
-
-    # Military Officer Peaked Visor Cap / Tactical Beret Crown + Front Visor Brim + Gold Badge!
-    # Cap band around forehead
-    res_cb = bmesh.ops.create_cone(
-        bm_op, cap_ends=True, cap_tris=False, segments=24,
-        radius1=0.098, radius2=0.104, depth=0.042,
-        matrix=Matrix.Translation((-0.02, 0.032, 0.392))
-        @ Euler((math.radians(8.0), math.radians(-4.0), 0.0), "XYZ").to_matrix().to_4x4(),
-    )
-    cbv = set(res_cb["verts"])
-    for fcb in bm_op.faces:
-        if all(v in cbv for v in fcb.verts):
-            fcb.material_index = 10
-    # Peaked flare crown of military officer cap
-    res_cc = bmesh.ops.create_cone(
-        bm_op, cap_ends=True, cap_tris=False, segments=24,
-        radius1=0.104, radius2=0.132, depth=0.048,
-        matrix=Matrix.Translation((-0.02, 0.040, 0.432))
-        @ Euler((math.radians(14.0), math.radians(-5.0), 0.0), "XYZ").to_matrix().to_4x4()
-        @ Matrix.Diagonal((0.96, 1.10, 1.0, 1.0)),
-    )
-    ccv = set(res_cc["verts"])
-    for fcc in bm_op.faces:
-        if all(v in ccv for v in fcc.verts):
-            fcc.material_index = 8
-    # Front visor brim projecting forward toward console
-    _add_box(
-        bm_op, (-0.025, 0.118, 0.378), (0.145, 0.095, 0.012),
-        mat_index=10, bevel_w=0.004, rot_deg=(-22.0, 0.0, 6.0),
-    )
-
-    # Twin-earcup tactical military comms headset + headband + boom mic
-    for sx in (-1.0, +1.0):
-        res_ec = bmesh.ops.create_cone(
-            bm_op, cap_ends=True, cap_tris=False, segments=16,
-            radius1=0.044, radius2=0.038, depth=0.036,
-            matrix=Matrix.Translation((-0.02 + sx * 0.100, 0.03, 0.32))
-            @ Euler((0.0, math.radians(90.0), 0.0), "XYZ").to_matrix().to_4x4(),
-        )
-        ev = set(res_ec["verts"])
-        for fe in bm_op.faces:
-            if all(v in ev for v in fe.verts):
-                fe.material_index = 0
-    _add_strut(bm_op, Vector((-0.115, 0.04, 0.30)), Vector((-0.070, 0.15, 0.27)), 0.006, mat_index=2, segs=6)
-
-    op_obj = _mesh_from_bm(
-        "Env_EnemyOperator", bm_op, mats, col,
-        location=(0.64, -1.42, 0.90),
-        rotation=(0.0, 0.0, math.radians(28.0)),
-        parent=room_root,
-        smooth=True,
-    )
-    _key_visibility(op_obj, [(1561, total_frames)], total_frames)
-
-    for f in (1561, 1650, 1730, total_frames):
-        u = C.smootherstep(1561.0, float(total_frames), float(f))
-        op_obj.rotation_euler = Euler((math.radians(C.lerp(-4.0, 6.0, u)), 0.0, math.radians(C.lerp(32.0, 20.0, u))), "XYZ")
-        op_obj.keyframe_insert("rotation_euler", frame=f)
-
-    return [room_obj, op_obj]
+    return [room_obj]
 
 
 # ==============================================================================
@@ -760,7 +664,7 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
     b1_pos = Vector(C.STAGE["radar_dish_b1"])
     b2_pos = Vector(C.STAGE["radar_dish_b2"])
     b5_pos = Vector(C.STAGE["radar_dish_b5"])
-    for f in (1, 110, 220, 221, 380, 540, 1320, 1321, 1440, 1560):
+    for f in (1, 110, 220, 221, 380, 540, C.B5_COCKPIT_END, C.B5_SHOWDOWN_START, 1495, 1560):
         if f <= 220:
             root.location = b1_pos
             bpos, _ = C.bomber_pose_at(float(f))
@@ -773,7 +677,7 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
             dish_obj.rotation_euler = aim.to_track_quat("Z", "Y").to_euler("XYZ")
         else:
             root.location = b5_pos
-            tz = C.lerp(2.50, 1.32, C.smootherstep(1375.0, 1435.0, float(f)))
+            tz = C.lerp(2.50, 1.32, C.smootherstep(float(C.B5_SHOWDOWN_START) + 12.0, 1505.0, float(f)))
             aim = (Vector((0.30, 0.08, tz)) - (b5_pos + Vector((0.0, 0.0, 0.14)))).normalized()
             dish_obj.rotation_euler = aim.to_track_quat("Z", "Y").to_euler("XYZ")
         root.keyframe_insert("location", frame=f)
@@ -784,11 +688,12 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
         if ad and ad.action:
             for fc in C.iter_action_fcurves(ad.action):
                 for kp in fc.keyframe_points:
-                    if int(round(kp.co.x)) in (220, 540, 1320):
+                    if int(round(kp.co.x)) in (220, 540, C.B5_COCKPIT_END):
                         kp.interpolation = "CONSTANT"
 
+    # Hide outdoor SAM radar station during Beat 5A (1321..1430) 1:1 Pilot Cockpit shot!
     for obj_v in (base_obj, dish_obj):
-        _key_visibility(obj_v, [(1, 540), (1321, 1560)], total_frames)
+        _key_visibility(obj_v, [(1, 540), (C.B5_SHOWDOWN_START, 1560)], total_frames)
 
     return root
 
@@ -900,21 +805,59 @@ def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, b
     )
     l_bunker = _add_area_light(
         "Light_CmdBunker_DeskGlow", col,
-        location=(0.20, -1.55, 1.55), target=(0.30, -1.20, 0.95),
-        color=(0.24, 0.92, 0.64), energy=28.0, size=0.95, size_y=0.50,
+        location=(0.00, -1.35, 1.48), target=(0.05, -1.65, 1.25),
+        color=(0.24, 0.94, 0.66), energy=36.0, size=0.90, size_y=0.45,
         glossy_vis=False,
     )
 
-    key_frames = [1, 220, 221, 540, 541, 960, 961, 1320, 1321, 1560, 1561, total_frames]
+    # AGENTS.md V12 Section 1: 0.42m Softbox Eye Catchlight AREA Light aimed at bunker crew faces!
+    l_eye = _add_area_light(
+        "Light_Crew_EyeCatchlight", col,
+        location=(0.00, -2.60, 1.62), target=(0.00, -1.72, 1.36),
+        color=(0.94, 0.97, 1.00), energy=56.0, size=0.42, size_y=0.42,
+        glossy_vis=True,
+    )
+    if hasattr(l_eye.data, "diffuse_factor"):
+        l_eye.data.diffuse_factor = 0.24
+    if hasattr(l_eye.data, "specular_factor"):
+        l_eye.data.specular_factor = 1.78
+
+    # Beat 5A (1321..1430) 1:1 B-2 Pilot Cockpit Hero Lighting: 0.42m Sunlit Visor Catchlight + Emerald HUD Bounce!
+    l_pilot_key = _add_area_light(
+        "Light_Pilot_VisorCatchlight", col,
+        location=(-0.75, -0.95, 2.48), target=(0.00, 0.14, 2.02),
+        color=(1.00, 0.96, 0.88), energy=62.0, size=0.42, size_y=0.42,
+        glossy_vis=True,
+    )
+    if hasattr(l_pilot_key.data, "diffuse_factor"):
+        l_pilot_key.data.diffuse_factor = 0.26
+    if hasattr(l_pilot_key.data, "specular_factor"):
+        l_pilot_key.data.specular_factor = 1.80
+
+    l_pilot_hud = _add_area_light(
+        "Light_Pilot_HUDBounce", col,
+        location=(0.00, -0.35, 1.68), target=(0.00, 0.14, 2.04),
+        color=(0.12, 0.98, 0.72), energy=22.0, size=0.40, size_y=0.28,
+        glossy_vis=True,
+    )
+
+    key_frames = [
+        1, 220, 221, 540, 541, 960, 961, 1320, 1321,
+        C.B5_COCKPIT_END, C.B5_SHOWDOWN_START, 1560, 1561, total_frames,
+    ]
     for f in key_frames:
         is_bunker = (f <= 220) or (f >= 1561)
         is_macro = 541 <= f <= 1320
-        l_sun.data.energy = 4.8 if not is_macro else 3.4
-        l_rim.data.energy = 700.0 if not is_macro else 540.0
-        l_fill.data.energy = 250.0 if is_bunker else (320.0 if not is_macro else 220.0)
+        is_pilot = 1321 <= f <= C.B5_COCKPIT_END
+        l_sun.data.energy = 5.0 if (not is_macro and not is_pilot) else (4.2 if is_pilot else 3.4)
+        l_rim.data.energy = 720.0 if (not is_macro and not is_pilot) else 560.0
+        l_fill.data.energy = 260.0 if is_bunker else (240.0 if is_pilot else (340.0 if not is_macro else 220.0))
         l_macro.data.energy = 215.0 if is_macro else 0.0
-        l_bunker.data.energy = 32.0 if is_bunker else 0.0
-        for lo in (l_sun, l_rim, l_fill, l_macro, l_bunker):
+        l_bunker.data.energy = 38.0 if is_bunker else 0.0
+        l_eye.data.energy = 56.0 if is_bunker else 0.0
+        l_pilot_key.data.energy = 64.0 if is_pilot else 0.0
+        l_pilot_hud.data.energy = 24.0 if is_pilot else 0.0
+        for lo in (l_sun, l_rim, l_fill, l_macro, l_bunker, l_eye, l_pilot_key, l_pilot_hud):
             lo.data.keyframe_insert("energy", frame=f)
 
     return {
@@ -923,6 +866,9 @@ def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, b
         "front_fill": l_fill,
         "macro_key": l_macro,
         "bunker_glow": l_bunker,
+        "crew_eye_catchlight": l_eye,
+        "pilot_visor_key": l_pilot_key,
+        "pilot_hud_bounce": l_pilot_hud,
     }
 
 

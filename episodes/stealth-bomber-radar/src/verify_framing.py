@@ -89,6 +89,10 @@ def main() -> int:
         _check_point(errors, f"B1_f{f:03d}_BomberCore", bpos, st, 0.85, -0.35, 0.65)
         _check_point(errors, f"B1_f{f:03d}_RadarDish", tuple(C.STAGE["radar_dish_b1"]), st, 0.90, -0.45, 0.45)
         _check_point(errors, f"B1_f{f:03d}_CmdConsole", tuple(C.STAGE["b1_console_scope_pos"]), st, 0.85, -0.45, 0.25)
+        cx, cy, _ = C.CREW["commander_b1_pos"]
+        ox, oy, _ = C.CREW["operator_b1_pos"]
+        _check_point(errors, f"B1_f{f:03d}_CommanderHead", (cx, cy, float(C.CREW["commander_eye_z"])), st, 0.90, -0.45, 0.35)
+        _check_point(errors, f"B1_f{f:03d}_OperatorHead", (ox, oy, float(C.CREW["operator_eye_z"])), st, 0.90, -0.45, 0.35)
 
     # 2. BEAT 2 DENSE AUDIT (221..540)
     print("\n[BEAT 2 — Radar Contrast: Conventional Jet vs Faceted Stealth Wing (221..540)]")
@@ -136,22 +140,39 @@ def main() -> int:
         _check_point(errors, f"B4_f{f:04d}_RAMTile", tuple(C.STAGE["ram_tile_pos"]), st, 0.85, -0.40, 0.55)
         _check_point(errors, f"B4_f{f:04d}_RCSBee", tuple(C.STAGE["rcs_bee_pos"]), st, 0.85, -0.40, 0.55)
 
-    # 5. BEAT 5 DENSE AUDIT (1321..1560)
-    print("\n[BEAT 5 — Main-Scene Daylight Explainer: Real Conv Jet 90-Deg vs Real B-2 33-Deg (1321..1560)]")
-    for f in (1321, 1365, 1445, 1560):
+    # 5A. BEAT 5A DENSE AUDIT (1321..1430 — 1:1 B-2 Pilot Cockpit Close-Up, f/3.8 Bokeh)
+    print("\n[BEAT 5A — 1:1 B-2 Cockpit Action Close-Up: MPFB2 Stealth Pilot (1321..1430)]")
+    for f in (1321, 1365, 1400, C.B5_COCKPIT_END):
+        st = camera_state_at(float(f), include_motion_fx=True)
+        fs_ok = abs(st["fstop"] - 3.8) < 1e-2
+        if not fs_ok:
+            errors.append(f"B5A f={f}: expected f/3.8 bokeh, got f/{st['fstop']:.2f}")
+        print(
+            f"  f={f:04d} | cam=({st['cam_pos'][0]:+.2f},{st['cam_pos'][1]:+.2f},{st['cam_pos'][2]:+.2f}) "
+            f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f} bokeh={'PASS' if fs_ok else 'FAIL'}"
+        )
+        _check_point(errors, f"B5A_f{f:04d}_PilotVisor", (0.0, 0.12, float(C.CREW["pilot_eye_z"])), st, 0.65, -0.25, 0.45)
+        _check_point(errors, f"B5A_f{f:04d}_CockpitHUD", (0.0, -0.30, 1.78), st, 0.70, -0.50, 0.25)
+
+    # 5B. BEAT 5B DENSE AUDIT (1431..1560 — Daylight SAM Radar Deflection Showdown, f/8.0)
+    print("\n[BEAT 5B — Daylight SAM Radar Deflection Showdown: Real Conv Jet vs Real B-2 (1431..1560)]")
+    for f in (C.B5_SHOWDOWN_START, 1465, 1510, 1560):
         st = camera_state_at(float(f), include_motion_fx=True)
         cpos, _ = C.conv_jet_pose_at(float(f))
         bpos, _ = C.bomber_pose_at(float(f))
+        fs_ok = abs(st["fstop"] - 8.0) < 1e-2
+        if not fs_ok:
+            errors.append(f"B5B f={f}: expected f/8.0, got f/{st['fstop']:.2f}")
         print(
             f"  f={f:04d} | cam=({st['cam_pos'][0]:+.2f},{st['cam_pos'][1]:+.2f},{st['cam_pos'][2]:+.2f}) "
             f"lens={st['lens_mm']:.1f}mm f/{st['fstop']:.1f}"
         )
-        _check_point(errors, f"B5_f{f:04d}_RealConvJet", cpos, st, 0.85, -0.10, 0.60)
-        _check_point(errors, f"B5_f{f:04d}_RealStealthB2", bpos, st, 0.85, -0.45, 0.20)
-        _check_point(errors, f"B5_f{f:04d}_RadarDish", tuple(C.STAGE["radar_dish_b5"]), st, 0.92, -0.40, 0.40)
+        _check_point(errors, f"B5B_f{f:04d}_RealConvJet", cpos, st, 0.85, -0.10, 0.60)
+        _check_point(errors, f"B5B_f{f:04d}_RealStealthB2", bpos, st, 0.85, -0.45, 0.20)
+        _check_point(errors, f"B5B_f{f:04d}_RadarDish", tuple(C.STAGE["radar_dish_b5"]), st, 0.92, -0.40, 0.40)
 
     # 6. BEAT 6 DENSE AUDIT (1561..1800)
-    print("\n[BEAT 6 — Enemy Radar Command Room Payoff + Sunlit B-2 Outside Window (1561..1800)]")
+    print("\n[BEAT 6 — Enemy Bunker Payoff Twist: Commander & Operator + Sunlit B-2 Outside (1561..1800)]")
     for f in (1561, 1600, 1695, 1800):
         st = camera_state_at(float(f), include_motion_fx=True)
         bpos, _ = C.bomber_pose_at(float(f))
@@ -161,6 +182,10 @@ def main() -> int:
         )
         _check_point(errors, f"B6_f{f:04d}_BomberDaylight", bpos, st, 0.85, 0.00, 0.65)
         _check_point(errors, f"B6_f{f:04d}_CmdRadarScope", tuple(C.STAGE["b6_scope_pos"]), st, 0.85, -0.45, 0.25)
+        cx, cy, _ = C.CREW["commander_b6_pos"]
+        ox, oy, _ = C.CREW["operator_b6_pos"]
+        _check_point(errors, f"B6_f{f:04d}_CommanderHead", (cx, cy, float(C.CREW["commander_eye_z"])), st, 0.90, -0.45, 0.35)
+        _check_point(errors, f"B6_f{f:04d}_OperatorHead", (ox, oy, float(C.CREW["operator_eye_z"])), st, 0.90, -0.45, 0.35)
 
     # 7. ALL C.LABELS ANCHOR SAFE-ZONE AUDIT (NDC Y >= -0.45)
     print("\n[3D LABELS SAFE-ZONE AUDIT (C.LABELS, NDC Y >= -0.45)]")

@@ -40,12 +40,14 @@ except ImportError:
     bpy = None  # type: ignore[assignment]
 
 if bpy is not None:
+    import characters  # noqa: E402
     import cinema_camera  # noqa: E402
     import labels_3d  # noqa: E402
     import radar_env  # noqa: E402
     import radar_fx  # noqa: E402
     import stealth_aircraft_asset  # noqa: E402
 else:
+    characters = None  # type: ignore[assignment]
     cinema_camera = None  # type: ignore[assignment]
     labels_3d = None  # type: ignore[assignment]
     radar_env = None  # type: ignore[assignment]
@@ -58,12 +60,12 @@ _EP_FONT = EPISODE_DIR / "subtitles" / "fonts" / "DejaVuSans-Bold.ttf"
 FONT_PATH: Path = _EP_FONT if _EP_FONT.is_file() else (REPO_ROOT / "subtitles" / "fonts" / "DejaVuSans-Bold.ttf")
 
 DEFAULT_PREVIEW_FRAMES: tuple[int, ...] = (
-    24, 90, 165,        # Beat 1: radar ping, wing deflection, 172 FT WING callout
-    280, 340, 445,      # Beat 2: conventional jet crimson echo vs stealth sawtooth deflection
-    575, 700, 825,      # Beat 3: local-space X-ray sweep, serpentine S-ducts & trapped RF pulse
-    1025, 1110, 1235,   # Beat 4: hexagonal RAM heat absorption + 0.001 m^2 3D bumblebee reveal
-    1375, 1465, 1525,   # Beat 5: CAD Blueprint 90-deg mirror echo vs 33-deg tilted stealth facet
-    1625, 1735,         # Beat 6: moonlight banking pass + solitary bumblebee speck on radar scope
+    24, 90, 165,        # Beat 1: Enemy Bunker Crew (Commander + Operator) vs Sunlit B-2 outside window
+    280, 340, 445,      # Beat 2: Conv Jet crimson missile-lock reticle vs B-2 33-deg facets
+    575, 700, 825,      # Beat 3: Local-space X-ray sweep, serpentine S-ducts & spinning turbines
+    1025, 1110, 1235,   # Beat 4: Hexagonal RAM heat trap + live 100->0.001 m^2 bumblebee reveal
+    1375, 1485, 1540,   # Beat 5A: 1:1 B-2 Pilot Cockpit (1375) + Beat 5B: SAM Deflection Showdown (1485, 1540)
+    1625, 1735,         # Beat 6: Bunker twist — Commander & Operator spot tiny blip as B-2 opens belly bay
 )
 DEFAULT_BEAT1_DENSE_FRAMES: tuple[int, ...] = tuple(
     sorted(
@@ -194,26 +196,30 @@ def build_master_scene(
     configure_render(samples=samples, scale=scale, device=device)
 
     col_env = _make_collection("01_Env_RadarAirspace")
-    col_aircraft = _make_collection("02_Stealth_Aircraft")
-    col_fx = _make_collection("03_Radar_RAM_Bumblebee_FX")
-    col_cam = _make_collection("04_Cinema_Camera")
-    col_labels = _make_collection("05_3D_Labels")
+    col_chars = _make_collection("02_MPFB2_Crew_Cockpit")
+    col_aircraft = _make_collection("03_Stealth_Aircraft")
+    col_fx = _make_collection("04_Radar_RAM_Bumblebee_FX")
+    col_cam = _make_collection("05_Cinema_Camera")
+    col_labels = _make_collection("06_3D_Labels")
 
-    print("[Scene 1/5] Building Daylight Sky, Enemy Radar Command Room, Radar Tower & Lights...", flush=True)
+    print("[Scene 1/6] Building Daylight Sky, 3D Cumulus Clouds, Enemy Bunker, SAM Radar & V12 Lighting...", flush=True)
     env_res = radar_env.build_radar_env(col_env, TOTAL_FRAMES)
 
-    print("[Scene 2/5] Building Sculpted 172-ft B-2 Stealth Bomber, S-Ducts, Titanium Turbines & Lofted Conv Jet...", flush=True)
+    print("[Scene 2/6] Building 3 Photoreal 4K MPFB2 Characters (Commander, Operator, Stealth Pilot) + 1:1 B-2 Cockpit...", flush=True)
+    char_res = characters.build_characters(col_chars, TOTAL_FRAMES)
+
+    print("[Scene 3/6] Building Photo-Accurate 172-ft B-2 Spirit, S-Ducts, Titanium Turbines, Bomb Bay & Conv Jet...", flush=True)
     air_res = stealth_aircraft_asset.build_stealth_aircraft(col_aircraft, TOTAL_FRAMES)
 
-    print("[Scene 3/5] Building Sleek Radar Waves, Command Console Scopes, RAM Honeycomb, Bumblebee & Beat 5 Arrows...", flush=True)
+    print("[Scene 4/6] Building Radar Waves, Missile-Lock Reticle, Cockpit Sweep, RAM Honeycomb, Bumblebee & Scopes...", flush=True)
     fx_res = radar_fx.build_radar_fx(col_fx, air_res["bomber_root"], TOTAL_FRAMES)
 
-    print("[Scene 4/5] Building 6-Beat Cinema Camera & Exact DOF Rig...", flush=True)
+    print("[Scene 5/6] Building 6-Beat Cinema Camera (Incl. Beat 5A Pilot Cockpit f/3.8 Bokeh) & Exact DOF Rig...", flush=True)
     cam_res = cinema_camera.build_camera(col_cam, TOTAL_FRAMES)
 
     labels_res: dict[str, Any] = {}
     if build_labels_flag:
-        print("[Scene 5/5] Building 7 AgX-Safe 3D Dark-Obsidian Plaque Labels & Pointer Reticles...", flush=True)
+        print("[Scene 6/6] Building 7 AgX-Safe 3D Dark-Obsidian Plaque Labels & Pointer Reticles...", flush=True)
         labels_res = labels_3d.build_labels(col_labels, font_path=FONT_PATH, total_frames=TOTAL_FRAMES)
 
     scene = bpy.context.scene
@@ -225,6 +231,7 @@ def build_master_scene(
     print(f"[Master] Scene built in {time.time() - t0:.1f}s!", flush=True)
     return {
         "env": env_res,
+        "characters": char_res,
         "aircraft": air_res,
         "fx": fx_res,
         "camera": cam_res,

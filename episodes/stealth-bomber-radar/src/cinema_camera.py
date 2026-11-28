@@ -191,23 +191,23 @@ def _motion_fx(f: float) -> tuple[Vec3, Vec3, float]:
 # ==============================================================================
 # 6-BEAT CAMERA CHOREOGRAPHY (9:16 Portrait, Continuously Moving, Zero Gimbal Flip)
 # ==============================================================================
-# Beat 1 (1..220): Inside Enemy Radar Command Room — Dynamic tracking push over radar console as B-2 swoops in outside
+# Beat 1 (1..220): Inside Enemy Radar Bunker — Commander (left), Operator (right), Blank Scope & Sunlit B-2 outside!
 _B1_CAM_KFS: list[tuple[float, Vec3]] = [
-    (1.0, (-0.30, -4.30, 1.60)),
-    (68.0, (-0.10, -4.10, 1.63)),
-    (145.0, (0.08, -3.94, 1.65)),
-    (220.0, (0.20, -3.82, 1.67)),
+    (1.0, (-0.16, -4.60, 1.62)),
+    (68.0, (-0.05, -4.44, 1.64)),
+    (145.0, (0.04, -4.32, 1.66)),
+    (220.0, (0.10, -4.22, 1.68)),
 ]
 _B1_TGT_KFS: list[tuple[float, Vec3]] = [
-    (1.0, (-0.14, 0.28, 1.82)),
-    (68.0, (-0.02, 0.22, 1.80)),
-    (145.0, (0.06, 0.16, 1.79)),
-    (220.0, (0.14, 0.10, 1.78)),
+    (1.0, (-0.06, 0.22, 1.82)),
+    (68.0, (-0.01, 0.18, 1.80)),
+    (145.0, (0.03, 0.14, 1.79)),
+    (220.0, (0.06, 0.10, 1.78)),
 ]
 _B1_LENS_KFS: list[tuple[float, float]] = [
-    (1.0, 23.5),
-    (95.0, 24.8),
-    (220.0, 26.0),
+    (1.0, 22.0),
+    (95.0, 22.6),
+    (220.0, 23.2),
 ]
 
 # Beat 2 (221..540, hard cut @ 221): Stacked vertical contrast — Conv Jet (top) vs Stealth Wing (bottom)
@@ -266,46 +266,63 @@ _B4_LENS_KFS: list[tuple[float, float]] = [
     (1320.0, 39.2),
 ]
 
-# Beat 5 (1321..1560, hard cut @ 1321): Main-Scene Daylight Real-Jet 90-deg vs 33-deg Deflection Explainer
-_B5_CAM_KFS: list[tuple[float, Vec3]] = [
-    (1321.0, (-0.24, -4.40, 1.91)),
-    (1440.0, (-0.14, -4.20, 1.91)),
-    (1560.0, (-0.04, -4.02, 1.90)),
+# Beat 5A (1321..1430, hard cut @ 1321): 1:1 Scale B-2 Cockpit Action Close-Up — MPFB2 Stealth Pilot!
+_B5A_CAM_KFS: list[tuple[float, Vec3]] = [
+    (1321.0, (-0.22, -1.36, 1.90)),
+    (1375.0, (-0.02, -1.30, 1.91)),
+    (1430.0, (0.18, -1.24, 1.92)),
 ]
-_B5_TGT_KFS: list[tuple[float, Vec3]] = [
-    (1321.0, (-0.14, 0.08, 1.88)),
+_B5A_TGT_KFS: list[tuple[float, Vec3]] = [
+    (1321.0, (0.00, 0.10, 1.91)),
+    (1375.0, (0.00, 0.10, 1.92)),
+    (1430.0, (0.00, 0.10, 1.93)),
+]
+_B5A_LENS_KFS: list[tuple[float, float]] = [
+    (1321.0, 33.5),
+    (1375.0, 35.0),
+    (1430.0, 36.5),
+]
+
+# Beat 5B (1431..1560, hard cut @ 1431): Main-Scene Daylight SAM Radar Deflection Showdown (Conv Jet vs B-2)
+_B5B_CAM_KFS: list[tuple[float, Vec3]] = [
+    (1431.0, (-0.22, -4.38, 1.91)),
+    (1495.0, (-0.13, -4.20, 1.91)),
+    (1560.0, (-0.04, -4.04, 1.90)),
+]
+_B5B_TGT_KFS: list[tuple[float, Vec3]] = [
+    (1431.0, (-0.14, 0.08, 1.88)),
     (1560.0, (-0.08, 0.08, 1.88)),
 ]
-_B5_LENS_KFS: list[tuple[float, float]] = [
-    (1321.0, 24.2),
+_B5B_LENS_KFS: list[tuple[float, float]] = [
+    (1431.0, 24.4),
     (1560.0, 26.0),
 ]
 
-# Beat 6 (1561..1800, hard cut @ 1561): Inside Enemy Radar Command Room console blip + sunlit B-2 outside window
+# Beat 6 (1561..1800, hard cut @ 1561): Inside Enemy Bunker — Commander & Operator spot tiny blip as B-2 looms overhead!
 _B6_CAM_KFS: list[tuple[float, Vec3]] = [
-    (1561.0, (-0.28, -3.66, 1.64)),
-    (1680.0, (-0.08, -3.40, 1.69)),
-    (1800.0, (0.10, -3.16, 1.75)),
+    (1561.0, (-0.16, -4.18, 1.66)),
+    (1680.0, (-0.04, -3.96, 1.70)),
+    (1800.0, (0.08, -3.76, 1.74)),
 ]
 _B6_TGT_KFS: list[tuple[float, Vec3]] = [
-    (1561.0, (-0.02, 0.14, 1.86)),
-    (1680.0, (0.01, 0.12, 1.84)),
-    (1800.0, (0.04, 0.10, 1.82)),
+    (1561.0, (-0.02, 0.14, 1.88)),
+    (1680.0, (0.00, 0.12, 1.87)),
+    (1800.0, (0.02, 0.10, 1.86)),
 ]
 _B6_LENS_KFS: list[tuple[float, float]] = [
-    (1561.0, 24.2),
-    (1800.0, 26.2),
+    (1561.0, 22.0),
+    (1800.0, 23.6),
 ]
 
 
 def _fstop_at(f: float) -> float:
-    """Keep f/7.5..8.0 whenever 3D plaques are onscreen; shallow macro f/3.8 ONLY during pure visual B3 intro."""
+    """Keep f/7.5..8.0 whenever 3D plaques are onscreen; shallow cinematic f/3.8 on pure visual B3 intro & B5A Pilot Cockpit!"""
     if f <= 220.0:
         return 7.5
     if f <= 540.0:
         return 7.5
     if f <= 960.0:
-        # B3_SDUCTS label appears at f=615; rack smoothly from f/3.8 -> f/7.5 before f=605
+        # B3_SDUCTS label appears at f=615; rack smoothly from f/3.8 -> f/7.5 before f=606
         if f <= 582.0:
             return 3.8
         if f < 606.0:
@@ -313,6 +330,9 @@ def _fstop_at(f: float) -> float:
         return 7.5
     if f <= 1320.0:
         return 7.5
+    if f <= float(C.B5_COCKPIT_END):
+        # Beat 5A Pilot Cockpit Close-Up: zero 3D labels onscreen -> gorgeous shallow f/3.8 cinema bokeh!
+        return 3.8
     if f <= 1560.0:
         return 8.0
     return 7.5
@@ -337,10 +357,14 @@ def camera_state_at(f: float, include_motion_fx: bool = True) -> dict:
         cam_p = _eval_piecewise_vec3(_B4_CAM_KFS, ff)
         tgt_p = _eval_piecewise_vec3(_B4_TGT_KFS, ff)
         lens = _eval_piecewise_scalar(_B4_LENS_KFS, ff)
+    elif ff <= float(C.B5_COCKPIT_END):
+        cam_p = _eval_piecewise_vec3(_B5A_CAM_KFS, ff)
+        tgt_p = _eval_piecewise_vec3(_B5A_TGT_KFS, ff)
+        lens = _eval_piecewise_scalar(_B5A_LENS_KFS, ff)
     elif ff <= 1560.0:
-        cam_p = _eval_piecewise_vec3(_B5_CAM_KFS, ff)
-        tgt_p = _eval_piecewise_vec3(_B5_TGT_KFS, ff)
-        lens = _eval_piecewise_scalar(_B5_LENS_KFS, ff)
+        cam_p = _eval_piecewise_vec3(_B5B_CAM_KFS, ff)
+        tgt_p = _eval_piecewise_vec3(_B5B_TGT_KFS, ff)
+        lens = _eval_piecewise_scalar(_B5B_LENS_KFS, ff)
     else:
         cam_p = _eval_piecewise_vec3(_B6_CAM_KFS, ff)
         tgt_p = _eval_piecewise_vec3(_B6_TGT_KFS, ff)

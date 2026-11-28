@@ -233,8 +233,8 @@ def _load_ttf_advances(font_path: Path) -> dict[int, float]:
 def _target_world_pos(key: str, f: float) -> tuple[float, float, float]:
     """Exact world-space 3D component anchor point for each of the 7 contract callouts."""
     if key == "wing_span":
-        bpos, _ = C.bomber_pose_at(f)
-        return (bpos[0] - 0.35, bpos[1] - 0.12, bpos[2] + 0.10)
+        sx, sy, sz = C.STAGE["b1_console_scope_pos"]
+        return (sx + 0.02, sy - 0.02, sz + 0.04)
     if key == "facet_deflect":
         bpos, _ = C.bomber_pose_at(f)
         return (bpos[0] + 0.32, bpos[1] - 0.08, bpos[2] + 0.12)
@@ -260,7 +260,7 @@ def _plaque_ndc_center(key: str, f: float, st: dict[str, Any]) -> tuple[float, f
     """Deterministic collision-free 9:16 NDC center for each label across its active window."""
     _ = (f, st)
     centers: dict[str, tuple[float, float]] = {
-        "wing_span": (-0.28, +0.58),
+        "wing_span": (-0.22, +0.62),
         "facet_deflect": (0.00, +0.62),
         "s_ducts": (0.00, +0.58),
         "ram_coating": (-0.10, +0.58),
@@ -345,13 +345,17 @@ def _est_plaque_half_dims_ref(
 
 
 def _hero_clearance_points(f: float) -> list[tuple[str, tuple[float, float, float]]]:
-    """Key aircraft, duct, RAM, bumblebee & radar-scope world coordinates confirming zero HUD occlusion."""
+    """Key aircraft, crew head, duct, RAM, bumblebee & radar-scope world coordinates confirming zero HUD occlusion."""
     pts: list[tuple[str, tuple[float, float, float]]] = []
     if f <= 220.0:
         bpos, _ = C.bomber_pose_at(f)
+        cx, cy, _ = C.CREW["commander_b1_pos"]
+        ox, oy, _ = C.CREW["operator_b1_pos"]
         pts.extend([
             ("b1_bomber_center", bpos),
             ("b1_radar_dish", tuple(C.STAGE["radar_dish_b1"])),
+            ("b1_commander_head", (cx, cy, float(C.CREW["commander_eye_z"]))),
+            ("b1_operator_head", (ox, oy, float(C.CREW["operator_eye_z"]))),
         ])
     elif f <= 540.0:
         cpos, _ = C.conv_jet_pose_at(f)
@@ -372,6 +376,8 @@ def _hero_clearance_points(f: float) -> list[tuple[str, tuple[float, float, floa
             ("b4_ram_tile", tuple(C.STAGE["ram_tile_pos"])),
             ("b4_rcs_bee", tuple(C.STAGE["rcs_bee_pos"])),
         ])
+    elif f <= float(C.B5_COCKPIT_END):
+        pts.append(("b5a_pilot_visor", (0.0, 0.12, float(C.CREW["pilot_eye_z"]))))
     elif f <= 1560.0:
         pts.extend([
             ("b5_top_mirror", tuple(C.STAGE["b5_top_mirror_pos"])),
@@ -379,9 +385,13 @@ def _hero_clearance_points(f: float) -> list[tuple[str, tuple[float, float, floa
         ])
     else:
         bpos, _ = C.bomber_pose_at(f)
+        cx, cy, _ = C.CREW["commander_b6_pos"]
+        ox, oy, _ = C.CREW["operator_b6_pos"]
         pts.extend([
             ("b6_bomber", bpos),
             ("b6_radar_scope", tuple(C.STAGE["b6_scope_pos"])),
+            ("b6_commander_head", (cx, cy, float(C.CREW["commander_eye_z"]))),
+            ("b6_operator_head", (ox, oy, float(C.CREW["operator_eye_z"]))),
         ])
     return pts
 
