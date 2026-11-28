@@ -2,24 +2,13 @@
 Subtitles Engineer for Episode #4
 ("How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar", 30.0 s @ 60 fps).
 
-Reads word-level timestamps from:
-    episodes/stealth-bomber-radar/audio/output/voice_manifest.json
-    (or, with `--from-timeline`, computes proportional timing from config/timeline.json
-    for offline subtitle/FFmpeg filter-graph verification before Edge-TTS runs).
-
-Generates:
-    episodes/stealth-bomber-radar/subtitles/subtitles.ass
-        - Boxless word-synced ASS karaoke (`\\kf` sweep, 1080x1920, DejaVu Sans Bold 66pt)
-        - BorderStyle=1, Outline=8, Shadow=3.0, Alignment=2, MarginV=235 (top NDC Y = -0.583 < -0.55)
-        - Bold electric cyan/amber active highlight over crisp white (&H00FFFFFF)
-    episodes/stealth-bomber-radar/subtitles/subtitles.srt
-        - Card-level SRT captions (2-4 words/card, max 2 lines/card, max 23 chars/line)
-
-Guarantees:
-    - Zero time overlaps (t0 >= prev_end), monotonic non-decreasing, 0.0 <= t0 < t1 <= 30.000s
-    - Strictly 2-4 words per card (zero single-word orphans)
-    - Max 23 characters per line, zero hanging preposition/article line-1 breaks
-    - 100% word fidelity against voice_manifest.json / timeline.json
+Upgraded Viral-Retention Edition:
+    - Boxless word-synced ASS karaoke (`\\kf` sweep, 1080x1920, DejaVu Sans Bold 66pt)
+    - BorderStyle=1, Outline=8, Shadow=3.0, Alignment=2, MarginV=235 (top NDC Y = -0.583 < -0.55)
+    - Golden-amber (&H0038C8FF) active sweep over crisp white (&H00FFFFFF)
+    - Selective Power-Word color pops (Electric Cyan &H00FFE633 for stealth tech terms,
+      Alert Crimson-Orange &H004258FF for high-stakes viral punch words!)
+    - Strictly 2-4 words per card, max 23 chars/line, zero overlaps, 100% word fidelity
 """
 from __future__ import annotations
 
@@ -62,6 +51,19 @@ MARGIN_L = 80
 MARGIN_R = 80
 MARGIN_V = 235  # Bottom = 1685px (NDC Y -0.755), 2-line top ~1520px (NDC Y -0.583 < -0.55)
 
+# Selective high-retention power-word highlight palette (ASS BGR format)
+CYAN_POP_HEX = "&H00FFE633&"     # Electric Cyan (#33E6FF)
+CRIMSON_POP_HEX = "&H004258FF&"  # Alert Crimson-Orange (#FF5842)
+
+CYAN_POWER_WORDS = {
+    "172-foot", "radar", "stealth", "origami", "sideways",
+    "s-shaped", "tunnels", "carbon", "tilted", "scattering",
+}
+CRIMSON_POWER_WORDS = {
+    "eighty", "tons", "shrinks", "bumblebee", "hidden",
+    "trapped", "dies", "swallows", "heat", "sci-fi", "already", "gone",
+}
+
 MIN_CARD_WORDS = 2
 MAX_CARD_WORDS = 4
 MAX_LINE_CHARS = 23
@@ -77,7 +79,7 @@ HANGING_WORDS = {
 
 _PUNCT_STRIP = ".,!?\u2014:;\"'"
 _ASS_TAG_RE = re.compile(r"\{\\[^}]*\}")
-_KF_TAG_RE = re.compile(r"\{\\kf(\d+)\}")
+_KF_TAG_RE = re.compile(r"\\kf(\d+)")
 
 
 def _tok_word(tok: dict[str, Any]) -> str:
@@ -90,6 +92,15 @@ def _tok_t0(tok: dict[str, Any]) -> float:
 
 def _tok_t1(tok: dict[str, Any]) -> float:
     return float(tok["t1"] if "t1" in tok else tok["end"])
+
+
+def _power_color_tag(raw_word: str) -> str:
+    norm = raw_word.lower().strip(_PUNCT_STRIP)
+    if norm in CRIMSON_POWER_WORDS:
+        return f"\\1c{CRIMSON_POP_HEX}"
+    if norm in CYAN_POWER_WORDS:
+        return f"\\1c{CYAN_POP_HEX}"
+    return f"\\1c{PRIMARY_COLOUR}&"
 
 
 def join_tokens(tokens: list[dict[str, Any]]) -> str:
@@ -368,7 +379,8 @@ def write_subtitles(
             for j, cw in enumerate(card):
                 tok_raw = _tok_word(cw)
                 tok = escape_ass_text(tok_raw)
-                tagged = f"{{\\kf{kf_durs[j]}}}{tok}"
+                ctag = _power_color_tag(tok_raw)
+                tagged = f"{{{ctag}\\kf{kf_durs[j]}}}{tok}"
                 if j == sp:
                     parts.append("\\N" + tagged)
                 elif j == 0:
@@ -514,7 +526,7 @@ def main() -> None:
     max_block_height_px = FONT_SIZE * 2.2 + OUTLINE_PX * 2 + SHADOW_PX
     top_ndc_y = 1.0 - 2.0 * ((PLAY_RES_Y - MARGIN_V - max_block_height_px) / float(PLAY_RES_Y))
     print(
-        f"[Subtitles] Generated & verified {counts['events']} \\kf karaoke cards "
+        f"[Subtitles] Generated & verified {counts['events']} \\kf power-word karaoke cards "
         f"({counts['words']} words, 0 overlaps, 2-4 words/card, max_line={counts['max_line_len']} <= {MAX_LINE_CHARS} chars/line, "
         f"<= {DURATION_S:.3f}s, top NDC Y={top_ndc_y:.3f} < -0.55)"
     )

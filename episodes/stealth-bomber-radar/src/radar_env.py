@@ -2,9 +2,13 @@
 Environment & Lighting Rig for Episode #4:
 "How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar" (60 fps, 1800 frames).
 
-Builds:
-  1. Dark Night-Command Tactical Sky World + Atmospheric Horizon Dome (Beats 1-4, 6)
-  2. Ground Military Radar Station & Rotating Parabolic Dish Emitter (Beats 1-2)
+Upgraded Hollywood-VFX Edition:
+  1. Dark Night-Command Tactical Sky World with high-altitude starfield + moonlit atmospheric clouds
+  2. Realistic Military Parabolic Radar Station (Beats 1-2):
+     - Concrete bunker pad, antenna mast with red aviation beacon, rotating azimuth collar,
+       twin hydraulic elevation actuators, ribbed parabolic mesh-textured reflector dish with
+       outer rim ring, 8 radial back-ribs, and 3-leg tripod feed-horn struts!
+     - Beat 1 live tactical command monitor (`0 TARGETS` blank sweeping screen!) beside radar base
   3. Clean @zackdfilms Cyan-Blue Studio CAD Blueprint Backdrop (Z=-0.15..8.80m) &
      Extended Grid Floor (X=-7..+7m, Y=-6..+6m covering past camera) for Beat 5
   4. Multi-point Moonlight Rim, Underbelly Horizon Bounce, Macro X-Ray & Blueprint Softbox Lights
@@ -98,18 +102,42 @@ def _add_box(
     sx, sy, sz = size
     mat = Matrix.Translation(Vector(center)) @ Matrix.Diagonal((sx, sy, sz, 1.0))
     res = bmesh.ops.create_cube(bm, size=1.0, matrix=mat)
-    verts = res["verts"]
-    vset = set(verts)
-    faces = [f for f in bm.faces if all(v in vset for v in f.verts)]
-    for f in faces:
-        f.material_index = mat_index
+    vset = set(res["verts"])
+    for f in bm.faces:
+        if all(v in vset for v in f.verts):
+            f.material_index = mat_index
     if bevel_w > 0.0:
         edges = [e for e in bm.edges if e.verts[0] in vset and e.verts[1] in vset]
         bmesh.ops.bevel(bm, geom=edges, offset=bevel_w, segments=2, affect="EDGES", clamp_overlap=True)
 
 
+def _add_strut(
+    bm: bmesh.types.BMesh,
+    p0: Vector,
+    p1: Vector,
+    radius: float,
+    mat_index: int = 0,
+    segs: int = 10,
+) -> None:
+    seg = p1 - p0
+    length = seg.length
+    if length < 1e-5:
+        return
+    mid = 0.5 * (p0 + p1)
+    rot_m = seg.normalized().to_track_quat("Z", "Y").to_matrix().to_4x4()
+    mat = Matrix.Translation(mid) @ rot_m
+    res = bmesh.ops.create_cone(
+        bm, cap_ends=True, cap_tris=False, segments=segs,
+        radius1=radius, radius2=radius, depth=length, matrix=mat,
+    )
+    vset = set(res["verts"])
+    for f in bm.faces:
+        if all(v in vset for v in f.verts):
+            f.material_index = mat_index
+
+
 def _setup_world(total_frames: int) -> bpy.types.World:
-    """Deep cinematic night-command tactical sky smoothly shifting to CAD cyan-navy in Beat 5."""
+    """Deep cinematic night-command tactical sky with crisp high-altitude stars + moonlit cloud haze."""
     world = bpy.data.worlds.new("World_StealthAirspace")
     bpy.context.scene.world = world
     world.use_nodes = True
@@ -123,37 +151,57 @@ def _setup_world(total_frames: int) -> bpy.types.World:
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     nt.links.new(tex_coord.outputs["Generated"], sep.inputs["Vector"])
 
-    # Night sky vertical horizon gradient (deep midnight navy zenith -> subtle radar-blue horizon haze)
+    # Night sky vertical horizon gradient
     ramp_night = nt.nodes.new("ShaderNodeValToRGB")
     ramp_night.color_ramp.elements[0].position = 0.0
-    ramp_night.color_ramp.elements[0].color = (0.008, 0.016, 0.032, 1.0)
+    ramp_night.color_ramp.elements[0].color = (0.008, 0.017, 0.036, 1.0)
     e_mid = ramp_night.color_ramp.elements.new(0.42)
-    e_mid.color = (0.012, 0.030, 0.062, 1.0)
+    e_mid.color = (0.013, 0.034, 0.070, 1.0)
     ramp_night.color_ramp.elements[-1].position = 0.85
-    ramp_night.color_ramp.elements[-1].color = (0.003, 0.007, 0.016, 1.0)
+    ramp_night.color_ramp.elements[-1].color = (0.002, 0.006, 0.015, 1.0)
     nt.links.new(sep.outputs["Z"], ramp_night.inputs["Fac"])
 
-    # Subtle moonlit atmospheric cloud texture so night sky looks rich, never flat plastic black
+    # Moonlit atmospheric cloud billows
     noise = nt.nodes.new("ShaderNodeTexNoise")
-    noise.inputs["Scale"].default_value = 4.2
-    noise.inputs["Detail"].default_value = 6.0
-    noise.inputs["Roughness"].default_value = 0.58
+    noise.inputs["Scale"].default_value = 4.6
+    noise.inputs["Detail"].default_value = 7.0
+    noise.inputs["Roughness"].default_value = 0.60
     nt.links.new(tex_coord.outputs["Generated"], noise.inputs["Vector"])
 
     cloud_ramp = nt.nodes.new("ShaderNodeValToRGB")
-    cloud_ramp.color_ramp.elements[0].position = 0.42
+    cloud_ramp.color_ramp.elements[0].position = 0.44
     cloud_ramp.color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)
     cloud_ramp.color_ramp.elements[1].position = 0.78
-    cloud_ramp.color_ramp.elements[1].color = (0.014, 0.036, 0.068, 1.0)
+    cloud_ramp.color_ramp.elements[1].color = (0.018, 0.044, 0.082, 1.0)
     nt.links.new(noise.outputs["Fac"], cloud_ramp.inputs["Fac"])
+
+    # Subtle crisp high-altitude starfield above horizon
+    vor_stars = nt.nodes.new("ShaderNodeTexVoronoi")
+    vor_stars.inputs["Scale"].default_value = 145.0
+    nt.links.new(tex_coord.outputs["Generated"], vor_stars.inputs["Vector"])
+
+    star_ramp = nt.nodes.new("ShaderNodeValToRGB")
+    star_ramp.color_ramp.elements[0].position = 0.0
+    star_ramp.color_ramp.elements[0].color = (0.38, 0.56, 0.85, 1.0)
+    star_ramp.color_ramp.elements[1].position = 0.055
+    star_ramp.color_ramp.elements[1].color = (0.0, 0.0, 0.0, 1.0)
+    nt.links.new(vor_stars.outputs["Distance"], star_ramp.inputs["Fac"])
 
     mix_sky = nt.nodes.new("ShaderNodeMix")
     mix_sky.data_type = "RGBA"
     mix_sky.blend_type = "ADD"
     f_s, a_s, b_s = C.get_mix_sockets(mix_sky)
-    f_s.default_value = 0.75
+    f_s.default_value = 0.78
     nt.links.new(ramp_night.outputs["Color"], a_s)
     nt.links.new(cloud_ramp.outputs["Color"], b_s)
+
+    mix_stars = nt.nodes.new("ShaderNodeMix")
+    mix_stars.data_type = "RGBA"
+    mix_stars.blend_type = "ADD"
+    f_st, a_st, b_st = C.get_mix_sockets(mix_stars)
+    f_st.default_value = 0.55
+    nt.links.new(mix_sky.outputs[2], a_st)
+    nt.links.new(star_ramp.outputs["Color"], b_st)
 
     # Mix with clean Studio CAD Blueprint color during Beat 5
     bp_val = nt.nodes.new("ShaderNodeValue")
@@ -162,18 +210,18 @@ def _setup_world(total_frames: int) -> bpy.types.World:
     mix_bp.data_type = "RGBA"
     f_b, a_b, b_b = C.get_mix_sockets(mix_bp)
     nt.links.new(bp_val.outputs[0], f_b)
-    nt.links.new(mix_sky.outputs[2], a_b)
+    nt.links.new(mix_stars.outputs[2], a_b)
     b_b.default_value = (0.010, 0.048, 0.110, 1.0)
 
     nt.links.new(mix_bp.outputs[2], bg.inputs["Color"])
-    bg.inputs["Strength"].default_value = 0.85
+    bg.inputs["Strength"].default_value = 0.88
     nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
 
     for f in range(1, total_frames + 1, 10):
         w = C.blueprint_bg_weight(float(f))
         bp_val.outputs[0].default_value = w
         bp_val.outputs[0].keyframe_insert("default_value", frame=f)
-        bg.inputs["Strength"].default_value = C.lerp(0.85, 1.15, w)
+        bg.inputs["Strength"].default_value = C.lerp(0.88, 1.15, w)
         bg.inputs["Strength"].keyframe_insert("default_value", frame=f)
     bp_val.outputs[0].default_value = 0.0
     bp_val.outputs[0].keyframe_insert("default_value", frame=total_frames)
@@ -197,7 +245,6 @@ def _mat_blueprint_grid(name: str, is_floor: bool = False) -> bpy.types.Material
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     nt.links.new(tc.outputs["Object"], sep.inputs["Vector"])
 
-    # Create major (0.5m) & minor (0.125m) grid masks along X and (Y if floor else Z)
     ax1 = sep.outputs["X"]
     ax2 = sep.outputs["Y"] if is_floor else sep.outputs["Z"]
 
@@ -220,7 +267,6 @@ def _mat_blueprint_grid(name: str, is_floor: bool = False) -> bpy.types.Material
         absv.operation = "ABSOLUTE"
         nt.links.new(sub.outputs[0], absv.inputs[0])
 
-        # Distance from nearest grid line in [0, 0.5]
         inv = nt.nodes.new("ShaderNodeMath")
         inv.operation = "SUBTRACT"
         inv.inputs[0].default_value = 0.5
@@ -282,6 +328,48 @@ def _mat_blueprint_grid(name: str, is_floor: bool = False) -> bpy.types.Material
     return mat
 
 
+def _mat_radar_dish_mesh() -> bpy.types.Material:
+    """Realistic military perforated/ribbed aluminum-titanium radar reflector dish material."""
+    mat = bpy.data.materials.new("Mat_Env_RadarDishMesh")
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    vor = nt.nodes.new("ShaderNodeTexVoronoi")
+    vor.feature = "DISTANCE_TO_EDGE"
+    vor.inputs["Scale"].default_value = 44.0
+    vor.inputs["Randomness"].default_value = 0.0
+    nt.links.new(tc.outputs["Object"], vor.inputs["Vector"])
+
+    grid = nt.nodes.new("ShaderNodeMapRange")
+    grid.clamp = True
+    grid.inputs["From Min"].default_value = 0.04
+    grid.inputs["From Max"].default_value = 0.14
+    nt.links.new(vor.outputs["Distance"], grid.inputs["Value"])
+
+    mix_c = nt.nodes.new("ShaderNodeMix")
+    mix_c.data_type = "RGBA"
+    fac, ca, cb = C.get_mix_sockets(mix_c)
+    nt.links.new(grid.outputs["Result"], fac)
+    ca.default_value = (0.28, 0.34, 0.42, 1.0)  # Metallic wire frame rib
+    cb.default_value = (0.11, 0.14, 0.19, 1.0)  # Dark perforated dish cell
+
+    bump = nt.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.28
+    bump.inputs["Distance"].default_value = 0.006
+    nt.links.new(grid.outputs["Result"], bump.inputs["Height"])
+
+    nt.links.new(mix_c.outputs[2], bsdf.inputs["Base Color"])
+    bsdf.inputs["Metallic"].default_value = 0.84
+    bsdf.inputs["Roughness"].default_value = 0.28
+    nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
 def _mat_solid(
     name: str,
     color: tuple[float, float, float],
@@ -303,43 +391,83 @@ def _mat_solid(
 
 
 def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) -> bpy.types.Object:
-    """Detailed military parabolic radar tower + glowing cyan feed-horn emitter for Beats 1-2."""
-    mat_steel = _mat_solid("Mat_Env_RadarSteel", (0.09, 0.11, 0.14), metallic=0.82, roughness=0.38)
-    mat_dish = _mat_solid("Mat_Env_RadarDish", (0.18, 0.22, 0.27), metallic=0.72, roughness=0.32)
+    """
+    Authentic military parabolic radar station (Beats 1-2):
+    - Concrete octagonal command bunker + communications mast with red aviation beacon
+    - Rotary azimuth turret + yoke arms + hydraulic elevation struts
+    - Perforated metallic parabolic reflector dish with tubular outer rim, 8 structural radial
+      back-ribs, 3-leg tripod feed-horn struts, and glowing cyan RF waveguide emitter!
+    """
+    mat_steel = _mat_solid("Mat_Env_RadarSteel", (0.10, 0.12, 0.16), metallic=0.84, roughness=0.34)
+    mat_concrete = _mat_solid("Mat_Env_RadarConcrete", (0.06, 0.07, 0.09), metallic=0.05, roughness=0.76)
+    mat_dish = _mat_radar_dish_mesh()
     mat_cyan = _mat_solid(
         "Mat_Env_RadarCore", (0.06, 0.88, 1.00), metallic=0.1, roughness=0.20,
         emit_col=(0.06, 0.88, 1.00), emit_str=1.95,
     )
     mat_warn = _mat_solid(
-        "Mat_Env_RadarWarn", (1.00, 0.24, 0.06), metallic=0.1, roughness=0.25,
-        emit_col=(1.00, 0.24, 0.06), emit_str=1.65,
+        "Mat_Env_RadarWarn", (1.00, 0.22, 0.05), metallic=0.1, roughness=0.22,
+        emit_col=(1.00, 0.22, 0.05), emit_str=1.80,
     )
 
     root = bpy.data.objects.new("Env_GroundRadar_Root", None)
     root.empty_display_type = "PLAIN_AXES"
     col.objects.link(root)
 
-    # Pedestal base + octagonal control bunker + yoke arms
+    # 1. Concrete Bunker Pad + Turret Pedestal + Hydraulic Yoke + Comms Mast
     bm_base = bmesh.new()
-    bmesh.ops.create_cone(
+    # Heavy octagonal concrete pad
+    res_pad = bmesh.ops.create_cone(
         bm_base, cap_ends=True, cap_tris=False, segments=8,
-        radius1=0.32, radius2=0.22, depth=0.36,
-        matrix=Matrix.Translation((0.0, 0.0, -0.30)),
+        radius1=0.40, radius2=0.34, depth=0.18,
+        matrix=Matrix.Translation((0.0, 0.0, -0.50)),
     )
-    _add_box(bm_base, (0.0, 0.0, -0.06), (0.18, 0.16, 0.22), mat_index=0, bevel_w=0.012)
-    _add_box(bm_base, (-0.11, 0.0, 0.06), (0.04, 0.08, 0.18), mat_index=0, bevel_w=0.006)
-    _add_box(bm_base, (+0.11, 0.0, 0.06), (0.04, 0.08, 0.18), mat_index=0, bevel_w=0.006)
-    # Warning beacon lights on bunker corners
-    for sx in (-0.16, 0.16):
-        _add_box(bm_base, (sx, -0.14, -0.14), (0.022, 0.022, 0.026), mat_index=3)
-    base_obj = _mesh_from_bm("Env_RadarPedestal", bm_base, [mat_steel, mat_dish, mat_cyan, mat_warn], col, parent=root)
+    pad_vs = set(res_pad["verts"])
+    for f_p in bm_base.faces:
+        if all(v in pad_vs for v in f_p.verts):
+            f_p.material_index = 4  # concrete
 
-    # Parabolic reflector dish + radial structural ribs + central feed-horn tripod
+    # Armored command pedestal cone + rotary azimuth collar
+    bmesh.ops.create_cone(
+        bm_base, cap_ends=True, cap_tris=False, segments=12,
+        radius1=0.28, radius2=0.20, depth=0.28,
+        matrix=Matrix.Translation((0.0, 0.0, -0.27)),
+    )
+    bmesh.ops.create_cone(
+        bm_base, cap_ends=True, cap_tris=False, segments=20,
+        radius1=0.22, radius2=0.22, depth=0.05,
+        matrix=Matrix.Translation((0.0, 0.0, -0.11)),
+    )
+    _add_box(bm_base, (0.0, 0.0, -0.02), (0.20, 0.18, 0.16), mat_index=0, bevel_w=0.012)
+    # Twin trunnion yoke arms
+    _add_box(bm_base, (-0.125, 0.0, 0.08), (0.042, 0.085, 0.20), mat_index=0, bevel_w=0.006)
+    _add_box(bm_base, (+0.125, 0.0, 0.08), (0.042, 0.085, 0.20), mat_index=0, bevel_w=0.006)
+    # Twin diagonal hydraulic brace struts
+    _add_strut(bm_base, Vector((-0.18, -0.14, -0.22)), Vector((-0.12, -0.02, 0.04)), 0.012, mat_index=0)
+    _add_strut(bm_base, Vector((+0.18, -0.14, -0.22)), Vector((+0.12, -0.02, 0.04)), 0.012, mat_index=0)
+    # Side antenna mast with red aviation warning strobe
+    _add_strut(bm_base, Vector((-0.26, 0.10, -0.42)), Vector((-0.26, 0.10, 0.24)), 0.009, mat_index=0)
+    res_bcn = bmesh.ops.create_icosphere(
+        bm_base, subdivisions=2, radius=0.018, matrix=Matrix.Translation((-0.26, 0.10, 0.255))
+    )
+    bcn_vs = set(res_bcn["verts"])
+    for f_b in bm_base.faces:
+        if all(v in bcn_vs for v in f_b.verts):
+            f_b.material_index = 3  # warn red
+    # Bunker status lights
+    for sx in (-0.16, 0.16):
+        _add_box(bm_base, (sx, -0.15, -0.18), (0.022, 0.022, 0.026), mat_index=3)
+
+    base_obj = _mesh_from_bm(
+        "Env_RadarPedestal", bm_base, [mat_steel, mat_dish, mat_cyan, mat_warn, mat_concrete], col, parent=root
+    )
+
+    # 2. Realistic Ribbed Parabolic Reflector Dish + Outer Rim + 3-Leg Tripod Feed-Horn!
     bm_dish = bmesh.new()
-    segs = 32
-    rings = 8
-    r_max = 0.28
-    depth_k = 0.26
+    segs = 36
+    rings = 10
+    r_max = 0.31
+    depth_k = 0.24
     ring_verts: list[list[bmesh.types.BMVert]] = []
     for ri in range(rings + 1):
         rr = (ri / rings) * r_max
@@ -352,19 +480,61 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
     for ri in range(rings):
         for si in range(segs):
             sn = (si + 1) % segs
-            f_face = bm_dish.faces.new((ring_verts[ri][si], ring_verts[ri][sn], ring_verts[ri + 1][sn], ring_verts[ri + 1][si]))
+            f_face = bm_dish.faces.new(
+                (ring_verts[ri][si], ring_verts[ri][sn], ring_verts[ri + 1][sn], ring_verts[ri + 1][si])
+            )
             f_face.material_index = 1
-    # Solidify dish rim slightly by adding back shell rim ring
-    bmesh.ops.solidify(bm_dish, geom=list(bm_dish.faces), thickness=0.016)
+    bmesh.ops.solidify(bm_dish, geom=list(bm_dish.faces), thickness=0.015)
 
-    # Feed horn stalk & glowing cyan RF emitter dome at parabolic focus (0, 0, 0.19)
-    bmesh.ops.create_cone(
-        bm_dish, cap_ends=True, cap_tris=False, segments=12,
-        radius1=0.016, radius2=0.012, depth=0.19,
-        matrix=Matrix.Translation((0.0, 0.0, 0.095)),
+    # Rear counterweight hub + 8 radial structural stiffening ribs on back of dish
+    res_hub = bmesh.ops.create_cone(
+        bm_dish, cap_ends=True, cap_tris=False, segments=16,
+        radius1=0.085, radius2=0.065, depth=0.075,
+        matrix=Matrix.Translation((0.0, 0.0, -0.04)),
     )
+    hub_vs = set(res_hub["verts"])
+    for fh in bm_dish.faces:
+        if all(v in hub_vs for v in fh.verts):
+            fh.material_index = 0
+    for k in range(8):
+        a = 2.0 * math.pi * k / 8.0
+        p_in = Vector((0.05 * math.cos(a), 0.05 * math.sin(a), -0.025))
+        p_out = Vector((r_max * 0.96 * math.cos(a), r_max * 0.96 * math.sin(a), depth_k * 0.92 - 0.015))
+        _add_strut(bm_dish, p_in, p_out, 0.008, mat_index=0, segs=6)
+
+    # Outer protective steel rim ring around dish edge
+    for si in range(segs):
+        a0 = 2.0 * math.pi * si / segs
+        a1 = 2.0 * math.pi * ((si + 1) % segs) / segs
+        _add_strut(
+            bm_dish,
+            Vector((r_max * math.cos(a0), r_max * math.sin(a0), depth_k)),
+            Vector((r_max * math.cos(a1), r_max * math.sin(a1), depth_k)),
+            0.011,
+            mat_index=0,
+            segs=6,
+        )
+
+    # 3-leg angled tripod feed-horn struts converging cleanly onto focal waveguide housing!
+    focus_pt = Vector((0.0, 0.0, 0.225))
+    for k in range(3):
+        a = math.radians(30.0 + k * 120.0)
+        anchor = Vector((r_max * 0.80 * math.cos(a), r_max * 0.80 * math.sin(a), depth_k * 0.64))
+        _add_strut(bm_dish, anchor, focus_pt, 0.0085, mat_index=0, segs=8)
+
+    # Waveguide collar + glowing cyan RF emitter dome at parabolic focus
+    res_wg = bmesh.ops.create_cone(
+        bm_dish, cap_ends=True, cap_tris=False, segments=16,
+        radius1=0.044, radius2=0.032, depth=0.055,
+        matrix=Matrix.Translation((0.0, 0.0, 0.215)),
+    )
+    wg_vs = set(res_wg["verts"])
+    for fwg in bm_dish.faces:
+        if all(v in wg_vs for v in fwg.verts):
+            fwg.material_index = 0
+
     res_core = bmesh.ops.create_icosphere(
-        bm_dish, subdivisions=2, radius=0.036, matrix=Matrix.Translation((0.0, 0.0, 0.195))
+        bm_dish, subdivisions=2, radius=0.038, matrix=Matrix.Translation((0.0, 0.0, 0.240))
     )
     core_vset = set(res_core["verts"])
     for f_c in bm_dish.faces:
@@ -373,28 +543,25 @@ def _build_ground_radar_station(col: bpy.types.Collection, total_frames: int) ->
 
     dish_obj = _mesh_from_bm(
         "Env_RadarDish", bm_dish, [mat_steel, mat_dish, mat_cyan], col,
-        location=(0.0, 0.0, 0.12), parent=root,
+        location=(0.0, 0.0, 0.14), parent=root,
     )
 
-    # Position & aim dish cleanly for Beat 1 (aimed up-right at gliding bomber) and Beat 2 (aimed +X at aircraft)
     b1_pos = Vector(C.STAGE["radar_dish_b1"])
     b2_pos = Vector(C.STAGE["radar_dish_b2"])
     for f in (1, 110, 220, 221, 380, 540):
         if f <= 220:
             root.location = b1_pos
             bpos, _ = C.bomber_pose_at(float(f))
-            aim = (Vector(bpos) - (b1_pos + Vector((0.0, 0.0, 0.12)))).normalized()
+            aim = (Vector(bpos) - (b1_pos + Vector((0.0, 0.0, 0.14)))).normalized()
             dish_obj.rotation_euler = aim.to_track_quat("Z", "Y").to_euler("XYZ")
         else:
             root.location = b2_pos
-            # Gently sweep up/down between Conv Jet and Stealth Wing in Beat 2
             tz = C.lerp(2.68, 1.44, C.smootherstep(290.0, 420.0, float(f)))
-            aim = (Vector((0.12, 0.12, tz)) - (b2_pos + Vector((0.0, 0.0, 0.12)))).normalized()
+            aim = (Vector((0.12, 0.12, tz)) - (b2_pos + Vector((0.0, 0.0, 0.14)))).normalized()
             dish_obj.rotation_euler = aim.to_track_quat("Z", "Y").to_euler("XYZ")
         root.keyframe_insert("location", frame=f)
         dish_obj.keyframe_insert("rotation_euler", frame=f)
 
-    # Constant interpolation at Beat 1 -> Beat 2 cut
     for obj_k in (root, dish_obj):
         ad = getattr(obj_k, "animation_data", None)
         if ad and ad.action:
@@ -415,7 +582,6 @@ def _build_blueprint_studio(col: bpy.types.Collection, total_frames: int) -> lis
     mat_floor = _mat_blueprint_grid("Mat_Env_BlueprintFloor", is_floor=True)
     mat_dark_floor = _mat_solid("Mat_Env_NightTarmac", (0.010, 0.014, 0.022), metallic=0.15, roughness=0.52)
 
-    # Blueprint backdrop wall (tall enough to cover full 9:16 portrait sky)
     bm_w = bmesh.new()
     x0, x1 = -7.0, 7.0
     z0, z1 = float(C.STAGE["backdrop_z_min"]), float(C.STAGE["backdrop_z_max"])
@@ -429,14 +595,12 @@ def _build_blueprint_studio(col: bpy.types.Collection, total_frames: int) -> lis
     wall_obj.visible_shadow = False
     _key_visibility(wall_obj, [(1321, 1560)], total_frames)
 
-    # Blueprint floor slab (covers well past camera Y=-4.5m)
     bm_f = bmesh.new()
     fz = float(C.STAGE["floor_z"])
     _add_box(bm_f, (0.0, 0.0, fz - 0.10), (14.0, 12.0, 0.20), mat_index=0)
     bp_floor = _mesh_from_bm("Env_BlueprintFloor", bm_f, [mat_floor], col, smooth=False)
     _key_visibility(bp_floor, [(1321, 1560)], total_frames)
 
-    # Night tactical ground plane beneath radar dish in Beat 1
     bm_nf = bmesh.new()
     _add_box(bm_nf, (0.0, 0.0, fz - 0.10), (14.0, 12.0, 0.20), mat_index=0)
     night_floor = _mesh_from_bm("Env_NightGround", bm_nf, [mat_dark_floor], col, smooth=False)
@@ -472,47 +636,41 @@ def _add_area_light(
 
 def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, bpy.types.Object]:
     """Cinematographic moonlight rim + warm bounce + macro X-ray + CAD studio softbox lighting."""
-    # 1. Strong Cool Cyan-Silver Moonlight Rim Key (makes obsidian flying-wing facets gleam!)
     l_rim = _add_area_light(
         "Light_MoonRim_Key", col,
         location=(2.6, 1.4, 5.2), target=(0.0, 0.0, 1.85),
-        color=(0.64, 0.86, 1.00), energy=620.0, size=2.4, size_y=1.6,
+        color=(0.66, 0.88, 1.00), energy=660.0, size=2.4, size_y=1.6,
     )
-    # 2. Secondary Left Back-Rim Edge Light (traces left 33-deg stealth wing leading edge)
     l_rim_l = _add_area_light(
         "Light_CyanRim_Left", col,
         location=(-3.1, 0.8, 3.8), target=(0.0, 0.0, 1.90),
-        color=(0.24, 0.78, 1.00), energy=420.0, size=2.0, size_y=1.4,
+        color=(0.24, 0.80, 1.00), energy=450.0, size=2.0, size_y=1.4,
     )
-    # 3. Subtle Front-Low Camera Fill (keeps matte-black RAM contours readable, never crushed black)
     l_fill = _add_area_light(
         "Light_FrontFill_Soft", col,
         location=(-0.8, -4.4, 1.1), target=(0.0, 0.0, 1.85),
         color=(0.76, 0.85, 0.98), energy=220.0, size=2.6, size_y=2.2,
     )
-    # 4. Warm Horizon Underbelly Accent (cinematic cyan/amber complementary contrast!)
     l_warm = _add_area_light(
         "Light_HorizonBounce_Warm", col,
         location=(1.8, -2.6, 0.45), target=(0.0, 0.0, 1.85),
-        color=(1.00, 0.60, 0.28), energy=145.0, size=1.8, size_y=1.0,
+        color=(1.00, 0.58, 0.26), energy=155.0, size=1.8, size_y=1.0,
     )
-    # 5. Macro Precision Key (Beats 3 & 4 — illuminates titanium turbines, S-ducts & 3D bumblebee)
     l_macro = _add_area_light(
         "Light_MacroPrecision_Key", col,
         location=(0.95, -1.65, 2.85), target=(0.0, 0.0, 1.85),
-        color=(0.94, 0.97, 1.00), energy=120.0, size=0.85, size_y=0.65,
+        color=(0.94, 0.97, 1.00), energy=130.0, size=0.85, size_y=0.65,
     )
 
-    # Animate lighting energy cleanly per beat so every scene hits peak contrast
     key_frames = [1, 220, 221, 540, 541, 960, 961, 1320, 1321, 1560, 1561, total_frames]
     for f in key_frames:
         is_macro = 541 <= f <= 1320
         is_bp = 1321 <= f <= 1560
-        l_rim.data.energy = 420.0 if is_bp else (480.0 if is_macro else 680.0)
-        l_rim_l.data.energy = 380.0 if is_bp else (360.0 if is_macro else 460.0)
-        l_fill.data.energy = 480.0 if is_bp else (190.0 if is_macro else 240.0)
-        l_warm.data.energy = 45.0 if is_bp else (130.0 if is_macro else 160.0)
-        l_macro.data.energy = 175.0 if is_macro else 0.0
+        l_rim.data.energy = 420.0 if is_bp else (500.0 if is_macro else 720.0)
+        l_rim_l.data.energy = 380.0 if is_bp else (380.0 if is_macro else 490.0)
+        l_fill.data.energy = 480.0 if is_bp else (195.0 if is_macro else 245.0)
+        l_warm.data.energy = 45.0 if is_bp else (135.0 if is_macro else 170.0)
+        l_macro.data.energy = 185.0 if is_macro else 0.0
         for lo in (l_rim, l_rim_l, l_fill, l_warm, l_macro):
             lo.data.keyframe_insert("energy", frame=f)
 
@@ -526,7 +684,7 @@ def _build_lighting(col: bpy.types.Collection, total_frames: int) -> dict[str, b
 
 
 def build_radar_env(col: bpy.types.Collection, total_frames: int = C.TOTAL_FRAMES) -> dict[str, Any]:
-    """Assemble night airspace world, ground radar station, Beat 5 CAD blueprint studio, and lights."""
+    """Assemble night airspace world, military radar station, Beat 5 CAD blueprint studio, and lights."""
     world = _setup_world(total_frames)
     radar_station = _build_ground_radar_station(col, total_frames)
     bp_objs = _build_blueprint_studio(col, total_frames)

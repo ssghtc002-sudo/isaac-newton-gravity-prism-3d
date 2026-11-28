@@ -1,6 +1,8 @@
 """
-Volumetric Radar Optics, S-Duct Trapped RF Wave, Macro RAM Honeycomb Absorber,
-Sculpted 3D Bumblebee (0.001 m^2 RCS), CAD Blueprint Rigs & Tactical Radar Scope
+Volumetric Radar Optics, Wingtip Vapor Trails, Live Blank Radar Screen (Beat 1),
+Red Target-Lock Alert Ring (Beat 2), S-Duct Trapped RF Wave (Beat 3), Macro RAM Honeycomb +
+Live 3D Shrinking RCS Counter (`100 m² -> 0.001 m²`) + Sculpted Bumblebee (Beat 4),
+CAD Blueprint Rigs (Beat 5) & Glass-Domed Tactical Radar Scope (Beat 6)
 for Episode #4: "How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar" (60 fps, 1800 frames).
 
 Strictly obeys AGENTS.md V12 & Blender 5.3.0 rules:
@@ -17,6 +19,8 @@ from pathlib import Path
 from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+EPISODE_ROOT = SCRIPT_DIR.parent
+FONT_PATH = EPISODE_ROOT / "subtitles" / "fonts" / "DejaVuSans-Bold.ttf"
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
@@ -174,6 +178,51 @@ def _mat_solid_glow(
     return mat
 
 
+def _mat_scope_crt_glass() -> bpy.types.Material:
+    """Convex radar CRT cover glass with subtle specular reflection & mandatory Shadow Ray bypass."""
+    mat = bpy.data.materials.new("Mat_Scope_CRTGlass")
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    lp = nt.nodes.new("ShaderNodeLightPath")
+    geom = nt.nodes.new("ShaderNodeNewGeometry")
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.14
+
+    transp = nt.nodes.new("ShaderNodeBsdfTransparent")
+    glossy = nt.nodes.new("ShaderNodeBsdfGlossy")
+    glossy.inputs["Color"].default_value = (0.76, 0.96, 1.00, 1.0)
+    glossy.inputs["Roughness"].default_value = 0.04
+
+    front = nt.nodes.new("ShaderNodeMath")
+    front.operation = "SUBTRACT"
+    front.inputs[0].default_value = 1.0
+    nt.links.new(geom.outputs["Backfacing"], front.inputs[1])
+
+    cam_f = nt.nodes.new("ShaderNodeMath")
+    cam_f.operation = "MULTIPLY"
+    nt.links.new(lp.outputs["Is Camera Ray"], cam_f.inputs[0])
+    nt.links.new(front.outputs[0], cam_f.inputs[1])
+
+    fac = nt.nodes.new("ShaderNodeMath")
+    fac.operation = "MULTIPLY"
+    nt.links.new(lw.outputs["Fresnel"], fac.inputs[0])
+    nt.links.new(cam_f.outputs[0], fac.inputs[1])
+
+    cap = nt.nodes.new("ShaderNodeMath")
+    cap.operation = "MULTIPLY"
+    cap.inputs[1].default_value = 0.22
+    nt.links.new(fac.outputs[0], cap.inputs[0])
+
+    mix_s = nt.nodes.new("ShaderNodeMixShader")
+    nt.links.new(cap.outputs[0], mix_s.inputs["Fac"])
+    nt.links.new(transp.outputs["BSDF"], mix_s.inputs[1])
+    nt.links.new(glossy.outputs["BSDF"], mix_s.inputs[2])
+    nt.links.new(mix_s.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
 def _open_cone_bm(r1: float, r2: float, length: float, segs: int = 28) -> bmesh.types.BMesh:
     """Open-ended cone along +Z from 0..length (`cap_ends=False` per AGENTS.md V12!)."""
     bm = bmesh.new()
@@ -231,18 +280,127 @@ def _make_beam_obj(
 
 
 # ==============================================================================
-# BEAT 1 & 2: VOLUMETRIC RADAR BEAMS, DEFLECTED CYAN RAYS & CRIMSON ECHO
+# WINGTIP VAPOR CONTRAILS (BEATS 1 & 6) + BEAT 1 BLANK RADAR SCREEN
+# ==============================================================================
+def _build_wingtip_contrails(
+    col: bpy.types.Collection,
+    bomber_root: bpy.types.Object,
+    total_frames: int,
+) -> list[bpy.types.Object]:
+    """Open-ended moonlight-silver wingtip condensation vortex trails streaming off the 172-ft tips."""
+    mat_trail, _ = _mat_additive_beam("Mat_FX_WingtipContrail", (0.72, 0.88, 1.00), strength=0.38, fresnel_pow=2.2)
+    trails: list[bpy.types.Object] = []
+    for side in (-1.0, +1.0):
+        bm = _open_cone_bm(0.008, 0.052, 1.55, segs=16)
+        obj = _mesh_from_bm(
+            f"FX_WingtipTrail_{'L' if side < 0 else 'R'}",
+            bm,
+            [mat_trail],
+            col,
+            location=(side * 1.56, 0.44, 0.005),
+            rotation=(math.radians(-90.0), 0.0, 0.0),  # Extends aft along +Y behind wingtip
+            parent=bomber_root,
+            smooth=True,
+            no_shadow=True,
+        )
+        _key_visibility(obj, [(1, 220), (1561, total_frames)], total_frames)
+        trails.append(obj)
+    return trails
+
+
+def _build_beat1_blank_monitor(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
+    """
+    Beat 1 Instant Visual Hook Prop: Live tactical radar console right next to ground bunker showing
+    a sweeping green radar scope with ZERO target blips (`0 TARGETS`) as the giant bomber flies overhead!
+    """
+    objs: list[bpy.types.Object] = []
+    mon_root = bpy.data.objects.new("FX_B1_BlankMonitor_Root", None)
+    # Placed lower-right beside the radar dish, safely above subtitle safe-zone!
+    mon_root.location = Vector((0.72, -0.35, 0.96))
+    mon_root.rotation_euler = Euler((math.radians(78.0), 0.0, math.radians(-14.0)), "XYZ")
+    col.objects.link(mon_root)
+
+    r_sc = 0.23
+    mat_bezel = _mat_solid_glow("Mat_B1Mon_Bezel", (0.04, 0.06, 0.09), (0.04, 0.35, 0.48), 0.14, metallic=0.88, roughness=0.28)
+    mat_dial = _mat_solid_glow("Mat_B1Mon_Dial", (0.003, 0.014, 0.012), (0.01, 0.08, 0.06), 0.16, metallic=0.10, roughness=0.14)
+    mat_grid = _mat_solid_glow("Mat_B1Mon_Grid", (0.06, 0.94, 0.66), (0.06, 0.94, 0.66), 1.55)
+    mat_wedge, _ = _mat_additive_beam("Mat_B1Mon_Sweep", (0.08, 0.96, 0.66), strength=0.88, fresnel_pow=0.6)
+
+    bm_m = bmesh.new()
+    bmesh.ops.create_cone(
+        bm_m, cap_ends=True, cap_tris=False, segments=36,
+        radius1=r_sc * 1.10, radius2=r_sc * 1.06, depth=0.032,
+        matrix=Matrix.Translation((0.0, 0.0, -0.018)),
+    )
+    for fm in bm_m.faces:
+        fm.material_index = 0
+    res_d = bmesh.ops.create_cone(
+        bm_m, cap_ends=True, cap_tris=False, segments=36,
+        radius1=r_sc, radius2=r_sc, depth=0.008,
+        matrix=Matrix.Translation((0.0, 0.0, -0.002)),
+    )
+    dv = set(res_d["verts"])
+    for fd in bm_m.faces:
+        if all(v in dv for v in fd.verts):
+            fd.material_index = 1
+    body = _mesh_from_bm("FX_B1_MonitorBody", bm_m, [mat_bezel, mat_dial], col, parent=mon_root, no_shadow=False)
+    _key_visibility(body, [(35, 220)], total_frames)
+    objs.append(body)
+
+    # Concentric rings + crosshairs (completely empty — ZERO blips!)
+    bm_g = bmesh.new()
+    for frac in (0.35, 0.70, 0.97):
+        bm_t = _make_torus_bm(r_sc * frac, 0.0024, major_seg=36, minor_seg=8)
+        for v in bm_t.verts:
+            v.co.z += 0.006
+        tmp = bpy.data.meshes.new("_tmp_b1r")
+        bm_t.to_mesh(tmp)
+        bm_t.free()
+        bm_g.from_mesh(tmp)
+        bpy.data.meshes.remove(tmp)
+    bmesh.ops.create_cube(bm_g, size=1.0, matrix=Matrix.Translation((0.0, 0.0, 0.006)) @ Matrix.Diagonal((r_sc * 1.92, 0.003, 0.002, 1.0)))
+    bmesh.ops.create_cube(bm_g, size=1.0, matrix=Matrix.Translation((0.0, 0.0, 0.006)) @ Matrix.Diagonal((0.003, r_sc * 1.92, 0.002, 1.0)))
+    for fg in bm_g.faces:
+        fg.material_index = 0
+    grid = _mesh_from_bm("FX_B1_MonitorGrid", bm_g, [mat_grid], col, parent=mon_root)
+    _key_visibility(grid, [(35, 220)], total_frames)
+    objs.append(grid)
+
+    # Rotating empty sweep needle
+    bm_sw = bmesh.new()
+    bmesh.ops.create_cube(bm_sw, size=1.0, matrix=Matrix.Translation((0.0, 0.48 * r_sc, 0.009)) @ Matrix.Diagonal((0.005, 0.96 * r_sc, 0.003, 1.0)))
+    for fsw in bm_sw.faces:
+        fsw.material_index = 0
+    vc = bm_sw.verts.new((0.0, 0.0, 0.008))
+    pts = [
+        bm_sw.verts.new((r_sc * 0.96 * math.cos(math.radians(90.0 + k * 3.5)), r_sc * 0.96 * math.sin(math.radians(90.0 + k * 3.5)), 0.008))
+        for k in range(10)
+    ]
+    for k in range(len(pts) - 1):
+        bm_sw.faces.new((vc, pts[k], pts[k + 1])).material_index = 1
+    sweep = _mesh_from_bm("FX_B1_MonitorSweep", bm_sw, [mat_grid, mat_wedge], col, parent=mon_root)
+    _key_visibility(sweep, [(35, 220)], total_frames)
+    for f in range(35, 221, 3):
+        sweep.rotation_euler = Euler((0.0, 0.0, -(f - 35) * 0.055), "XYZ")
+        sweep.keyframe_insert("rotation_euler", frame=f)
+    objs.append(sweep)
+
+    return objs
+
+
+# ==============================================================================
+# BEAT 1 & 2: VOLUMETRIC RADAR BEAMS, DEFLECTED CYAN RAYS & CRIMSON ECHO + DISH LOCK FLASH
 # ==============================================================================
 def _build_beats12_radar_optics(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
     objs: list[bpy.types.Object] = []
     mat_cyan, gain_cyan = _mat_additive_beam("Mat_FX_RadarCyan", (0.06, 0.88, 1.00), strength=0.65, fresnel_pow=1.8)
     mat_defl, gain_defl = _mat_additive_beam("Mat_FX_RadarDeflect", (0.14, 0.94, 1.00), strength=0.72, fresnel_pow=1.5)
-    mat_red, gain_red = _mat_additive_beam("Mat_FX_RadarCrimsonEcho", (1.00, 0.16, 0.08), strength=1.15, fresnel_pow=1.4)
+    mat_red, gain_red = _mat_additive_beam("Mat_FX_RadarCrimsonEcho", (1.00, 0.16, 0.08), strength=1.18, fresnel_pow=1.4)
     mat_ring_c = _mat_solid_glow("Mat_FX_WaveRingCyan", (0.06, 0.88, 1.00), (0.06, 0.88, 1.00), 1.85)
-    mat_ring_r = _mat_solid_glow("Mat_FX_WaveRingRed", (1.00, 0.18, 0.08), (1.00, 0.18, 0.08), 1.95)
+    mat_ring_r = _mat_solid_glow("Mat_FX_WaveRingRed", (1.00, 0.18, 0.08), (1.00, 0.18, 0.08), 1.98)
 
     # --- BEAT 1: Ground dish -> Stealth wing -> Sideways off-axis deflection into empty sky ---
-    dish1 = Vector(C.STAGE["radar_dish_b1"]) + Vector((0.0, 0.0, 0.24))
+    dish1 = Vector(C.STAGE["radar_dish_b1"]) + Vector((0.0, 0.0, 0.28))
     hit1 = Vector((-0.14, 0.12, 2.04))
     sky_away = Vector((1.75, 0.35, 3.15))
 
@@ -252,7 +410,6 @@ def _build_beats12_radar_optics(col: bpy.types.Collection, total_frames: int) ->
     _key_visibility(b1_out, [(64, 220)], total_frames)
     objs.extend([b1_in, b1_out])
 
-    # Traveling cyan wavefront rings along incoming & deflected paths in Beat 1
     for ri in range(3):
         ring_in = _mesh_from_bm(f"FX_B1_InRing_{ri}", _make_torus_bm(0.16, 0.008), [mat_ring_c], col)
         ring_out = _mesh_from_bm(f"FX_B1_OutRing_{ri}", _make_torus_bm(0.20, 0.009), [mat_ring_c], col)
@@ -280,7 +437,7 @@ def _build_beats12_radar_optics(col: bpy.types.Collection, total_frames: int) ->
         objs.extend([ring_in, ring_out])
 
     # --- BEAT 2: Split Radar Contrast (Top Conv Jet Crimson Return vs Bottom Stealth Deflect) ---
-    dish2 = Vector(C.STAGE["radar_dish_b2"]) + Vector((0.18, 0.0, 0.06))
+    dish2 = Vector(C.STAGE["radar_dish_b2"]) + Vector((0.18, 0.0, 0.08))
     conv_hit = Vector(C.STAGE["b2_conv_pos"]) + Vector((-0.18, 0.0, 0.0))
     st_hit = Vector(C.STAGE["b2_stealth_pos"]) + Vector((-0.16, 0.0, 0.0))
     st_away = Vector((1.65, 0.25, 0.52))
@@ -295,6 +452,19 @@ def _build_beats12_radar_optics(col: bpy.types.Collection, total_frames: int) ->
     _key_visibility(b2_in_bot, [(355, 540)], total_frames)
     _key_visibility(b2_def_bot, [(395, 540)], total_frames)
     objs.extend([b2_in_top, b2_echo_top, b2_in_bot, b2_def_bot])
+
+    # Pulsing Red Target-Lock Alert Ring right on the Radar Dish when Conv Jet echo strikes back!
+    lock_ring = _mesh_from_bm(
+        "FX_B2_DishRedLockRing", _make_torus_bm(0.32, 0.014, major_seg=36, minor_seg=10), [mat_ring_r],
+        col, location=(dish2.x, dish2.y, dish2.z),
+        rotation=(0.0, math.radians(90.0), 0.0),
+    )
+    _key_visibility(lock_ring, [(315, 540)], total_frames)
+    for f in range(315, 541, 3):
+        p = 0.88 + 0.32 * abs(math.sin((f - 315) * 0.22))
+        lock_ring.scale = (p, p, p)
+        lock_ring.keyframe_insert("scale", frame=f)
+    objs.append(lock_ring)
 
     # Blazing crimson return rings shooting straight back from conventional jet to radar dish
     for ri in range(3):
@@ -324,12 +494,11 @@ def _build_beats12_radar_optics(col: bpy.types.Collection, total_frames: int) ->
             rc.keyframe_insert("scale", frame=f)
         objs.append(rc)
 
-    # Pulse beam brightness subtly for dynamic RF energy feel
     for f in range(1, 541, 15):
         pulse = 0.85 + 0.25 * math.sin(f * 0.28)
         gain_cyan.outputs[0].default_value = 0.65 * pulse
         gain_defl.outputs[0].default_value = 0.72 * pulse
-        gain_red.outputs[0].default_value = 1.15 * pulse
+        gain_red.outputs[0].default_value = 1.18 * pulse
         gain_cyan.outputs[0].keyframe_insert("default_value", frame=f)
         gain_defl.outputs[0].keyframe_insert("default_value", frame=f)
         gain_red.outputs[0].keyframe_insert("default_value", frame=f)
@@ -349,19 +518,17 @@ def _build_beat3_sduct_wave(
     mat_pulse = _mat_solid_glow("Mat_FX_SDuctPulse", (0.10, 0.92, 1.00), (0.10, 0.92, 1.00), 1.95)
     mat_spark = _mat_solid_glow("Mat_FX_SDuctAbsorb", (1.00, 0.62, 0.10), (1.00, 0.62, 0.10), 1.80)
 
-    # Parented directly to Stealth_Bomber_Root so it stays 100% locked inside the left S-duct!
     bm_p = bmesh.new()
-    bmesh.ops.create_icosphere(bm_p, subdivisions=2, radius=0.024)
+    bmesh.ops.create_icosphere(bm_p, subdivisions=2, radius=0.025)
     for f_face in bm_p.faces:
         f_face.material_index = 0
     pulse_obj = _mesh_from_bm("FX_B3_TrappedRFPulse", bm_p, [mat_pulse], col, parent=bomber_root)
     _key_visibility(pulse_obj, [(640, 955)], total_frames)
 
-    # Glowing ricochet trail spheres trailing behind the main pulse
     trail_objs: list[bpy.types.Object] = []
     for ti in range(4):
         bm_t = bmesh.new()
-        bmesh.ops.create_icosphere(bm_t, subdivisions=1, radius=0.015 * (1.0 - 0.16 * ti))
+        bmesh.ops.create_icosphere(bm_t, subdivisions=1, radius=0.016 * (1.0 - 0.16 * ti))
         for f_face in bm_t.faces:
             f_face.material_index = 0
         to = _mesh_from_bm(f"FX_B3_RFTrail_{ti}", bm_t, [mat_pulse if ti < 2 else mat_spark], col, parent=bomber_root)
@@ -369,19 +536,16 @@ def _build_beat3_sduct_wave(
         trail_objs.append(to)
 
     def duct_bounce_local(u: float) -> Vector:
-        # Travel from dorsal intake lip (y=-0.30) deep into S-bend (stops at y=+0.20 BEFORE blades at +0.30!)
         t = C.clamp(u, 0.0, 0.82)
         y = C.lerp(-0.26, +0.26, t)
         x_center = -(0.24 + 0.085 * math.sin(math.pi * t) - 0.045 * math.sin(2.0 * math.pi * t))
         z_center = 0.068 - 0.088 * C.smootherstep(0.08, 0.72, t) + 0.024 * math.sin(2.0 * math.pi * t)
-        # Zig-zag ricochet inside duct walls
         bounce = 0.028 * math.sin(t * 5.0 * math.pi) * (1.0 - t)
         return Vector((x_center + bounce, y, z_center + 0.016 * math.cos(t * 5.0 * math.pi)))
 
     for f in range(640, 956, 2):
         u = C.sduct_wave_progress(float(f))
         p_loc = duct_bounce_local(u)
-        # Shrink & die smoothly as RAM lining absorbs the trapped wave
         atten = max(0.05, 1.0 - C.smootherstep(0.55, 0.96, u))
         pulse_obj.location = p_loc
         pulse_obj.scale = (atten, atten, atten)
@@ -400,8 +564,51 @@ def _build_beat3_sduct_wave(
 
 
 # ==============================================================================
-# BEAT 4: MACRO HEXAGONAL RAM HONEYCOMB + HEAT RIPPLES + 3D BUMBLEBEE (0.001 m^2)
+# BEAT 4: MACRO HEXAGONAL RAM HONEYCOMB + LIVE RCS COUNTER + 3D BUMBLEBEE
 # ==============================================================================
+def _build_beat4_live_rcs_counter(
+    col: bpy.types.Collection,
+    bee_root: bpy.types.Object,
+    total_frames: int,
+) -> list[bpy.types.Object]:
+    """
+    Live 3D holographic RCS numeric countdown (`100 m² -> 10 m² -> 1.0 m² -> 0.01 m² -> 0.001 m²`)
+    floating cleanly below the collapsing holographic orb right on the macro focal plane!
+    """
+    font = bpy.data.fonts.load(str(FONT_PATH), check_existing=True) if FONT_PATH.is_file() else None
+    steps = [
+        ("100 m²",   (1125, 1159), (1.00, 0.22, 0.10)),
+        ("10 m²",    (1160, 1185), (1.00, 0.45, 0.08)),
+        ("1.0 m²",   (1186, 1212), (1.00, 0.72, 0.10)),
+        ("0.01 m²",  (1213, 1238), (0.12, 0.92, 1.00)),
+        ("0.001 m²", (1239, 1318), (1.00, 0.84, 0.18)),
+    ]
+    out_objs: list[bpy.types.Object] = []
+    for idx, (txt, (f0, f1), rgb) in enumerate(steps):
+        mat = _mat_solid_glow(f"Mat_FX_RCSCounter_{idx}", rgb, rgb, 1.85, metallic=0.1, roughness=0.25)
+        cdata = bpy.data.curves.new(f"FX_B4_RCSNum_{idx}", type="FONT")
+        cdata.body = txt
+        if font is not None:
+            cdata.font = font
+        cdata.size = 0.082
+        cdata.align_x = "CENTER"
+        cdata.align_y = "CENTER"
+        cdata.extrude = 0.004
+        cdata.bevel_depth = 0.0008
+        cdata.space_character = 1.08
+        cdata.materials.append(mat)
+        tobj = bpy.data.objects.new(f"FX_B4_RCSNum_{idx}", cdata)
+        # Positioned right beneath the collapsing sphere, facing Beat 4 camera (-Y)
+        tobj.location = Vector((0.0, -0.06, -0.22))
+        tobj.rotation_euler = Euler((math.radians(90.0), 0.0, 0.0), "XYZ")
+        tobj.visible_shadow = False
+        tobj.parent = bee_root
+        col.objects.link(tobj)
+        _key_visibility(tobj, [(f0, f1)], total_frames)
+        out_objs.append(tobj)
+    return out_objs
+
+
 def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
     objs: list[bpy.types.Object] = []
 
@@ -411,7 +618,6 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
     ram_root.rotation_euler = Euler((math.radians(24.0), math.radians(-10.0), math.radians(16.0)), "XYZ")
     col.objects.link(ram_root)
 
-    # Heat-reactive RAM carbon-ferrite shader
     mat_hex = bpy.data.materials.new("Mat_FX_RAM_HexFerrite")
     mat_hex.use_nodes = True
     nt = mat_hex.node_tree
@@ -428,12 +634,10 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
     mat_back = _mat_solid_glow("Mat_FX_RAM_Backplate", (0.14, 0.18, 0.24), (0.04, 0.45, 0.72), 0.25, metallic=0.88, roughness=0.26)
 
     bm_ram = bmesh.new()
-    # Backing titanium sub-plate
     bmesh.ops.create_cube(bm_ram, size=1.0, matrix=Matrix.Translation((0.0, 0.0, -0.04)) @ Matrix.Diagonal((0.52, 0.40, 0.020, 1.0)))
     for f_face in bm_ram.faces:
         f_face.material_index = 1
 
-    # Interlocking 3D hexagonal carbon-ferrite wave-trap honeycomb cells (5x4 matrix)
     hex_r = 0.042
     dx = hex_r * 1.62
     dy = hex_r * math.sqrt(3.0) * 0.94
@@ -443,7 +647,6 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
             hy = row * dy + (0.5 * dy if (col_i % 2) else 0.0)
             if abs(hx) > 0.21 or abs(hy) > 0.16:
                 continue
-            # Hollow hexagonal open-top wave-trap cell walls (cap_ends=False!)
             res_h = bmesh.ops.create_cone(
                 bm_ram, cap_ends=False, cap_tris=False, segments=6,
                 radius1=hex_r * 0.88, radius2=hex_r * 0.88, depth=0.062,
@@ -459,7 +662,6 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
     _key_visibility(ram_obj, [(961, 1210)], total_frames)
     objs.append(ram_obj)
 
-    # Incoming cyan RF rings sinking into RAM honeycomb + rising warm amber thermal rings
     mat_rf = _mat_solid_glow("Mat_FX_RAM_InWave", (0.08, 0.90, 1.00), (0.08, 0.90, 1.00), 1.85)
     mat_heat = _mat_solid_glow("Mat_FX_RAM_HeatRing", (1.00, 0.42, 0.08), (1.00, 0.42, 0.08), 1.75)
 
@@ -470,14 +672,12 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
         _key_visibility(ht_r, [(1020, 1195)], total_frames)
         for f in range(975, 1196, 3):
             ph = ((f - 975 + i * 20) % 60) / 60.0
-            # RF wave drops from +0.34 down to 0.0 and shrinks to nothing inside cells
             rf_r.location = Vector((0.0, 0.0, C.lerp(0.36, 0.01, ph)))
             sc_rf = C.lerp(1.15, 0.15, ph)
             rf_r.scale = (sc_rf, sc_rf, 1.0)
             rf_r.keyframe_insert("location", frame=f)
             rf_r.keyframe_insert("scale", frame=f)
 
-            # Warm thermal heat ripples drift gently upward
             ph_h = ((f - 1020 + i * 24) % 72) / 72.0
             ht_r.location = Vector((0.0, 0.0, C.lerp(0.03, 0.24, ph_h)))
             sc_h = C.lerp(0.45, 1.35, ph_h) * C.ram_heat_t(float(f))
@@ -490,13 +690,12 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
         heat_val.outputs[0].default_value = 1.15 * C.ram_heat_t(float(f))
         heat_val.outputs[0].keyframe_insert("default_value", frame=f)
 
-    # --- B. Holographic 100 m^2 -> 0.001 m^2 RCS Collapse Orb & Sculpted 3D Bumblebee ---
+    # --- B. Holographic 100 m^2 -> 0.001 m^2 RCS Collapse Orb, Live 3D Counter & Sculpted Bumblebee ---
     bee_root = bpy.data.objects.new("FX_B4_Bumblebee_Root", None)
     bee_root.location = Vector(C.STAGE["rcs_bee_pos"])
     col.objects.link(bee_root)
 
-    # Shrinking Holographic RCS Signature Sphere (blazing red 100 m^2 -> golden 0.001 m^2 halo!)
-    mat_orb, orb_gain = _mat_additive_beam("Mat_FX_RCS_Orb", (1.00, 0.30, 0.08), strength=1.10, fresnel_pow=2.0)
+    mat_orb, _ = _mat_additive_beam("Mat_FX_RCS_Orb", (1.00, 0.30, 0.08), strength=1.12, fresnel_pow=2.0)
     bm_orb = bmesh.new()
     bmesh.ops.create_icosphere(bm_orb, subdivisions=3, radius=0.42)
     for f_face in bm_orb.faces:
@@ -504,21 +703,24 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
     orb_obj = _mesh_from_bm("FX_B4_RCS_ShrinkOrb", bm_orb, [mat_orb], col, parent=bee_root)
     _key_visibility(orb_obj, [(1120, 1320)], total_frames)
 
-    # Sculpted 3D Bumblebee (golden-amber fuzzy bands, obsidian stripes, glossy eyes & fluttering wings!)
-    mat_gold = _mat_solid_glow("Mat_Bee_GoldFur", (0.98, 0.72, 0.06), (1.00, 0.72, 0.08), 0.55, metallic=0.12, roughness=0.48)
-    mat_blk = _mat_solid_glow("Mat_Bee_Obsidian", (0.02, 0.02, 0.03), (0.04, 0.04, 0.06), 0.08, metallic=0.20, roughness=0.35)
-    mat_wing, _ = _mat_additive_beam("Mat_Bee_Wing", (0.72, 0.94, 1.00), strength=0.85, fresnel_pow=1.2)
+    # Live 3D shrinking numeric readout (`100 m² -> 0.001 m²`)
+    counter_objs = _build_beat4_live_rcs_counter(col, bee_root, total_frames)
+
+    # Sculpted 3D Bumblebee with glossy compound eyes, antennae & fluttering iridescent wings
+    mat_gold = _mat_solid_glow("Mat_Bee_GoldFur", (0.98, 0.72, 0.06), (1.00, 0.74, 0.08), 0.62, metallic=0.12, roughness=0.46)
+    mat_blk = _mat_solid_glow("Mat_Bee_Obsidian", (0.02, 0.02, 0.03), (0.04, 0.04, 0.06), 0.08, metallic=0.22, roughness=0.32)
+    mat_eye = _mat_solid_glow("Mat_Bee_CompoundEye", (0.04, 0.06, 0.08), (0.12, 0.24, 0.32), 0.25, metallic=0.75, roughness=0.06)
+    mat_wing, _ = _mat_additive_beam("Mat_Bee_Wing", (0.72, 0.94, 1.00), strength=0.88, fresnel_pow=1.2)
 
     bm_bee = bmesh.new()
-    # Segmented striped bumblebee body aligned along local X (head at -0.055, stinger tail at +0.065)
     segments_spec = [
-        (-0.052, 0.022, 1),  # Head (obsidian)
-        (-0.026, 0.032, 0),  # Thorax front (gold)
-        (-0.004, 0.034, 1),  # Thorax stripe (obsidian)
-        (+0.018, 0.035, 0),  # Abdomen band 1 (gold)
-        (+0.038, 0.030, 1),  # Abdomen stripe 2 (obsidian)
-        (+0.056, 0.022, 0),  # Abdomen gold tip
-        (+0.070, 0.012, 1),  # Tail tip
+        (-0.052, 0.022, 1),
+        (-0.026, 0.032, 0),
+        (-0.004, 0.034, 1),
+        (+0.018, 0.035, 0),
+        (+0.038, 0.030, 1),
+        (+0.056, 0.022, 0),
+        (+0.070, 0.012, 1),
     ]
     for sx, rad, midx in segments_spec:
         res_seg = bmesh.ops.create_icosphere(
@@ -530,11 +732,32 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
             if all(v in sv for v in fs.verts):
                 fs.material_index = midx
 
-    bee_body = _mesh_from_bm("FX_B4_BumblebeeBody", bm_bee, [mat_gold, mat_blk], col, parent=bee_root, no_shadow=False)
+    # Glossy compound eyes & delicate antennae
+    for side in (-1.0, +1.0):
+        res_e = bmesh.ops.create_icosphere(
+            bm_bee, subdivisions=2, radius=0.010,
+            matrix=Matrix.Translation((-0.062, side * 0.014, 0.007)) @ Matrix.Diagonal((0.85, 0.75, 1.25, 1.0)),
+        )
+        ev = set(res_e["verts"])
+        for fe in bm_bee.faces:
+            if all(v in ev for v in fe.verts):
+                fe.material_index = 2
+        # Delicate curved antenna stalk
+        res_a = bmesh.ops.create_cone(
+            bm_bee, cap_ends=True, cap_tris=False, segments=8,
+            radius1=0.0022, radius2=0.0014, depth=0.028,
+            matrix=Matrix.Translation((-0.075, side * 0.012, 0.018))
+            @ Euler((side * math.radians(24.0), math.radians(-52.0), 0.0), "XYZ").to_matrix().to_4x4(),
+        )
+        av = set(res_a["verts"])
+        for fa in bm_bee.faces:
+            if all(v in av for v in fa.verts):
+                fa.material_index = 1
+
+    bee_body = _mesh_from_bm("FX_B4_BumblebeeBody", bm_bee, [mat_gold, mat_blk, mat_eye], col, parent=bee_root, no_shadow=False)
     _key_visibility(bee_body, [(1145, 1320)], total_frames)
 
-    # Twin iridescent fluttering wings
-    bee_wings: list[bpy.types.Object] = []
+    bee_wings: list[tuple[bpy.types.Object, float]] = []
     for side in (-1.0, +1.0):
         bm_w = bmesh.new()
         bmesh.ops.create_icosphere(
@@ -552,15 +775,13 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
 
     for f in range(1120, 1321, 2):
         sh = C.rcs_shrink_t(float(f))
-        # Dramatic 100 m^2 -> 0.001 m^2 collapse
         orb_s = C.lerp(1.0, 0.24, sh)
         orb_obj.scale = (orb_s, orb_s, orb_s)
         orb_obj.rotation_euler = Euler((0.0, 0.0, (f - 1120) * 0.04), "XYZ")
         orb_obj.keyframe_insert("scale", frame=f)
         orb_obj.keyframe_insert("rotation_euler", frame=f)
 
-        # Hovering bumblebee reveals smoothly as orb collapses
-        bee_s = C.smootherstep(1150.0, 1195.0, float(f)) * 1.45
+        bee_s = C.smootherstep(1150.0, 1195.0, float(f)) * 1.48
         bee_root.rotation_euler = Euler((math.radians(10.0), math.radians(-8.0), math.radians(-24.0 + 18.0 * sh)), "XYZ")
         bee_root.location = Vector(C.STAGE["rcs_bee_pos"]) + Vector((0.0, 0.0, 0.014 * math.sin((f - 1120) * 0.16)))
         bee_root.keyframe_insert("location", frame=f)
@@ -575,7 +796,7 @@ def _build_beat4_ram_and_bumblebee(col: bpy.types.Collection, total_frames: int)
             w_obj.keyframe_insert("rotation_euler", frame=f)
             w_obj.keyframe_insert("scale", frame=f)
 
-    objs.extend([orb_obj, bee_body] + [w for w, _ in bee_wings])
+    objs.extend([orb_obj, bee_body] + counter_objs + [w for w, _ in bee_wings])
     return objs
 
 
@@ -595,7 +816,6 @@ def _build_beat5_blueprint_rigs(col: bpy.types.Collection, total_frames: int) ->
     bot_e = Vector(C.STAGE["b5_bot_emitter_pos"])
     bot_f = Vector(C.STAGE["b5_bot_facet_pos"])
 
-    # 1. Dual Radar Dish Emitters on the left (X = -0.82)
     for tag, ep in (("Top", top_e), ("Bot", bot_e)):
         bm_e = bmesh.new()
         bmesh.ops.create_cone(
@@ -609,7 +829,6 @@ def _build_beat5_blueprint_rigs(col: bpy.types.Collection, total_frames: int) ->
         _key_visibility(eo, [(1321, 1560)], total_frames)
         objs.append(eo)
 
-    # 2. Top Rig: 90-Degree Corner Reflector (Regular Jet Tail Mirror) -> 180-deg Red Echo Back
     bm_m = bmesh.new()
     bmesh.ops.create_cube(bm_m, size=1.0, matrix=Matrix.Translation((0.0, 0.0, 0.0)) @ Matrix.Diagonal((0.036, 0.34, 0.42, 1.0)))
     bmesh.ops.create_cube(bm_m, size=1.0, matrix=Matrix.Translation((-0.14, 0.0, -0.19)) @ Matrix.Diagonal((0.30, 0.34, 0.032, 1.0)))
@@ -624,7 +843,6 @@ def _build_beat5_blueprint_rigs(col: bpy.types.Collection, total_frames: int) ->
     _key_visibility(top_ret, [(1360, 1560)], total_frames)
     objs.extend([top_mirror, top_in, top_ret])
 
-    # 3. Bottom Rig: 33-Degree Tilted Stealth Facet -> Deflects Cyan Beam 66-deg Skyward!
     bm_f = bmesh.new()
     bmesh.ops.create_cube(
         bm_f, size=1.0,
@@ -642,7 +860,6 @@ def _build_beat5_blueprint_rigs(col: bpy.types.Collection, total_frames: int) ->
     _key_visibility(bot_out, [(1430, 1560)], total_frames)
     objs.extend([bot_facet, bot_in, bot_out])
 
-    # Animated traveling wave beads on both CAD rigs so motion reads unmistakably at 60fps
     for tag, p0, p1, f_start, mat_dot in (
         ("TopIn", top_e + Vector((0.08, 0.0, 0.03)), top_m + Vector((-0.02, 0.0, 0.03)), 1330, mat_cyan),
         ("TopEcho", top_m + Vector((-0.02, 0.0, -0.05)), top_e + Vector((0.08, 0.0, -0.05)), 1362, mat_red),
@@ -665,32 +882,40 @@ def _build_beat5_blueprint_rigs(col: bpy.types.Collection, total_frames: int) ->
 
 
 # ==============================================================================
-# BEAT 6: 3D TACTICAL PHOSPHOR RADAR SCOPE WITH SOLITARY 0.001 m^2 BUMBLEBEE BLIP
+# BEAT 6: GLASS-DOMED TACTICAL RADAR SCOPE WITH AZIMUTH TICKS & SOLITARY BLIP
 # ==============================================================================
 def _build_beat6_radar_scope(col: bpy.types.Collection, total_frames: int) -> list[bpy.types.Object]:
     objs: list[bpy.types.Object] = []
     scope_root = bpy.data.objects.new("FX_B6_RadarScope_Root", None)
     scope_root.location = Vector(C.STAGE["b6_scope_pos"])
-    # Tilt scope face cleanly toward Beat 6 camera (-Y)
     scope_root.rotation_euler = Euler((math.radians(66.0), 0.0, 0.0), "XYZ")
     col.objects.link(scope_root)
 
     r_scope = float(C.STAGE["b6_scope_radius"])
-    mat_bezel = _mat_solid_glow("Mat_Scope_Bezel", (0.04, 0.06, 0.09), (0.06, 0.40, 0.55), 0.15, metallic=0.88, roughness=0.28)
+    mat_bezel = _mat_solid_glow("Mat_Scope_Bezel", (0.04, 0.06, 0.09), (0.06, 0.42, 0.58), 0.16, metallic=0.90, roughness=0.25)
     mat_dial = _mat_solid_glow("Mat_Scope_DarkGlass", (0.004, 0.018, 0.016), (0.01, 0.10, 0.08), 0.18, metallic=0.10, roughness=0.14)
-    mat_grid = _mat_solid_glow("Mat_Scope_PhosphorGrid", (0.06, 0.96, 0.68), (0.06, 0.96, 0.68), 1.55)
-    mat_blip = _mat_solid_glow("Mat_Scope_BeeBlip", (1.00, 0.78, 0.10), (1.00, 0.78, 0.10), 1.95)
+    mat_grid = _mat_solid_glow("Mat_Scope_PhosphorGrid", (0.06, 0.96, 0.68), (0.06, 0.96, 0.68), 1.58)
+    mat_blip = _mat_solid_glow("Mat_Scope_BeeBlip", (1.00, 0.80, 0.10), (1.00, 0.80, 0.10), 1.98)
     mat_wedge, _ = _mat_additive_beam("Mat_Scope_SweepWedge", (0.08, 0.98, 0.68), strength=0.95, fresnel_pow=0.6)
+    mat_crt_glass = _mat_scope_crt_glass()
 
-    # Outer tactical bezel + recessed phosphor dial disc
+    # Outer tactical bezel + mounting bolts + recessed phosphor dial disc
     bm_sc = bmesh.new()
     bmesh.ops.create_cone(
         bm_sc, cap_ends=True, cap_tris=False, segments=48,
-        radius1=r_scope * 1.07, radius2=r_scope * 1.04, depth=0.045,
-        matrix=Matrix.Translation((0.0, 0.0, -0.024)),
+        radius1=r_scope * 1.09, radius2=r_scope * 1.05, depth=0.052,
+        matrix=Matrix.Translation((0.0, 0.0, -0.026)),
     )
     for fs in bm_sc.faces:
         fs.material_index = 0
+    # 8 machined bezel hex bolts around perimeter
+    for k in range(8):
+        a = 2.0 * math.pi * k / 8.0 + math.pi / 8.0
+        bmesh.ops.create_cone(
+            bm_sc, cap_ends=True, cap_tris=False, segments=6,
+            radius1=0.014, radius2=0.014, depth=0.014,
+            matrix=Matrix.Translation((r_scope * 1.04 * math.cos(a), r_scope * 1.04 * math.sin(a), 0.004)),
+        )
     res_d = bmesh.ops.create_cone(
         bm_sc, cap_ends=True, cap_tris=False, segments=48,
         radius1=r_scope, radius2=r_scope, depth=0.010,
@@ -704,7 +929,19 @@ def _build_beat6_radar_scope(col: bpy.types.Collection, total_frames: int) -> li
     _key_visibility(scope_body, [(1561, total_frames)], total_frames)
     objs.append(scope_body)
 
-    # Concentric emerald-cyan radar range rings + crosshairs
+    # Subtle specular convex CRT cover lens (Shadow Ray bypass)
+    bm_gl = bmesh.new()
+    bmesh.ops.create_icosphere(
+        bm_gl, subdivisions=3, radius=r_scope * 0.99,
+        matrix=Matrix.Translation((0.0, 0.0, 0.010)) @ Matrix.Diagonal((1.0, 1.0, 0.055, 1.0)),
+    )
+    for fgl in bm_gl.faces:
+        fgl.material_index = 0
+    glass_obj = _mesh_from_bm("FX_B6_ScopeCRTGlass", bm_gl, [mat_crt_glass], col, parent=scope_root)
+    _key_visibility(glass_obj, [(1561, total_frames)], total_frames)
+    objs.append(glass_obj)
+
+    # Concentric radar range rings + crosshairs + 12 compass azimuth tick marks!
     bm_g = bmesh.new()
     for frac in (0.33, 0.66, 0.97):
         bm_t = _make_torus_bm(r_scope * frac, 0.0032, major_seg=48, minor_seg=8)
@@ -715,9 +952,14 @@ def _build_beat6_radar_scope(col: bpy.types.Collection, total_frames: int) -> li
         bm_t.free()
         bm_g.from_mesh(bm_t_mesh)
         bpy.data.meshes.remove(bm_t_mesh)
-    # Crosshairs
     bmesh.ops.create_cube(bm_g, size=1.0, matrix=Matrix.Translation((0.0, 0.0, 0.008)) @ Matrix.Diagonal((r_scope * 1.94, 0.004, 0.003, 1.0)))
     bmesh.ops.create_cube(bm_g, size=1.0, matrix=Matrix.Translation((0.0, 0.0, 0.008)) @ Matrix.Diagonal((0.004, r_scope * 1.94, 0.003, 1.0)))
+    for k in range(12):
+        a = 2.0 * math.pi * k / 12.0
+        tick_len = 0.036 if (k % 3 == 0) else 0.022
+        r_mid = r_scope * 0.95 - 0.5 * tick_len
+        tm = Matrix.Translation((r_mid * math.cos(a), r_mid * math.sin(a), 0.009)) @ Euler((0.0, 0.0, a), "XYZ").to_matrix().to_4x4()
+        bmesh.ops.create_cube(bm_g, size=1.0, matrix=tm @ Matrix.Diagonal((tick_len, 0.0045, 0.003, 1.0)))
     for fg in bm_g.faces:
         fg.material_index = 0
     grid_obj = _mesh_from_bm("FX_B6_ScopeGrid", bm_g, [mat_grid], col, parent=scope_root)
@@ -726,11 +968,9 @@ def _build_beat6_radar_scope(col: bpy.types.Collection, total_frames: int) -> li
 
     # Rotating Radar Phosphor Sweep Arm + Translucent Trail Wedge
     bm_sw = bmesh.new()
-    # Crisp leading sweep needle along +Y
     bmesh.ops.create_cube(bm_sw, size=1.0, matrix=Matrix.Translation((0.0, 0.48 * r_scope, 0.012)) @ Matrix.Diagonal((0.007, 0.96 * r_scope, 0.004, 1.0)))
     for fsw in bm_sw.faces:
         fsw.material_index = 0
-    # Trailing 32-deg phosphor fan wedge
     v_c = bm_sw.verts.new((0.0, 0.0, 0.010))
     fan_pts = []
     for k in range(10):
@@ -747,21 +987,29 @@ def _build_beat6_radar_scope(col: bpy.types.Collection, total_frames: int) -> li
         sweep_obj.keyframe_insert("rotation_euler", frame=f)
     objs.append(sweep_obj)
 
-    # Solitary Tiny Pulsing Golden-Amber 0.001 m^2 Bumblebee Speck!
+    # Solitary Tiny Pulsing Golden-Amber 0.001 m^2 Bumblebee Speck + Target Reticle Halo!
     bm_b = bmesh.new()
-    bmesh.ops.create_icosphere(bm_b, subdivisions=2, radius=0.016)
+    bmesh.ops.create_icosphere(bm_b, subdivisions=2, radius=0.015)
     for fb in bm_b.faces:
         fb.material_index = 0
     blip_obj = _mesh_from_bm(
         "FX_B6_SolitaryBeeBlip", bm_b, [mat_blip], col, parent=scope_root,
         location=(0.10, 0.08, 0.014),
     )
+    reticle_obj = _mesh_from_bm(
+        "FX_B6_BeeBlipReticle", _make_torus_bm(0.036, 0.0026, major_seg=24, minor_seg=8), [mat_blip],
+        col, parent=scope_root, location=(0.10, 0.08, 0.014),
+    )
     _key_visibility(blip_obj, [(1585, total_frames)], total_frames)
+    _key_visibility(reticle_obj, [(1585, total_frames)], total_frames)
     for f in range(1585, total_frames + 1, 4):
         p = 0.80 + 0.45 * abs(math.sin((f - 1585) * 0.16))
         blip_obj.scale = (p, p, p)
         blip_obj.keyframe_insert("scale", frame=f)
-    objs.append(blip_obj)
+        rp = 0.85 + 0.55 * (((f - 1585) % 45) / 45.0)
+        reticle_obj.scale = (rp, rp, 1.0)
+        reticle_obj.keyframe_insert("scale", frame=f)
+    objs.extend([blip_obj, reticle_obj])
 
     return objs
 
@@ -771,13 +1019,17 @@ def build_radar_fx(
     bomber_root: bpy.types.Object,
     total_frames: int = C.TOTAL_FRAMES,
 ) -> dict[str, Any]:
-    """Assemble all 6-beat optical radar, S-duct wave, RAM honeycomb, bumblebee, blueprint & scope FX."""
+    """Assemble all 6-beat optical radar, contrails, blank scope, S-duct wave, RAM/counter/bumblebee, blueprint & CRT scope FX."""
+    trails = _build_wingtip_contrails(col, bomber_root, total_frames)
+    b1_mon = _build_beat1_blank_monitor(col, total_frames)
     b12 = _build_beats12_radar_optics(col, total_frames)
     b3 = _build_beat3_sduct_wave(col, bomber_root, total_frames)
     b4 = _build_beat4_ram_and_bumblebee(col, total_frames)
     b5 = _build_beat5_blueprint_rigs(col, total_frames)
     b6 = _build_beat6_radar_scope(col, total_frames)
     return {
+        "contrails": trails,
+        "b1_monitor": b1_mon,
         "b12_optics": b12,
         "b3_sduct_wave": b3,
         "b4_ram_bee": b4,
