@@ -1,0 +1,265 @@
+{
+  "episode": "bulletproof-vest-myth",
+  "title": "Why Bulletproof Vests DON'T Send You Flying Backward",
+  "duration": 30.0,
+  "fps": 60,
+  "totalFrames": 1800,
+  "resolution": [1080, 1920],
+  "audio": {
+    "masterPath": "audio/output/master_audio.wav",
+    "manifestPath": "audio/output/voice_manifest.json",
+    "srtPath": "subtitles/subtitles.srt",
+    "assPath": "subtitles/subtitles.ass",
+    "sampleRate": 48000,
+    "channels": 2,
+    "targetLufs": -14.0,
+    "truePeakDbfs": -1.5,
+    "aacBitrate": "320k",
+    "sfxGain": 1.12,
+    "transientGuardMs": 380
+  },
+  "speakers": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "lang": "en-us",
+      "speed": 1.0,
+      "pan": 0.0
+    }
+  },
+  "beats": [
+    {
+      "id": "B1_HOOK",
+      "name": "Hook: Dead-Center Chest Hit & Half-Inch Shift",
+      "startFrame": 1,
+      "endFrame": 210,
+      "start": 0.0,
+      "end": 3.5,
+      "callout": "0.5 INCH SHIFT"
+    },
+    {
+      "id": "B2_MOMENTUM",
+      "name": "Momentum Myth: Bullet vs Fastball Linear Impulse",
+      "startFrame": 211,
+      "endFrame": 510,
+      "start": 3.5,
+      "end": 8.5,
+      "callout": "TINY MOMENTUM"
+    },
+    {
+      "id": "B3_KEVLAR",
+      "name": "Macro X-Ray: Golden Kevlar Trampoline Weave",
+      "startFrame": 511,
+      "endFrame": 900,
+      "start": 8.5,
+      "end": 15.0,
+      "callout": "KEVLAR NET"
+    },
+    {
+      "id": "B4_CERAMIC",
+      "name": "Rifle Plate: Silicon-Carbide Shatter & Dyneema Catch",
+      "startFrame": 901,
+      "endFrame": 1260,
+      "start": 15.0,
+      "end": 21.0,
+      "callout": "CERAMIC + DYNEEMA"
+    },
+    {
+      "id": "B5_NEWTON",
+      "name": "Newton's Third Law: Equal & Opposite Shooter vs Target Recoil",
+      "startFrame": 1261,
+      "endFrame": 1560,
+      "start": 21.0,
+      "end": 26.0,
+      "callout": "F₁ = −F₂ / EQUAL RECOIL"
+    },
+    {
+      "id": "B6_FINAL",
+      "name": "Reality Payoff: Rock-Steady Stance & Blunt Bruise",
+      "startFrame": 1561,
+      "endFrame": 1800,
+      "start": 26.0,
+      "end": 30.0,
+      "callout": "JUST A BRUISE"
+    }
+  ],
+  "narration_lines": [
+    {
+      "id": "L1",
+      "beat": "B1_HOOK",
+      "speaker": "narrator",
+      "t0": 0.08,
+      "t1": 3.45,
+      "text": "If a bullet hits your vest, you don't fly backward, you barely budge."
+    },
+    {
+      "id": "L2",
+      "beat": "B2_MOMENTUM",
+      "speaker": "narrator",
+      "t0": 3.62,
+      "t1": 8.40,
+      "text": "Movies send heroes crashing through glass, yet a bullet carries less momentum than a fastball."
+    },
+    {
+      "id": "L3",
+      "beat": "B3_KEVLAR",
+      "speaker": "narrator",
+      "t0": 8.65,
+      "t1": 14.85,
+      "text": "Instead, woven golden Kevlar catches the spinning bullet like a trampoline, spreading that force across your whole chest."
+    },
+    {
+      "id": "L4",
+      "beat": "B4_CERAMIC",
+      "speaker": "narrator",
+      "t0": 15.15,
+      "t1": 20.85,
+      "text": "For faster rifle rounds, a ceramic plate shatters the metal tip to dust, while Dyneema traps every shard."
+    },
+    {
+      "id": "L5",
+      "beat": "B5_NEWTON",
+      "speaker": "narrator",
+      "t0": 21.15,
+      "t1": 25.85,
+      "text": "And Newton's Third Law seals it, any shot strong enough to launch you would launch the shooter too."
+    },
+    {
+      "id": "L6",
+      "beat": "B6_FINAL",
+      "speaker": "narrator",
+      "t0": 26.15,
+      "t1": 29.85,
+      "text": "So real armor never sends you flying, it just leaves one brutal bruise."
+    }
+  ],
+  "sfx_cues": [
+    {
+      "ev": "b1_fire",
+      "beat": "B1_HOOK",
+      "frame": 22,
+      "t": 0.3667,
+      "type": "handgun_muzzle_crack_slowmo",
+      "pan": -0.4
+    },
+    {
+      "ev": "b1_impact",
+      "beat": "B1_HOOK",
+      "frame": 75,
+      "t": 1.25,
+      "type": "plate_chest_slam_sub_punch",
+      "pan": 0.15
+    },
+    {
+      "ev": "b1_sparks_peak",
+      "beat": "B1_HOOK",
+      "frame": 92,
+      "t": 1.5333,
+      "type": "metallic_spark_hiss_scatter",
+      "pan": 0.2
+    },
+    {
+      "ev": "b2_muzzle_fire",
+      "beat": "B2_MOMENTUM",
+      "frame": 245,
+      "t": 4.0833,
+      "type": "range_gunshot_crack_a",
+      "pan": -0.45
+    },
+    {
+      "ev": "b2_vest_hit",
+      "beat": "B2_MOMENTUM",
+      "frame": 335,
+      "t": 5.5833,
+      "type": "vest_dull_thud_sub_punch",
+      "pan": 0.35
+    },
+    {
+      "ev": "b3_xray_peel",
+      "beat": "B3_KEVLAR",
+      "frame": 535,
+      "t": 8.9167,
+      "type": "xray_scan_pulse",
+      "pan": 0.0
+    },
+    {
+      "ev": "b3_kevlar_impact",
+      "beat": "B3_KEVLAR",
+      "frame": 615,
+      "t": 10.25,
+      "type": "kevlar_fabric_snap_catch",
+      "pan": 0.05
+    },
+    {
+      "ev": "b3_ripple_peak",
+      "beat": "B3_KEVLAR",
+      "frame": 735,
+      "t": 12.25,
+      "type": "kevlar_trampoline_tension_hum",
+      "pan": 0.0
+    },
+    {
+      "ev": "b4_rifle_fire",
+      "beat": "B4_CERAMIC",
+      "frame": 925,
+      "t": 15.4167,
+      "type": "rifle_crack_high_velocity",
+      "pan": -0.35
+    },
+    {
+      "ev": "b4_rifle_impact",
+      "beat": "B4_CERAMIC",
+      "frame": 965,
+      "t": 16.0833,
+      "type": "ceramic_strike_impact_boom",
+      "pan": 0.0
+    },
+    {
+      "ev": "b4_ceramic_shatter",
+      "beat": "B4_CERAMIC",
+      "frame": 1030,
+      "t": 17.1667,
+      "type": "ceramic_fracture_shatter_crunch",
+      "pan": 0.1
+    },
+    {
+      "ev": "b4_dyneema_catch",
+      "beat": "B4_CERAMIC",
+      "frame": 1125,
+      "t": 18.75,
+      "type": "dyneema_fiber_damp_thump",
+      "pan": 0.15
+    },
+    {
+      "ev": "b5_dual_fire",
+      "beat": "B5_NEWTON",
+      "frame": 1295,
+      "t": 21.5833,
+      "type": "blueprint_rifle_shot_recoil",
+      "pan": -0.45
+    },
+    {
+      "ev": "b5_vest_absorb",
+      "beat": "B5_NEWTON",
+      "frame": 1365,
+      "t": 22.75,
+      "type": "blueprint_vest_absorb_thud",
+      "pan": 0.45
+    },
+    {
+      "ev": "b5_vectors_lock",
+      "beat": "B5_NEWTON",
+      "frame": 1405,
+      "t": 23.4167,
+      "type": "newton_vector_lock_braam",
+      "pan": 0.0
+    },
+    {
+      "ev": "b6_hero_steady",
+      "beat": "B6_FINAL",
+      "frame": 1620,
+      "t": 27.0,
+      "type": "spent_dust_settle_sub_resolve",
+      "pan": 0.0
+    }
+  ]
+}
