@@ -1,0 +1,137 @@
+{
+  "title": "Why Jumping in a Falling Elevator WON'T Save You",
+  "duration": 30.0,
+  "fps": 60,
+  "totalFrames": 1800,
+  "resolution": [1080, 1920],
+  "audio": {
+    "masterPath": "audio/output/master_audio.wav",
+    "manifestPath": "audio/output/voice_manifest.json",
+    "srtPath": "subtitles/subtitles.srt",
+    "assPath": "subtitles/subtitles.ass"
+  },
+  "speakers": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "lang": "en-us",
+      "speed": 1.0,
+      "pan": 0.0
+    }
+  },
+  "beats": [
+    {
+      "id": "B1",
+      "name": "Hook: Floor Display Drop & Jump Myth Crouch",
+      "start": 0.0,
+      "end": 5.2
+    },
+    {
+      "id": "B2",
+      "name": "Cable Snap & 50 mph Shaft Plunge Cutaway",
+      "start": 5.2,
+      "end": 10.0
+    },
+    {
+      "id": "B3",
+      "name": "Myth Jump (+0.52m, -2 mph vs 50 mph) & Ceiling Strike",
+      "start": 10.0,
+      "end": 15.0
+    },
+    {
+      "id": "B4",
+      "name": "28G Pit Impact & Full-Body X-Ray Skeleton Shockwave",
+      "start": 15.0,
+      "end": 20.6
+    },
+    {
+      "id": "B5",
+      "name": "Safety Rail Clamps & Flat-Back Survival Pose",
+      "start": 20.6,
+      "end": 25.5
+    },
+    {
+      "id": "B6",
+      "name": "12x Floor Force-Distribution Grid Hero Reveal",
+      "start": 25.5,
+      "end": 30.0
+    }
+  ],
+  "dialogue": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "start": 0.15,
+      "end": 4.95,
+      "text": "Movies completely lied to you, jumping in a falling elevator won't save your life, and here's the brutal physics why."
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "narrator",
+      "start": 5.35,
+      "end": 9.75,
+      "text": "When those steel cables snap high above the lobby, you and the elevator plunge together at fifty miles an hour."
+    },
+    {
+      "id": "L3",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "start": 10.15,
+      "end": 14.75,
+      "text": "Your legs only jump upward at two miles an hour, barely denting the crash, while your skull can slam the ceiling first."
+    },
+    {
+      "id": "L4",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "start": 15.2,
+      "end": 20.3,
+      "text": "At impact, you still strike the bottom at forty-eight miles an hour, driving twenty-eight Gs straight through your shins and spine."
+    },
+    {
+      "id": "L5",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "start": 20.8,
+      "end": 25.25,
+      "text": "Real shafts fire steel safety clamps onto the rails, and if one ever fails, your only real chance is lying flat on your back."
+    },
+    {
+      "id": "L6",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "start": 25.7,
+      "end": 29.6,
+      "text": "Spreading flat multiplies contact area twelve times over, sparing your spine and skull from lethal shock."
+    }
+  ],
+  "sfx": [
+    { "t": 0.12, "type": "elevator_hum_ambient", "pan": 0.0 },
+    { "t": 1.82, "type": "alarm_start_chime", "pan": 0.0 },
+    { "t": 2.48, "type": "alarm_pulse", "pan": 0.0 },
+    { "t": 3.15, "type": "crouch_cloth_creak", "pan": 0.0 },
+    { "t": 3.85, "type": "cab_tremor_rattle", "pan": 0.0 },
+    { "t": 5.4, "type": "cable_snap_whip", "pan": 0.0 },
+    { "t": 5.65, "type": "xray_scan_whoosh", "pan": 0.0 },
+    { "t": 6.1, "type": "shaft_wind_ramp", "pan": 0.0 },
+    { "t": 8.0, "type": "shaft_wind_howl", "pan": 0.0 },
+    { "t": 10.32, "type": "jump_crouch_coil", "pan": 0.0 },
+    { "t": 11.07, "type": "jump_launch_whoosh", "pan": 0.0 },
+    { "t": 12.48, "type": "ceiling_hit_thud", "pan": 0.0 },
+    { "t": 13.6, "type": "freefall_drop_rush", "pan": 0.0 },
+    { "t": 15.15, "type": "xray_in_sweep", "pan": 0.0 },
+    { "t": 15.65, "type": "pit_impact_boom", "pan": 0.0 },
+    { "t": 16.4, "type": "pit_peak_comp_crunch", "pan": 0.0 },
+    { "t": 17.4, "type": "spine_shockwave_pulse", "pan": 0.0 },
+    { "t": 18.8, "type": "g_load_sub_rumble", "pan": 0.0 },
+    { "t": 20.6, "type": "mechanical_cut_whoosh", "pan": 0.0 },
+    { "t": 21.23, "type": "brake_clamp_slam_left", "pan": -0.25 },
+    { "t": 21.25, "type": "brake_clamp_slam_right", "pan": 0.25 },
+    { "t": 21.55, "type": "rail_friction_screech", "pan": 0.0 },
+    { "t": 23.08, "type": "survival_cut_whoosh", "pan": 0.0 },
+    { "t": 24.4, "type": "lie_flat_body_thump", "pan": 0.0 },
+    { "t": 25.73, "type": "grid_reveal_chime", "pan": 0.0 },
+    { "t": 26.8, "type": "force_spread_hum", "pan": 0.0 }
+  ]
+}

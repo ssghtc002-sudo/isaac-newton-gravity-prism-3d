@@ -1,0 +1,693 @@
+{
+  "title": "Why Jumping in a Falling Elevator WON'T Save You",
+  "duration": 30.0,
+  "lines": [
+    {
+      "id": "L1",
+      "beatId": "B1",
+      "speaker": "narrator",
+      "text": "Movies completely lied to you, jumping in a falling elevator won't save your life, and here's the brutal physics why.",
+      "start": 0.15,
+      "end": 4.755,
+      "ratePct": 14,
+      "atempo": 1.0639,
+      "words": [
+        {
+          "word": "Movies",
+          "start": 0.15,
+          "end": 0.4199
+        },
+        {
+          "word": "completely",
+          "start": 0.4302,
+          "end": 0.8216
+        },
+        {
+          "word": "lied",
+          "start": 0.8319,
+          "end": 1.0482
+        },
+        {
+          "word": "to",
+          "start": 1.0585,
+          "end": 1.1511
+        },
+        {
+          "word": "you,",
+          "start": 1.1615,
+          "end": 1.2954
+        },
+        {
+          "word": "jumping",
+          "start": 1.3778,
+          "end": 1.6455
+        },
+        {
+          "word": "in",
+          "start": 1.6559,
+          "end": 1.7177
+        },
+        {
+          "word": "a",
+          "start": 1.728,
+          "end": 1.7692
+        },
+        {
+          "word": "falling",
+          "start": 1.7795,
+          "end": 2.1091
+        },
+        {
+          "word": "elevator",
+          "start": 2.1194,
+          "end": 2.5211
+        },
+        {
+          "word": "won't",
+          "start": 2.5313,
+          "end": 2.727
+        },
+        {
+          "word": "save",
+          "start": 2.7373,
+          "end": 2.9433
+        },
+        {
+          "word": "your",
+          "start": 2.9537,
+          "end": 3.067
+        },
+        {
+          "word": "life,",
+          "start": 3.0772,
+          "end": 3.3862
+        },
+        {
+          "word": "and",
+          "start": 3.4892,
+          "end": 3.5716
+        },
+        {
+          "word": "here's",
+          "start": 3.5819,
+          "end": 3.8085
+        },
+        {
+          "word": "the",
+          "start": 3.8188,
+          "end": 3.9012
+        },
+        {
+          "word": "brutal",
+          "start": 3.9115,
+          "end": 4.1484
+        },
+        {
+          "word": "physics",
+          "start": 4.1587,
+          "end": 4.4574
+        },
+        {
+          "word": "why.",
+          "start": 4.4677,
+          "end": 4.755
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "beatId": "B2",
+      "speaker": "narrator",
+      "text": "When those steel cables snap high above the lobby, you and the elevator plunge together at fifty miles an hour.",
+      "start": 5.35,
+      "end": 9.5806,
+      "ratePct": 25,
+      "atempo": 1.0699,
+      "words": [
+        {
+          "word": "When",
+          "start": 5.35,
+          "end": 5.432
+        },
+        {
+          "word": "those",
+          "start": 5.4413,
+          "end": 5.5818
+        },
+        {
+          "word": "steel",
+          "start": 5.5911,
+          "end": 5.7971
+        },
+        {
+          "word": "cables",
+          "start": 5.8064,
+          "end": 6.1247
+        },
+        {
+          "word": "snap",
+          "start": 6.1341,
+          "end": 6.3775
+        },
+        {
+          "word": "high",
+          "start": 6.3869,
+          "end": 6.5647
+        },
+        {
+          "word": "above",
+          "start": 6.5741,
+          "end": 6.7426
+        },
+        {
+          "word": "the",
+          "start": 6.752,
+          "end": 6.8081
+        },
+        {
+          "word": "lobby,",
+          "start": 6.8175,
+          "end": 7.0796
+        },
+        {
+          "word": "you",
+          "start": 7.1264,
+          "end": 7.3137
+        },
+        {
+          "word": "and",
+          "start": 7.3324,
+          "end": 7.4541
+        },
+        {
+          "word": "the",
+          "start": 7.4634,
+          "end": 7.5477
+        },
+        {
+          "word": "elevator",
+          "start": 7.5571,
+          "end": 7.9315
+        },
+        {
+          "word": "plunge",
+          "start": 7.9409,
+          "end": 8.1843
+        },
+        {
+          "word": "together",
+          "start": 8.1936,
+          "end": 8.5681
+        },
+        {
+          "word": "at",
+          "start": 8.5775,
+          "end": 8.643
+        },
+        {
+          "word": "fifty",
+          "start": 8.6524,
+          "end": 8.9238
+        },
+        {
+          "word": "miles",
+          "start": 8.9332,
+          "end": 9.186
+        },
+        {
+          "word": "an",
+          "start": 9.1953,
+          "end": 9.2609
+        },
+        {
+          "word": "hour.",
+          "start": 9.2702,
+          "end": 9.5806
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "beatId": "B3",
+      "speaker": "narrator",
+      "text": "Your legs only jump upward at two miles an hour, barely denting the crash, while your skull can slam the ceiling first.",
+      "start": 10.15,
+      "end": 14.5831,
+      "ratePct": 30,
+      "atempo": 1.0723,
+      "words": [
+        {
+          "word": "Your",
+          "start": 10.15,
+          "end": 10.2154
+        },
+        {
+          "word": "legs",
+          "start": 10.2244,
+          "end": 10.4044
+        },
+        {
+          "word": "only",
+          "start": 10.4134,
+          "end": 10.5935
+        },
+        {
+          "word": "jump",
+          "start": 10.6025,
+          "end": 10.8095
+        },
+        {
+          "word": "upward",
+          "start": 10.8185,
+          "end": 11.0076
+        },
+        {
+          "word": "at",
+          "start": 11.0166,
+          "end": 11.1066
+        },
+        {
+          "word": "two",
+          "start": 11.1156,
+          "end": 11.2686
+        },
+        {
+          "word": "miles",
+          "start": 11.2776,
+          "end": 11.5567
+        },
+        {
+          "word": "an",
+          "start": 11.5657,
+          "end": 11.6377
+        },
+        {
+          "word": "hour,",
+          "start": 11.6467,
+          "end": 11.9438
+        },
+        {
+          "word": "barely",
+          "start": 11.9798,
+          "end": 12.2498
+        },
+        {
+          "word": "denting",
+          "start": 12.2589,
+          "end": 12.5019
+        },
+        {
+          "word": "the",
+          "start": 12.5109,
+          "end": 12.5649
+        },
+        {
+          "word": "crash,",
+          "start": 12.5739,
+          "end": 12.952
+        },
+        {
+          "word": "while",
+          "start": 12.988,
+          "end": 13.1591
+        },
+        {
+          "word": "your",
+          "start": 13.1681,
+          "end": 13.2761
+        },
+        {
+          "word": "skull",
+          "start": 13.2851,
+          "end": 13.5101
+        },
+        {
+          "word": "can",
+          "start": 13.5191,
+          "end": 13.6181
+        },
+        {
+          "word": "slam",
+          "start": 13.6272,
+          "end": 13.8882
+        },
+        {
+          "word": "the",
+          "start": 13.8972,
+          "end": 13.9512
+        },
+        {
+          "word": "ceiling",
+          "start": 13.9602,
+          "end": 14.2303
+        },
+        {
+          "word": "first.",
+          "start": 14.2393,
+          "end": 14.5831
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "beatId": "B4",
+      "speaker": "narrator",
+      "text": "At impact, you still strike the bottom at forty-eight miles an hour, driving twenty-eight Gs straight through your shins and spine.",
+      "start": 15.2,
+      "end": 20.1032,
+      "ratePct": 26,
+      "atempo": 1.0734,
+      "words": [
+        {
+          "word": "At",
+          "start": 15.2,
+          "end": 15.2808
+        },
+        {
+          "word": "impact,",
+          "start": 15.2901,
+          "end": 15.6418
+        },
+        {
+          "word": "you",
+          "start": 15.6881,
+          "end": 15.8177
+        },
+        {
+          "word": "still",
+          "start": 15.8269,
+          "end": 16.012
+        },
+        {
+          "word": "strike",
+          "start": 16.0213,
+          "end": 16.2342
+        },
+        {
+          "word": "the",
+          "start": 16.2435,
+          "end": 16.299
+        },
+        {
+          "word": "bottom",
+          "start": 16.3082,
+          "end": 16.6044
+        },
+        {
+          "word": "at",
+          "start": 16.623,
+          "end": 16.7248
+        },
+        {
+          "word": "forty-eight",
+          "start": 16.734,
+          "end": 17.1413
+        },
+        {
+          "word": "miles",
+          "start": 17.1505,
+          "end": 17.4005
+        },
+        {
+          "word": "an",
+          "start": 17.4097,
+          "end": 17.4838
+        },
+        {
+          "word": "hour,",
+          "start": 17.493,
+          "end": 17.7707
+        },
+        {
+          "word": "driving",
+          "start": 17.817,
+          "end": 18.1224
+        },
+        {
+          "word": "twenty-eight",
+          "start": 18.1317,
+          "end": 18.5297
+        },
+        {
+          "word": "Gs",
+          "start": 18.5482,
+          "end": 18.8166
+        },
+        {
+          "word": "straight",
+          "start": 18.8259,
+          "end": 19.0943
+        },
+        {
+          "word": "through",
+          "start": 19.1036,
+          "end": 19.2239
+        },
+        {
+          "word": "your",
+          "start": 19.2331,
+          "end": 19.3442
+        },
+        {
+          "word": "shins",
+          "start": 19.3535,
+          "end": 19.6589
+        },
+        {
+          "word": "and",
+          "start": 19.6682,
+          "end": 19.7422
+        },
+        {
+          "word": "spine.",
+          "start": 19.7515,
+          "end": 20.1032
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "beatId": "B5",
+      "speaker": "narrator",
+      "text": "Real shafts fire steel safety clamps onto the rails, and if one ever fails, your only real chance is lying flat on your back.",
+      "start": 20.8,
+      "end": 25.0728,
+      "ratePct": 44,
+      "atempo": 1.0721,
+      "words": [
+        {
+          "word": "Real",
+          "start": 20.8,
+          "end": 20.9077
+        },
+        {
+          "word": "shafts",
+          "start": 20.9158,
+          "end": 21.183
+        },
+        {
+          "word": "fire",
+          "start": 21.1912,
+          "end": 21.4179
+        },
+        {
+          "word": "steel",
+          "start": 21.426,
+          "end": 21.6284
+        },
+        {
+          "word": "safety",
+          "start": 21.6366,
+          "end": 21.9038
+        },
+        {
+          "word": "clamps",
+          "start": 21.9119,
+          "end": 22.1711
+        },
+        {
+          "word": "onto",
+          "start": 22.1791,
+          "end": 22.3492
+        },
+        {
+          "word": "the",
+          "start": 22.3573,
+          "end": 22.4059
+        },
+        {
+          "word": "rails,",
+          "start": 22.414,
+          "end": 22.6894
+        },
+        {
+          "word": "and",
+          "start": 22.7056,
+          "end": 22.7865
+        },
+        {
+          "word": "if",
+          "start": 22.7947,
+          "end": 22.8513
+        },
+        {
+          "word": "one",
+          "start": 22.8594,
+          "end": 22.989
+        },
+        {
+          "word": "ever",
+          "start": 22.9971,
+          "end": 23.1186
+        },
+        {
+          "word": "fails,",
+          "start": 23.1267,
+          "end": 23.4182
+        },
+        {
+          "word": "your",
+          "start": 23.4344,
+          "end": 23.5721
+        },
+        {
+          "word": "only",
+          "start": 23.5802,
+          "end": 23.7584
+        },
+        {
+          "word": "real",
+          "start": 23.7665,
+          "end": 23.9122
+        },
+        {
+          "word": "chance",
+          "start": 23.9203,
+          "end": 24.1633
+        },
+        {
+          "word": "is",
+          "start": 24.1714,
+          "end": 24.2605
+        },
+        {
+          "word": "lying",
+          "start": 24.2686,
+          "end": 24.4224
+        },
+        {
+          "word": "flat",
+          "start": 24.4305,
+          "end": 24.6573
+        },
+        {
+          "word": "on",
+          "start": 24.6735,
+          "end": 24.7545
+        },
+        {
+          "word": "your",
+          "start": 24.7626,
+          "end": 24.8355
+        },
+        {
+          "word": "back.",
+          "start": 24.8436,
+          "end": 25.0728
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "beatId": "B6",
+      "speaker": "narrator",
+      "text": "Spreading flat multiplies contact area twelve times over, sparing your spine and skull from lethal shock.",
+      "start": 25.7,
+      "end": 29.4519,
+      "ratePct": 43,
+      "atempo": 1.0719,
+      "words": [
+        {
+          "word": "Spreading",
+          "start": 25.7,
+          "end": 25.9521
+        },
+        {
+          "word": "flat",
+          "start": 25.9603,
+          "end": 26.1728
+        },
+        {
+          "word": "multiplies",
+          "start": 26.1809,
+          "end": 26.614
+        },
+        {
+          "word": "contact",
+          "start": 26.6222,
+          "end": 27.0063
+        },
+        {
+          "word": "area",
+          "start": 27.0145,
+          "end": 27.2025
+        },
+        {
+          "word": "twelve",
+          "start": 27.2106,
+          "end": 27.4476
+        },
+        {
+          "word": "times",
+          "start": 27.4558,
+          "end": 27.6764
+        },
+        {
+          "word": "over,",
+          "start": 27.6846,
+          "end": 27.9052
+        },
+        {
+          "word": "sparing",
+          "start": 27.9461,
+          "end": 28.1668
+        },
+        {
+          "word": "your",
+          "start": 28.175,
+          "end": 28.2485
+        },
+        {
+          "word": "spine",
+          "start": 28.2567,
+          "end": 28.559
+        },
+        {
+          "word": "and",
+          "start": 28.5672,
+          "end": 28.6326
+        },
+        {
+          "word": "skull",
+          "start": 28.6408,
+          "end": 28.8369
+        },
+        {
+          "word": "from",
+          "start": 28.8451,
+          "end": 28.9759
+        },
+        {
+          "word": "lethal",
+          "start": 28.984,
+          "end": 29.1801
+        },
+        {
+          "word": "shock.",
+          "start": 29.1883,
+          "end": 29.4519
+        }
+      ]
+    }
+  ]
+}

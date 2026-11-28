@@ -1,0 +1,52 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,66,&H0038C8FF,&H00FFFFFF,&H00080A10,&H96000000,-1,0,0,0,100,100,0,0,1,8,3.0,2,80,80,235,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.15,0:00:00.82,Default,,0,0,0,,{\kf28}Movies {\kf39}completely
+Dialogue: 0,0:00:00.83,0:00:01.30,Default,,0,0,0,,{\kf23}lied {\kf10}to {\kf14}you,
+Dialogue: 0,0:00:01.38,0:00:02.11,Default,,0,0,0,,{\kf28}jumping {\kf7}in {\kf5}a {\kf33}falling
+Dialogue: 0,0:00:02.12,0:00:02.73,Default,,0,0,0,,{\kf41}elevator {\kf20}won't
+Dialogue: 0,0:00:02.74,0:00:03.39,Default,,0,0,0,,{\kf21}save {\kf13}your {\kf31}life,
+Dialogue: 0,0:00:03.49,0:00:04.15,Default,,0,0,0,,{\kf9}and {\kf24}here's {\kf9}the {\kf24}brutal
+Dialogue: 0,0:00:04.16,0:00:04.76,Default,,0,0,0,,{\kf31}physics {\kf29}why.
+Dialogue: 0,0:00:05.35,0:00:05.80,Default,,0,0,0,,{\kf9}When {\kf15}those {\kf21}steel
+Dialogue: 0,0:00:05.81,0:00:06.56,Default,,0,0,0,,{\kf32}cables {\kf26}snap {\kf17}high
+Dialogue: 0,0:00:06.57,0:00:07.08,Default,,0,0,0,,{\kf18}above {\kf7}the {\kf26}lobby,
+Dialogue: 0,0:00:07.13,0:00:07.93,Default,,0,0,0,,{\kf20}you {\kf13}and {\kf10}the {\kf37}elevator
+Dialogue: 0,0:00:07.94,0:00:08.92,Default,,0,0,0,,{\kf25}plunge {\kf39}together\N{\kf7}at {\kf27}fifty
+Dialogue: 0,0:00:08.93,0:00:09.58,Default,,0,0,0,,{\kf27}miles {\kf7}an {\kf31}hour.
+Dialogue: 0,0:00:10.15,0:00:10.59,Default,,0,0,0,,{\kf7}Your {\kf19}legs {\kf18}only
+Dialogue: 0,0:00:10.60,0:00:11.27,Default,,0,0,0,,{\kf22}jump {\kf20}upward {\kf10}at {\kf15}two
+Dialogue: 0,0:00:11.28,0:00:11.94,Default,,0,0,0,,{\kf29}miles {\kf8}an {\kf29}hour,
+Dialogue: 0,0:00:11.98,0:00:12.95,Default,,0,0,0,,{\kf28}barely {\kf25}denting\N{\kf6}the {\kf38}crash,
+Dialogue: 0,0:00:12.99,0:00:13.51,Default,,0,0,0,,{\kf18}while {\kf12}your {\kf22}skull
+Dialogue: 0,0:00:13.52,0:00:13.89,Default,,0,0,0,,{\kf11}can {\kf26}slam
+Dialogue: 0,0:00:13.90,0:00:14.58,Default,,0,0,0,,{\kf6}the {\kf28}ceiling {\kf34}first.
+Dialogue: 0,0:00:15.20,0:00:15.64,Default,,0,0,0,,{\kf9}At {\kf35}impact,
+Dialogue: 0,0:00:15.69,0:00:16.23,Default,,0,0,0,,{\kf14}you {\kf19}still {\kf21}strike
+Dialogue: 0,0:00:16.24,0:00:17.14,Default,,0,0,0,,{\kf7}the {\kf31}bottom\N{\kf11}at {\kf41}forty-eight
+Dialogue: 0,0:00:17.15,0:00:17.77,Default,,0,0,0,,{\kf26}miles {\kf8}an {\kf28}hour,
+Dialogue: 0,0:00:17.82,0:00:18.53,Default,,0,0,0,,{\kf31}driving {\kf40}twenty-eight
+Dialogue: 0,0:00:18.55,0:00:19.22,Default,,0,0,0,,{\kf28}Gs {\kf27}straight {\kf12}through
+Dialogue: 0,0:00:19.23,0:00:20.10,Default,,0,0,0,,{\kf12}your {\kf32}shins {\kf8}and {\kf35}spine.
+Dialogue: 0,0:00:20.80,0:00:21.42,Default,,0,0,0,,{\kf12}Real {\kf27}shafts {\kf23}fire
+Dialogue: 0,0:00:21.43,0:00:22.17,Default,,0,0,0,,{\kf21}steel {\kf27}safety {\kf26}clamps
+Dialogue: 0,0:00:22.18,0:00:22.69,Default,,0,0,0,,{\kf18}onto {\kf5}the {\kf28}rails,
+Dialogue: 0,0:00:22.71,0:00:22.99,Default,,0,0,0,,{\kf8}and {\kf7}if {\kf13}one
+Dialogue: 0,0:00:23.00,0:00:23.42,Default,,0,0,0,,{\kf13}ever {\kf29}fails,
+Dialogue: 0,0:00:23.43,0:00:23.91,Default,,0,0,0,,{\kf15}your {\kf19}only {\kf14}real
+Dialogue: 0,0:00:23.92,0:00:24.42,Default,,0,0,0,,{\kf25}chance {\kf10}is {\kf15}lying
+Dialogue: 0,0:00:24.43,0:00:25.07,Default,,0,0,0,,{\kf24}flat {\kf9}on {\kf8}your {\kf23}back.
+Dialogue: 0,0:00:25.70,0:00:27.01,Default,,0,0,0,,{\kf26}Spreading {\kf22}flat\N{\kf44}multiplies {\kf39}contact
+Dialogue: 0,0:00:27.01,0:00:27.91,Default,,0,0,0,,{\kf20}area {\kf25}twelve\N{\kf22}times {\kf23}over,
+Dialogue: 0,0:00:27.95,0:00:28.56,Default,,0,0,0,,{\kf23}sparing {\kf8}your {\kf30}spine
+Dialogue: 0,0:00:28.57,0:00:28.84,Default,,0,0,0,,{\kf7}and {\kf20}skull
+Dialogue: 0,0:00:28.85,0:00:29.45,Default,,0,0,0,,{\kf13}from {\kf21}lethal {\kf26}shock.

@@ -23,7 +23,7 @@ Permanent studio memory for the next 30 YouTube Shorts. Every episode follows [A
 | 13 | `lock-picking` | How a $2 Metal Wire Defeats Your Front Door Lock | ⬜ TODO |
 | 14 | `jet-engine-cooling` | Why a Jet Engine Doesn't Melt at 2,000°C | ⬜ TODO |
 | 15 | `mechanical-watch` | How a $50,000 Watch Runs Forever With ZERO Batteries | ⬜ TODO |
-| 16 | `falling-elevator` | If You Jump Right Before a Falling Elevator Hits, Do You Survive? | ⬜ TODO |
+| 16 | `falling-elevator` | If You Jump Right Before a Falling Elevator Hits, Do You Survive? | 🟡 IN PROGRESS |
 | 17 | `airplane-door` | What Happens If You Pull an Airplane Exit Door Mid-Flight? | ⬜ TODO |
 | 18 | `sinking-car` | Trapped in a Sinking Car: Why Pushing the Door Kills You | ⬜ TODO |
 | 19 | `lightning-plane` | What Happens When 1 Billion Volts of Lightning Hits Your Plane? | ⬜ TODO |
