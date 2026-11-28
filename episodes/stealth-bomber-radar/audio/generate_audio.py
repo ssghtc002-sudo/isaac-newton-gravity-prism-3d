@@ -389,7 +389,7 @@ def rebuild_all_components() -> None:
     if sub_path.is_file():
         print("[Rebuild] Running audio/gen_subtitles.py...")
         sub_mod = importlib.import_module("gen_subtitles")
-        sub_mod.main()
+        sub_mod.main([])
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

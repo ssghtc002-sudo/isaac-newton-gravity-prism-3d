@@ -513,14 +513,14 @@ def generate_subtitles(
     return counts
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Generate & verify ASS/SRT karaoke captions for Episode #4.")
     parser.add_argument(
         "--from-timeline",
         action="store_true",
         help="Align words directly from timeline.json if voice_manifest.json is not yet built.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     counts = generate_subtitles(from_timeline=args.from_timeline)
     max_block_height_px = FONT_SIZE * 2.2 + OUTLINE_PX * 2 + SHADOW_PX

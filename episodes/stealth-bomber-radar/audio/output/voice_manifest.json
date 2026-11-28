@@ -1,0 +1,561 @@
+{
+  "episode": "stealth-bomber-radar",
+  "title": "How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar",
+  "duration": 30.0,
+  "fps": 60,
+  "voice": "en-US-BrianNeural",
+  "lines": [
+    {
+      "id": "L1",
+      "beat": "B1_HOOK",
+      "speaker": "narrator",
+      "text": "This 172-foot bomber weighs eighty tons, yet on radar it shrinks to a bumblebee.",
+      "t0": 0.08,
+      "t1": 3.4374,
+      "ratePct": 47,
+      "atempo": 1.0694,
+      "words": [
+        {
+          "text": "This",
+          "t0": 0.08,
+          "t1": 0.2795
+        },
+        {
+          "text": "172-foot",
+          "t0": 0.2795,
+          "t1": 0.6288
+        },
+        {
+          "text": "bomber",
+          "t0": 0.6288,
+          "t1": 0.9281
+        },
+        {
+          "text": "weighs",
+          "t0": 0.9281,
+          "t1": 1.2274
+        },
+        {
+          "text": "eighty",
+          "t0": 1.2274,
+          "t1": 1.5267
+        },
+        {
+          "text": "tons,",
+          "t0": 1.5267,
+          "t1": 1.7761
+        },
+        {
+          "text": "yet",
+          "t0": 1.7761,
+          "t1": 1.9258
+        },
+        {
+          "text": "on",
+          "t0": 1.9258,
+          "t1": 2.0256
+        },
+        {
+          "text": "radar",
+          "t0": 2.0256,
+          "t1": 2.275
+        },
+        {
+          "text": "it",
+          "t0": 2.275,
+          "t1": 2.3748
+        },
+        {
+          "text": "shrinks",
+          "t0": 2.3748,
+          "t1": 2.724
+        },
+        {
+          "text": "to",
+          "t0": 2.724,
+          "t1": 2.8238
+        },
+        {
+          "text": "a",
+          "t0": 2.8238,
+          "t1": 2.9136
+        },
+        {
+          "text": "bumblebee.",
+          "t0": 2.9136,
+          "t1": 3.4374
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "beat": "B2_FACETS",
+      "speaker": "narrator",
+      "text": "Normal jets bounce radar straight back, but stealth wings use flat origami angles that deflect waves sideways.",
+      "t0": 3.75,
+      "t1": 8.6916,
+      "ratePct": 19,
+      "atempo": 1.0713,
+      "words": [
+        {
+          "text": "Normal",
+          "t0": 3.75,
+          "t1": 3.9829
+        },
+        {
+          "text": "jets",
+          "t0": 3.9927,
+          "t1": 4.2288
+        },
+        {
+          "text": "bounce",
+          "t0": 4.2387,
+          "t1": 4.4748
+        },
+        {
+          "text": "radar",
+          "t0": 4.4846,
+          "t1": 4.8191
+        },
+        {
+          "text": "straight",
+          "t0": 4.829,
+          "t1": 5.1045
+        },
+        {
+          "text": "back,",
+          "t0": 5.1143,
+          "t1": 5.3898
+        },
+        {
+          "text": "but",
+          "t0": 5.4291,
+          "t1": 5.5472
+        },
+        {
+          "text": "stealth",
+          "t0": 5.557,
+          "t1": 5.8424
+        },
+        {
+          "text": "wings",
+          "t0": 5.8522,
+          "t1": 6.049
+        },
+        {
+          "text": "use",
+          "t0": 6.0588,
+          "t1": 6.2458
+        },
+        {
+          "text": "flat",
+          "t0": 6.2556,
+          "t1": 6.5508
+        },
+        {
+          "text": "origami",
+          "t0": 6.5704,
+          "t1": 7.0132
+        },
+        {
+          "text": "angles",
+          "t0": 7.023,
+          "t1": 7.3476
+        },
+        {
+          "text": "that",
+          "t0": 7.3575,
+          "t1": 7.4461
+        },
+        {
+          "text": "deflect",
+          "t0": 7.4559,
+          "t1": 7.8495
+        },
+        {
+          "text": "waves",
+          "t0": 7.8593,
+          "t1": 8.0954
+        },
+        {
+          "text": "sideways.",
+          "t0": 8.1151,
+          "t1": 8.6916
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "beat": "B3_SDUCTS",
+      "speaker": "narrator",
+      "text": "Even the engines stay hidden, deep S-shaped air tunnels bury the spinning metal blades so radar gets trapped and dies inside.",
+      "t0": 9.08,
+      "t1": 15.5564,
+      "ratePct": 3,
+      "atempo": 1.0322,
+      "words": [
+        {
+          "text": "Even",
+          "t0": 9.08,
+          "t1": 9.2256
+        },
+        {
+          "text": "the",
+          "t0": 9.2374,
+          "t1": 9.3197
+        },
+        {
+          "text": "engines",
+          "t0": 9.3315,
+          "t1": 9.6963
+        },
+        {
+          "text": "stay",
+          "t0": 9.7081,
+          "t1": 9.9081
+        },
+        {
+          "text": "hidden,",
+          "t0": 9.9199,
+          "t1": 10.2965
+        },
+        {
+          "text": "deep",
+          "t0": 10.3553,
+          "t1": 10.5672
+        },
+        {
+          "text": "S-shaped",
+          "t0": 10.5789,
+          "t1": 11.0732
+        },
+        {
+          "text": "air",
+          "t0": 11.1085,
+          "t1": 11.2262
+        },
+        {
+          "text": "tunnels",
+          "t0": 11.2379,
+          "t1": 11.6028
+        },
+        {
+          "text": "bury",
+          "t0": 11.6145,
+          "t1": 11.9558
+        },
+        {
+          "text": "the",
+          "t0": 11.9676,
+          "t1": 12.0617
+        },
+        {
+          "text": "spinning",
+          "t0": 12.0735,
+          "t1": 12.45
+        },
+        {
+          "text": "metal",
+          "t0": 12.4618,
+          "t1": 12.6972
+        },
+        {
+          "text": "blades",
+          "t0": 12.7089,
+          "t1": 13.0737
+        },
+        {
+          "text": "so",
+          "t0": 13.0973,
+          "t1": 13.3562
+        },
+        {
+          "text": "radar",
+          "t0": 13.368,
+          "t1": 13.8034
+        },
+        {
+          "text": "gets",
+          "t0": 13.8152,
+          "t1": 14.0976
+        },
+        {
+          "text": "trapped",
+          "t0": 14.1094,
+          "t1": 14.4977
+        },
+        {
+          "text": "and",
+          "t0": 14.5095,
+          "t1": 14.6389
+        },
+        {
+          "text": "dies",
+          "t0": 14.6507,
+          "t1": 14.992
+        },
+        {
+          "text": "inside.",
+          "t0": 15.0037,
+          "t1": 15.5564
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "beat": "B4_RAM_BEE",
+      "speaker": "narrator",
+      "text": "Then its dark carbon skin swallows leftover waves as tiny heat, shrinking the echo to a bumblebee.",
+      "t0": 16.02,
+      "t1": 21.251,
+      "ratePct": 3,
+      "atempo": 1.0,
+      "words": [
+        {
+          "text": "Then",
+          "t0": 16.02,
+          "t1": 16.1441
+        },
+        {
+          "text": "its",
+          "t0": 16.1562,
+          "t1": 16.2897
+        },
+        {
+          "text": "dark",
+          "t0": 16.3019,
+          "t1": 16.5446
+        },
+        {
+          "text": "carbon",
+          "t0": 16.5567,
+          "t1": 16.9087
+        },
+        {
+          "text": "skin",
+          "t0": 16.9208,
+          "t1": 17.1999
+        },
+        {
+          "text": "swallows",
+          "t0": 17.212,
+          "t1": 17.7217
+        },
+        {
+          "text": "leftover",
+          "t0": 17.7339,
+          "t1": 18.2557
+        },
+        {
+          "text": "waves",
+          "t0": 18.2679,
+          "t1": 18.6562
+        },
+        {
+          "text": "as",
+          "t0": 18.6684,
+          "t1": 18.8019
+        },
+        {
+          "text": "tiny",
+          "t0": 18.814,
+          "t1": 19.1902
+        },
+        {
+          "text": "heat,",
+          "t0": 19.2023,
+          "t1": 19.53
+        },
+        {
+          "text": "shrinking",
+          "t0": 19.6514,
+          "t1": 20.0155
+        },
+        {
+          "text": "the",
+          "t0": 20.0276,
+          "t1": 20.1125
+        },
+        {
+          "text": "echo",
+          "t0": 20.1247,
+          "t1": 20.513
+        },
+        {
+          "text": "to",
+          "t0": 20.5252,
+          "t1": 20.6829
+        },
+        {
+          "text": "a",
+          "t0": 20.6951,
+          "t1": 20.7557
+        },
+        {
+          "text": "bumblebee.",
+          "t0": 20.7679,
+          "t1": 21.251
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "beat": "B5_BLUEPRINT",
+      "speaker": "narrator",
+      "text": "It isn't sci-fi cloaking, just tilted mirrors scattering every pulse away from the dish.",
+      "t0": 22.02,
+      "t1": 25.7329,
+      "ratePct": 5,
+      "atempo": 1.067,
+      "words": [
+        {
+          "text": "It",
+          "t0": 22.02,
+          "t1": 22.076
+        },
+        {
+          "text": "isn't",
+          "t0": 22.0872,
+          "t1": 22.2772
+        },
+        {
+          "text": "sci-fi",
+          "t0": 22.2884,
+          "t1": 22.6238
+        },
+        {
+          "text": "cloaking,",
+          "t0": 22.635,
+          "t1": 23.0486
+        },
+        {
+          "text": "just",
+          "t0": 23.071,
+          "t1": 23.2722
+        },
+        {
+          "text": "tilted",
+          "t0": 23.2834,
+          "t1": 23.5629
+        },
+        {
+          "text": "mirrors",
+          "t0": 23.5741,
+          "t1": 23.8871
+        },
+        {
+          "text": "scattering",
+          "t0": 23.8982,
+          "t1": 24.379
+        },
+        {
+          "text": "every",
+          "t0": 24.3902,
+          "t1": 24.5914
+        },
+        {
+          "text": "pulse",
+          "t0": 24.6026,
+          "t1": 24.8485
+        },
+        {
+          "text": "away",
+          "t0": 24.8597,
+          "t1": 25.061
+        },
+        {
+          "text": "from",
+          "t0": 25.0721,
+          "t1": 25.2286
+        },
+        {
+          "text": "the",
+          "t0": 25.2398,
+          "t1": 25.3069
+        },
+        {
+          "text": "dish.",
+          "t0": 25.3181,
+          "t1": 25.7329
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "beat": "B6_FINAL",
+      "speaker": "narrator",
+      "text": "So by the time enemies finally spot it, the bomber is already gone.",
+      "t0": 26.08,
+      "t1": 29.5437,
+      "ratePct": 3,
+      "atempo": 1.0,
+      "words": [
+        {
+          "text": "So",
+          "t0": 26.08,
+          "t1": 26.2067
+        },
+        {
+          "text": "by",
+          "t0": 26.2188,
+          "t1": 26.3523
+        },
+        {
+          "text": "the",
+          "t0": 26.3645,
+          "t1": 26.4494
+        },
+        {
+          "text": "time",
+          "t0": 26.4615,
+          "t1": 26.7407
+        },
+        {
+          "text": "enemies",
+          "t0": 26.8013,
+          "t1": 27.1654
+        },
+        {
+          "text": "finally",
+          "t0": 27.1775,
+          "t1": 27.5537
+        },
+        {
+          "text": "spot",
+          "t0": 27.5659,
+          "t1": 27.8815
+        },
+        {
+          "text": "it,",
+          "t0": 27.8936,
+          "t1": 28.0271
+        },
+        {
+          "text": "the",
+          "t0": 28.0513,
+          "t1": 28.1605
+        },
+        {
+          "text": "bomber",
+          "t0": 28.1727,
+          "t1": 28.5489
+        },
+        {
+          "text": "is",
+          "t0": 28.561,
+          "t1": 28.7673
+        },
+        {
+          "text": "already",
+          "t0": 28.7795,
+          "t1": 29.1315
+        },
+        {
+          "text": "gone.",
+          "t0": 29.1436,
+          "t1": 29.5437
+        }
+      ]
+    }
+  ]
+}
