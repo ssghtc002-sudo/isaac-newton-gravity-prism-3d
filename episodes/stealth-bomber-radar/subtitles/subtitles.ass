@@ -1,0 +1,42 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,66,&H0038C8FF,&H00FFFFFF,&H00080A10,&H96000000,-1,0,0,0,100,100,0,0,1,8,3.0,2,80,80,235,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.08,0:00:00.93,Default,,0,0,0,,{\kf20}This {\kf35}172-foot {\kf30}bomber
+Dialogue: 0,0:00:00.93,0:00:01.79,Default,,0,0,0,,{\kf31}weighs {\kf30}eighty {\kf25}tons,
+Dialogue: 0,0:00:01.79,0:00:02.29,Default,,0,0,0,,{\kf15}yet {\kf10}on {\kf25}radar
+Dialogue: 0,0:00:02.29,0:00:02.74,Default,,0,0,0,,{\kf10}it {\kf35}shrinks
+Dialogue: 0,0:00:02.74,0:00:03.46,Default,,0,0,0,,{\kf10}to {\kf9}a {\kf53}bumblebee.
+Dialogue: 0,0:00:03.75,0:00:04.60,Default,,0,0,0,,{\kf32}Normal {\kf21}jets {\kf32}bounce
+Dialogue: 0,0:00:04.60,0:00:05.55,Default,,0,0,0,,{\kf26}radar {\kf43}straight {\kf26}back,
+Dialogue: 0,0:00:05.55,0:00:06.51,Default,,0,0,0,,{\kf16}but {\kf37}stealth {\kf27}wings {\kf16}use
+Dialogue: 0,0:00:06.51,0:00:07.41,Default,,0,0,0,,{\kf21}flat {\kf37}origami {\kf32}angles
+Dialogue: 0,0:00:07.41,0:00:08.76,Default,,0,0,0,,{\kf21}that {\kf37}deflect\N{\kf27}waves {\kf50}sideways.
+Dialogue: 0,0:00:09.08,0:00:09.97,Default,,0,0,0,,{\kf25}Even {\kf19}the {\kf45}engines
+Dialogue: 0,0:00:09.97,0:00:10.66,Default,,0,0,0,,{\kf25}stay {\kf44}hidden,
+Dialogue: 0,0:00:10.66,0:00:11.36,Default,,0,0,0,,{\kf26}deep {\kf44}S-shaped
+Dialogue: 0,0:00:11.36,0:00:12.25,Default,,0,0,0,,{\kf19}air {\kf44}tunnels {\kf26}bury
+Dialogue: 0,0:00:12.25,0:00:13.64,Default,,0,0,0,,{\kf19}the {\kf50}spinning\N{\kf32}metal {\kf38}blades
+Dialogue: 0,0:00:13.64,0:00:14.78,Default,,0,0,0,,{\kf13}so {\kf31}radar {\kf26}gets {\kf44}trapped
+Dialogue: 0,0:00:14.78,0:00:15.70,Default,,0,0,0,,{\kf19}and {\kf25}dies {\kf48}inside.
+Dialogue: 0,0:00:16.02,0:00:17.18,Default,,0,0,0,,{\kf27}Then {\kf21}its {\kf27}dark {\kf41}carbon
+Dialogue: 0,0:00:17.18,0:00:18.54,Default,,0,0,0,,{\kf27}skin {\kf55}swallows {\kf54}leftover
+Dialogue: 0,0:00:18.54,0:00:19.63,Default,,0,0,0,,{\kf34}waves {\kf14}as {\kf27}tiny {\kf34}heat,
+Dialogue: 0,0:00:19.63,0:00:20.72,Default,,0,0,0,,{\kf62}shrinking {\kf20}the {\kf27}echo
+Dialogue: 0,0:00:20.72,0:00:21.70,Default,,0,0,0,,{\kf14}to {\kf12}a {\kf72}bumblebee.
+Dialogue: 0,0:00:22.02,0:00:23.04,Default,,0,0,0,,{\kf10}It {\kf21}isn't\N{\kf25}sci-fi {\kf46}cloaking,
+Dialogue: 0,0:00:23.04,0:00:23.90,Default,,0,0,0,,{\kf20}just {\kf31}tilted {\kf35}mirrors
+Dialogue: 0,0:00:23.90,0:00:24.92,Default,,0,0,0,,{\kf51}scattering {\kf26}every {\kf25}pulse
+Dialogue: 0,0:00:24.92,0:00:25.76,Default,,0,0,0,,{\kf20}away {\kf21}from {\kf15}the {\kf28}dish.
+Dialogue: 0,0:00:26.08,0:00:26.80,Default,,0,0,0,,{\kf13}So {\kf13}by {\kf20}the {\kf26}time
+Dialogue: 0,0:00:26.80,0:00:28.18,Default,,0,0,0,,{\kf46}enemies {\kf46}finally\N{\kf27}spot {\kf19}it,
+Dialogue: 0,0:00:28.18,0:00:28.78,Default,,0,0,0,,{\kf20}the {\kf40}bomber
+Dialogue: 0,0:00:28.78,0:00:29.73,Default,,0,0,0,,{\kf13}is {\kf46}already {\kf36}gone.

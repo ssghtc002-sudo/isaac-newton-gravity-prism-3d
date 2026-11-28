@@ -1,0 +1,265 @@
+{
+  "episode": "stealth-bomber-radar",
+  "title": "How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar",
+  "duration": 30.0,
+  "fps": 60,
+  "totalFrames": 1800,
+  "resolution": [1080, 1920],
+  "audio": {
+    "masterPath": "audio/output/master_audio.wav",
+    "manifestPath": "audio/output/voice_manifest.json",
+    "srtPath": "subtitles/subtitles.srt",
+    "assPath": "subtitles/subtitles.ass",
+    "sampleRate": 48000,
+    "channels": 2,
+    "targetLufs": -14.0,
+    "truePeakDbfs": -1.5,
+    "aacBitrate": "320k",
+    "sfxGain": 1.10,
+    "transientGuardMs": 360
+  },
+  "speakers": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "lang": "en-us",
+      "speed": 1.0,
+      "pan": 0.0
+    }
+  },
+  "beats": [
+    {
+      "id": "B1_HOOK",
+      "name": "Hook: 172-Foot Flying Wing Glides Past Blank Radar",
+      "startFrame": 1,
+      "endFrame": 220,
+      "start": 0.0,
+      "end": 3.6667,
+      "callout": "172 FT WING"
+    },
+    {
+      "id": "B2_FACETS",
+      "name": "Radar Contrast: Conventional Jet Echo vs Faceted Deflection",
+      "startFrame": 221,
+      "endFrame": 540,
+      "start": 3.6667,
+      "end": 9.0,
+      "callout": "FACETED DEFLECTION"
+    },
+    {
+      "id": "B3_SDUCTS",
+      "name": "Macro X-Ray: Serpentine S-Ducts Hiding Spinning Turbines",
+      "startFrame": 541,
+      "endFrame": 960,
+      "start": 9.0,
+      "end": 16.0,
+      "callout": "S-SHAPED DUCTS"
+    },
+    {
+      "id": "B4_RAM_BEE",
+      "name": "RAM Absorption & 0.001 m² Bumblebee RCS Shrink",
+      "startFrame": 961,
+      "endFrame": 1320,
+      "start": 16.0,
+      "end": 22.0,
+      "callout": "RAM COATING / 0.001 m² BLIP"
+    },
+    {
+      "id": "B5_BLUEPRINT",
+      "name": "Studio CAD Blueprint: Regular Mirror vs Tilted Facets",
+      "startFrame": 1321,
+      "endFrame": 1560,
+      "start": 22.0,
+      "end": 26.0,
+      "callout": "TILTED FACETS"
+    },
+    {
+      "id": "B6_FINAL",
+      "name": "Moonlight Finale: Lone Bumblebee Speck on Radar Scope",
+      "startFrame": 1561,
+      "endFrame": 1800,
+      "start": 26.0,
+      "end": 30.0,
+      "callout": "BUMBLEBEE SIZE"
+    }
+  ],
+  "narration_lines": [
+    {
+      "id": "L1",
+      "beat": "B1_HOOK",
+      "speaker": "narrator",
+      "t0": 0.08,
+      "t1": 3.58,
+      "text": "This 172-foot bomber weighs eighty tons, yet on radar it shrinks to a bumblebee."
+    },
+    {
+      "id": "L2",
+      "beat": "B2_FACETS",
+      "speaker": "narrator",
+      "t0": 3.75,
+      "t1": 8.88,
+      "text": "Normal jets bounce radar straight back, but stealth wings use flat origami angles that deflect waves sideways."
+    },
+    {
+      "id": "L3",
+      "beat": "B3_SDUCTS",
+      "speaker": "narrator",
+      "t0": 9.08,
+      "t1": 15.82,
+      "text": "Even the engines stay hidden, deep S-shaped air tunnels bury the spinning metal blades so radar gets trapped and dies inside."
+    },
+    {
+      "id": "L4",
+      "beat": "B4_RAM_BEE",
+      "speaker": "narrator",
+      "t0": 16.02,
+      "t1": 21.82,
+      "text": "Then its dark carbon skin swallows leftover waves as tiny heat, shrinking the echo to a bumblebee."
+    },
+    {
+      "id": "L5",
+      "beat": "B5_BLUEPRINT",
+      "speaker": "narrator",
+      "t0": 22.02,
+      "t1": 25.88,
+      "text": "It isn't sci-fi cloaking, just tilted mirrors scattering every pulse away from the dish."
+    },
+    {
+      "id": "L6",
+      "beat": "B6_FINAL",
+      "speaker": "narrator",
+      "t0": 26.08,
+      "t1": 29.85,
+      "text": "So by the time enemies finally spot it, the bomber is already gone."
+    }
+  ],
+  "sfx_cues": [
+    {
+      "ev": "b1_radar_ping",
+      "beat": "B1_HOOK",
+      "frame": 18,
+      "t": 0.30,
+      "type": "radar_dish_sweep_ping",
+      "pan": -0.35
+    },
+    {
+      "ev": "b1_wing_deflect",
+      "beat": "B1_HOOK",
+      "frame": 68,
+      "t": 1.1333,
+      "type": "rf_facet_deflect_whoosh",
+      "pan": 0.25
+    },
+    {
+      "ev": "b1_blank_scope",
+      "beat": "B1_HOOK",
+      "frame": 135,
+      "t": 2.25,
+      "type": "stealth_flyover_sub_rumble",
+      "pan": 0.0
+    },
+    {
+      "ev": "b2_conv_ping",
+      "beat": "B2_FACETS",
+      "frame": 265,
+      "t": 4.4167,
+      "type": "radar_pulse_burst",
+      "pan": -0.25
+    },
+    {
+      "ev": "b2_conv_echo",
+      "beat": "B2_FACETS",
+      "frame": 318,
+      "t": 5.30,
+      "type": "high_rcs_alarm_return",
+      "pan": -0.15
+    },
+    {
+      "ev": "b2_stealth_deflect",
+      "beat": "B2_FACETS",
+      "frame": 410,
+      "t": 6.8333,
+      "type": "rf_sawtooth_scatter_chirp",
+      "pan": 0.35
+    },
+    {
+      "ev": "b3_xray_sweep",
+      "beat": "B3_SDUCTS",
+      "frame": 575,
+      "t": 9.5833,
+      "type": "xray_scan_harmonic_sweep",
+      "pan": 0.0
+    },
+    {
+      "ev": "b3_duct_enter",
+      "beat": "B3_SDUCTS",
+      "frame": 655,
+      "t": 10.9167,
+      "type": "turbine_whine_duct_bounce",
+      "pan": -0.1
+    },
+    {
+      "ev": "b3_duct_trap",
+      "beat": "B3_SDUCTS",
+      "frame": 785,
+      "t": 13.0833,
+      "type": "rf_wave_damped_kill",
+      "pan": 0.15
+    },
+    {
+      "ev": "b4_ram_wave",
+      "beat": "B4_RAM_BEE",
+      "frame": 995,
+      "t": 16.5833,
+      "type": "ram_rf_impact_buzz",
+      "pan": 0.0
+    },
+    {
+      "ev": "b4_heat_absorb",
+      "beat": "B4_RAM_BEE",
+      "frame": 1075,
+      "t": 17.9167,
+      "type": "thermal_dissipation_hiss",
+      "pan": 0.1
+    },
+    {
+      "ev": "b4_rcs_shrink",
+      "beat": "B4_RAM_BEE",
+      "frame": 1160,
+      "t": 19.3333,
+      "type": "rcs_collapse_sub_drop_bee",
+      "pan": 0.2
+    },
+    {
+      "ev": "b5_mirror_echo",
+      "beat": "B5_BLUEPRINT",
+      "frame": 1365,
+      "t": 22.75,
+      "type": "blueprint_mirror_ping_back",
+      "pan": -0.2
+    },
+    {
+      "ev": "b5_facet_scatter",
+      "beat": "B5_BLUEPRINT",
+      "frame": 1445,
+      "t": 24.0833,
+      "type": "blueprint_tilt_deflect_sweep",
+      "pan": 0.25
+    },
+    {
+      "ev": "b6_moon_pass",
+      "beat": "B6_FINAL",
+      "frame": 1600,
+      "t": 26.6667,
+      "type": "stealth_glide_sub_braam",
+      "pan": 0.0
+    },
+    {
+      "ev": "b6_final_blip",
+      "beat": "B6_FINAL",
+      "frame": 1695,
+      "t": 28.25,
+      "type": "radar_scope_tiny_blip_resolve",
+      "pan": 0.0
+    }
+  ]
+}
