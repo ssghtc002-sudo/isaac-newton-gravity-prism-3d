@@ -1,0 +1,44 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,66,&H0038C8FF,&H00FFFFFF,&H00080A10,&H96000000,-1,0,0,0,100,100,0,0,1,8,3.0,2,80,80,235,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.08,0:00:00.68,Default,,0,0,0,,{\kf22}Movies {\kf16}show {\kf22}bullets
+Dialogue: 0,0:00:00.69,0:00:02.24,Default,,0,0,0,,{\kf26}chasing {\kf31}swimmers\N{\kf60}underwater. {\kf38}Instead,
+Dialogue: 0,0:00:02.30,0:00:02.79,Default,,0,0,0,,{\kf28}bullets {\kf21}stop
+Dialogue: 0,0:00:02.79,0:00:03.31,Default,,0,0,0,,{\kf8}at {\kf19}three {\kf25}feet.
+Dialogue: 0,0:00:03.65,0:00:04.01,Default,,0,0,0,,{\kf3}The {\kf33}moment
+Dialogue: 0,0:00:04.03,0:00:04.98,Default,,0,0,0,,{\kf11}it {\kf24}leaves {\kf10}the {\kf50}barrel
+Dialogue: 0,0:00:04.99,0:00:06.13,Default,,0,0,0,,{\kf11}and {\kf44}slams {\kf20}into {\kf39}water,
+Dialogue: 0,0:00:06.20,0:00:06.84,Default,,0,0,0,,{\kf5}it {\kf19}hits {\kf8}a {\kf32}wall
+Dialogue: 0,0:00:06.94,0:00:07.77,Default,,0,0,0,,{\kf14}eight {\kf35}hundred {\kf34}times
+Dialogue: 0,0:00:07.78,0:00:08.64,Default,,0,0,0,,{\kf38}denser {\kf22}than {\kf26}air.
+Dialogue: 0,0:00:09.15,0:00:09.65,Default,,0,0,0,,{\kf15}Out {\kf35}front,
+Dialogue: 0,0:00:09.73,0:00:10.93,Default,,0,0,0,,{\kf43}extreme {\kf40}pressure {\kf37}boils
+Dialogue: 0,0:00:10.94,0:00:11.91,Default,,0,0,0,,{\kf11}the {\kf35}water {\kf51}instantly,
+Dialogue: 0,0:00:11.99,0:00:12.75,Default,,0,0,0,,{\kf29}wrapping {\kf8}the {\kf39}spinning
+Dialogue: 0,0:00:12.76,0:00:13.53,Default,,0,0,0,,{\kf30}nose {\kf47}inside
+Dialogue: 0,0:00:13.54,0:00:14.63,Default,,0,0,0,,{\kf5}a {\kf36}silver {\kf32}gas {\kf36}bubble.
+Dialogue: 0,0:00:15.15,0:00:16.21,Default,,0,0,0,,{\kf5}But {\kf18}that {\kf28}speed\N{\kf55}backfires,
+Dialogue: 0,0:00:16.23,0:00:17.62,Default,,0,0,0,,{\kf10}the {\kf26}bubble\N{\kf49}collapses {\kf54}sideways,
+Dialogue: 0,0:00:17.68,0:00:18.96,Default,,0,0,0,,{\kf46}violently {\kf43}twisting\N{\kf8}the {\kf31}bullet
+Dialogue: 0,0:00:18.98,0:00:19.62,Default,,0,0,0,,{\kf27}until {\kf6}it {\kf31}shreds
+Dialogue: 0,0:00:19.63,0:00:20.63,Default,,0,0,0,,{\kf26}into {\kf27}tiny {\kf47}shards.
+Dialogue: 0,0:00:21.15,0:00:21.93,Default,,0,0,0,,{\kf13}So {\kf27}firing {\kf38}faster
+Dialogue: 0,0:00:21.94,0:00:22.66,Default,,0,0,0,,{\kf27}actually\N{\kf19}makes {\kf7}it {\kf19}stop
+Dialogue: 0,0:00:22.67,0:00:23.66,Default,,0,0,0,,{\kf52}sooner. {\kf47}Meanwhile,
+Dialogue: 0,0:00:23.71,0:00:24.22,Default,,0,0,0,,{\kf4}a {\kf26}slower {\kf21}heavy
+Dialogue: 0,0:00:24.23,0:00:25.00,Default,,0,0,0,,{\kf24}round {\kf26}glides {\kf27}straight
+Dialogue: 0,0:00:25.00,0:00:25.66,Default,,0,0,0,,{\kf22}past {\kf20}three {\kf24}feet.
+Dialogue: 0,0:00:26.15,0:00:26.96,Default,,0,0,0,,{\kf20}Dive {\kf17}just {\kf22}three {\kf22}feet
+Dialogue: 0,0:00:26.97,0:00:27.57,Default,,0,0,0,,{\kf18}under {\kf7}the {\kf35}surface,
+Dialogue: 0,0:00:27.59,0:00:28.34,Default,,0,0,0,,{\kf13}and {\kf5}a {\kf28}deadly {\kf29}rifle
+Dialogue: 0,0:00:28.35,0:00:29.21,Default,,0,0,0,,{\kf30}turns {\kf20}into {\kf36}harmless
+Dialogue: 0,0:00:29.22,0:00:29.71,Default,,0,0,0,,{\kf23}scrap {\kf26}metal.

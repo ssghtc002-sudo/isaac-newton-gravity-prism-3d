@@ -9,7 +9,7 @@ Permanent studio memory for the next 30 YouTube Shorts. Every episode follows [A
 | # | Episode Folder | Title | Status |
 |---:|---|---|---|
 | 1 | `fighter-jet-ejection` | Why Ejecting From a Fighter Jet Shrinks You by 1 Inch | ✅ 4K (`fighter-jet-ejection-4k`) |
-| 2 | `underwater-bullets` | Why Bullets Stop Dead Just 3 Feet Underwater | ⬜ TODO |
+| 2 | `underwater-bullets` | Why Bullets Stop Dead Just 3 Feet Underwater | 🟡 IN PROGRESS |
 | 3 | `bulletproof-vest-myth` | Why Bulletproof Vests DON'T Send You Flying Backward | ⬜ TODO |
 | 4 | `stealth-bomber-radar` | How a 172-Foot Stealth Bomber Looks Like a Bumblebee on Radar | ⬜ TODO |
 | 5 | `helicopter-autorotation` | Why a Helicopter With a Dead Engine DOESN'T Fall Like a Rock | ⬜ TODO |

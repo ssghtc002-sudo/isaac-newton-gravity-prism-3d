@@ -1,0 +1,586 @@
+{
+  "episode": "underwater-bullets",
+  "title": "Why Bullets Stop Dead Just 3 Feet Underwater",
+  "duration": 30.0,
+  "fps": 60,
+  "voice": "en-US-BrianNeural",
+  "lines": [
+    {
+      "id": "L1",
+      "beat": "B1_HOOK",
+      "speaker": "narrator",
+      "text": "Movies show bullets chasing swimmers underwater. Instead, bullets stop at three feet.",
+      "t0": 0.08,
+      "t1": 3.3081,
+      "ratePct": 33,
+      "atempo": 1.0714,
+      "words": [
+        {
+          "text": "Movies",
+          "t0": 0.08,
+          "t1": 0.2957
+        },
+        {
+          "text": "show",
+          "t0": 0.3045,
+          "t1": 0.4537
+        },
+        {
+          "text": "bullets",
+          "t0": 0.4625,
+          "t1": 0.6819
+        },
+        {
+          "text": "chasing",
+          "t0": 0.6907,
+          "t1": 0.9453
+        },
+        {
+          "text": "swimmers",
+          "t0": 0.9541,
+          "t1": 1.2526
+        },
+        {
+          "text": "underwater.",
+          "t0": 1.2614,
+          "t1": 1.6126
+        },
+        {
+          "text": "Instead,",
+          "t0": 1.8555,
+          "t1": 2.2418
+        },
+        {
+          "text": "bullets",
+          "t0": 2.3033,
+          "t1": 2.5754
+        },
+        {
+          "text": "stop",
+          "t0": 2.5842,
+          "t1": 2.7861
+        },
+        {
+          "text": "at",
+          "t0": 2.7949,
+          "t1": 2.8563
+        },
+        {
+          "text": "three",
+          "t0": 2.8651,
+          "t1": 3.0495
+        },
+        {
+          "text": "feet.",
+          "t0": 3.0582,
+          "t1": 3.3081
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "beat": "B2_ENTRY",
+      "speaker": "narrator",
+      "text": "The moment it leaves the barrel and slams into water, it hits a wall eight hundred times denser than air.",
+      "t0": 3.65,
+      "t1": 8.6371,
+      "ratePct": 4,
+      "atempo": 1.0293,
+      "words": [
+        {
+          "text": "The",
+          "t0": 3.65,
+          "t1": 3.665
+        },
+        {
+          "text": "moment",
+          "t0": 3.6765,
+          "t1": 4.0148
+        },
+        {
+          "text": "it",
+          "t0": 4.0264,
+          "t1": 4.1314
+        },
+        {
+          "text": "leaves",
+          "t0": 4.1431,
+          "t1": 4.3648
+        },
+        {
+          "text": "the",
+          "t0": 4.3764,
+          "t1": 4.4697
+        },
+        {
+          "text": "barrel",
+          "t0": 4.4814,
+          "t1": 4.983
+        },
+        {
+          "text": "and",
+          "t0": 4.9947,
+          "t1": 5.0881
+        },
+        {
+          "text": "slams",
+          "t0": 5.0997,
+          "t1": 5.5313
+        },
+        {
+          "text": "into",
+          "t0": 5.543,
+          "t1": 5.7296
+        },
+        {
+          "text": "water,",
+          "t0": 5.7413,
+          "t1": 6.1263
+        },
+        {
+          "text": "it",
+          "t0": 6.1963,
+          "t1": 6.243
+        },
+        {
+          "text": "hits",
+          "t0": 6.2546,
+          "t1": 6.4296
+        },
+        {
+          "text": "a",
+          "t0": 6.4413,
+          "t1": 6.5113
+        },
+        {
+          "text": "wall",
+          "t0": 6.5229,
+          "t1": 6.8379
+        },
+        {
+          "text": "eight",
+          "t0": 6.9429,
+          "t1": 7.0713
+        },
+        {
+          "text": "hundred",
+          "t0": 7.0829,
+          "t1": 7.4212
+        },
+        {
+          "text": "times",
+          "t0": 7.4329,
+          "t1": 7.7712
+        },
+        {
+          "text": "denser",
+          "t0": 7.7829,
+          "t1": 8.1445
+        },
+        {
+          "text": "than",
+          "t0": 8.1562,
+          "t1": 8.3662
+        },
+        {
+          "text": "air.",
+          "t0": 8.3779,
+          "t1": 8.6371
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "beat": "B3_CAVITATION",
+      "speaker": "narrator",
+      "text": "Out front, extreme pressure boils the water instantly, wrapping the spinning nose inside a silver gas bubble.",
+      "t0": 9.15,
+      "t1": 14.6344,
+      "ratePct": 4,
+      "atempo": 1.0,
+      "words": [
+        {
+          "text": "Out",
+          "t0": 9.15,
+          "t1": 9.2862
+        },
+        {
+          "text": "front,",
+          "t0": 9.2982,
+          "t1": 9.6468
+        },
+        {
+          "text": "extreme",
+          "t0": 9.731,
+          "t1": 10.1516
+        },
+        {
+          "text": "pressure",
+          "t0": 10.1636,
+          "t1": 10.5482
+        },
+        {
+          "text": "boils",
+          "t0": 10.5603,
+          "t1": 10.9329
+        },
+        {
+          "text": "the",
+          "t0": 10.9449,
+          "t1": 11.041
+        },
+        {
+          "text": "water",
+          "t0": 11.0531,
+          "t1": 11.3896
+        },
+        {
+          "text": "instantly,",
+          "t0": 11.4016,
+          "t1": 11.9064
+        },
+        {
+          "text": "wrapping",
+          "t0": 11.9906,
+          "t1": 12.267
+        },
+        {
+          "text": "the",
+          "t0": 12.279,
+          "t1": 12.3512
+        },
+        {
+          "text": "spinning",
+          "t0": 12.3632,
+          "t1": 12.7478
+        },
+        {
+          "text": "nose",
+          "t0": 12.7598,
+          "t1": 13.0482
+        },
+        {
+          "text": "inside",
+          "t0": 13.0603,
+          "t1": 13.529
+        },
+        {
+          "text": "a",
+          "t0": 13.541,
+          "t1": 13.5771
+        },
+        {
+          "text": "silver",
+          "t0": 13.5891,
+          "t1": 13.9377
+        },
+        {
+          "text": "gas",
+          "t0": 13.9497,
+          "t1": 14.2622
+        },
+        {
+          "text": "bubble.",
+          "t0": 14.2742,
+          "t1": 14.6344
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "beat": "B4_SHATTER",
+      "speaker": "narrator",
+      "text": "But that speed backfires, the bubble collapses sideways, violently twisting the bullet until it shreds into tiny shards.",
+      "t0": 15.15,
+      "t1": 20.6297,
+      "ratePct": 13,
+      "atempo": 1.0713,
+      "words": [
+        {
+          "text": "But",
+          "t0": 15.15,
+          "t1": 15.1944
+        },
+        {
+          "text": "that",
+          "t0": 15.2047,
+          "t1": 15.3702
+        },
+        {
+          "text": "speed",
+          "t0": 15.3805,
+          "t1": 15.6494
+        },
+        {
+          "text": "backfires,",
+          "t0": 15.6597,
+          "t1": 16.2078
+        },
+        {
+          "text": "the",
+          "t0": 16.2284,
+          "t1": 16.3215
+        },
+        {
+          "text": "bubble",
+          "t0": 16.3318,
+          "t1": 16.58
+        },
+        {
+          "text": "collapses",
+          "t0": 16.5904,
+          "t1": 17.066
+        },
+        {
+          "text": "sideways,",
+          "t0": 17.0763,
+          "t1": 17.6244
+        },
+        {
+          "text": "violently",
+          "t0": 17.6761,
+          "t1": 18.1311
+        },
+        {
+          "text": "twisting",
+          "t0": 18.1414,
+          "t1": 18.5551
+        },
+        {
+          "text": "the",
+          "t0": 18.5654,
+          "t1": 18.6377
+        },
+        {
+          "text": "bullet",
+          "t0": 18.6481,
+          "t1": 18.9583
+        },
+        {
+          "text": "until",
+          "t0": 18.979,
+          "t1": 19.2375
+        },
+        {
+          "text": "it",
+          "t0": 19.2479,
+          "t1": 19.2996
+        },
+        {
+          "text": "shreds",
+          "t0": 19.3099,
+          "t1": 19.6202
+        },
+        {
+          "text": "into",
+          "t0": 19.6305,
+          "t1": 19.8787
+        },
+        {
+          "text": "tiny",
+          "t0": 19.889,
+          "t1": 20.1475
+        },
+        {
+          "text": "shards.",
+          "t0": 20.1578,
+          "t1": 20.6297
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "beat": "B5_RACE",
+      "speaker": "narrator",
+      "text": "So firing faster actually makes it stop sooner. Meanwhile, a slower heavy round glides straight past three feet.",
+      "t0": 21.15,
+      "t1": 25.6638,
+      "ratePct": 31,
+      "atempo": 1.0692,
+      "words": [
+        {
+          "text": "So",
+          "t0": 21.15,
+          "t1": 21.2663
+        },
+        {
+          "text": "firing",
+          "t0": 21.2752,
+          "t1": 21.543
+        },
+        {
+          "text": "faster",
+          "t0": 21.5519,
+          "t1": 21.9269
+        },
+        {
+          "text": "actually",
+          "t0": 21.9359,
+          "t1": 22.2037
+        },
+        {
+          "text": "makes",
+          "t0": 22.2126,
+          "t1": 22.3912
+        },
+        {
+          "text": "it",
+          "t0": 22.4001,
+          "t1": 22.4626
+        },
+        {
+          "text": "stop",
+          "t0": 22.4716,
+          "t1": 22.659
+        },
+        {
+          "text": "sooner.",
+          "t0": 22.668,
+          "t1": 22.9447
+        },
+        {
+          "text": "Meanwhile,",
+          "t0": 23.1926,
+          "t1": 23.6569
+        },
+        {
+          "text": "a",
+          "t0": 23.7104,
+          "t1": 23.7372
+        },
+        {
+          "text": "slower",
+          "t0": 23.7461,
+          "t1": 23.9961
+        },
+        {
+          "text": "heavy",
+          "t0": 24.0051,
+          "t1": 24.2194
+        },
+        {
+          "text": "round",
+          "t0": 24.2283,
+          "t1": 24.4604
+        },
+        {
+          "text": "glides",
+          "t0": 24.4693,
+          "t1": 24.7193
+        },
+        {
+          "text": "straight",
+          "t0": 24.7282,
+          "t1": 24.9961
+        },
+        {
+          "text": "past",
+          "t0": 25.005,
+          "t1": 25.2103
+        },
+        {
+          "text": "three",
+          "t0": 25.2193,
+          "t1": 25.4068
+        },
+        {
+          "text": "feet.",
+          "t0": 25.4157,
+          "t1": 25.6638
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "beat": "B6_SAFE",
+      "speaker": "narrator",
+      "text": "Dive just three feet under the surface, and a deadly rifle turns into harmless scrap metal.",
+      "t0": 26.15,
+      "t1": 29.7129,
+      "ratePct": 23,
+      "atempo": 1.0733,
+      "words": [
+        {
+          "text": "Dive",
+          "t0": 26.15,
+          "t1": 26.3415
+        },
+        {
+          "text": "just",
+          "t0": 26.351,
+          "t1": 26.5125
+        },
+        {
+          "text": "three",
+          "t0": 26.522,
+          "t1": 26.7309
+        },
+        {
+          "text": "feet",
+          "t0": 26.7404,
+          "t1": 26.9589
+        },
+        {
+          "text": "under",
+          "t0": 26.9684,
+          "t1": 27.1393
+        },
+        {
+          "text": "the",
+          "t0": 27.1488,
+          "t1": 27.2058
+        },
+        {
+          "text": "surface,",
+          "t0": 27.2153,
+          "t1": 27.5667
+        },
+        {
+          "text": "and",
+          "t0": 27.5857,
+          "t1": 27.7092
+        },
+        {
+          "text": "a",
+          "t0": 27.7187,
+          "t1": 27.7567
+        },
+        {
+          "text": "deadly",
+          "t0": 27.7662,
+          "t1": 28.0416
+        },
+        {
+          "text": "rifle",
+          "t0": 28.0511,
+          "t1": 28.3361
+        },
+        {
+          "text": "turns",
+          "t0": 28.3456,
+          "t1": 28.64
+        },
+        {
+          "text": "into",
+          "t0": 28.6494,
+          "t1": 28.8394
+        },
+        {
+          "text": "harmless",
+          "t0": 28.8489,
+          "t1": 29.2098
+        },
+        {
+          "text": "scrap",
+          "t0": 29.2193,
+          "t1": 29.4378
+        },
+        {
+          "text": "metal.",
+          "t0": 29.4472,
+          "t1": 29.7129
+        }
+      ]
+    }
+  ]
+}
