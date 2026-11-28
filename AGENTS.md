@@ -33,9 +33,11 @@ Never ship dark/black/squinted MPFB2 eyes or gaping jaws:
   - Replace refractive outer cornea BSDF with Camera-ray front-facing `LayerWeight(Fresnel, Blend=0.34)` mixing `Transparent BSDF` + ultra-crisp `Glossy BSDF(Roughness=0.014)` (`Backfacing` / non-camera rays -> pure `Transparent BSDF`).
 - **Softbox Eye Catchlight (`AREA`, NEVER tiny `POINT`)**:
   - Use a `0.42m` softbox `AREA` light (`52 W` day / `62 W` night, `diffuse_factor = 0.11–0.28` tuned to avoid cheek blowout, `specular_factor = 1.75–1.80`) aimed at eye height (`Z ≈ 1.62m`) via quaternion tracking. Tiny `0.08m` point lights are sub-pixel (`0.11 px`) and get erased by OIDN.
-- **Natural Eyelids & Jaw Limits**:
+- **Natural Eyelids, Jaw Limits & Clean Wardrobe/Arm Shrink (`passenger_character.py`)**:
   - Maintain a relaxed `-5.0°` upper-eyelid open baseline (`orbicularis03`); NEVER let smiles squint upper lids shut.
   - Clamp `jaw` rotation to `<= 14.0°` (typical speech `8.5°–9.5°`, shock/spit peak `10.5°`) with smile attenuation (`jaw_calm`) so mouths never gape unnaturally.
+  - Use clean closed-neck civilian garments (`mindfront_lusekofta.mhclo` + `mindfront_male_trousers_2.mhclo` + `toigo_ankle_boots_male.mhclo`) instead of `elvs_male_boho_top1.mhclo` (plunging V-neck) or stiff neck-brace meshes.
+  - Include `upperarm`/`lowerarm` (stop before `wrist`/`hand`/`neck`) in `UnderClothes_Shrink` (`-0.011` before `ARMATURE`) so flexed elbows never clip sleeves; unlock `use_connect = False` strictly inside `EDIT` mode (`edit_bones`).
 
 ---
 
@@ -51,8 +53,9 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
   - Use crisp readable glyph scale (`char_h_ndc >= 0.032–0.042`), ultra-subtle bevel (`bevel_depth <= 0.00025m` / `size_ref * 0.0025`, shallow extrusion `0.0018–0.0030m`), and airy tracking (`space_character = 1.08–1.12`) so letters never puff, merge, or turn blurry under denoising/upscaling.
   - Omit bloated thick `Keyline` meshes (`offset <= 0.015` max if needed) when text already sits on a high-contrast dark obsidian backing plaque (`>15:1` contrast).
   - Use `DejaVuSans-Bold.ttf` (bundled in `subtitles/fonts/`) with real math typography (`·`, `₁`, `₂`, `²`, `−`, `×`, `→`, `ε`, `Φ`, `ρ`). Verify every glyph exists in the font before rendering.
-- **Exact DOF Focus Plane & Zero Hand / Subtitle Overlap**:
+- **Exact DOF Focus Plane, Frameless Sightlines & Perpendicular Pointer Halo**:
   - Place floating 3D labels strictly on the **exact camera DOF focus plane (`focus_dist ± 0.15m`)** — NEVER push plaques far in front of the focus plane where lens bokeh blurs small text! When placing foreground UI callouts, keep `fstop >= 7.1` so labels and hero remain simultaneously razor-sharp, and clear of hands & subtitles (`NDC Y >= -0.45`).
+  - Omit opaque center mullions (`X=0`) on glass doors/windshields blocking faces; push `PointerSleeve` halo strictly **perpendicular** to pointer ray (`normalize(v_fwd - seg_dir * dot(v_fwd, seg_dir))`), never only along `+v_fwd`, so steep pointers glow clearly.
 
 ---
 
@@ -66,9 +69,11 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
   - Use `ShaderNodeAddShader` (`Emission` + `Transparent`) driven by `Camera Ray * (1 - Backfacing)` — NEVER high-opacity double-walled `MixShader` which turns beams into opaque pastel walls under AgX.
 - **Refractive & X-Ray Glass Shadow Bypass**:
   - Every `Transmission Weight > 0.5` glass prop or X-ray cutaway shell MUST route `LightPath.Is Shadow Ray -> Transparent BSDF` so Cycles (`caustics_refractive = False`) never casts solid black shadows or blocks internal light rays.
-- **`bmesh` Material Slot Preservation & Bounce Budget**:
-  - Always append materials to `mesh.materials` BEFORE `bm.to_mesh(mesh)` and NEVER call `mesh.materials.clear()` afterwards.
-  - Set `cycles.transparent_max_bounces >= 12` whenever layered X-ray shells + additive sparks + hair/corneas overlap.
+- **Hollow Fresnel X-Ray Body, Multi-Wall Cap & Blender 5.3 Node/Mesh Rules**:
+  - For internal skeleton/organ X-rays, fade **clothes (`Shirt`/`Pants`/`Shoes`) + hair/eyes/teeth 100% transparent**, and shade ONLY `Body` with **`AddShader(Transparent, Emission * CameraRay * (1 - Backfacing) * pow(LayerWeight.Facing, 3.8))`** (zero opaque center fill!) so internal skeletons shine vividly.
+  - Across enclosed glass/X-ray walls, cap flat panel glow `<= 0.24` (`front_glass` face `<= 0.14` rim-only) and turn cabin X-ray off (`0.0`) on grounded showcase finales; model spark bursts as curved 3D tapered tubes + ember spheres rather than flat open polygons.
+  - **Blender 5.3 `ShaderNodeMix` Trap**: Always index typed Mix sockets from `node.inputs[2:]` (or explicit `inputs[2], inputs[3]` for `FLOAT`, `inputs[6], inputs[7]` for `RGBA`) — NEVER `[s for s in node.inputs if s.type == "VALUE"]` which catches `Factor` (`inputs[0]`) and blacks out emission!
+  - Always append materials to `mesh.materials` BEFORE `bm.to_mesh(mesh)` (never `.clear()`), and set `cycles.transparent_max_bounces >= 16`.
 
 ---
 
@@ -77,6 +82,8 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
   - Whenever a prop transfers between an object, a character's hand/teeth, and ballistic flight (e.g., grenade pull-pin, thrown weapon, surgical suture), unparent it into World Space and drive exact phase handoffs from evaluated bone/vertex trajectories (`0.000mm` transition error), then cleanly hide detached debris with `CONSTANT` visibility keyframes once off-screen so it never reappears later.
 - **Hand-to-Prop Clearance**:
   - Audit every gesturing hand pose and cuff sleeve against nearby 3D props at peak frames so fingers/sleeves never slice through hero props.
+- **Fast Keyframe Schedule & Runtime Bounds Assertions**:
+  - Sample character IK/FK at `step=5` baseline + dense `1–3f` windows only on rapid cuts/impacts (`~450–550` keyframes, keeping scene build `< 75s`), and assert evaluated cab/enclosure bounds (`|x|`, `|y|`, `max_z`) at peak frames before rendering.
 - **Automated 6-Beat Sightline & Subtitle-Zone Check**:
   - Maintain `src/verify_framing.py` projecting every hero head, prop, 3D label, and action zone into 9:16 camera NDC (`[-1, 1]`) across all 6 beats, clear of the bottom subtitle zone (`NDC Y < -0.55`).
   - Every commit touching layout or camera MUST pass `python3 src/verify_framing.py` with **100% PASSED**.
@@ -117,19 +124,26 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
 
 ---
 
-## 8. Mandatory Local Frame-by-Frame Cycles Visual QA Before Every 4K Cloud Render
-Never push blind to Modal 4K — always run full QA first:
-1. `python3 -m py_compile` + AST undefined-name check on all Python files.
-2. `python3 src/verify_framing.py` (**100% PASSED** across all 6 beats + gimbal audit).
-3. Live `ffmpeg` 0.2s 4K filter-graph validation with bundled `subtitles/subtitles.ass` & `subtitles/fonts/`.
+## 8. Mandatory Modal 720p+ HD Visual QA Before Every 4K Cloud Render
+Never push blind to Modal 4K — run ALL checks first:
+1. `python -m compileall -q src` + AST undefined-name check on all Python files.
+2. `python src/verify_framing.py` (**100% PASSED**) + `python src/labels_3d.py` (**0 errors**).
+3. Live `ffmpeg` 0.2s 4K filter-graph validation with bundled `subtitles/subtitles.ass`, `subtitles/fonts/`, and `-c:a aac -b:a 320k -ar 48000`.
 4. Audio LUFS (`-14.0 ± 0.15 LUFS`) / True Peak (`<= -1.5 dBFS`) / duration / zero-truncation audit.
-5. **720p HD Full-Quality Cycles Visual Inspection on Modal (`Blender 5.3.0`, `scale=67%` → `>= 720p HD`, `samples=16`, OPTIX + GPU OIDN)**:
-   - NEVER rely on low-res `35%–45%` previews for final sign-off — always render QA verification frames at **`scale >= 67%` (`724×1286`, true `720p+` HD)** with **`samples >= 16` full quality** so every 3D text glyph edge, face/eye catchlight, shader detail, and contact seam is clearly caught.
-   - Render all 6 representative beat frames **PLUS a dense consecutive frame sequence of Beat 1's viral hook** (to verify acting, prop contact, swag timing, crisp readable text, and zero clipping).
+5. **720p HD Full-Quality Cycles Visual Inspection on Modal (`Blender 5.3.0`, `scale >= 67%` → `>= 724×1286` HD, `samples >= 16`, OPTIX + GPU OIDN)**:
+   - NEVER rely on low-res `35%–45%` previews for final sign-off — inspect at **`>= 720p` (`67%`) full quality (`16+` samples)** so every 3D glyph edge, face/eye catchlight, X-ray brightness, and contact seam is sharp and unmistakable.
+   - Render all 6 representative beat frames **PLUS a dense consecutive sequence of Beat 1's viral hook** (to verify acting, prop contact, timing, crisp readable text, and zero clipping).
    - Visually inspect **EVERY rendered HD frame with `read_file`**, fix any text blur or visual flaw immediately, re-verify at `720p` full quality, and ONLY THEN push & trigger the 10-GPU Modal 4K render!
 
 ---
 
 ## 9. Viral Shorts Roadmap Memory (`VIRAL_SHORTS_ROADMAP.md`)
 - The next 30 approved episode topics (hooks, X-ray money shots, viral triggers, folder names) live in [`VIRAL_SHORTS_ROADMAP.md`](VIRAL_SHORTS_ROADMAP.md).
-- When the user says "next video" / "next topic", pick the first `TODO` row, mark it `🟡 IN PROGRESS` when production starts and `✅ 4K` (with Release tag) once delivered — in the same commit.
+- When the user says "next video" / "next topic", pick the first `TODO` row, mark it `🟡 IN PROGRESS` when production starts and `✅ 4K (<tag>)` once delivered — in the same commit.
+
+---
+
+## 10. Pre-Push & Release Shipping Checklist
+- Delete intermediate audio stems (`voice_stem.wav`, `bgm_stem.wav`, `sfx_stem.wav`) keeping only `master_audio.wav` + `voice_manifest.json`; delete `src/__pycache__`.
+- Add concise episode `README.md` (6-beat table + 4K 60fps / 320k audio specs).
+- Trigger `.github/workflows/render-episode-4k.yml` (`workers=10`, `samples=16`, `upscale_4k=true`), verify `ffprobe` (`2160x3840`, `60/1`, `1800` frames, `30.0s`) and GitHub Release asset `<safe_name>_4k.mp4`, then update roadmap status to `✅ 4K`.
