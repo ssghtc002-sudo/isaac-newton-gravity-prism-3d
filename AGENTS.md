@@ -109,6 +109,10 @@ Never allow white-blown, blurry, washed-out, or hand-overlapped 3D typography:
 - **Default Pipeline = Modal 10-GPU Parallel Render (`Blender 5.3.0`, `4K 60fps`)**:
   - Render native **Full HD (`1080×1920`, `scale=100%`, `60 fps`, Blender `5.3.0` Cycles OPTIX + GPU OIDN)** across `10` parallel Modal GPUs (note: use `iter_action_fcurves()` for Blender 5.x Slotted Actions and skip `inputs[0..1]` when indexing `ShaderNodeMix` `VALUE` sockets).
   - Export **True 4K (`2160×3840`, `60 fps`)** Lanczos ARRI-Alexa finished MP4 (`libx264`, `High@L5.2` for full 4K@60fps compliance, `CRF 15`, `yuv420p`, `AAC 320k @ 48 kHz`, `-movflags +faststart` for instant mobile/Reels/Shorts playback).
+- **Mandatory `--draft-preview` Mode in Every New Episode (`~$0.25–$0.35` Motion & Audio Check)**:
+  - Every new episode's `src/build_*_scene.py` MUST support `--frame-step` (default `1`), and `render_on_modal.py` MUST support `--draft-preview` (default `False`).
+  - When `--draft-preview` (or workflow input `-f draft_preview=true`) is enabled: render at **`scale=67` (`724×1286`), `samples=8`, `--frame-step 2` (`30 fps`, `900` frames)** across `10` Modal GPUs, encode `h264` `30 fps` (`CRF 19`) muxed with full `48 kHz` `master_audio.wav` + `subtitles/subtitles.ass`, and output `<safe_name>_draft_720p.mp4` (`~$0.25–$0.35`, `~3–4 min` wall time) to GitHub Release tag `<episode-name>-draft`.
+  - NEVER render all `1800` frames (`60 fps`, `16 spp`) at 720p AND again at 4K — use `--draft-preview` (`~$0.25`) if full-video motion/sync playback check is wanted before spending on the single True 4K `60 fps` render (`~$1.35–$1.75`).
 - **Tightened ARRI-Alexa Bloom & Warm Container Cache**:
   - Use `scale=2160:3840:flags=lanczos` (NEVER invalid `:accurate_rnd=1` option!).
   - Highlight bloom: `eq=brightness=-0.52:contrast=2.8,gblur=sigma=22` blended with `screen:all_opacity=0.20` (1080p: `sigma=12`, `opacity=0.22`).
@@ -133,7 +137,7 @@ Never push blind to Modal 4K — run ALL checks first:
 5. **720p HD Full-Quality Cycles Visual Inspection on Modal (`Blender 5.3.0`, `scale >= 67%` → `>= 724×1286` HD, `samples >= 16`, OPTIX + GPU OIDN)**:
    - NEVER rely on low-res `35%–45%` previews for final sign-off — inspect at **`>= 720p` (`67%`) full quality (`16+` samples)** so every 3D glyph edge, face/eye catchlight, X-ray brightness, and contact seam is sharp and unmistakable.
    - Render all 6 representative beat frames **PLUS a dense consecutive sequence of Beat 1's viral hook** (to verify acting, prop contact, timing, crisp readable text, and zero clipping).
-   - Visually inspect **EVERY rendered HD frame with `read_file`**, fix any text blur or visual flaw immediately, re-verify at `720p` full quality, and ONLY THEN push & trigger the 10-GPU Modal 4K render!
+   - Visually inspect **EVERY rendered HD frame with `read_file`**, fix any text blur or visual flaw immediately, re-verify at `720p` full quality, and ONLY THEN push & trigger either the optional budget `--draft-preview` (`720p, 30fps, 8 spp`, `~$0.25`) MP4 check or the 10-GPU Modal 4K render!
 
 ---
 

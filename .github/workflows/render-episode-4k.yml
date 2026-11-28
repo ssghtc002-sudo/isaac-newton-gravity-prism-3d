@@ -23,6 +23,11 @@ on:
         required: false
         default: true
         type: boolean
+      draft_preview:
+        description: "Budget Draft Preview MP4 (~$0.25: 720p 30fps 8spp + audio & subs) before 4K"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -50,7 +55,14 @@ jobs:
         run: |
           EP="${{ inputs.episode }}"
           SAFE_NAME="$(echo "$EP" | tr '-' '_')"
-          if [ "${{ inputs.upscale_4k }}" = "false" ]; then
+          if [ "${{ inputs.draft_preview }}" = "true" ]; then
+            OUT_FILE="${SAFE_NAME}_draft_720p.mp4"
+            modal run "episodes/${EP}/render_on_modal.py" \
+              --workers "${{ inputs.workers }}" \
+              --draft-preview \
+              --out "$OUT_FILE"
+            EP_TAG="${EP}-draft"
+          elif [ "${{ inputs.upscale_4k }}" = "false" ]; then
             OUT_FILE="${SAFE_NAME}_1080p.mp4"
             modal run "episodes/${EP}/render_on_modal.py" \
               --workers "${{ inputs.workers }}" \
@@ -58,6 +70,7 @@ jobs:
               --scale 100 \
               --no-upscale-4k \
               --out "$OUT_FILE"
+            EP_TAG="${EP}-4k"
           else
             OUT_FILE="${SAFE_NAME}_4k.mp4"
             modal run "episodes/${EP}/render_on_modal.py" \
@@ -65,9 +78,10 @@ jobs:
               --samples "${{ inputs.samples }}" \
               --scale 100 \
               --out "$OUT_FILE"
+            EP_TAG="${EP}-4k"
           fi
           echo "OUT_FILE=$OUT_FILE" >> "$GITHUB_ENV"
-          echo "EP_TAG=${EP}-4k" >> "$GITHUB_ENV"
+          echo "EP_TAG=$EP_TAG" >> "$GITHUB_ENV"
           ls -lh "$OUT_FILE"
 
       - name: Publish direct mobile download on GitHub Releases
